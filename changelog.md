@@ -4,6 +4,16 @@ All notable changes for the OpenTT plugin.
 
 ## [Unreleased]
 
+### 2026-03-02
+
+#### Changed
+
+- Refactor Phase 1 completed: extracted shared read-only parse/format helpers from `STKB_Unified_Core` and shortcode trait into new `includes/class-stkb-unified-readonly-helpers.php`.
+- Refactor Phase 1: kept backward compatibility by preserving existing method signatures in `STKB_Unified_Core` and `STKB_Unified_Shortcodes_Trait` and delegating to the new helper class.
+- Refactor Phase 2 completed: extracted admin read-only UI/data helpers (dropdown builders, municipality/country option catalogs, country label/flag utilities, player index helpers) into new `includes/class-stkb-unified-admin-readonly-helpers.php`.
+- Refactor Phase 2: updated `STKB_Unified_Core` to delegate admin read-only helper methods to the new admin helper class without changing external behavior.
+- Reduced monolithic class size by moving non-mutating helper logic out of `includes/class-stkb-unified-core.php`.
+
 ### 2026-03-01
 
 #### Changed
