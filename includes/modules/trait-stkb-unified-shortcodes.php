@@ -2828,59 +2828,12 @@ trait STKB_Unified_Shortcodes_Trait
 
     private static function normalize_phone_for_href($raw_phone)
     {
-        $raw = trim((string) $raw_phone);
-        if ($raw === '') {
-            return '';
-        }
-
-        $raw = preg_replace('/\s+/', '', $raw);
-        if (strpos($raw, '00') === 0) {
-            $raw = '+' . substr($raw, 2);
-        }
-
-        $clean = preg_replace('/[^0-9+]/', '', $raw);
-        if ($clean === '') {
-            return '';
-        }
-
-        // Dozvoli samo jedan "+" i to na početku.
-        if (strpos($clean, '+') !== false) {
-            $clean = '+' . str_replace('+', '', $clean);
-        }
-
-        return $clean;
+        return STKB_Unified_Readonly_Helpers::normalize_phone_for_href($raw_phone);
     }
 
     private static function format_phone_for_display($raw_phone)
     {
-        $raw = trim((string) $raw_phone);
-        if ($raw === '') {
-            return '';
-        }
-
-        $digits = preg_replace('/\D/', '', $raw);
-        if ($digits === '') {
-            return $raw;
-        }
-
-        // +38160xxxxxxx / 38160xxxxxxx -> 060xxxxxxx
-        if (strpos($digits, '381') === 0) {
-            $digits = '0' . substr($digits, 3);
-        }
-
-        // Ako je unet bez početne nule (npr 601234567), dodaj 0.
-        if (strpos($digits, '0') !== 0 && strlen($digits) === 9) {
-            $digits = '0' . $digits;
-        }
-
-        // Tipičan mobilni format u RS: 0xx + 7 cifara => 060/123-45-67
-        if (preg_match('/^0\d{9}$/', $digits)) {
-            $prefix = substr($digits, 0, 3);
-            $rest = substr($digits, 3); // 7 cifara
-            return $prefix . '/' . substr($rest, 0, 3) . '-' . substr($rest, 3, 2) . '-' . substr($rest, 5, 2);
-        }
-
-        return $raw;
+        return STKB_Unified_Readonly_Helpers::format_phone_for_display($raw_phone);
     }
 
     public static function shortcode_show_match_teams($atts = [])
@@ -3940,14 +3893,7 @@ trait STKB_Unified_Shortcodes_Trait
 
     private static function season_sort_key($season_slug)
     {
-        $season_slug = sanitize_title((string) $season_slug);
-        if (preg_match('/^(\d{4})-(\d{2,4})$/', $season_slug, $m)) {
-            return intval($m[1]);
-        }
-        if (preg_match('/(\d{4})/', $season_slug, $m)) {
-            return intval($m[1]);
-        }
-        return 0;
+        return STKB_Unified_Readonly_Helpers::season_sort_key($season_slug);
     }
 
     private static function build_player_stints($history)
@@ -5316,28 +5262,12 @@ trait STKB_Unified_Shortcodes_Trait
 
     private static function display_match_date($match_date)
     {
-        $match_date = (string) $match_date;
-        if ($match_date === '' || $match_date === '0000-00-00 00:00:00') {
-            return '';
-        }
-        $ts = strtotime($match_date);
-        if ($ts === false) {
-            return '';
-        }
-        return date_i18n('d.m.Y.', $ts);
+        return STKB_Unified_Readonly_Helpers::display_match_date($match_date);
     }
 
     private static function display_match_date_long($match_date)
     {
-        $match_date = (string) $match_date;
-        if ($match_date === '' || $match_date === '0000-00-00 00:00:00') {
-            return '';
-        }
-        $ts = strtotime($match_date);
-        if ($ts === false) {
-            return '';
-        }
-        return date_i18n('d. F Y.', $ts);
+        return STKB_Unified_Readonly_Helpers::display_match_date_long($match_date);
     }
 
     private static function kolo_name_from_slug($slug)
@@ -5355,17 +5285,7 @@ trait STKB_Unified_Shortcodes_Trait
 
     private static function extract_round_no($kolo_slug)
     {
-        $kolo_slug = (string) $kolo_slug;
-        if ($kolo_slug === '') {
-            return 0;
-        }
-        if (preg_match('/^([0-9]+)/', $kolo_slug, $m)) {
-            return intval($m[1]);
-        }
-        if (preg_match('/([0-9]+)/', $kolo_slug, $m)) {
-            return intval($m[1]);
-        }
-        return 0;
+        return STKB_Unified_Readonly_Helpers::extract_round_no($kolo_slug);
     }
 
     private static function render_lp2_player($player_id)
