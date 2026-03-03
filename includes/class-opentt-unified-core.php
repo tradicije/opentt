@@ -5486,17 +5486,6 @@ HTML;
         return \OpenTT\Unified\WordPress\AdminNoticeManager::buildUrl($url, $type, $message);
     }
 
-    private static function has_any_competition_rules()
-    {
-        $rows = get_posts([
-            'post_type' => 'pravilo_takmicenja',
-            'numberposts' => 1,
-            'post_status' => ['publish', 'draft', 'pending', 'private'],
-            'fields' => 'ids',
-        ]);
-        return !empty($rows);
-    }
-
     public static function get_competition_rule_data($liga_slug, $sezona_slug)
     {
         $liga_slug = sanitize_title((string) $liga_slug);
@@ -5779,7 +5768,7 @@ HTML;
 
             // NEDOSTAJUĆI liga/sezona entiteti nisu blokirajući problem:
             // upravo ih kreira korak "Migriraj legacy liga/sezona slugove".
-            if ($sezona !== '' && self::has_any_competition_rules() && !\OpenTT\Unified\WordPress\CompetitionRuleStore::findBySlugs($liga, $sezona)) {
+            if ($sezona !== '' && \OpenTT\Unified\WordPress\CompetitionRuleCatalog::hasAnyRules() && !\OpenTT\Unified\WordPress\CompetitionRuleStore::findBySlugs($liga, $sezona)) {
                 self::push_issue(
                     $issues,
                     $max_issues,
@@ -5810,41 +5799,17 @@ HTML;
 
     public static function competition_federation_options()
     {
-        return [
-            'STSS' => [
-                'label' => 'STSS',
-                'url' => 'https://stss.rs',
-            ],
-            'STSV' => [
-                'label' => 'STSV',
-                'url' => 'https://stsv.rs',
-            ],
-            'RSTSN' => [
-                'label' => 'RSTSN',
-                'url' => 'https://regionnis.rs',
-            ],
-            'SSKCR' => [
-                'label' => 'SSKCR',
-                'url' => 'https://centralniregion.com',
-            ],
-        ];
+        return \OpenTT\Unified\WordPress\CompetitionRuleCatalog::federationOptions();
     }
 
     public static function normalize_competition_federation($code)
     {
-        $code = strtoupper(trim((string) $code));
-        $opts = self::competition_federation_options();
-        return isset($opts[$code]) ? $code : '';
+        return \OpenTT\Unified\WordPress\CompetitionRuleCatalog::normalizeFederation($code);
     }
 
     public static function competition_federation_data($code)
     {
-        $code = self::normalize_competition_federation($code);
-        if ($code === '') {
-            return null;
-        }
-        $opts = self::competition_federation_options();
-        return isset($opts[$code]) ? $opts[$code] : null;
+        return \OpenTT\Unified\WordPress\CompetitionRuleCatalog::federationData($code);
     }
 
     private static function season_belongs_to_league($season_slug, $league_slug)
@@ -5901,8 +5866,7 @@ HTML;
 
     private static function competition_rule_id_by_slugs($liga_slug, $sezona_slug)
     {
-        $post = \OpenTT\Unified\WordPress\CompetitionRuleStore::findBySlugs($liga_slug, $sezona_slug);
-        return $post ? (int) $post->ID : 0;
+        return \OpenTT\Unified\WordPress\CompetitionRuleCatalog::ruleIdBySlugs($liga_slug, $sezona_slug);
     }
 
     private static function competition_rules_dropdown_admin($name, $selected_id, $required = true)
