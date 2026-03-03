@@ -1,4 +1,6 @@
-# OpenTT
+<p align="center">
+  <img src="opentt-logo.png" alt="OpenTT logo" width="200" />
+</p>
 
 **OpenTT** is a free and open WordPress plugin for managing, displaying, and archiving table tennis competitions: matches, clubs, players, and statistics in one unified system.
 

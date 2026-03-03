@@ -11,6 +11,7 @@ All notable changes for the OpenTT plugin.
 - Refactor Phase 3 (part 1): extracted shortcode match read/query methods into new `includes/class-stkb-unified-shortcode-match-query-service.php`.
 - Refactor Phase 3 (part 1): moved DB read-only methods for matches/games/sets and lookup helpers (`db_get_matches`, `db_get_match_by_legacy_id`, `db_get_match_by_keys`, `db_get_h2h_matches`, `db_get_games_for_match_id`, `db_get_sets_for_game_id`, `db_get_latest_liga_for_club`) from shortcode trait to the new service via delegations.
 - Wired the new shortcode match query service into core bootstrap includes.
+- Updated `readme.md` and `readme-sr.md`: removed top-level `# OpenTT` heading and added centered root logo (`opentt-logo.png`) at the top.
 
 ### 2026-03-02
 

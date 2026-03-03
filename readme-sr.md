@@ -1,4 +1,6 @@
-# OpenTT
+<p align="center">
+  <img src="opentt-logo.png" alt="OpenTT logo" width="200" />
+</p>
 
 **OpenTT** je slobodan i otvoren WordPress plugin namenjen vođenju, prikazu i arhiviranju stonoteniskih takmičenja: utakmica, klubova, igrača i statistika u jednom objedinjenom sistemu.
 
