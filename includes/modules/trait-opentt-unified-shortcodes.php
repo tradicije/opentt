@@ -15,7 +15,7 @@ trait OpenTT_Unified_Shortcodes_Trait
         if (class_exists('OpenTT_Unified_Core') && method_exists('OpenTT_Unified_Core', 'should_show_shortcode_titles') && !OpenTT_Unified_Core::should_show_shortcode_titles()) {
             return '';
         }
-        return '<h3 class="stkb-shortcode-title">' . esc_html($title) . '</h3>';
+        return '<h3 class="opentt-shortcode-title">' . esc_html($title) . '</h3>';
     }
 
     public static function shortcode_matches_grid($atts)
@@ -85,9 +85,9 @@ trait OpenTT_Unified_Shortcodes_Trait
 
             ob_start();
             echo self::shortcode_title_html('Utakmice');
-            echo '<div class="stkb-kolo-filter-wrap">';
-            echo '<label for="stkb-kolo">Izaberi kolo:</label>';
-            echo '<select id="stkb-kolo" onchange="stkbFilterKoloChange(this)">';
+            echo '<div class="opentt-kolo-filter-wrap">';
+            echo '<label for="opentt-kolo">Izaberi kolo:</label>';
+            echo '<select id="opentt-kolo" onchange="stkbFilterKoloChange(this)">';
             echo '<option value="">Sva kola</option>';
             foreach ($options as $opt) {
                 echo '<option value="' . esc_attr($opt['slug']) . '">' . esc_html($opt['name']) . '</option>';
@@ -99,7 +99,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             <script>
             function stkbFilterKoloChange(sel) {
                 var selected = sel.value;
-                var items = document.querySelectorAll('.stkb-item');
+                var items = document.querySelectorAll('.opentt-item');
                 items.forEach(function(it){
                     var slug = it.getAttribute('data-kolo-slug') || '';
                     it.style.display = (!selected || slug === selected) ? 'block' : 'none';
@@ -193,12 +193,12 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return ($b_k <=> $a_k) ?: ($b_ts <=> $a_ts);
             });
 
-            $uid = 'stkb-grid-' . wp_unique_id();
+            $uid = 'opentt-grid-' . wp_unique_id();
 
             ob_start();
             echo self::shortcode_title_html('Utakmice');
-            echo '<div id="' . esc_attr($uid) . '" class="stkb-grid-filter-block">';
-            echo '<form method="get" class="stkb-grid-filters">';
+            echo '<div id="' . esc_attr($uid) . '" class="opentt-grid-filter-block">';
+            echo '<form method="get" class="opentt-grid-filters">';
             foreach ($_GET as $k => $v) {
                 $k = (string) $k;
                 if (in_array($k, ['stkb_kolo', 'stkb_klub', 'stkb_sort'], true)) {
@@ -209,32 +209,32 @@ trait OpenTT_Unified_Shortcodes_Trait
                 }
                 echo '<input type="hidden" name="' . esc_attr($k) . '" value="' . esc_attr((string) wp_unslash($v)) . '">';
             }
-            echo '<label>Kolo <select name="stkb_kolo" class="stkb-grid-filter-kolo" onchange="this.form.submit()"><option value="">Sva kola</option>';
+            echo '<label>Kolo <select name="stkb_kolo" class="opentt-grid-filter-kolo" onchange="this.form.submit()"><option value="">Sva kola</option>';
             foreach ($kolo_options as $opt) {
                 echo '<option value="' . esc_attr((string) $opt['slug']) . '" ' . selected($selected_kolo, (string) $opt['slug'], false) . '>' . esc_html((string) $opt['name']) . '</option>';
             }
             echo '</select></label>';
 
-            echo '<label>Klub <select name="stkb_klub" class="stkb-grid-filter-club" onchange="this.form.submit()"><option value="">Svi klubovi</option>';
+            echo '<label>Klub <select name="stkb_klub" class="opentt-grid-filter-club" onchange="this.form.submit()"><option value="">Svi klubovi</option>';
             foreach ($club_options as $opt) {
                 echo '<option value="' . esc_attr((string) $opt['id']) . '" ' . selected($selected_club, intval($opt['id']), false) . '>' . esc_html((string) $opt['name']) . '</option>';
             }
             echo '</select></label>';
 
-            echo '<label>Sortiranje <select name="stkb_sort" class="stkb-grid-filter-sort" onchange="this.form.submit()">';
+            echo '<label>Sortiranje <select name="stkb_sort" class="opentt-grid-filter-sort" onchange="this.form.submit()">';
             echo '<option value="kolo_desc" ' . selected($selected_sort, 'kolo_desc', false) . '>Kolo: najnovije</option>';
             echo '<option value="kolo_asc" ' . selected($selected_sort, 'kolo_asc', false) . '>Kolo: najstarije</option>';
             echo '<option value="date_desc" ' . selected($selected_sort, 'date_desc', false) . '>Datum: najnovije</option>';
             echo '<option value="date_asc" ' . selected($selected_sort, 'date_asc', false) . '>Datum: najstarije</option>';
             echo '</select></label>';
             if ($selected_kolo !== '' || $selected_club > 0 || isset($_GET['stkb_sort'])) {
-                echo '<a class="button stkb-grid-filter-reset" href="' . esc_url(remove_query_arg(['stkb_kolo', 'stkb_klub', 'stkb_sort'])) . '">Reset</a>';
+                echo '<a class="button opentt-grid-filter-reset" href="' . esc_url(remove_query_arg(['stkb_kolo', 'stkb_klub', 'stkb_sort'])) . '">Reset</a>';
             }
             echo '</form>';
 
             echo self::render_matches_grid_html($rows, $columns, true);
             if ($infinite_mode) {
-                echo '<div class="stkb-grid-sentinel" aria-hidden="true"></div>';
+                echo '<div class="opentt-grid-sentinel" aria-hidden="true"></div>';
             }
             echo '</div>';
             ?>
@@ -244,17 +244,17 @@ trait OpenTT_Unified_Shortcodes_Trait
                 function init() {
                     var root = document.getElementById(rootId);
                     if (!root) { return false; }
-                    var koloSelect = root.querySelector('.stkb-grid-filter-kolo');
-                    var clubSelect = root.querySelector('.stkb-grid-filter-club');
-                    var sortSelect = root.querySelector('.stkb-grid-filter-sort');
-                    var grid = root.querySelector('.stkb-grid');
+                    var koloSelect = root.querySelector('.opentt-grid-filter-kolo');
+                    var clubSelect = root.querySelector('.opentt-grid-filter-club');
+                    var sortSelect = root.querySelector('.opentt-grid-filter-sort');
+                    var grid = root.querySelector('.opentt-grid');
                     if (!grid) { return false; }
-                    var sentinel = root.querySelector('.stkb-grid-sentinel');
+                    var sentinel = root.querySelector('.opentt-grid-sentinel');
                     var infiniteEnabled = <?php echo $infinite_mode ? 'true' : 'false'; ?>;
                     var chunkSize = <?php echo intval($chunk_size); ?>;
                     var visibleCount = chunkSize;
                     var observer = null;
-                    var allItems = Array.prototype.slice.call(grid.querySelectorAll('.stkb-item'));
+                    var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-item'));
 
                     function getNum(val) {
                         var n = parseInt(val || '0', 10);
@@ -349,24 +349,24 @@ trait OpenTT_Unified_Shortcodes_Trait
         }
 
         if ($infinite_mode) {
-            $uid = 'stkb-grid-' . wp_unique_id();
+            $uid = 'opentt-grid-' . wp_unique_id();
             ob_start();
             echo self::shortcode_title_html('Utakmice');
-            echo '<div id="' . esc_attr($uid) . '" class="stkb-grid-infinite-block">';
+            echo '<div id="' . esc_attr($uid) . '" class="opentt-grid-infinite-block">';
             echo self::render_matches_grid_html($rows, $columns, false);
-            echo '<div class="stkb-grid-sentinel" aria-hidden="true"></div>';
+            echo '<div class="opentt-grid-sentinel" aria-hidden="true"></div>';
             echo '</div>';
             ?>
             <script>
             (function(){
                 var root = document.getElementById('<?php echo esc_js($uid); ?>');
                 if (!root) { return; }
-                var grid = root.querySelector('.stkb-grid');
-                var sentinel = root.querySelector('.stkb-grid-sentinel');
+                var grid = root.querySelector('.opentt-grid');
+                var sentinel = root.querySelector('.opentt-grid-sentinel');
                 if (!grid || !sentinel) { return; }
                 var chunkSize = <?php echo intval($chunk_size); ?>;
                 var visibleCount = chunkSize;
-                var allItems = Array.prototype.slice.call(grid.querySelectorAll('.stkb-item'));
+                var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-item'));
 
                 function render() {
                     allItems.forEach(function(item){ item.style.display = 'none'; });
@@ -424,7 +424,7 @@ trait OpenTT_Unified_Shortcodes_Trait
 
         ob_start();
         echo self::shortcode_title_html('Utakmice lista');
-        echo '<ul class="stkb-list">';
+        echo '<ul class="opentt-list">';
         foreach ($rows as $row) {
             $home_id = intval($row->home_club_post_id);
             $away_id = intval($row->away_club_post_id);
@@ -517,11 +517,11 @@ trait OpenTT_Unified_Shortcodes_Trait
             }
 
             $logo_html = self::club_logo_html($club_id, 'thumbnail', [
-                'class' => 'stkb-klubovi-logo',
+                'class' => 'opentt-klubovi-logo',
                 'loading' => 'lazy',
             ]);
             if (!is_string($logo_html) || trim($logo_html) === '') {
-                $logo_html = '<span class="stkb-klubovi-logo-fallback" aria-hidden="true">🏓</span>';
+                $logo_html = '<span class="opentt-klubovi-logo-fallback" aria-hidden="true">🏓</span>';
             }
 
             $rows[] = [
@@ -597,11 +597,11 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::shortcode_title_html('Klubovi') . '<p>Nema klubova za zadate filtere.</p>';
             }
 
-            $uid = 'stkb-klubovi-' . wp_unique_id();
+            $uid = 'opentt-klubovi-' . wp_unique_id();
             ob_start();
             echo self::shortcode_title_html('Klubovi');
-            echo '<div id="' . esc_attr($uid) . '" class="stkb-klubovi-block">';
-            echo '<form method="get" class="stkb-grid-filters">';
+            echo '<div id="' . esc_attr($uid) . '" class="opentt-klubovi-block">';
+            echo '<form method="get" class="opentt-grid-filters">';
             foreach ($_GET as $k => $v) {
                 $k = (string) $k;
                 if (in_array($k, ['stkb_klub_liga', 'stkb_klub_opstina', 'stkb_klub_sort'], true)) {
@@ -629,13 +629,13 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '<option value="name_desc"' . selected($selected_sort, 'name_desc', false) . '>Ime: Z-A</option>';
             echo '</select></label>';
             if ($selected_liga !== '' || $selected_opstina !== '' || isset($_GET['stkb_klub_sort'])) {
-                echo '<a class="button stkb-grid-filter-reset" href="' . esc_url(remove_query_arg(['stkb_klub_liga', 'stkb_klub_opstina', 'stkb_klub_sort'])) . '">Reset</a>';
+                echo '<a class="button opentt-grid-filter-reset" href="' . esc_url(remove_query_arg(['stkb_klub_liga', 'stkb_klub_opstina', 'stkb_klub_sort'])) . '">Reset</a>';
             }
             echo '</form>';
 
             echo self::render_clubs_grid_html($rows, $columns, false);
             if ($infinite_mode) {
-                echo '<div class="stkb-klubovi-sentinel" aria-hidden="true"></div>';
+                echo '<div class="opentt-klubovi-sentinel" aria-hidden="true"></div>';
             }
             echo '</div>';
             if ($infinite_mode) {
@@ -644,12 +644,12 @@ trait OpenTT_Unified_Shortcodes_Trait
                 (function(){
                     var root = document.getElementById('<?php echo esc_js($uid); ?>');
                     if (!root) { return; }
-                    var grid = root.querySelector('.stkb-klubovi-grid');
-                    var sentinel = root.querySelector('.stkb-klubovi-sentinel');
+                    var grid = root.querySelector('.opentt-klubovi-grid');
+                    var sentinel = root.querySelector('.opentt-klubovi-sentinel');
                     if (!grid || !sentinel) { return; }
                     var chunkSize = <?php echo intval($chunk_size); ?>;
                     var visibleCount = chunkSize;
-                    var allItems = Array.prototype.slice.call(grid.querySelectorAll('.stkb-klubovi-item'));
+                    var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-klubovi-item'));
 
                     function render() {
                         allItems.forEach(function(item){ item.style.display = 'none'; });
@@ -689,24 +689,24 @@ trait OpenTT_Unified_Shortcodes_Trait
         }
 
         if ($infinite_mode) {
-            $uid = 'stkb-klubovi-' . wp_unique_id();
+            $uid = 'opentt-klubovi-' . wp_unique_id();
             ob_start();
             echo self::shortcode_title_html('Klubovi');
-            echo '<div id="' . esc_attr($uid) . '" class="stkb-klubovi-block">';
+            echo '<div id="' . esc_attr($uid) . '" class="opentt-klubovi-block">';
             echo self::render_clubs_grid_html($rows, $columns, false);
-            echo '<div class="stkb-klubovi-sentinel" aria-hidden="true"></div>';
+            echo '<div class="opentt-klubovi-sentinel" aria-hidden="true"></div>';
             echo '</div>';
             ?>
             <script>
             (function(){
                 var root = document.getElementById('<?php echo esc_js($uid); ?>');
                 if (!root) { return; }
-                var grid = root.querySelector('.stkb-klubovi-grid');
-                var sentinel = root.querySelector('.stkb-klubovi-sentinel');
+                var grid = root.querySelector('.opentt-klubovi-grid');
+                var sentinel = root.querySelector('.opentt-klubovi-sentinel');
                 if (!grid || !sentinel) { return; }
                 var chunkSize = <?php echo intval($chunk_size); ?>;
                 var visibleCount = chunkSize;
-                var allItems = Array.prototype.slice.call(grid.querySelectorAll('.stkb-klubovi-item'));
+                var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-klubovi-item'));
 
                 function render() {
                     allItems.forEach(function(item){ item.style.display = 'none'; });
@@ -1767,13 +1767,13 @@ trait OpenTT_Unified_Shortcodes_Trait
         $limit = max(1, min(10, intval($atts['limit'])));
         $rows = self::db_get_recent_club_matches($club_id, $limit);
         if (empty($rows)) {
-            return self::shortcode_title_html('Forma kluba') . '<div class="stkb-forma-kluba"><p>Nema odigranih utakmica za formu kluba.</p></div>';
+            return self::shortcode_title_html('Forma kluba') . '<div class="opentt-forma-kluba"><p>Nema odigranih utakmica za formu kluba.</p></div>';
         }
 
         ob_start();
         echo self::shortcode_title_html('Forma kluba');
-        echo '<div class="stkb-forma-kluba">';
-        echo '<div class="stkb-forma-kluba-list">';
+        echo '<div class="opentt-forma-kluba">';
+        echo '<div class="opentt-forma-kluba-list">';
         foreach ($rows as $row) {
             $is_home = intval($row->home_club_post_id) === $club_id;
             $for_score = $is_home ? intval($row->home_score) : intval($row->away_score);
@@ -1794,28 +1794,28 @@ trait OpenTT_Unified_Shortcodes_Trait
             $date = self::display_match_date((string) $row->match_date);
             $link = self::match_permalink($row);
 
-            echo '<a class="stkb-forma-item ' . esc_attr($class) . '" href="' . esc_url($link) . '" title="' . esc_attr($home_name . ' - ' . $away_name . ' • ' . $date . ' • ' . $status) . '">';
-            echo '<span class="stkb-forma-main">';
-            echo '<span class="stkb-forma-line">';
-            echo '<span class="stkb-forma-team stkb-forma-home ' . esc_attr($home_team_class) . '">';
-            echo '<span class="stkb-forma-logo">' . ($home_logo ?: '') . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo '<span class="stkb-forma-name">' . esc_html($home_name) . '</span>';
+            echo '<a class="opentt-forma-item ' . esc_attr($class) . '" href="' . esc_url($link) . '" title="' . esc_attr($home_name . ' - ' . $away_name . ' • ' . $date . ' • ' . $status) . '">';
+            echo '<span class="opentt-forma-main">';
+            echo '<span class="opentt-forma-line">';
+            echo '<span class="opentt-forma-team opentt-forma-home ' . esc_attr($home_team_class) . '">';
+            echo '<span class="opentt-forma-logo">' . ($home_logo ?: '') . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<span class="opentt-forma-name">' . esc_html($home_name) . '</span>';
             echo '</span>';
-            echo '<span class="stkb-forma-score ' . esc_attr($home_team_class) . '">' . esc_html((string) intval($row->home_score)) . '</span>';
-            echo '</span>';
-
-            echo '<span class="stkb-forma-line">';
-            echo '<span class="stkb-forma-team stkb-forma-away ' . esc_attr($away_team_class) . '">';
-            echo '<span class="stkb-forma-logo">' . ($away_logo ?: '') . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo '<span class="stkb-forma-name">' . esc_html($away_name) . '</span>';
-            echo '</span>';
-            echo '<span class="stkb-forma-score ' . esc_attr($away_team_class) . '">' . esc_html((string) intval($row->away_score)) . '</span>';
-            echo '</span>';
+            echo '<span class="opentt-forma-score ' . esc_attr($home_team_class) . '">' . esc_html((string) intval($row->home_score)) . '</span>';
             echo '</span>';
 
-            echo '<span class="stkb-forma-side">';
-            echo '<span class="stkb-forma-separator"></span>';
-            echo '<span class="stkb-forma-status">' . esc_html($status) . '</span>';
+            echo '<span class="opentt-forma-line">';
+            echo '<span class="opentt-forma-team opentt-forma-away ' . esc_attr($away_team_class) . '">';
+            echo '<span class="opentt-forma-logo">' . ($away_logo ?: '') . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<span class="opentt-forma-name">' . esc_html($away_name) . '</span>';
+            echo '</span>';
+            echo '<span class="opentt-forma-score ' . esc_attr($away_team_class) . '">' . esc_html((string) intval($row->away_score)) . '</span>';
+            echo '</span>';
+            echo '</span>';
+
+            echo '<span class="opentt-forma-side">';
+            echo '<span class="opentt-forma-separator"></span>';
+            echo '<span class="opentt-forma-status">' . esc_html($status) . '</span>';
             echo '</span>';
             echo '</a>';
         }
@@ -1917,17 +1917,17 @@ trait OpenTT_Unified_Shortcodes_Trait
                 }
             }
         }
-        $ranking_uid = 'stkb-player-ranking-' . wp_unique_id();
+        $ranking_uid = 'opentt-player-ranking-' . wp_unique_id();
 
-        $uid = 'stkb-player-stats-' . wp_unique_id();
+        $uid = 'opentt-player-stats-' . wp_unique_id();
 
         ob_start();
-        echo '<div id="' . esc_attr($uid) . '" class="stkb-stat-igraca">';
+        echo '<div id="' . esc_attr($uid) . '" class="opentt-stat-igraca">';
         echo self::shortcode_title_html('Statistika igrača');
         if ($enable_filter && !empty($season_options)) {
-            echo '<div class="stkb-stat-igraca-filter">';
+            echo '<div class="opentt-stat-igraca-filter">';
             echo '<label>Sezona ';
-            echo '<select class="stkb-stat-igraca-season">';
+            echo '<select class="opentt-stat-igraca-season">';
             echo '<option value="">Ukupno</option>';
             foreach ($season_options as $opt) {
                 echo '<option value="' . esc_attr((string) $opt) . '" ' . selected($selected_season, (string) $opt, false) . '>' . esc_html(self::season_display_name((string) $opt)) . '</option>';
@@ -1937,27 +1937,27 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '</div>';
         }
 
-        echo '<div class="stkb-stat-igraca-meta">Period: <strong>' . esc_html($season_label) . '</strong></div>';
-        echo '<div class="stkb-stat-igraca-cards">';
-        echo '<div class="stkb-stat-card"><span class="k">Pobede</span><strong class="v">' . intval($stats['wins']) . '</strong></div>';
-        echo '<div class="stkb-stat-card"><span class="k">Porazi</span><strong class="v">' . intval($stats['losses']) . '</strong></div>';
-        echo '<div class="stkb-stat-card"><span class="k">Uspešnost</span><strong class="v">' . esc_html((string) $pct) . '%</strong></div>';
-        echo '<div class="stkb-stat-card"><span class="k">Igrač utakmice</span><strong class="v">' . intval($mvp_count) . '</strong></div>';
+        echo '<div class="opentt-stat-igraca-meta">Period: <strong>' . esc_html($season_label) . '</strong></div>';
+        echo '<div class="opentt-stat-igraca-cards">';
+        echo '<div class="opentt-stat-card"><span class="k">Pobede</span><strong class="v">' . intval($stats['wins']) . '</strong></div>';
+        echo '<div class="opentt-stat-card"><span class="k">Porazi</span><strong class="v">' . intval($stats['losses']) . '</strong></div>';
+        echo '<div class="opentt-stat-card"><span class="k">Uspešnost</span><strong class="v">' . esc_html((string) $pct) . '%</strong></div>';
+        echo '<div class="opentt-stat-card"><span class="k">Igrač utakmice</span><strong class="v">' . intval($mvp_count) . '</strong></div>';
         echo '</div>';
 
-        echo '<div class="stkb-stat-igraca-rang-wrap">';
-        echo '<div class="stkb-stat-igraca-rang-head">';
-        echo '<h4 class="stkb-stat-igraca-rang-title">Skraćena rang lista</h4>';
+        echo '<div class="opentt-stat-igraca-rang-wrap">';
+        echo '<div class="opentt-stat-igraca-rang-head">';
+        echo '<h4 class="opentt-stat-igraca-rang-title">Skraćena rang lista</h4>';
         if ($ranking_season !== '') {
-            echo '<div class="stkb-stat-igraca-rang-season">Sezona: ' . esc_html(self::season_display_name($ranking_season)) . '</div>';
+            echo '<div class="opentt-stat-igraca-rang-season">Sezona: ' . esc_html(self::season_display_name($ranking_season)) . '</div>';
         }
         if (!empty($ranking_rows) && $player_rank > 0) {
-            echo '<button type="button" class="stkb-stat-igraca-toggle" data-target="' . esc_attr($ranking_uid) . '" data-open-text="Vidi celu rang listu" data-close-text="Sakrij celu rang listu">Vidi celu rang listu</button>';
+            echo '<button type="button" class="opentt-stat-igraca-toggle" data-target="' . esc_attr($ranking_uid) . '" data-open-text="Vidi celu rang listu" data-close-text="Sakrij celu rang listu">Vidi celu rang listu</button>';
         }
         echo '</div>';
         if (!empty($ranking_slice) && $player_rank > 0) {
-            echo '<div class="stkb-stat-igraca-rang-short" id="' . esc_attr($ranking_uid . '-short') . '">';
-            echo '<div class="top-igraci-list stkb-stat-igraca-rang-list">';
+            echo '<div class="opentt-stat-igraca-rang-short" id="' . esc_attr($ranking_uid . '-short') . '">';
+            echo '<div class="top-igraci-list opentt-stat-igraca-rang-list">';
             foreach ($ranking_slice as $rr) {
                 $pid = intval($rr['player_id']);
                 $rank = intval($rr['rank']);
@@ -1969,8 +1969,8 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '</div>';
             echo '</div>';
 
-            echo '<div id="' . esc_attr($ranking_uid) . '" class="stkb-stat-igraca-rang-full" hidden>';
-            echo '<div class="top-igraci-list stkb-stat-igraca-rang-list">';
+            echo '<div id="' . esc_attr($ranking_uid) . '" class="opentt-stat-igraca-rang-full" hidden>';
+            echo '<div class="top-igraci-list opentt-stat-igraca-rang-list">';
             foreach ($ranking_rows as $rr) {
                 $pid = intval($rr['player_id']);
                 $rank = intval($rr['rank']);
@@ -1982,7 +1982,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '</div>';
             echo '</div>';
         } else {
-            echo '<div class="stkb-stat-igraca-rang-empty">Nema dovoljno podataka za prikaz rang liste.</div>';
+            echo '<div class="opentt-stat-igraca-rang-empty">Nema dovoljno podataka za prikaz rang liste.</div>';
         }
         echo '</div>';
         echo '</div>';
@@ -1993,7 +1993,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             (function(){
                 var root = document.getElementById('<?php echo esc_js($uid); ?>');
                 if (!root) { return; }
-                var sel = root.querySelector('.stkb-stat-igraca-season');
+                var sel = root.querySelector('.opentt-stat-igraca-season');
                 if (!sel) { return; }
                 sel.addEventListener('change', function(){
                     var url = new URL(window.location.href);
@@ -2005,7 +2005,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                     window.location.href = url.toString();
                 });
 
-                var toggle = root.querySelector('.stkb-stat-igraca-toggle');
+                var toggle = root.querySelector('.opentt-stat-igraca-toggle');
                 if (toggle) {
                     toggle.addEventListener('click', function(){
                         var targetId = toggle.getAttribute('data-target');
@@ -2034,7 +2034,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             (function(){
                 var root = document.getElementById('<?php echo esc_js($uid); ?>');
                 if (!root) { return; }
-                var toggle = root.querySelector('.stkb-stat-igraca-toggle');
+                var toggle = root.querySelector('.opentt-stat-igraca-toggle');
                 if (!toggle) { return; }
                 toggle.addEventListener('click', function(){
                     var targetId = toggle.getAttribute('data-target');
@@ -2134,8 +2134,8 @@ trait OpenTT_Unified_Shortcodes_Trait
         $standings_slice = [];
         $club_rank = 0;
         $table_label = '';
-        $table_uid = 'stkb-team-table-' . wp_unique_id();
-        $table_short_uid = 'stkb-team-table-short-' . wp_unique_id();
+        $table_uid = 'opentt-team-table-' . wp_unique_id();
+        $table_short_uid = 'opentt-team-table-short-' . wp_unique_id();
         if ($table_liga_slug !== '') {
             $standings = self::db_build_standings_for_competition($table_liga_slug, $table_sezona_slug, null);
             if (!empty($standings)) {
@@ -2153,47 +2153,47 @@ trait OpenTT_Unified_Shortcodes_Trait
         $table_releg_playoff = is_array($table_rule) ? max(0, intval($table_rule['ispadanje_razigravanje_broj'] ?? 0)) : 0;
         $table_total_teams = !empty($standings) ? count($standings) : 0;
 
-        $uid = 'stkb-team-stats-' . wp_unique_id();
+        $uid = 'opentt-team-stats-' . wp_unique_id();
         $home_pct = self::format_percentage_value(floatval($stats['home_win_pct']));
         $away_pct = self::format_percentage_value(floatval($stats['away_win_pct']));
         $doubles_pct = self::format_percentage_value(floatval($stats['doubles_win_pct']));
 
         ob_start();
-        echo '<section id="' . esc_attr($uid) . '" class="stkb-stat-ekipe">';
+        echo '<section id="' . esc_attr($uid) . '" class="opentt-stat-ekipe">';
         echo self::shortcode_title_html('Statistika ekipe');
 
-        echo '<h3 class="stkb-stat-ekipe-title">Najkorisniji igrač</h3>';
+        echo '<h3 class="opentt-stat-ekipe-title">Najkorisniji igrač</h3>';
         if (is_array($best_player) && !empty($best_player['player_id'])) {
             $mvp_id = intval($best_player['player_id']);
             $mvp_name = $mvp_id > 0 ? (string) get_the_title($mvp_id) : '';
             $mvp_link = $mvp_id > 0 ? (string) get_permalink($mvp_id) : '';
-            $mvp_photo = $mvp_id > 0 ? get_the_post_thumbnail($mvp_id, 'thumbnail', ['class' => 'stkb-stat-ekipe-mvp-photo']) : '';
+            $mvp_photo = $mvp_id > 0 ? get_the_post_thumbnail($mvp_id, 'thumbnail', ['class' => 'opentt-stat-ekipe-mvp-photo']) : '';
             if ($mvp_photo === '') {
-                $mvp_photo = '<img src="' . esc_url(self::player_fallback_image_url()) . '" alt="Igrač" class="stkb-stat-ekipe-mvp-photo" />';
+                $mvp_photo = '<img src="' . esc_url(self::player_fallback_image_url()) . '" alt="Igrač" class="opentt-stat-ekipe-mvp-photo" />';
             }
             $mvp_wins = intval($best_player['wins'] ?? 0);
             $mvp_losses = intval($best_player['losses'] ?? 0);
             $mvp_success = self::format_percentage_value(floatval($best_player['success_pct'] ?? 0));
             $mvp_season_label = self::season_display_name((string) ($best_player['season_slug'] ?? $current_season));
 
-            echo '<div class="stkb-stat-ekipe-mvp">';
-            echo '<a class="stkb-stat-ekipe-mvp-link" href="' . esc_url($mvp_link) . '">';
-            echo '<span class="stkb-stat-ekipe-mvp-photo-wrap">' . $mvp_photo . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo '<span class="stkb-stat-ekipe-mvp-main">';
-            echo '<span class="stkb-stat-ekipe-mvp-name">' . esc_html($mvp_name) . '</span>';
-            echo '<span class="stkb-stat-ekipe-mvp-meta">Sezona: ' . esc_html($mvp_season_label) . ' • Učinak: ' . intval($mvp_wins) . '-' . intval($mvp_losses) . ' • Uspešnost: ' . esc_html($mvp_success) . '%</span>';
+            echo '<div class="opentt-stat-ekipe-mvp">';
+            echo '<a class="opentt-stat-ekipe-mvp-link" href="' . esc_url($mvp_link) . '">';
+            echo '<span class="opentt-stat-ekipe-mvp-photo-wrap">' . $mvp_photo . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<span class="opentt-stat-ekipe-mvp-main">';
+            echo '<span class="opentt-stat-ekipe-mvp-name">' . esc_html($mvp_name) . '</span>';
+            echo '<span class="opentt-stat-ekipe-mvp-meta">Sezona: ' . esc_html($mvp_season_label) . ' • Učinak: ' . intval($mvp_wins) . '-' . intval($mvp_losses) . ' • Uspešnost: ' . esc_html($mvp_success) . '%</span>';
             echo '</span>';
             echo '</a>';
             echo '</div>';
         } else {
-            echo '<div class="stkb-stat-ekipe-empty">Nema dovoljno podataka za obračun uspešnosti igrača u trenutnoj sezoni.</div>';
+            echo '<div class="opentt-stat-ekipe-empty">Nema dovoljno podataka za obračun uspešnosti igrača u trenutnoj sezoni.</div>';
         }
 
-        echo '<h3 class="stkb-stat-ekipe-title stkb-stat-ekipe-title-secondary">Statistika ekipe</h3>';
+        echo '<h3 class="opentt-stat-ekipe-title opentt-stat-ekipe-title-secondary">Statistika ekipe</h3>';
         if ($enable_filter && !empty($season_options)) {
-            echo '<div class="stkb-stat-ekipe-filter">';
+            echo '<div class="opentt-stat-ekipe-filter">';
             echo '<label>Sezona ';
-            echo '<select class="stkb-stat-ekipe-season">';
+            echo '<select class="opentt-stat-ekipe-season">';
             echo '<option value="">Ukupno</option>';
             foreach ($season_options as $opt) {
                 echo '<option value="' . esc_attr((string) $opt) . '" ' . selected($selected_season, (string) $opt, false) . '>' . esc_html(self::season_display_name((string) $opt)) . '</option>';
@@ -2203,33 +2203,33 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '</div>';
         }
 
-        echo '<div class="stkb-stat-ekipe-meta">Period: <strong>' . esc_html($season_label) . '</strong></div>';
-        echo '<div class="stkb-stat-ekipe-cards">';
-        echo '<div class="stkb-stat-ekipe-card"><span class="k">Odigrane</span><strong class="v">' . intval($stats['played']) . '</strong></div>';
-        echo '<div class="stkb-stat-ekipe-card"><span class="k">Pobede</span><strong class="v">' . intval($stats['wins']) . '</strong></div>';
-        echo '<div class="stkb-stat-ekipe-card"><span class="k">Porazi</span><strong class="v">' . intval($stats['losses']) . '</strong></div>';
-        echo '<div class="stkb-stat-ekipe-card"><span class="k">Najduži niz pobeda</span><strong class="v">' . intval($stats['longest_win_streak']) . '</strong></div>';
-        echo '<div class="stkb-stat-ekipe-card"><span class="k">Kući pobede</span><strong class="v">' . esc_html($home_pct) . '%</strong></div>';
-        echo '<div class="stkb-stat-ekipe-card"><span class="k">U gostima pobede</span><strong class="v">' . esc_html($away_pct) . '%</strong></div>';
-        echo '<div class="stkb-stat-ekipe-card"><span class="k">Dubl učinak</span><strong class="v">' . esc_html($doubles_pct) . '%</strong></div>';
+        echo '<div class="opentt-stat-ekipe-meta">Period: <strong>' . esc_html($season_label) . '</strong></div>';
+        echo '<div class="opentt-stat-ekipe-cards">';
+        echo '<div class="opentt-stat-ekipe-card"><span class="k">Odigrane</span><strong class="v">' . intval($stats['played']) . '</strong></div>';
+        echo '<div class="opentt-stat-ekipe-card"><span class="k">Pobede</span><strong class="v">' . intval($stats['wins']) . '</strong></div>';
+        echo '<div class="opentt-stat-ekipe-card"><span class="k">Porazi</span><strong class="v">' . intval($stats['losses']) . '</strong></div>';
+        echo '<div class="opentt-stat-ekipe-card"><span class="k">Najduži niz pobeda</span><strong class="v">' . intval($stats['longest_win_streak']) . '</strong></div>';
+        echo '<div class="opentt-stat-ekipe-card"><span class="k">Kući pobede</span><strong class="v">' . esc_html($home_pct) . '%</strong></div>';
+        echo '<div class="opentt-stat-ekipe-card"><span class="k">U gostima pobede</span><strong class="v">' . esc_html($away_pct) . '%</strong></div>';
+        echo '<div class="opentt-stat-ekipe-card"><span class="k">Dubl učinak</span><strong class="v">' . esc_html($doubles_pct) . '%</strong></div>';
         echo '</div>';
 
-        echo '<div class="stkb-stat-ekipe-table-wrap">';
-        echo '<div class="stkb-stat-ekipe-table-head">';
-        echo '<h4 class="stkb-stat-ekipe-table-title">Skraćena tabela</h4>';
+        echo '<div class="opentt-stat-ekipe-table-wrap">';
+        echo '<div class="opentt-stat-ekipe-table-head">';
+        echo '<h4 class="opentt-stat-ekipe-table-title">Skraćena tabela</h4>';
         if ($table_sezona_slug !== '') {
-            echo '<div class="stkb-stat-ekipe-table-season">Sezona: ' . esc_html(self::season_display_name($table_sezona_slug)) . '</div>';
+            echo '<div class="opentt-stat-ekipe-table-season">Sezona: ' . esc_html(self::season_display_name($table_sezona_slug)) . '</div>';
         }
         if (!empty($standings) && $club_rank > 0) {
-            echo '<button type="button" class="stkb-stat-ekipe-toggle" data-target="' . esc_attr($table_uid) . '" data-open-text="Vidi celu tabelu" data-close-text="Sakrij celu tabelu">Vidi celu tabelu</button>';
+            echo '<button type="button" class="opentt-stat-ekipe-toggle" data-target="' . esc_attr($table_uid) . '" data-open-text="Vidi celu tabelu" data-close-text="Sakrij celu tabelu">Vidi celu tabelu</button>';
         }
         echo '</div>';
         if (!empty($standings_slice) && $club_rank > 0) {
             if ($table_label !== '') {
-                echo '<div class="stkb-stat-ekipe-table-meta">' . esc_html($table_label) . '</div>';
+                echo '<div class="opentt-stat-ekipe-table-meta">' . esc_html($table_label) . '</div>';
             }
-            echo '<div id="' . esc_attr($table_short_uid) . '" class="stkb-stat-ekipe-short-wrap">';
-            echo '<table class="stkb-stat-ekipe-table">';
+            echo '<div id="' . esc_attr($table_short_uid) . '" class="opentt-stat-ekipe-short-wrap">';
+            echo '<table class="opentt-stat-ekipe-table">';
             echo '<thead><tr><th>#</th><th>Klub</th><th>P</th><th>W</th><th>L</th><th>Pts</th><th>+/-</th></tr></thead><tbody>';
             foreach ($standings_slice as $row) {
                 $is_highlight = intval($row['club_id']) === $club_id;
@@ -2270,8 +2270,8 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '</tbody></table>';
             echo '</div>';
 
-            echo '<div id="' . esc_attr($table_uid) . '" class="stkb-stat-ekipe-full-wrap" hidden>';
-            echo '<table class="stkb-stat-ekipe-table stkb-stat-ekipe-table-full">';
+            echo '<div id="' . esc_attr($table_uid) . '" class="opentt-stat-ekipe-full-wrap" hidden>';
+            echo '<table class="opentt-stat-ekipe-table opentt-stat-ekipe-table-full">';
             echo '<thead><tr><th>#</th><th>Klub</th><th>P</th><th>W</th><th>L</th><th>Pts</th><th>+/-</th></tr></thead><tbody>';
             foreach ($standings as $row) {
                 $is_highlight = intval($row['club_id']) === $club_id;
@@ -2312,7 +2312,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '</tbody></table>';
             echo '</div>';
         } else {
-            echo '<div class="stkb-stat-ekipe-empty">Nema dovoljno podataka za prikaz skraćene tabele.</div>';
+            echo '<div class="opentt-stat-ekipe-empty">Nema dovoljno podataka za prikaz skraćene tabele.</div>';
         }
         echo '</div>';
 
@@ -2324,7 +2324,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             (function(){
                 var root = document.getElementById('<?php echo esc_js($uid); ?>');
                 if (!root) { return; }
-                var sel = root.querySelector('.stkb-stat-ekipe-season');
+                var sel = root.querySelector('.opentt-stat-ekipe-season');
                 if (!sel) { return; }
                 sel.addEventListener('change', function(){
                     var url = new URL(window.location.href);
@@ -2336,7 +2336,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                     window.location.href = url.toString();
                 });
 
-                var toggle = root.querySelector('.stkb-stat-ekipe-toggle');
+                var toggle = root.querySelector('.opentt-stat-ekipe-toggle');
                 if (toggle) {
                     toggle.addEventListener('click', function(){
                         var targetId = toggle.getAttribute('data-target');
@@ -2365,7 +2365,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             (function(){
                 var root = document.getElementById('<?php echo esc_js($uid); ?>');
                 if (!root) { return; }
-                var toggle = root.querySelector('.stkb-stat-ekipe-toggle');
+                var toggle = root.querySelector('.opentt-stat-ekipe-toggle');
                 if (!toggle) { return; }
                 toggle.addEventListener('click', function(){
                     var targetId = toggle.getAttribute('data-target');
@@ -2418,12 +2418,12 @@ trait OpenTT_Unified_Shortcodes_Trait
 
         $history = self::db_get_player_season_club_history($player_id);
         if (empty($history)) {
-            return '<div class="stkb-transferi"><p>Nema podataka o transferima za ovog igrača.</p></div>';
+            return '<div class="opentt-transferi"><p>Nema podataka o transferima za ovog igrača.</p></div>';
         }
 
         $stints = self::build_player_stints($history);
         if (empty($stints)) {
-            return '<div class="stkb-transferi"><p>Nema podataka o transferima za ovog igrača.</p></div>';
+            return '<div class="opentt-transferi"><p>Nema podataka o transferima za ovog igrača.</p></div>';
         }
 
         $transfers = [];
@@ -2441,11 +2441,11 @@ trait OpenTT_Unified_Shortcodes_Trait
 
         ob_start();
         echo self::shortcode_title_html('Transferi');
-        echo '<section class="stkb-transferi">';
+        echo '<section class="opentt-transferi">';
 
-        echo '<div class="stkb-transferi-block">';
+        echo '<div class="opentt-transferi-block">';
         echo '<h4>Istorija klubova</h4>';
-        echo '<table class="stkb-transferi-table"><thead><tr><th>Period</th><th>Klub</th></tr></thead><tbody>';
+        echo '<table class="opentt-transferi-table"><thead><tr><th>Period</th><th>Klub</th></tr></thead><tbody>';
         foreach ($stints_desc as $s) {
             $from_slug = (string) ($s['from_season'] ?? '');
             $to_slug = (string) ($s['to_season'] ?? '');
@@ -2456,9 +2456,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             $club_id = intval($s['club_id'] ?? 0);
             $club_name = $club_id > 0 ? (string) get_the_title($club_id) : '—';
             $club_link = $club_id > 0 ? (string) get_permalink($club_id) : '';
-            $club_logo = $club_id > 0 ? self::club_logo_html($club_id, 'thumbnail', ['class' => 'stkb-transferi-club-grb']) : '';
+            $club_logo = $club_id > 0 ? self::club_logo_html($club_id, 'thumbnail', ['class' => 'opentt-transferi-club-grb']) : '';
             echo '<tr><td>' . esc_html($period) . '</td><td>';
-            echo '<span class="stkb-transferi-club">';
+            echo '<span class="opentt-transferi-club">';
             if ($club_logo) {
                 echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             }
@@ -2474,27 +2474,27 @@ trait OpenTT_Unified_Shortcodes_Trait
         echo '</div>';
 
         if (!empty($transfers_desc)) {
-            echo '<div class="stkb-transferi-block">';
+            echo '<div class="opentt-transferi-block">';
             echo '<h4>Promene kluba</h4>';
-            echo '<table class="stkb-transferi-table"><thead><tr><th>Sezona</th><th>Transfer</th></tr></thead><tbody>';
+            echo '<table class="opentt-transferi-table"><thead><tr><th>Sezona</th><th>Transfer</th></tr></thead><tbody>';
             foreach ($transfers_desc as $t) {
                 $season_label = self::season_display_name((string) $t['season_slug']);
                 $from_id = intval($t['from_club_id']);
                 $to_id = intval($t['to_club_id']);
                 $from_name = $from_id > 0 ? (string) get_the_title($from_id) : '—';
                 $to_name = $to_id > 0 ? (string) get_the_title($to_id) : '—';
-                $from_logo = $from_id > 0 ? self::club_logo_html($from_id, 'thumbnail', ['class' => 'stkb-transferi-club-grb']) : '';
-                $to_logo = $to_id > 0 ? self::club_logo_html($to_id, 'thumbnail', ['class' => 'stkb-transferi-club-grb']) : '';
+                $from_logo = $from_id > 0 ? self::club_logo_html($from_id, 'thumbnail', ['class' => 'opentt-transferi-club-grb']) : '';
+                $to_logo = $to_id > 0 ? self::club_logo_html($to_id, 'thumbnail', ['class' => 'opentt-transferi-club-grb']) : '';
                 echo '<tr><td>' . esc_html($season_label) . '</td><td>';
-                echo '<span class="stkb-transferi-move">';
-                echo '<span class="stkb-transferi-club">';
+                echo '<span class="opentt-transferi-move">';
+                echo '<span class="opentt-transferi-club">';
                 if ($from_logo) {
                     echo $from_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 }
                 echo '<span>' . esc_html($from_name) . '</span>';
                 echo '</span>';
-                echo '<span class="stkb-transferi-arrow">-></span>';
-                echo '<span class="stkb-transferi-club">';
+                echo '<span class="opentt-transferi-arrow">-></span>';
+                echo '<span class="opentt-transferi-club">';
                 if ($to_logo) {
                     echo $to_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 }
@@ -2536,7 +2536,7 @@ trait OpenTT_Unified_Shortcodes_Trait
         }
 
         $club_name = (string) get_the_title($club_id);
-        $club_logo = self::club_logo_html($club_id, 'medium', ['class' => 'stkb-info-kluba-grb']);
+        $club_logo = self::club_logo_html($club_id, 'medium', ['class' => 'opentt-info-kluba-grb']);
         $club_link = (string) get_permalink($club_id);
         $club_display_name = 'STK ' . $club_name;
 
@@ -2628,7 +2628,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $value = esc_html($value);
             }
             if ($prefix_icon !== '' || $suffix_icon !== '') {
-                $value = '<span class="stkb-info-link-wrap">' . $prefix_icon . $value . $suffix_icon . '</span>';
+                $value = '<span class="opentt-info-link-wrap">' . $prefix_icon . $value . $suffix_icon . '</span>';
             }
             $rows[] = [
                 'label' => $label,
@@ -2639,24 +2639,24 @@ trait OpenTT_Unified_Shortcodes_Trait
         ob_start();
         ?>
         <?php echo self::shortcode_title_html('Info kluba'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        <section class="stkb-info-kluba">
-            <div class="stkb-info-kluba-head">
-                <a href="<?php echo esc_url($club_link); ?>" class="stkb-info-kluba-brand">
-                    <span class="stkb-info-kluba-grb-wrap">
+        <section class="opentt-info-kluba">
+            <div class="opentt-info-kluba-head">
+                <a href="<?php echo esc_url($club_link); ?>" class="opentt-info-kluba-brand">
+                    <span class="opentt-info-kluba-grb-wrap">
                         <?php echo $club_logo ?: ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </span>
-                    <span class="stkb-info-kluba-head-text">
-                        <span class="stkb-info-kluba-ime"><?php echo esc_html($club_display_name); ?></span>
+                    <span class="opentt-info-kluba-head-text">
+                        <span class="opentt-info-kluba-ime"><?php echo esc_html($club_display_name); ?></span>
                         <?php if ($club_meta_subtitle !== ''): ?>
-                            <span class="stkb-info-kluba-podnaslov"><?php echo esc_html($club_meta_subtitle); ?></span>
+                            <span class="opentt-info-kluba-podnaslov"><?php echo esc_html($club_meta_subtitle); ?></span>
                         <?php endif; ?>
                     </span>
                 </a>
             </div>
             <?php if (!empty($rows)): ?>
-                <dl class="stkb-info-kluba-lista">
+                <dl class="opentt-info-kluba-lista">
                     <?php foreach ($rows as $row): ?>
-                        <div class="stkb-info-kluba-row">
+                        <div class="opentt-info-kluba-row">
                             <dt><?php echo esc_html((string) $row['label']); ?></dt>
                             <dd><?php echo $row['value']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></dd>
                         </div>
@@ -2675,7 +2675,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             $icon_file_name .= '.svg';
         }
         $modifier = sanitize_html_class((string) $modifier);
-        $classes = 'stkb-info-link-icon stkb-info-link-icon--' . ($modifier !== '' ? $modifier : 'before');
+        $classes = 'opentt-info-link-icon opentt-info-link-icon--' . ($modifier !== '' ? $modifier : 'before');
         $fallback = (string) $fallback;
 
         $rel_path = 'assets/icons/' . $icon_file_name;
@@ -2686,7 +2686,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $svg = preg_replace('/<\?xml.*?\?>/i', '', $svg);
                 $svg = preg_replace('/<!DOCTYPE.*?>/i', '', $svg);
                 if (is_string($svg) && trim($svg) !== '') {
-                    return '<span class="' . esc_attr($classes) . '" aria-hidden="true"><span class="stkb-info-link-icon-svg">' . $svg . '</span></span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    return '<span class="' . esc_attr($classes) . '" aria-hidden="true"><span class="opentt-info-link-icon-svg">' . $svg . '</span></span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 }
             }
         }
@@ -2719,16 +2719,16 @@ trait OpenTT_Unified_Shortcodes_Trait
         }
 
         $player_name = (string) get_the_title($player_id);
-        $player_photo = get_the_post_thumbnail($player_id, 'medium', ['class' => 'stkb-info-igraca-slika']);
+        $player_photo = get_the_post_thumbnail($player_id, 'medium', ['class' => 'opentt-info-igraca-slika']);
         if (!$player_photo) {
-            $player_photo = '<img src="' . esc_url(self::player_fallback_image_url()) . '" alt="' . esc_attr($player_name) . '" class="stkb-info-igraca-slika" />';
+            $player_photo = '<img src="' . esc_url(self::player_fallback_image_url()) . '" alt="' . esc_attr($player_name) . '" class="opentt-info-igraca-slika" />';
         }
         $player_link = (string) get_permalink($player_id);
 
         $club_id = self::get_player_club_id($player_id);
         $club_name = $club_id > 0 ? (string) get_the_title($club_id) : '';
         $club_link = $club_id > 0 ? (string) get_permalink($club_id) : '';
-        $club_logo = $club_id > 0 ? self::club_logo_html($club_id, 'thumbnail', ['class' => 'stkb-info-igraca-klub-grb']) : '';
+        $club_logo = $club_id > 0 ? self::club_logo_html($club_id, 'thumbnail', ['class' => 'opentt-info-igraca-klub-grb']) : '';
 
         $rows = [];
 
@@ -2757,7 +2757,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             $country_name = OpenTT_Unified_Core::country_label_by_code($country_code);
             if ($country_name !== '') {
                 $flag = OpenTT_Unified_Core::country_flag_emoji($country_code);
-                $country_value = '<span class="stkb-info-igraca-nacionalnost">';
+                $country_value = '<span class="opentt-info-igraca-nacionalnost">';
                 if ($flag !== '') {
                     $country_value .= '<span class="flag" aria-hidden="true">' . esc_html($flag) . '</span> ';
                 }
@@ -2781,30 +2781,30 @@ trait OpenTT_Unified_Shortcodes_Trait
         ob_start();
         ?>
         <?php echo self::shortcode_title_html('Info igrača'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        <section class="stkb-info-igraca">
-            <div class="stkb-info-igraca-head">
-                <div class="stkb-info-igraca-brand">
-                    <a href="<?php echo esc_url($player_link); ?>" class="stkb-info-igraca-foto-link">
-                        <span class="stkb-info-igraca-slika-wrap">
+        <section class="opentt-info-igraca">
+            <div class="opentt-info-igraca-head">
+                <div class="opentt-info-igraca-brand">
+                    <a href="<?php echo esc_url($player_link); ?>" class="opentt-info-igraca-foto-link">
+                        <span class="opentt-info-igraca-slika-wrap">
                             <?php echo $player_photo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                         </span>
                     </a>
-                    <span class="stkb-info-igraca-head-text">
-                        <a href="<?php echo esc_url($player_link); ?>" class="stkb-info-igraca-ime"><?php echo esc_html($player_name); ?></a>
+                    <span class="opentt-info-igraca-head-text">
+                        <a href="<?php echo esc_url($player_link); ?>" class="opentt-info-igraca-ime"><?php echo esc_html($player_name); ?></a>
                         <?php if ($club_name !== ''): ?>
-                            <span class="stkb-info-igraca-klub">
+                            <span class="opentt-info-igraca-klub">
                                 <?php if ($club_link !== ''): ?>
-                                    <a class="stkb-info-igraca-klub-link" href="<?php echo esc_url($club_link); ?>">
+                                    <a class="opentt-info-igraca-klub-link" href="<?php echo esc_url($club_link); ?>">
                                         <?php if ($club_logo): ?>
-                                            <span class="stkb-info-igraca-klub-logo"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                                            <span class="opentt-info-igraca-klub-logo"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                                         <?php endif; ?>
-                                        <span class="stkb-info-igraca-klub-tekst"><?php echo esc_html($club_name); ?></span>
+                                        <span class="opentt-info-igraca-klub-tekst"><?php echo esc_html($club_name); ?></span>
                                     </a>
                                 <?php else: ?>
                                     <?php if ($club_logo): ?>
-                                        <span class="stkb-info-igraca-klub-logo"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                                        <span class="opentt-info-igraca-klub-logo"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                                     <?php endif; ?>
-                                    <span class="stkb-info-igraca-klub-tekst"><?php echo esc_html($club_name); ?></span>
+                                    <span class="opentt-info-igraca-klub-tekst"><?php echo esc_html($club_name); ?></span>
                                 <?php endif; ?>
                             </span>
                         <?php endif; ?>
@@ -2812,9 +2812,9 @@ trait OpenTT_Unified_Shortcodes_Trait
                 </div>
             </div>
             <?php if (!empty($rows)): ?>
-                <dl class="stkb-info-igraca-lista">
+                <dl class="opentt-info-igraca-lista">
                     <?php foreach ($rows as $row): ?>
-                        <div class="stkb-info-igraca-row">
+                        <div class="opentt-info-igraca-row">
                             <dt><?php echo esc_html((string) $row['label']); ?></dt>
                             <dd><?php echo $row['value']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></dd>
                         </div>
@@ -2892,55 +2892,55 @@ trait OpenTT_Unified_Shortcodes_Trait
         ob_start();
         ?>
         <?php echo self::shortcode_title_html('Prikaz ekipa'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        <div class="stkb-ekipe">
-            <div class="stkb-ekipe-meta">
+        <div class="opentt-ekipe">
+            <div class="opentt-ekipe-meta">
                 <?php if ($competition_url !== ''): ?>
-                    <a href="<?php echo esc_url($competition_url); ?>" class="stkb-ekipe-meta-link"><?php echo esc_html($competition_name); ?></a>
+                    <a href="<?php echo esc_url($competition_url); ?>" class="opentt-ekipe-meta-link"><?php echo esc_html($competition_name); ?></a>
                 <?php else: ?>
-                    <span class="stkb-ekipe-meta-text"><?php echo esc_html($competition_name); ?></span>
+                    <span class="opentt-ekipe-meta-text"><?php echo esc_html($competition_name); ?></span>
                 <?php endif; ?>
                 <?php if ($kolo_name !== ''): ?>
-                    <span class="stkb-ekipe-meta-sep">•</span>
+                    <span class="opentt-ekipe-meta-sep">•</span>
                     <?php if ($kolo_url !== ''): ?>
-                        <a href="<?php echo esc_url($kolo_url); ?>" class="stkb-ekipe-meta-link"><?php echo esc_html($kolo_name); ?></a>
+                        <a href="<?php echo esc_url($kolo_url); ?>" class="opentt-ekipe-meta-link"><?php echo esc_html($kolo_name); ?></a>
                     <?php else: ?>
-                        <span class="stkb-ekipe-meta-text"><?php echo esc_html($kolo_name); ?></span>
+                        <span class="opentt-ekipe-meta-text"><?php echo esc_html($kolo_name); ?></span>
                     <?php endif; ?>
                 <?php endif; ?>
             </div>
 
-            <div class="stkb-ekipe-row">
-                <a href="<?php echo esc_url($home_url); ?>" class="stkb-ekipe-team stkb-ekipe-home <?php echo esc_attr($home_state); ?>">
-                    <span class="stkb-ekipe-logo-wrap">
+            <div class="opentt-ekipe-row">
+                <a href="<?php echo esc_url($home_url); ?>" class="opentt-ekipe-team opentt-ekipe-home <?php echo esc_attr($home_state); ?>">
+                    <span class="opentt-ekipe-logo-wrap">
                         <?php echo $home_logo ? $home_logo : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </span>
-                    <span class="stkb-ekipe-name"><?php echo esc_html($home_name); ?></span>
+                    <span class="opentt-ekipe-name"><?php echo esc_html($home_name); ?></span>
                 </a>
 
-                <div class="stkb-ekipe-score">
+                <div class="opentt-ekipe-score">
                     <span class="<?php echo esc_attr($home_state); ?>"><?php echo esc_html((string) $home_score); ?></span>
-                    <span class="stkb-ekipe-score-sep">:</span>
+                    <span class="opentt-ekipe-score-sep">:</span>
                     <span class="<?php echo esc_attr($away_state); ?>"><?php echo esc_html((string) $away_score); ?></span>
                 </div>
 
-                <a href="<?php echo esc_url($away_url); ?>" class="stkb-ekipe-team stkb-ekipe-away <?php echo esc_attr($away_state); ?>">
-                    <span class="stkb-ekipe-logo-wrap">
+                <a href="<?php echo esc_url($away_url); ?>" class="opentt-ekipe-team opentt-ekipe-away <?php echo esc_attr($away_state); ?>">
+                    <span class="opentt-ekipe-logo-wrap">
                         <?php echo $away_logo ? $away_logo : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </span>
-                    <span class="stkb-ekipe-name"><?php echo esc_html($away_name); ?></span>
+                    <span class="opentt-ekipe-name"><?php echo esc_html($away_name); ?></span>
                 </a>
             </div>
 
             <?php if ($match_venue !== '' || $match_date !== ''): ?>
-                <div class="stkb-ekipe-footer">
+                <div class="opentt-ekipe-footer">
                     <?php if ($match_venue !== ''): ?>
-                        <span class="stkb-ekipe-footer-item stkb-ekipe-footer-venue"><?php echo esc_html($match_venue); ?></span>
+                        <span class="opentt-ekipe-footer-item opentt-ekipe-footer-venue"><?php echo esc_html($match_venue); ?></span>
                     <?php endif; ?>
                     <?php if ($match_venue !== '' && $match_date !== ''): ?>
-                        <span class="stkb-ekipe-footer-sep">•</span>
+                        <span class="opentt-ekipe-footer-sep">•</span>
                     <?php endif; ?>
                     <?php if ($match_date !== ''): ?>
-                        <span class="stkb-ekipe-footer-item stkb-ekipe-footer-date"><?php echo esc_html($match_date); ?></span>
+                        <span class="opentt-ekipe-footer-item opentt-ekipe-footer-date"><?php echo esc_html($match_date); ?></span>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -3030,24 +3030,24 @@ trait OpenTT_Unified_Shortcodes_Trait
 
             $rule_id = intval($rule['id'] ?? 0);
             if ($rule_id > 0 && (string) $atts['show_logo'] !== '0' && has_post_thumbnail($rule_id)) {
-                $thumb_html = get_the_post_thumbnail($rule_id, 'medium', ['class' => 'stkb-takmicenje-info-logo-img']);
+                $thumb_html = get_the_post_thumbnail($rule_id, 'medium', ['class' => 'opentt-takmicenje-info-logo-img']);
             }
         }
 
         ob_start();
         ?>
         <?php echo self::shortcode_title_html('Info takmičenja'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        <div class="stkb-takmicenje-info">
+        <div class="opentt-takmicenje-info">
             <?php if ($thumb_html !== ''): ?>
-                <div class="stkb-takmicenje-info-logo"><?php echo $thumb_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+                <div class="opentt-takmicenje-info-logo"><?php echo $thumb_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
             <?php endif; ?>
-            <div class="stkb-takmicenje-info-body">
-                <h2 class="stkb-takmicenje-info-title"><?php echo esc_html($liga_name); ?></h2>
+            <div class="opentt-takmicenje-info-body">
+                <h2 class="opentt-takmicenje-info-title"><?php echo esc_html($liga_name); ?></h2>
                 <?php if ($sezona_name !== ''): ?>
-                    <div class="stkb-takmicenje-info-meta"><strong>Sezona:</strong> <?php echo esc_html($sezona_name); ?></div>
+                    <div class="opentt-takmicenje-info-meta"><strong>Sezona:</strong> <?php echo esc_html($sezona_name); ?></div>
                 <?php endif; ?>
                 <?php if ($savez_label !== ''): ?>
-                    <div class="stkb-takmicenje-info-meta">
+                    <div class="opentt-takmicenje-info-meta">
                         <strong>Savez:</strong>
                         <?php if ($savez_url !== ''): ?>
                             <a href="<?php echo esc_url($savez_url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($savez_label); ?></a>
@@ -3165,9 +3165,9 @@ trait OpenTT_Unified_Shortcodes_Trait
 
         ob_start();
         echo self::shortcode_title_html('Takmičenja');
-        echo '<div class="stkb-prikaz-takmicenja">';
+        echo '<div class="opentt-prikaz-takmicenja">';
         if ($enable_filter) {
-            echo '<form method="get" class="stkb-grid-filters">';
+            echo '<form method="get" class="opentt-grid-filters">';
             foreach ($_GET as $k => $v) {
                 $k = (string) $k;
                 if ($k === 'stkb_takm_sezona') {
@@ -3184,7 +3184,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             }
             echo '</select></label>';
             if (isset($_GET['stkb_takm_sezona'])) {
-                echo '<a class="button stkb-grid-filter-reset" href="' . esc_url(remove_query_arg(['stkb_takm_sezona'])) . '">Reset</a>';
+                echo '<a class="button opentt-grid-filter-reset" href="' . esc_url(remove_query_arg(['stkb_takm_sezona'])) . '">Reset</a>';
             }
             echo '</form>';
         }
@@ -3199,35 +3199,35 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $items = array_slice($items, 0, $limit);
             }
 
-            echo '<section class="stkb-prikaz-takmicenja-rank stkb-prikaz-takmicenja-rank-' . intval($rank) . '">';
-            echo '<h3 class="stkb-prikaz-takmicenja-rank-title">' . esc_html($rank_titles[$rank]) . '</h3>';
-            echo '<div class="stkb-prikaz-takmicenja-grid">';
+            echo '<section class="opentt-prikaz-takmicenja-rank opentt-prikaz-takmicenja-rank-' . intval($rank) . '">';
+            echo '<h3 class="opentt-prikaz-takmicenja-rank-title">' . esc_html($rank_titles[$rank]) . '</h3>';
+            echo '<div class="opentt-prikaz-takmicenja-grid">';
             foreach ($items as $item) {
                 $url = (string) ($item['url'] ?? '');
                 $tag = $url !== '' ? 'a' : 'div';
                 $open_attrs = $url !== ''
-                    ? ' class="stkb-prikaz-takmicenja-card" href="' . esc_url($url) . '"'
-                    : ' class="stkb-prikaz-takmicenja-card"';
+                    ? ' class="opentt-prikaz-takmicenja-card" href="' . esc_url($url) . '"'
+                    : ' class="opentt-prikaz-takmicenja-card"';
 
                 echo '<' . $tag . $open_attrs . '>';
-                echo '<div class="stkb-prikaz-takmicenja-card-head">';
-                echo '<div class="stkb-prikaz-takmicenja-logo">';
+                echo '<div class="opentt-prikaz-takmicenja-card-head">';
+                echo '<div class="opentt-prikaz-takmicenja-logo">';
                 if (!empty($item['rule_id']) && has_post_thumbnail((int) $item['rule_id'])) {
-                    echo get_the_post_thumbnail((int) $item['rule_id'], 'thumbnail', ['class' => 'stkb-prikaz-takmicenja-logo-img']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo get_the_post_thumbnail((int) $item['rule_id'], 'thumbnail', ['class' => 'opentt-prikaz-takmicenja-logo-img']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 } else {
-                    echo '<div class="stkb-prikaz-takmicenja-logo-fallback"></div>';
+                    echo '<div class="opentt-prikaz-takmicenja-logo-fallback"></div>';
                 }
                 echo '</div>';
-                echo '<div class="stkb-prikaz-takmicenja-meta">';
-                echo '<div class="stkb-prikaz-takmicenja-title">' . esc_html((string) $item['league_name']) . '</div>';
-                echo '<div class="stkb-prikaz-takmicenja-season">Sezona ' . esc_html((string) $item['season_name']) . '</div>';
+                echo '<div class="opentt-prikaz-takmicenja-meta">';
+                echo '<div class="opentt-prikaz-takmicenja-title">' . esc_html((string) $item['league_name']) . '</div>';
+                echo '<div class="opentt-prikaz-takmicenja-season">Sezona ' . esc_html((string) $item['season_name']) . '</div>';
                 echo '</div>';
                 echo '</div>';
-                echo '<div class="stkb-prikaz-takmicenja-sep"></div>';
-                echo '<div class="stkb-prikaz-takmicenja-clubs">';
+                echo '<div class="opentt-prikaz-takmicenja-sep"></div>';
+                echo '<div class="opentt-prikaz-takmicenja-clubs">';
                 $club_ids = is_array($item['club_ids']) ? $item['club_ids'] : [];
                 if (empty($club_ids)) {
-                    echo '<span class="stkb-prikaz-takmicenja-no-clubs">Nema klubova</span>';
+                    echo '<span class="opentt-prikaz-takmicenja-no-clubs">Nema klubova</span>';
                 } else {
                     foreach ($club_ids as $club_id) {
                         $club_id = (int) $club_id;
@@ -3235,8 +3235,8 @@ trait OpenTT_Unified_Shortcodes_Trait
                             continue;
                         }
                         $club_name = (string) get_the_title($club_id);
-                        echo '<span class="stkb-prikaz-takmicenja-club">';
-                        echo self::club_logo_html($club_id, 'thumbnail', ['class' => 'stkb-prikaz-takmicenja-club-logo', 'title' => $club_name]); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                        echo '<span class="opentt-prikaz-takmicenja-club">';
+                        echo self::club_logo_html($club_id, 'thumbnail', ['class' => 'opentt-prikaz-takmicenja-club-logo', 'title' => $club_name]); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                         echo '</span>';
                     }
                 }
@@ -4004,7 +4004,7 @@ trait OpenTT_Unified_Shortcodes_Trait
         }
 
         ob_start();
-        echo '<div class="stkb-grid-wrapper"><div class="stkb-grid cols-' . intval($columns) . '">';
+        echo '<div class="opentt-grid-wrapper"><div class="opentt-grid cols-' . intval($columns) . '">';
         foreach ($rows as $row) {
             $home_id = intval($row->home_club_post_id);
             $away_id = intval($row->away_club_post_id);
@@ -4030,7 +4030,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $attr .= ' data-away-club-id="' . esc_attr((string) $away_id) . '"';
             }
 
-            echo '<div class="stkb-item"' . $attr . '>';
+            echo '<div class="opentt-item"' . $attr . '>';
             echo '<a href="' . esc_url($link) . '">';
             echo self::render_team_html($home_id, $rd, $home_win);
             echo self::render_team_html($away_id, $rg, $away_win);
@@ -4048,8 +4048,8 @@ trait OpenTT_Unified_Shortcodes_Trait
         }
 
         ob_start();
-        echo '<div class="stkb-klubovi">';
-        echo '<div class="stkb-klubovi-grid cols-' . intval($columns) . '">';
+        echo '<div class="opentt-klubovi">';
+        echo '<div class="opentt-klubovi-grid cols-' . intval($columns) . '">';
         foreach ($rows as $row) {
             $club_id = intval($row['id'] ?? 0);
             $url = (string) ($row['url'] ?? '');
@@ -4068,15 +4068,15 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $attrs .= ' data-sort-name="' . esc_attr($sort_name) . '"';
             }
 
-            echo '<article class="stkb-klubovi-item"' . $attrs . '>';
-            echo '<a class="stkb-klubovi-link" href="' . esc_url($url) . '">';
-            echo '<span class="stkb-klubovi-logo-wrap">' . $logo_html . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo '<span class="stkb-klubovi-content">';
-            echo '<strong class="stkb-klubovi-name">' . esc_html($display_name) . '</strong>';
+            echo '<article class="opentt-klubovi-item"' . $attrs . '>';
+            echo '<a class="opentt-klubovi-link" href="' . esc_url($url) . '">';
+            echo '<span class="opentt-klubovi-logo-wrap">' . $logo_html . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<span class="opentt-klubovi-content">';
+            echo '<strong class="opentt-klubovi-name">' . esc_html($display_name) . '</strong>';
             if ($grad_label !== '') {
-                echo '<span class="stkb-klubovi-city">' . esc_html($grad_label) . '</span>';
+                echo '<span class="opentt-klubovi-city">' . esc_html($grad_label) . '</span>';
             }
-            echo '<span class="stkb-klubovi-league">' . esc_html($league_label) . '</span>';
+            echo '<span class="opentt-klubovi-league">' . esc_html($league_label) . '</span>';
             echo '</span>';
             echo '</a>';
             echo '</article>';
@@ -4166,7 +4166,7 @@ trait OpenTT_Unified_Shortcodes_Trait
 
         $class = isset($attr['class']) ? trim((string) $attr['class']) : '';
         if ($class === '') {
-            $class = 'stkb-club-fallback-image';
+            $class = 'opentt-club-fallback-image';
         }
         $alt = isset($attr['alt']) ? (string) $attr['alt'] : (string) get_the_title($club_id);
 
@@ -4298,15 +4298,15 @@ trait OpenTT_Unified_Shortcodes_Trait
             return '';
         }
         $naziv = get_the_title($klub_id);
-        $grb = self::club_logo_html($klub_id, 'thumbnail', ['class' => 'stkb-grb']);
+        $grb = self::club_logo_html($klub_id, 'thumbnail', ['class' => 'opentt-grb']);
         $link = get_permalink($klub_id);
 
         ob_start();
         ?>
-        <div class="stkb-klub">
+        <div class="opentt-klub">
             <a href="<?php echo esc_url($link); ?>">
-                <div class="stkb-grb-wrap"><?php echo $grb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-                <div class="stkb-naziv"><?php echo esc_html((string) $naziv); ?></div>
+                <div class="opentt-grb-wrap"><?php echo $grb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+                <div class="opentt-naziv"><?php echo esc_html((string) $naziv); ?></div>
             </a>
         </div>
         <?php

@@ -553,15 +553,15 @@ final class OpenTT_Unified_Core
         $text = $s['text_color'];
         $accent = $s['accent_color'];
         $containers = implode(',', [
-            '.stkb-ekipe',
-            '.stkb-info-kluba',
-            '.stkb-info-igraca',
-            '.stkb-forma-kluba',
-            '.stkb-stat-igraca',
-            '.stkb-stat-ekipe',
-            '.stkb-transferi',
-            '.stkb-takmicenje-info',
-            '.stkb-prikaz-takmicenja-card',
+            '.opentt-ekipe',
+            '.opentt-info-kluba',
+            '.opentt-info-igraca',
+            '.opentt-forma-kluba',
+            '.opentt-stat-igraca',
+            '.opentt-stat-ekipe',
+            '.opentt-transferi',
+            '.opentt-takmicenje-info',
+            '.opentt-prikaz-takmicenja-card',
             '.stoni-igraci-list',
             '.top-igraci-list',
             '.no-players-message',
@@ -575,61 +575,61 @@ final class OpenTT_Unified_Core
             '.stoni-vesti-kartica',
             '.izvestaj-utakmice-blok',
             '.tabela-lige',
-            '.stkb-stat-ekipe-table',
-            '.stkb-item',
-            '.stkb-klubovi-item',
+            '.opentt-stat-ekipe-table',
+            '.opentt-item',
+            '.opentt-klubovi-item',
         ]);
 
         $subcards = implode(',', [
             '.stoni-igrac-card',
             '.igrac-card-list',
             '.related-post-item',
-            '.stkb-stat-card',
-            '.stkb-stat-ekipe-card',
-            '.stkb-stat-ekipe-mvp',
-            '.stkb-transferi-table',
-            '.stkb-grid-filters select',
-            '.stkb-stat-igraca-filter select',
-            '.stkb-stat-ekipe-filter select',
-            '.stkb-grid-filter-reset',
-            '.stkb-klubovi-filters select',
-            '.stkb-klubovi-filter-reset',
+            '.opentt-stat-card',
+            '.opentt-stat-ekipe-card',
+            '.opentt-stat-ekipe-mvp',
+            '.opentt-transferi-table',
+            '.opentt-grid-filters select',
+            '.opentt-stat-igraca-filter select',
+            '.opentt-stat-ekipe-filter select',
+            '.opentt-grid-filter-reset',
+            '.opentt-klubovi-filters select',
+            '.opentt-klubovi-filter-reset',
         ]);
 
         $titleSelectors = implode(',', [
-            '.stkb-ekipe h1', '.stkb-ekipe h2', '.stkb-ekipe h3',
-            '.stkb-info-kluba h1', '.stkb-info-kluba h2', '.stkb-info-kluba h3',
-            '.stkb-info-igraca h1', '.stkb-info-igraca h2', '.stkb-info-igraca h3',
-            '.stkb-forma-kluba h1', '.stkb-forma-kluba h2', '.stkb-forma-kluba h3',
-            '.stkb-stat-igraca h1', '.stkb-stat-igraca h2', '.stkb-stat-igraca h3',
-            '.stkb-stat-ekipe h1', '.stkb-stat-ekipe h2', '.stkb-stat-ekipe h3',
-            '.stkb-transferi h1', '.stkb-transferi h2', '.stkb-transferi h3',
-            '.stkb-takmicenje-info h1', '.stkb-takmicenje-info h2', '.stkb-takmicenje-info h3',
-            '.stkb-prikaz-takmicenja-card h1', '.stkb-prikaz-takmicenja-card h2', '.stkb-prikaz-takmicenja-card h3',
-            '.stkb-klubovi h1', '.stkb-klubovi h2', '.stkb-klubovi h3',
+            '.opentt-ekipe h1', '.opentt-ekipe h2', '.opentt-ekipe h3',
+            '.opentt-info-kluba h1', '.opentt-info-kluba h2', '.opentt-info-kluba h3',
+            '.opentt-info-igraca h1', '.opentt-info-igraca h2', '.opentt-info-igraca h3',
+            '.opentt-forma-kluba h1', '.opentt-forma-kluba h2', '.opentt-forma-kluba h3',
+            '.opentt-stat-igraca h1', '.opentt-stat-igraca h2', '.opentt-stat-igraca h3',
+            '.opentt-stat-ekipe h1', '.opentt-stat-ekipe h2', '.opentt-stat-ekipe h3',
+            '.opentt-transferi h1', '.opentt-transferi h2', '.opentt-transferi h3',
+            '.opentt-takmicenje-info h1', '.opentt-takmicenje-info h2', '.opentt-takmicenje-info h3',
+            '.opentt-prikaz-takmicenja-card h1', '.opentt-prikaz-takmicenja-card h2', '.opentt-prikaz-takmicenja-card h3',
+            '.opentt-klubovi h1', '.opentt-klubovi h2', '.opentt-klubovi h3',
             '.stoni-igraci-list h1', '.stoni-igraci-list h2', '.stoni-igraci-list h3',
             '.top-igraci-list h1', '.top-igraci-list h2', '.top-igraci-list h3',
             '.tabela-lige th',
-            '.stkb-stat-ekipe-table th',
-            '.stkb-item .team strong',
-            '.stkb-item .team span',
-            '.stkb-prikaz-takmicenja-title',
-            '.stkb-info-kluba-ime',
-            '.stkb-info-igraca-ime',
+            '.opentt-stat-ekipe-table th',
+            '.opentt-item .team strong',
+            '.opentt-item .team span',
+            '.opentt-prikaz-takmicenja-title',
+            '.opentt-info-kluba-ime',
+            '.opentt-info-igraca-ime',
             '.vest-klub-naslov',
-            '.stkb-klubovi-name',
+            '.opentt-klubovi-name',
         ]);
 
         $textSelectors = implode(',', [
-            '.stkb-ekipe',
-            '.stkb-info-kluba',
-            '.stkb-info-igraca',
-            '.stkb-forma-kluba',
-            '.stkb-stat-igraca',
-            '.stkb-stat-ekipe',
-            '.stkb-transferi',
-            '.stkb-takmicenje-info',
-            '.stkb-prikaz-takmicenja-card',
+            '.opentt-ekipe',
+            '.opentt-info-kluba',
+            '.opentt-info-igraca',
+            '.opentt-forma-kluba',
+            '.opentt-stat-igraca',
+            '.opentt-stat-ekipe',
+            '.opentt-transferi',
+            '.opentt-takmicenje-info',
+            '.opentt-prikaz-takmicenja-card',
             '.stoni-igraci-list',
             '.stoni-igrac-card',
             '.top-igraci-list',
@@ -640,62 +640,62 @@ final class OpenTT_Unified_Core
             '.bbs-related-posts',
             '.related-post-item',
             '.tabela-lige td',
-            '.stkb-stat-ekipe-table td',
-            '.stkb-item .meta',
-            '.stkb-item .team span',
-            '.stkb-grid-filters label',
-            '.stkb-stat-igraca-filter label',
-            '.stkb-stat-ekipe-filter label',
-            '.stkb-prikaz-takmicenja-season',
-            '.stkb-info-kluba-podnaslov',
-            '.stkb-info-igraca-klub',
-            '.stkb-competition-federation',
+            '.opentt-stat-ekipe-table td',
+            '.opentt-item .meta',
+            '.opentt-item .team span',
+            '.opentt-grid-filters label',
+            '.opentt-stat-igraca-filter label',
+            '.opentt-stat-ekipe-filter label',
+            '.opentt-prikaz-takmicenja-season',
+            '.opentt-info-kluba-podnaslov',
+            '.opentt-info-igraca-klub',
+            '.opentt-competition-federation',
             '.vest-klub-datum',
-            '.stkb-klubovi-league',
-            '.stkb-klubovi-city',
-            '.stkb-klubovi-filters label',
+            '.opentt-klubovi-league',
+            '.opentt-klubovi-city',
+            '.opentt-klubovi-filters label',
         ]);
 
         $linkSelectors = implode(',', [
-            '.stkb-ekipe a',
-            '.stkb-info-kluba a',
-            '.stkb-info-igraca a',
-            '.stkb-forma-kluba a',
-            '.stkb-stat-igraca a',
-            '.stkb-stat-ekipe a',
-            '.stkb-transferi a',
-            '.stkb-takmicenje-info a',
-            '.stkb-prikaz-takmicenja-card a',
-            '.stkb-klubovi a',
+            '.opentt-ekipe a',
+            '.opentt-info-kluba a',
+            '.opentt-info-igraca a',
+            '.opentt-forma-kluba a',
+            '.opentt-stat-igraca a',
+            '.opentt-stat-ekipe a',
+            '.opentt-transferi a',
+            '.opentt-takmicenje-info a',
+            '.opentt-prikaz-takmicenja-card a',
+            '.opentt-klubovi a',
             '.stoni-igraci-list a',
             '.stoni-igrac-card a',
             '.top-igraci-list a',
             '.bbs-related-posts a',
             '.stoni-vesti-kartica a',
             '.tabela-lige .klub-cell a',
-            '.stkb-stat-ekipe-table .club a',
-            '.stkb-item a',
+            '.opentt-stat-ekipe-table .club a',
+            '.opentt-item a',
         ]);
 
         $linkHoverSelectors = implode(',', [
-            '.stkb-ekipe a:hover',
-            '.stkb-info-kluba a:hover',
-            '.stkb-info-igraca a:hover',
-            '.stkb-forma-kluba a:hover',
-            '.stkb-stat-igraca a:hover',
-            '.stkb-stat-ekipe a:hover',
-            '.stkb-transferi a:hover',
-            '.stkb-takmicenje-info a:hover',
-            '.stkb-prikaz-takmicenja-card a:hover',
-            '.stkb-klubovi a:hover',
+            '.opentt-ekipe a:hover',
+            '.opentt-info-kluba a:hover',
+            '.opentt-info-igraca a:hover',
+            '.opentt-forma-kluba a:hover',
+            '.opentt-stat-igraca a:hover',
+            '.opentt-stat-ekipe a:hover',
+            '.opentt-transferi a:hover',
+            '.opentt-takmicenje-info a:hover',
+            '.opentt-prikaz-takmicenja-card a:hover',
+            '.opentt-klubovi a:hover',
             '.stoni-igraci-list a:hover',
             '.stoni-igrac-card a:hover',
             '.top-igraci-list a:hover',
             '.bbs-related-posts a:hover',
             '.stoni-vesti-kartica a:hover',
             '.tabela-lige .klub-cell a:hover',
-            '.stkb-stat-ekipe-table .club a:hover',
-            '.stkb-item a:hover',
+            '.opentt-stat-ekipe-table .club a:hover',
+            '.opentt-item a:hover',
         ]);
 
         return implode("\n", [
@@ -704,10 +704,10 @@ final class OpenTT_Unified_Core
             $subcards . '{background:var(--opentt-box-bg);border-color:var(--opentt-box-border);border-radius:calc(var(--opentt-box-radius) - 4px);}',
             $textSelectors . '{color:var(--opentt-box-text);}',
             $titleSelectors . '{color:var(--opentt-box-title);}',
-            '.stkb-grid-filters select,.stkb-stat-igraca-filter select,.stkb-stat-ekipe-filter select,.stkb-grid-filter-reset,.stkb-klubovi-filters select,.stkb-klubovi-filter-reset{color:var(--opentt-box-title);}',
+            '.opentt-grid-filters select,.opentt-stat-igraca-filter select,.opentt-stat-ekipe-filter select,.opentt-grid-filter-reset,.opentt-klubovi-filters select,.opentt-klubovi-filter-reset{color:var(--opentt-box-title);}',
             $linkSelectors . '{color:var(--opentt-box-title) !important;}',
             $linkHoverSelectors . '{color:var(--opentt-box-accent) !important;}',
-            '.stoni-vesti-kartica,.stkb-item,.stkb-prikaz-takmicenja-card,.stkb-klubovi-item,.related-post-item,.stkb-forma-item,.izvestaj-utakmice-blok{overflow:hidden;}',
+            '.stoni-vesti-kartica,.opentt-item,.opentt-prikaz-takmicenja-card,.opentt-klubovi-item,.related-post-item,.opentt-forma-item,.izvestaj-utakmice-blok{overflow:hidden;}',
         ]);
     }
 
@@ -1433,7 +1433,7 @@ final class OpenTT_Unified_Core
         }
 
         // Fallback sadržaj ako block template nije pronađen.
-        return '<div class="wp-site-blocks"><main class="stkb-match-page" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
+        return '<div class="wp-site-blocks"><main class="opentt-match-page" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
             . do_shortcode('[opentt_match_teams]')
             . do_shortcode('[opentt_standings_table]')
             . do_shortcode('[opentt_match_games]')
@@ -1450,7 +1450,7 @@ final class OpenTT_Unified_Core
         $archive_ctx = self::current_archive_context();
 
         if (is_singular('klub')) {
-            return '<main class="stkb-auto-page stkb-auto-klub" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
+            return '<main class="opentt-auto-page opentt-auto-klub" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
                 . do_shortcode('[opentt_club_info]')
                 . do_shortcode('[opentt_players]')
                 . do_shortcode('[opentt_club_form]')
@@ -1459,7 +1459,7 @@ final class OpenTT_Unified_Core
                 . '</main>';
         }
         if (is_singular('igrac')) {
-            return '<main class="stkb-auto-page stkb-auto-igrac" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
+            return '<main class="opentt-auto-page opentt-auto-igrac" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
                 . do_shortcode('[opentt_player_info]')
                 . do_shortcode('[opentt_player_stats filter="true"]')
                 . do_shortcode('[opentt_player_transfers]')
@@ -1476,7 +1476,7 @@ final class OpenTT_Unified_Core
             if ($sezona !== '') {
                 $args .= ' sezona="' . esc_attr($sezona) . '"';
             }
-            return '<main class="stkb-auto-page stkb-auto-liga-sezona" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
+            return '<main class="opentt-auto-page opentt-auto-liga-sezona" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
                 . do_shortcode('[opentt_competition_info' . $args . ']')
                 . do_shortcode('[opentt_standings_table' . $args . ']')
                 . do_shortcode('[opentt_top_players' . $args . ']')
@@ -1486,7 +1486,7 @@ final class OpenTT_Unified_Core
         if (is_tax('kolo') || (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'kolo')) {
             $kolo = is_array($archive_ctx) ? sanitize_title((string) ($archive_ctx['kolo_slug'] ?? '')) : '';
             $kolo_arg = $kolo !== '' ? ' kolo="' . esc_attr($kolo) . '"' : '';
-            return '<main class="stkb-auto-page stkb-auto-kolo" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
+            return '<main class="opentt-auto-page opentt-auto-kolo" style="max-width:1100px;margin:0 auto;padding:20px 16px;">'
                 . do_shortcode('[opentt_matches_grid columns="4" limit="12" filter="true" infinite="true"' . $kolo_arg . ']')
                 . do_shortcode('[opentt_standings_table' . $kolo_arg . ']')
                 . do_shortcode('[opentt_top_players' . $kolo_arg . ']')
@@ -1600,10 +1600,10 @@ final class OpenTT_Unified_Core
                  LIMIT 5"
             ) ?: [];
         }
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>OpenTT Kontrolna Tabla</h1>';
-        echo '<button type="button" class="stkb-help-card stkb-help-open">';
+        echo '<button type="button" class="opentt-help-card opentt-help-open">';
         echo '<strong>Vodič za unos</strong>';
         echo '<span>Klikni za korake unosa: takmičenja, klubovi, igrači, utakmice, partije i setovi.</span>';
         echo '</button>';
@@ -1617,13 +1617,13 @@ final class OpenTT_Unified_Core
 
         echo '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">';
 
-        echo '<div class="stkb-panel stkb-dashboard-primary-card"><strong>Ukupno utakmica u bazi</strong><ul>';
+        echo '<div class="opentt-panel opentt-dashboard-primary-card"><strong>Ukupno utakmica u bazi</strong><ul>';
         echo '<li>Ukupno: <strong>' . esc_html((string) $counts['db_matches']) . '</strong></li>';
         echo '<li>Partije: <strong>' . esc_html((string) $counts['db_games']) . '</strong></li>';
         echo '<li>Setovi: <strong>' . esc_html((string) $counts['db_sets']) . '</strong></li>';
         echo '</ul></div>';
 
-        echo '<div class="stkb-panel"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>Najnovije utakmice</strong><a href="' . esc_url(admin_url('admin.php?page=stkb-unified-matches')) . '">Vidi sve</a></div>';
+        echo '<div class="opentt-panel"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>Najnovije utakmice</strong><a href="' . esc_url(admin_url('admin.php?page=stkb-unified-matches')) . '">Vidi sve</a></div>';
         if (!$latest_matches) {
             echo '<p>Nema utakmica.</p>';
         } else {
@@ -1640,7 +1640,7 @@ final class OpenTT_Unified_Core
         }
         echo '</div>';
 
-        echo '<div class="stkb-panel"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>Najnoviji igrači</strong><a href="' . esc_url(admin_url('admin.php?page=stkb-unified-players')) . '">Vidi sve</a></div>';
+        echo '<div class="opentt-panel"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>Najnoviji igrači</strong><a href="' . esc_url(admin_url('admin.php?page=stkb-unified-players')) . '">Vidi sve</a></div>';
         if (!$latest_players) {
             echo '<p>Nema igrača.</p>';
         } else {
@@ -1658,7 +1658,7 @@ final class OpenTT_Unified_Core
         }
         echo '</div>';
 
-        echo '<div class="stkb-panel"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>Najnoviji klubovi</strong><a href="' . esc_url(admin_url('admin.php?page=stkb-unified-clubs')) . '">Vidi sve</a></div>';
+        echo '<div class="opentt-panel"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>Najnoviji klubovi</strong><a href="' . esc_url(admin_url('admin.php?page=stkb-unified-clubs')) . '">Vidi sve</a></div>';
         if (!$latest_clubs) {
             echo '<p>Nema klubova.</p>';
         } else {
@@ -1683,7 +1683,7 @@ final class OpenTT_Unified_Core
             'order' => 'DESC',
             'post_status' => ['publish', 'draft', 'pending', 'private'],
         ]) ?: [];
-        echo '<div class="stkb-panel"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>Takmičenja</strong><a href="' . esc_url(admin_url('admin.php?page=stkb-unified-competitions')) . '">Vidi sve</a></div>';
+        echo '<div class="opentt-panel"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>Takmičenja</strong><a href="' . esc_url(admin_url('admin.php?page=stkb-unified-competitions')) . '">Vidi sve</a></div>';
         if (!$latest_competitions) {
             echo '<p>Nema takmičenja.</p>';
         } else {
@@ -1699,7 +1699,7 @@ final class OpenTT_Unified_Core
         echo '</div>';
 
         echo '</div>';
-        echo '<div class="stkb-panel" style="margin-top:16px;">';
+        echo '<div class="opentt-panel" style="margin-top:16px;">';
         echo '<h2 style="margin-top:0;">O projektu</h2>';
         echo '<p>OpenTT je open-source sistem namenjen vođenju i prikazu stonoteniskih takmičenja, klubova i igrača na moderan, brz i održiv način.</p>';
         echo '<p>Projekat je nastao iz stvarne potrebe da se stonoteniska takmičenja prikažu onako kako se zaista igraju: kao timski mečevi koji se sastoje od individualnih duela, sa jasnim kontekstom, istorijom i statistikama.</p>';
@@ -1707,29 +1707,29 @@ final class OpenTT_Unified_Core
         echo '<p style="margin-bottom:0;"><strong>Autor projekta:</strong> <a href="https://instagram.com/tradicije" target="_blank" rel="noopener">Aleksa Dimitrijević</a>.</p>';
         echo '</div>';
 
-        echo '<div class="stkb-help-modal" id="stkb-help-modal" hidden>';
-        echo '  <div class="stkb-help-dialog" role="dialog" aria-modal="true" aria-label="Vodič za unos podataka">';
-        echo '    <div class="stkb-help-head">';
+        echo '<div class="opentt-help-modal" id="opentt-help-modal" hidden>';
+        echo '  <div class="opentt-help-dialog" role="dialog" aria-modal="true" aria-label="Vodič za unos podataka">';
+        echo '    <div class="opentt-help-head">';
         echo '      <h2>Vodič za unos podataka</h2>';
-        echo '      <button type="button" class="button-link stkb-help-close" aria-label="Zatvori">×</button>';
+        echo '      <button type="button" class="button-link opentt-help-close" aria-label="Zatvori">×</button>';
         echo '    </div>';
-        echo '    <div class="stkb-help-body">';
-        echo '      <button type="button" class="stkb-help-step stkb-help-step-open" data-topic="takmicenja"><h3>1. Takmičenja</h3><p>Dodaj ligu, sezonu i pravila takmičenja.</p></button>';
-        echo '      <button type="button" class="stkb-help-step stkb-help-step-open" data-topic="klubovi"><h3>2. Klubovi</h3><p>Unesi osnovne podatke kluba i grb.</p></button>';
-        echo '      <button type="button" class="stkb-help-step stkb-help-step-open" data-topic="igraci"><h3>3. Igrači</h3><p>Poveži igrača sa klubom i dopuni profil.</p></button>';
-        echo '      <button type="button" class="stkb-help-step stkb-help-step-open" data-topic="utakmice"><h3>4. Utakmice</h3><p>Kreiraj utakmicu i unesi rezultat.</p></button>';
-        echo '      <button type="button" class="stkb-help-step stkb-help-step-open" data-topic="partije"><h3>5. Partije</h3><p>Batch unos partija, dubl je automatski.</p></button>';
-        echo '      <button type="button" class="stkb-help-step stkb-help-step-open" data-topic="setovi"><h3>6. Setovi</h3><p>Unesi setove po partiji i proveri zbir.</p></button>';
-        echo '      <button type="button" class="stkb-help-step stkb-help-step-open" data-topic="retro"><h3>7. Retro unos</h3><p>Za stare sezone koristi listu svih igrača.</p></button>';
-        echo '      <button type="button" class="stkb-help-step stkb-help-step-open" data-topic="provera"><h3>8. Provera</h3><p>Na kraju proveri frontend prikaz.</p></button>';
-        echo '      <div class="stkb-help-detail" data-topic="takmicenja" hidden><button type="button" class="button stkb-help-back">← Nazad</button><h3>Takmičenja - detaljno</h3><p><strong>Dodavanje:</strong></p><ol><li>Idi na <em>Takmičenja</em> i klikni <strong>+ Dodaj takmičenje</strong>.</li><li>Unesi naziv lige i sezonu (npr. Kvalitetna Liga / 2025-26).</li><li>Izaberi format partija (A ili B), bodovanje i savez.</li><li>Sačuvaj takmičenje.</li></ol><p><strong>Izmena:</strong> U listi takmičenja klikni <strong>Uredi</strong>, promeni pravila i sačuvaj.</p><p><strong>Brisanje:</strong> Koristi <strong>Obriši</strong> samo ako si siguran da takmičenje nije već povezano sa unetim utakmicama.</p><p><strong>Važno:</strong> Najpre unesi takmičenje, pa tek onda utakmice i partije.</p></div>';
-        echo '      <div class="stkb-help-detail" data-topic="klubovi" hidden><button type="button" class="button stkb-help-back">← Nazad</button><h3>Klubovi - detaljno</h3><p><strong>Dodavanje:</strong></p><ol><li>Idi na <em>Klubovi</em> i klikni <strong>+ Dodaj klub</strong>.</li><li>Unesi naziv, opis i grb.</li><li>Popuni podatke: grad, kontakt, email, adrese, termin igranja i ostalo.</li><li>Sačuvaj.</li></ol><p><strong>Izmena:</strong> U listi klubova klikni <strong>Uredi</strong>, promeni podatke i sačuvaj.</p><p><strong>Brisanje:</strong> Klikni <strong>Obriši</strong> samo kada si siguran da klub ne koristiš u postojećim unosima.</p><p><strong>Savet:</strong> Grb i tačan naziv kluba odmah proveri na frontend-u.</p></div>';
-        echo '      <div class="stkb-help-detail" data-topic="igraci" hidden><button type="button" class="button stkb-help-back">← Nazad</button><h3>Igrači - detaljno</h3><p><strong>Dodavanje:</strong></p><ol><li>Idi na <em>Igrači</em> i klikni <strong>+ Dodaj igrača</strong>.</li><li>Unesi ime i prezime, biografiju i sliku.</li><li>Poveži igrača sa trenutnim klubom.</li><li>Unesi datum rođenja, mesto rođenja i državljanstvo.</li><li>Sačuvaj.</li></ol><p><strong>Izmena:</strong> U listi igrača klikni <strong>Uredi</strong>, promeni podatke i sačuvaj.</p><p><strong>Brisanje:</strong> Koristi <strong>Obriši</strong> oprezno, posebno ako igrač ima istoriju partija.</p><p><strong>Napomena:</strong> Državljanstvo je podrazumevano Srbija, ali možeš ga promeniti po igraču.</p></div>';
-        echo '      <div class="stkb-help-detail" data-topic="utakmice" hidden><button type="button" class="button stkb-help-back">← Nazad</button><h3>Utakmice - detaljno</h3><p><strong>Dodavanje:</strong></p><ol><li>Idi na <em>Utakmice</em> i klikni <strong>+ Dodaj utakmicu</strong>.</li><li>Izaberi takmičenje, kolo i datum.</li><li>Izaberi domaći i gostujući klub.</li><li>Unesi konačan rezultat utakmice.</li><li>Sačuvaj utakmicu.</li></ol><p><strong>Izmena:</strong> U listi utakmica klikni <strong>Uredi</strong>, promeni podatke i sačuvaj.</p><p><strong>Brisanje:</strong> Brisanje utakmice briše i povezane partije i setove.</p><p><strong>Važno:</strong> Rezultat određuje maksimalan broj partija koje možeš da uneseš.</p></div>';
-        echo '      <div class="stkb-help-detail" data-topic="partije" hidden><button type="button" class="button stkb-help-back">← Nazad</button><h3>Partije - detaljno</h3><p><strong>Kako uneti:</strong></p><ol><li>Otvori utakmicu kroz <strong>Uredi</strong>.</li><li>U sekciji batch unosa unesi igrače za svaku partiju.</li><li>Dubl partija se automatski određuje po pravilima takmičenja.</li><li>Za singl partije unosi se po jedan igrač sa svake strane.</li><li>Na kraju klikni <strong>Sačuvaj sve partije</strong>.</li></ol><p><strong>Izmena:</strong> Ponovo otvori utakmicu, ispravi redove partija i sačuvaj.</p><p><strong>Brisanje:</strong> Ako ostaviš partiju praznom, sistem je briše pri snimanju.</p></div>';
-        echo '      <div class="stkb-help-detail" data-topic="setovi" hidden><button type="button" class="button stkb-help-back">← Nazad</button><h3>Setovi - detaljno</h3><p><strong>Unos setova:</strong></p><ol><li>Za svaku partiju imaš polja Set 1 do Set 5.</li><li>Unosi poene domaćina i gosta po setu.</li><li>Proveri da li je broj osvojenih setova logičan u odnosu na rezultat partije.</li><li>Sačuvaj sve partije.</li></ol><p><strong>Izmena:</strong> Ispravi setove i ponovo sačuvaj.</p><p><strong>Napomena:</strong> Ako su setovi uneti, a ukupni setovi prazni, sistem automatski računa zbir.</p></div>';
-        echo '      <div class="stkb-help-detail" data-topic="retro" hidden><button type="button" class="button stkb-help-back">← Nazad</button><h3>Retro unos - detaljno</h3><p><strong>Kada koristiti:</strong> Unos starih sezona kada igrači više nisu u trenutnom klubu.</p><p><strong>Koraci:</strong></p><ol><li>U partiji klikni <strong>Lista igrača</strong> pored dropdown-a.</li><li>U popup-u pretraži ime igrača.</li><li>Klikni igrača iz liste i sistem ga ubacuje u polje.</li><li>Nastavi unos partije i setova.</li></ol><p><strong>Napomena:</strong> Ako je igrač van trenutnog kluba, to je podržano i vidljivo u oznaci.</p></div>';
-        echo '      <div class="stkb-help-detail" data-topic="provera" hidden><button type="button" class="button stkb-help-back">← Nazad</button><h3>Provera - detaljno</h3><p><strong>Posle svakog unosa proveri:</strong></p><ol><li>Frontend utakmicu: rezultat, partije, setove, MVP i ostale blokove.</li><li>Frontend klub: forma, vesti, statistika ekipe.</li><li>Frontend igrača: info, statistika, opentt_player_transfers i vesti igrača.</li></ol><p><strong>Ako vidiš grešku:</strong></p><ol><li>Vrati se u admin na odgovarajuću stavku.</li><li>Ispravi podatke.</li><li>Sačuvaj i osveži frontend stranu.</li></ol><p><strong>Savet:</strong> Najbrže je proveravati odmah nakon unosa, ne na kraju dana.</p></div>';
+        echo '    <div class="opentt-help-body">';
+        echo '      <button type="button" class="opentt-help-step opentt-help-step-open" data-topic="takmicenja"><h3>1. Takmičenja</h3><p>Dodaj ligu, sezonu i pravila takmičenja.</p></button>';
+        echo '      <button type="button" class="opentt-help-step opentt-help-step-open" data-topic="klubovi"><h3>2. Klubovi</h3><p>Unesi osnovne podatke kluba i grb.</p></button>';
+        echo '      <button type="button" class="opentt-help-step opentt-help-step-open" data-topic="igraci"><h3>3. Igrači</h3><p>Poveži igrača sa klubom i dopuni profil.</p></button>';
+        echo '      <button type="button" class="opentt-help-step opentt-help-step-open" data-topic="utakmice"><h3>4. Utakmice</h3><p>Kreiraj utakmicu i unesi rezultat.</p></button>';
+        echo '      <button type="button" class="opentt-help-step opentt-help-step-open" data-topic="partije"><h3>5. Partije</h3><p>Batch unos partija, dubl je automatski.</p></button>';
+        echo '      <button type="button" class="opentt-help-step opentt-help-step-open" data-topic="setovi"><h3>6. Setovi</h3><p>Unesi setove po partiji i proveri zbir.</p></button>';
+        echo '      <button type="button" class="opentt-help-step opentt-help-step-open" data-topic="retro"><h3>7. Retro unos</h3><p>Za stare sezone koristi listu svih igrača.</p></button>';
+        echo '      <button type="button" class="opentt-help-step opentt-help-step-open" data-topic="provera"><h3>8. Provera</h3><p>Na kraju proveri frontend prikaz.</p></button>';
+        echo '      <div class="opentt-help-detail" data-topic="takmicenja" hidden><button type="button" class="button opentt-help-back">← Nazad</button><h3>Takmičenja - detaljno</h3><p><strong>Dodavanje:</strong></p><ol><li>Idi na <em>Takmičenja</em> i klikni <strong>+ Dodaj takmičenje</strong>.</li><li>Unesi naziv lige i sezonu (npr. Kvalitetna Liga / 2025-26).</li><li>Izaberi format partija (A ili B), bodovanje i savez.</li><li>Sačuvaj takmičenje.</li></ol><p><strong>Izmena:</strong> U listi takmičenja klikni <strong>Uredi</strong>, promeni pravila i sačuvaj.</p><p><strong>Brisanje:</strong> Koristi <strong>Obriši</strong> samo ako si siguran da takmičenje nije već povezano sa unetim utakmicama.</p><p><strong>Važno:</strong> Najpre unesi takmičenje, pa tek onda utakmice i partije.</p></div>';
+        echo '      <div class="opentt-help-detail" data-topic="klubovi" hidden><button type="button" class="button opentt-help-back">← Nazad</button><h3>Klubovi - detaljno</h3><p><strong>Dodavanje:</strong></p><ol><li>Idi na <em>Klubovi</em> i klikni <strong>+ Dodaj klub</strong>.</li><li>Unesi naziv, opis i grb.</li><li>Popuni podatke: grad, kontakt, email, adrese, termin igranja i ostalo.</li><li>Sačuvaj.</li></ol><p><strong>Izmena:</strong> U listi klubova klikni <strong>Uredi</strong>, promeni podatke i sačuvaj.</p><p><strong>Brisanje:</strong> Klikni <strong>Obriši</strong> samo kada si siguran da klub ne koristiš u postojećim unosima.</p><p><strong>Savet:</strong> Grb i tačan naziv kluba odmah proveri na frontend-u.</p></div>';
+        echo '      <div class="opentt-help-detail" data-topic="igraci" hidden><button type="button" class="button opentt-help-back">← Nazad</button><h3>Igrači - detaljno</h3><p><strong>Dodavanje:</strong></p><ol><li>Idi na <em>Igrači</em> i klikni <strong>+ Dodaj igrača</strong>.</li><li>Unesi ime i prezime, biografiju i sliku.</li><li>Poveži igrača sa trenutnim klubom.</li><li>Unesi datum rođenja, mesto rođenja i državljanstvo.</li><li>Sačuvaj.</li></ol><p><strong>Izmena:</strong> U listi igrača klikni <strong>Uredi</strong>, promeni podatke i sačuvaj.</p><p><strong>Brisanje:</strong> Koristi <strong>Obriši</strong> oprezno, posebno ako igrač ima istoriju partija.</p><p><strong>Napomena:</strong> Državljanstvo je podrazumevano Srbija, ali možeš ga promeniti po igraču.</p></div>';
+        echo '      <div class="opentt-help-detail" data-topic="utakmice" hidden><button type="button" class="button opentt-help-back">← Nazad</button><h3>Utakmice - detaljno</h3><p><strong>Dodavanje:</strong></p><ol><li>Idi na <em>Utakmice</em> i klikni <strong>+ Dodaj utakmicu</strong>.</li><li>Izaberi takmičenje, kolo i datum.</li><li>Izaberi domaći i gostujući klub.</li><li>Unesi konačan rezultat utakmice.</li><li>Sačuvaj utakmicu.</li></ol><p><strong>Izmena:</strong> U listi utakmica klikni <strong>Uredi</strong>, promeni podatke i sačuvaj.</p><p><strong>Brisanje:</strong> Brisanje utakmice briše i povezane partije i setove.</p><p><strong>Važno:</strong> Rezultat određuje maksimalan broj partija koje možeš da uneseš.</p></div>';
+        echo '      <div class="opentt-help-detail" data-topic="partije" hidden><button type="button" class="button opentt-help-back">← Nazad</button><h3>Partije - detaljno</h3><p><strong>Kako uneti:</strong></p><ol><li>Otvori utakmicu kroz <strong>Uredi</strong>.</li><li>U sekciji batch unosa unesi igrače za svaku partiju.</li><li>Dubl partija se automatski određuje po pravilima takmičenja.</li><li>Za singl partije unosi se po jedan igrač sa svake strane.</li><li>Na kraju klikni <strong>Sačuvaj sve partije</strong>.</li></ol><p><strong>Izmena:</strong> Ponovo otvori utakmicu, ispravi redove partija i sačuvaj.</p><p><strong>Brisanje:</strong> Ako ostaviš partiju praznom, sistem je briše pri snimanju.</p></div>';
+        echo '      <div class="opentt-help-detail" data-topic="setovi" hidden><button type="button" class="button opentt-help-back">← Nazad</button><h3>Setovi - detaljno</h3><p><strong>Unos setova:</strong></p><ol><li>Za svaku partiju imaš polja Set 1 do Set 5.</li><li>Unosi poene domaćina i gosta po setu.</li><li>Proveri da li je broj osvojenih setova logičan u odnosu na rezultat partije.</li><li>Sačuvaj sve partije.</li></ol><p><strong>Izmena:</strong> Ispravi setove i ponovo sačuvaj.</p><p><strong>Napomena:</strong> Ako su setovi uneti, a ukupni setovi prazni, sistem automatski računa zbir.</p></div>';
+        echo '      <div class="opentt-help-detail" data-topic="retro" hidden><button type="button" class="button opentt-help-back">← Nazad</button><h3>Retro unos - detaljno</h3><p><strong>Kada koristiti:</strong> Unos starih sezona kada igrači više nisu u trenutnom klubu.</p><p><strong>Koraci:</strong></p><ol><li>U partiji klikni <strong>Lista igrača</strong> pored dropdown-a.</li><li>U popup-u pretraži ime igrača.</li><li>Klikni igrača iz liste i sistem ga ubacuje u polje.</li><li>Nastavi unos partije i setova.</li></ol><p><strong>Napomena:</strong> Ako je igrač van trenutnog kluba, to je podržano i vidljivo u oznaci.</p></div>';
+        echo '      <div class="opentt-help-detail" data-topic="provera" hidden><button type="button" class="button opentt-help-back">← Nazad</button><h3>Provera - detaljno</h3><p><strong>Posle svakog unosa proveri:</strong></p><ol><li>Frontend utakmicu: rezultat, partije, setove, MVP i ostale blokove.</li><li>Frontend klub: forma, vesti, statistika ekipe.</li><li>Frontend igrača: info, statistika, opentt_player_transfers i vesti igrača.</li></ol><p><strong>Ako vidiš grešku:</strong></p><ol><li>Vrati se u admin na odgovarajuću stavku.</li><li>Ispravi podatke.</li><li>Sačuvaj i osveži frontend stranu.</li></ol><p><strong>Savet:</strong> Najbrže je proveravati odmah nakon unosa, ne na kraju dana.</p></div>';
         echo '    </div>';
         echo '  </div>';
         echo '</div>';
@@ -1738,29 +1738,29 @@ final class OpenTT_Unified_Core
 (function(){
   var modal = document.getElementById('stkb-help-modal');
   if (!modal) { return; }
-  var body = modal.querySelector('.stkb-help-body');
+  var body = modal.querySelector('.opentt-help-body');
   function showOverview(){
     if (!body) { return; }
-    body.querySelectorAll('.stkb-help-step-open').forEach(function(el){ el.hidden = false; });
-    body.querySelectorAll('.stkb-help-detail').forEach(function(el){ el.hidden = true; });
+    body.querySelectorAll('.opentt-help-step-open').forEach(function(el){ el.hidden = false; });
+    body.querySelectorAll('.opentt-help-detail').forEach(function(el){ el.hidden = true; });
   }
   function showTopic(topic){
     if (!body || !topic) { return; }
-    body.querySelectorAll('.stkb-help-step-open').forEach(function(el){ el.hidden = true; });
-    body.querySelectorAll('.stkb-help-detail').forEach(function(el){
+    body.querySelectorAll('.opentt-help-step-open').forEach(function(el){ el.hidden = true; });
+    body.querySelectorAll('.opentt-help-detail').forEach(function(el){
       el.hidden = (el.getAttribute('data-topic') !== topic);
     });
   }
   function openModal(){ modal.removeAttribute('hidden'); }
   function closeModal(){ modal.setAttribute('hidden', 'hidden'); showOverview(); }
   document.addEventListener('click', function(e){
-    var openBtn = e.target.closest('.stkb-help-open');
+    var openBtn = e.target.closest('.opentt-help-open');
     if (openBtn) { openModal(); return; }
-    var stepBtn = e.target.closest('.stkb-help-step-open');
+    var stepBtn = e.target.closest('.opentt-help-step-open');
     if (stepBtn) { showTopic(stepBtn.getAttribute('data-topic')); return; }
-    var backBtn = e.target.closest('.stkb-help-back');
+    var backBtn = e.target.closest('.opentt-help-back');
     if (backBtn) { showOverview(); return; }
-    var closeBtn = e.target.closest('.stkb-help-close');
+    var closeBtn = e.target.closest('.opentt-help-close');
     if (closeBtn || e.target === modal) { closeModal(); }
   });
   document.addEventListener('keydown', function(e){
@@ -1871,12 +1871,12 @@ JS;
             'post_status' => ['publish', 'draft', 'pending', 'private'],
         ]) ?: [];
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Utakmice</h1>';
         echo '<p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-match')) . '">+ Dodaj utakmicu</a></p>';
 
-        echo '<form method="get" class="stkb-panel" style="padding:12px;margin-bottom:12px;">';
+        echo '<form method="get" class="opentt-panel" style="padding:12px;margin-bottom:12px;">';
         echo '<input type="hidden" name="page" value="stkb-unified-matches">';
         echo '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">';
 
@@ -1968,9 +1968,9 @@ JS;
             return;
         }
 
-        echo '<p class="stkb-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
-        echo '<div class="stkb-table-scroll">';
-        echo '<table id="stkb-matches-table" class="widefat striped stkb-live-search-table"><thead><tr><th style="width:32px;"><input type="checkbox" id="stkb-matches-check-all" aria-label="Izaberi sve utakmice"></th><th>Liga</th><th>Sezona</th><th>Kolo</th><th>Utakmica</th><th>Rezultat</th><th>Partije</th><th>Datum</th><th>Akcije</th></tr></thead><tbody>';
+        echo '<p class="opentt-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
+        echo '<div class="opentt-table-scroll">';
+        echo '<table id="opentt-matches-table" class="widefat striped opentt-live-search-table"><thead><tr><th style="width:32px;"><input type="checkbox" id="opentt-matches-check-all" aria-label="Izaberi sve utakmice"></th><th>Liga</th><th>Sezona</th><th>Kolo</th><th>Utakmica</th><th>Rezultat</th><th>Partije</th><th>Datum</th><th>Akcije</th></tr></thead><tbody>';
         foreach ($rows as $m) {
             $home = get_the_title((int) $m->home_club_post_id);
             $away = get_the_title((int) $m->away_club_post_id);
@@ -1982,7 +1982,7 @@ JS;
             );
 
             echo '<tr>';
-            echo '<td><input type="checkbox" class="stkb-match-bulk-checkbox" name="match_ids[]" value="' . intval($m->id) . '" aria-label="Izaberi utakmicu ID ' . intval($m->id) . '"></td>';
+            echo '<td><input type="checkbox" class="opentt-match-bulk-checkbox" name="match_ids[]" value="' . intval($m->id) . '" aria-label="Izaberi utakmicu ID ' . intval($m->id) . '"></td>';
             echo '<td>' . esc_html((string) $m->liga_slug) . '</td>';
             echo '<td>' . esc_html((string) $m->sezona_slug) . '</td>';
             echo '<td>' . esc_html((string) $m->kolo_slug) . '</td>';
@@ -2015,15 +2015,15 @@ JS;
         }
         $rows = get_posts($query_args) ?: [];
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Klubovi</h1>';
         echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px 0;">';
         echo '<a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-club')) . '">+ Dodaj klub</a>';
-        echo '<form method="get" action="" class="stkb-list-search-form" style="display:flex;gap:8px;align-items:center;">';
+        echo '<form method="get" action="" class="opentt-list-search-form" style="display:flex;gap:8px;align-items:center;">';
         echo '<input type="hidden" name="page" value="stkb-unified-clubs">';
-        echo '<input type="search" name="club_search" value="' . esc_attr($search) . '" placeholder="Pretraga klubova..." class="regular-text stkb-live-search-input" data-stkb-live-target="stkb-clubs-table" oninput="window.stkbLiveSearchFilter&&window.stkbLiveSearchFilter(this)" onkeyup="window.stkbLiveSearchFilter&&window.stkbLiveSearchFilter(this)">';
-        echo '<button type="submit" class="button stkb-search-submit">Pretraži</button>';
+        echo '<input type="search" name="club_search" value="' . esc_attr($search) . '" placeholder="Pretraga klubova..." class="regular-text opentt-live-search-input" data-opentt-live-target="opentt-clubs-table" oninput="window.openttLiveSearchFilter&&window.openttLiveSearchFilter(this)" onkeyup="window.openttLiveSearchFilter&&window.openttLiveSearchFilter(this)">';
+        echo '<button type="submit" class="button opentt-search-submit">Pretraži</button>';
         if ($search !== '') {
             echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-clubs')) . '">Reset</a>';
         }
@@ -2041,9 +2041,9 @@ JS;
             echo '<input type="hidden" name="club_search" value="' . esc_attr($search) . '">';
         }
 
-        echo '<p class="stkb-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
-        echo '<div class="stkb-table-scroll">';
-        echo '<table id="stkb-clubs-table" class="widefat striped stkb-live-search-table"><thead><tr><th style="width:32px;"><input type="checkbox" id="stkb-clubs-check-all" aria-label="Izaberi sve klubove"></th><th>Klub</th><th>Opština</th><th>Grad</th><th>Kontakt</th><th>Akcije</th></tr></thead><tbody>';
+        echo '<p class="opentt-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
+        echo '<div class="opentt-table-scroll">';
+        echo '<table id="opentt-clubs-table" class="widefat striped opentt-live-search-table"><thead><tr><th style="width:32px;"><input type="checkbox" id="opentt-clubs-check-all" aria-label="Izaberi sve klubove"></th><th>Klub</th><th>Opština</th><th>Grad</th><th>Kontakt</th><th>Akcije</th></tr></thead><tbody>';
         foreach ($rows as $c) {
             $edit_url = admin_url('admin.php?page=stkb-unified-add-club&action=edit&id=' . (int) $c->ID);
             $front_url = get_permalink((int) $c->ID) ?: '';
@@ -2053,7 +2053,7 @@ JS;
             );
             $opstina = (string) get_post_meta($c->ID, 'opstina', true);
             echo '<tr>';
-            echo '<td><input type="checkbox" class="stkb-club-bulk-checkbox" name="club_ids[]" value="' . (int) $c->ID . '" aria-label="Izaberi klub ' . esc_attr((string) $c->post_title) . '"></td>';
+            echo '<td><input type="checkbox" class="opentt-club-bulk-checkbox" name="club_ids[]" value="' . (int) $c->ID . '" aria-label="Izaberi klub ' . esc_attr((string) $c->post_title) . '"></td>';
             echo '<td>' . esc_html((string) $c->post_title) . '</td>';
             echo '<td>' . esc_html($opstina) . '</td>';
             echo '<td>' . esc_html((string) get_post_meta($c->ID, 'grad', true)) . '</td>';
@@ -2185,14 +2185,14 @@ JS;
             return $sort_dir === 'DESC' ? -$cmp : $cmp;
         });
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Igrači</h1>';
         echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px 0;">';
         echo '<a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-player')) . '">+ Dodaj igrača</a>';
-        echo '<form method="get" action="" class="stkb-list-search-form" style="display:flex;gap:8px;align-items:center;">';
+        echo '<form method="get" action="" class="opentt-list-search-form" style="display:flex;gap:8px;align-items:center;">';
         echo '<input type="hidden" name="page" value="stkb-unified-players">';
-        echo '<input type="search" name="player_search" value="' . esc_attr($search) . '" placeholder="Pretraga igrača..." class="regular-text stkb-live-search-input" data-stkb-live-target="stkb-players-table" oninput="window.stkbLiveSearchFilter&&window.stkbLiveSearchFilter(this)" onkeyup="window.stkbLiveSearchFilter&&window.stkbLiveSearchFilter(this)">';
+        echo '<input type="search" name="player_search" value="' . esc_attr($search) . '" placeholder="Pretraga igrača..." class="regular-text opentt-live-search-input" data-opentt-live-target="opentt-players-table" oninput="window.openttLiveSearchFilter&&window.openttLiveSearchFilter(this)" onkeyup="window.openttLiveSearchFilter&&window.openttLiveSearchFilter(this)">';
         echo '<select name="club_id">';
         echo '<option value="0">Svi klubovi</option>';
         foreach ($clubs as $club) {
@@ -2216,7 +2216,7 @@ JS;
         echo '<option value="ASC"' . selected($sort_dir, 'ASC', false) . '>A-Z</option>';
         echo '<option value="DESC"' . selected($sort_dir, 'DESC', false) . '>Z-A</option>';
         echo '</select>';
-        echo '<button type="submit" class="button stkb-search-submit">Primeni</button>';
+        echo '<button type="submit" class="button opentt-search-submit">Primeni</button>';
         if ($search !== '' || $f_club > 0 || $f_liga !== '' || $sort_by !== 'player' || $sort_dir !== 'ASC') {
             echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-players')) . '">Reset</a>';
         }
@@ -2247,9 +2247,9 @@ JS;
             echo '<input type="hidden" name="sort_dir" value="' . esc_attr($sort_dir) . '">';
         }
 
-        echo '<p class="stkb-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
-        echo '<div class="stkb-table-scroll">';
-        echo '<table id="stkb-players-table" class="widefat striped stkb-live-search-table"><thead><tr><th style="width:32px;"><input type="checkbox" id="stkb-players-check-all" aria-label="Izaberi sve igrače"></th><th>Igrač</th><th>Klub</th><th>Datum rođenja</th><th>Akcije</th></tr></thead><tbody>';
+        echo '<p class="opentt-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
+        echo '<div class="opentt-table-scroll">';
+        echo '<table id="opentt-players-table" class="widefat striped opentt-live-search-table"><thead><tr><th style="width:32px;"><input type="checkbox" id="opentt-players-check-all" aria-label="Izaberi sve igrače"></th><th>Igrač</th><th>Klub</th><th>Datum rođenja</th><th>Akcije</th></tr></thead><tbody>';
         foreach ($rows as $p) {
             $club_id = self::get_player_club_id((int) $p->ID);
             $edit_url = admin_url('admin.php?page=stkb-unified-add-player&action=edit&id=' . (int) $p->ID);
@@ -2259,7 +2259,7 @@ JS;
                 'opentt_unified_delete_player_' . (int) $p->ID
             );
             echo '<tr>';
-            echo '<td><input type="checkbox" class="stkb-player-bulk-checkbox" name="player_ids[]" value="' . (int) $p->ID . '" aria-label="Izaberi igrača ' . esc_attr((string) $p->post_title) . '"></td>';
+            echo '<td><input type="checkbox" class="opentt-player-bulk-checkbox" name="player_ids[]" value="' . (int) $p->ID . '" aria-label="Izaberi igrača ' . esc_attr((string) $p->post_title) . '"></td>';
             echo '<td>' . esc_html((string) $p->post_title) . '</td>';
             echo '<td>' . esc_html($club_id ? (string) get_the_title($club_id) : '') . '</td>';
             echo '<td>' . esc_html((string) get_post_meta($p->ID, 'datum_rodjenja', true)) . '</td>';
@@ -2284,7 +2284,7 @@ JS;
             'post_status' => ['publish', 'draft', 'pending', 'private'],
         ]) ?: [];
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Lige</h1><p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-league')) . '">+ Dodaj ligu</a></p>';
 
@@ -2322,7 +2322,7 @@ JS;
             'post_status' => ['publish', 'draft', 'pending', 'private'],
         ]) ?: [];
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Sezone</h1><p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-season')) . '">+ Dodaj sezonu</a></p>';
         if (!$rows) {
@@ -2401,7 +2401,7 @@ JS;
             wp_enqueue_script('wp-color-picker');
             $cm_settings = wp_enqueue_code_editor(['type' => 'text/css']);
             if (!empty($cm_settings)) {
-                wp_localize_script('stkb-unified-admin', 'stkbCodeEditorSettings', $cm_settings);
+                wp_localize_script('stkb-unified-admin', 'openttCodeEditorSettings', $cm_settings);
             }
         }
     }
@@ -2418,7 +2418,7 @@ JS;
 (function(){
   function applyForInput(input){
     if (!input) { return; }
-    var targetId = input.getAttribute('data-stkb-live-target');
+    var targetId = input.getAttribute('data-opentt-live-target');
     if (!targetId) { return; }
     var table = document.getElementById(targetId);
     if (!table) { return; }
@@ -2433,18 +2433,18 @@ JS;
     });
   }
 
-  window.stkbLiveSearchFilter = applyForInput;
+  window.openttLiveSearchFilter = applyForInput;
 
   document.addEventListener('input', function(e){
-    var input = e.target && e.target.closest ? e.target.closest('.stkb-live-search-input') : null;
+    var input = e.target && e.target.closest ? e.target.closest('.opentt-live-search-input') : null;
     if (input) { applyForInput(input); }
   });
   document.addEventListener('keyup', function(e){
-    var input = e.target && e.target.closest ? e.target.closest('.stkb-live-search-input') : null;
+    var input = e.target && e.target.closest ? e.target.closest('.opentt-live-search-input') : null;
     if (input) { applyForInput(input); }
   });
   document.addEventListener('search', function(e){
-    var input = e.target && e.target.closest ? e.target.closest('.stkb-live-search-input') : null;
+    var input = e.target && e.target.closest ? e.target.closest('.opentt-live-search-input') : null;
     if (input) { applyForInput(input); }
   });
 })();
@@ -2455,16 +2455,16 @@ HTML;
     private static function render_admin_topbar()
     {
         $logo_path = trailingslashit(self::$plugin_dir) . 'opentt-logo.png';
-        echo '<div class="stkb-admin-topbar">';
-        echo '<div class="stkb-admin-brand">';
+        echo '<div class="opentt-admin-topbar">';
+        echo '<div class="opentt-admin-brand">';
         if (is_readable($logo_path)) {
             $logo_url = plugins_url('opentt-logo.png', self::$plugin_file);
-            echo '<img class="stkb-dashboard-logo" src="' . esc_url($logo_url) . '" alt="OpenTT logo">';
+            echo '<img class="opentt-dashboard-logo" src="' . esc_url($logo_url) . '" alt="OpenTT logo">';
         } else {
             echo '<strong>OpenTT</strong>';
         }
         echo '</div>';
-        echo '<div class="stkb-admin-actions">';
+        echo '<div class="opentt-admin-actions">';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified')) . '">Kontrolna tabla</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-matches')) . '">Utakmice</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-clubs')) . '">Klubovi</a>';
@@ -2502,28 +2502,28 @@ HTML;
         $m_hs = $match ? (int) $match->home_score : 0;
         $m_as = $match ? (int) $match->away_score : 0;
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>' . ($match ? 'Uredi utakmicu' : 'Dodaj utakmicu') . '</h1>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-wizard-form" data-stkb-steps="3">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-wizard-form" data-opentt-steps="3">';
         wp_nonce_field('opentt_unified_save_match');
         echo '<input type="hidden" name="action" value="opentt_unified_save_match">';
         echo '<input type="hidden" name="id" value="' . esc_attr((string) ($match ? (int) $match->id : 0)) . '">';
-        echo '<div class="stkb-wizard-steps"><span class="stkb-step-pill">1. Takmičenje</span><span class="stkb-step-pill">2. Ekipe i rezultat</span><span class="stkb-step-pill">3. Potvrda</span></div>';
+        echo '<div class="opentt-wizard-steps"><span class="opentt-step-pill">1. Takmičenje</span><span class="opentt-step-pill">2. Ekipe i rezultat</span><span class="opentt-step-pill">3. Potvrda</span></div>';
         echo '<table class="form-table"><tbody>';
-        echo '<tr data-stkb-step="1"><th>Takmičenje</th><td>' . self::competition_rules_dropdown_admin('competition_rule_id', self::competition_rule_id_by_slugs($m_liga, $m_sezona), true) . '<p class="description">U meniju <strong>Takmičenja</strong> dodaješ liga+sezona i pravila.</p></td></tr>';
-        echo '<tr data-stkb-step="1"><th>Kolo slug</th><td><input type="text" class="regular-text" name="kolo_slug" value="' . esc_attr($m_kolo) . '" required><p class="description">Primer: <code>12-kolo</code>.</p></td></tr>';
-        echo '<tr data-stkb-step="1"><th>Datum i vreme</th><td><input name="match_date" type="datetime-local" value="' . esc_attr($match && !empty($match->match_date) ? str_replace(' ', 'T', substr((string) $match->match_date, 0, 16)) : '') . '"></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Domaći klub</th><td>' . self::clubs_dropdown_admin('home_club_post_id', $m_home, true) . '</td></tr>';
-        echo '<tr data-stkb-step="2"><th>Gostujući klub</th><td>' . self::clubs_dropdown_admin('away_club_post_id', $m_away, true) . '</td></tr>';
-        echo '<tr data-stkb-step="2"><th>Rezultat</th><td><input name="home_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_hs) . '" style="width:90px;"> : <input name="away_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_as) . '" style="width:90px;"></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Potvrda</th><td><p class="description">Proveri podatke i klikni na dugme za čuvanje.</p></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Takmičenje</th><td>' . self::competition_rules_dropdown_admin('competition_rule_id', self::competition_rule_id_by_slugs($m_liga, $m_sezona), true) . '<p class="description">U meniju <strong>Takmičenja</strong> dodaješ liga+sezona i pravila.</p></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Kolo slug</th><td><input type="text" class="regular-text" name="kolo_slug" value="' . esc_attr($m_kolo) . '" required><p class="description">Primer: <code>12-kolo</code>.</p></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Datum i vreme</th><td><input name="match_date" type="datetime-local" value="' . esc_attr($match && !empty($match->match_date) ? str_replace(' ', 'T', substr((string) $match->match_date, 0, 16)) : '') . '"></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Domaći klub</th><td>' . self::clubs_dropdown_admin('home_club_post_id', $m_home, true) . '</td></tr>';
+        echo '<tr data-opentt-step="2"><th>Gostujući klub</th><td>' . self::clubs_dropdown_admin('away_club_post_id', $m_away, true) . '</td></tr>';
+        echo '<tr data-opentt-step="2"><th>Rezultat</th><td><input name="home_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_hs) . '" style="width:90px;"> : <input name="away_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_as) . '" style="width:90px;"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Potvrda</th><td><p class="description">Proveri podatke i klikni na dugme za čuvanje.</p></td></tr>';
         echo '</tbody></table>';
-        echo '<div class="stkb-wizard-nav">';
-        echo '<button type="button" class="button stkb-wizard-prev">Nazad</button>';
-        echo '<button type="button" class="button stkb-wizard-next">Dalje</button>';
-        echo '<button type="submit" class="button button-primary stkb-wizard-submit">' . esc_html($match ? 'Sačuvaj izmene' : 'Dodaj utakmicu') . '</button>';
-        echo '<span class="stkb-wizard-help"></span>';
+        echo '<div class="opentt-wizard-nav">';
+        echo '<button type="button" class="button opentt-wizard-prev">Nazad</button>';
+        echo '<button type="button" class="button opentt-wizard-next">Dalje</button>';
+        echo '<button type="submit" class="button button-primary opentt-wizard-submit">' . esc_html($match ? 'Sačuvaj izmene' : 'Dodaj utakmicu') . '</button>';
+        echo '<span class="opentt-wizard-help"></span>';
         echo '</div>';
         echo '</form>';
 
@@ -2558,7 +2558,7 @@ HTML;
             echo '<p class="description">Unesi sve partije i setove odjednom, pa klikni <strong>Sačuvaj sve partije</strong>. Prazna partija se briše (ako je ranije postojala).</p>';
             echo '<p class="description">Dubl partija je automatski određena pravilima takmičenja: <strong>#' . (int) $expected_doubles_order . '</strong>.</p>';
 
-            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-panel">';
+            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-panel">';
             wp_nonce_field('opentt_unified_save_games_batch');
             echo '<input type="hidden" name="action" value="opentt_unified_save_games_batch">';
             echo '<input type="hidden" name="match_id" value="' . (int) $match->id . '">';
@@ -2571,13 +2571,13 @@ HTML;
                 $away_sets = $g ? (int) $g->away_sets : 0;
                 $existing_sets = ($g_id > 0 && isset($sets_by_game[$g_id])) ? $sets_by_game[$g_id] : [];
 
-                echo '<div class="stkb-games-batch-row">';
+                echo '<div class="opentt-games-batch-row">';
                 echo '<h3>Partija #' . (int) $n . ($is_doubles ? ' (Dubl)' : '') . '</h3>';
                 echo '<input type="hidden" name="games[' . (int) $n . '][game_id]" value="' . (int) $g_id . '">';
                 echo '<input type="hidden" name="games[' . (int) $n . '][order_no]" value="' . (int) $n . '">';
                 echo '<input type="hidden" name="games[' . (int) $n . '][is_doubles]" value="' . ($is_doubles ? '1' : '0') . '">';
 
-                echo '<div class="stkb-games-batch-grid">';
+                echo '<div class="opentt-games-batch-grid">';
                 echo '<label>Domaći igrač';
                 echo self::players_dropdown_admin('games[' . (int) $n . '][home_player_post_id]', $g ? (int) $g->home_player_post_id : 0, (int) $match->home_club_post_id, false);
                 echo '</label>';
@@ -2599,11 +2599,11 @@ HTML;
                     echo self::players_dropdown_admin('games[' . (int) $n . '][away_player2_post_id]', $g ? (int) $g->away_player2_post_id : 0, (int) $match->away_club_post_id, false);
                     echo '</label>';
                 } else {
-                    echo '<div class="stkb-games-batch-note">Singl partija: drugi igrač nije potreban.</div>';
+                    echo '<div class="opentt-games-batch-note">Singl partija: drugi igrač nije potreban.</div>';
                 }
                 echo '</div>';
 
-                echo '<div class="stkb-sets-batch-grid">';
+                echo '<div class="opentt-sets-batch-grid">';
                 for ($s = 1; $s <= 5; $s++) {
                     $set_row = isset($existing_sets[$s]) ? $existing_sets[$s] : null;
                     $hp = $set_row ? (int) $set_row->home_points : '';
@@ -2623,14 +2623,14 @@ HTML;
             submit_button('Sačuvaj sve partije', 'primary', 'submit', false);
             echo '</form>';
 
-            echo '<div class="stkb-player-picker-modal" id="stkb-player-picker-modal" hidden>';
-            echo '  <div class="stkb-player-picker-dialog" role="dialog" aria-modal="true" aria-label="Lista igrača">';
-            echo '    <div class="stkb-player-picker-head">';
+            echo '<div class="opentt-player-picker-modal" id="opentt-player-picker-modal" hidden>';
+            echo '  <div class="opentt-player-picker-dialog" role="dialog" aria-modal="true" aria-label="Lista igrača">';
+            echo '    <div class="opentt-player-picker-head">';
             echo '      <strong>Lista igrača</strong>';
-            echo '      <button type="button" class="button-link stkb-player-picker-close" aria-label="Zatvori">×</button>';
+            echo '      <button type="button" class="button-link opentt-player-picker-close" aria-label="Zatvori">×</button>';
             echo '    </div>';
-            echo '    <input type="search" class="stkb-player-picker-search" placeholder="Pretraga igrača..." aria-label="Pretraga igrača">';
-            echo '    <div class="stkb-player-picker-list" role="listbox">';
+            echo '    <input type="search" class="opentt-player-picker-search" placeholder="Pretraga igrača..." aria-label="Pretraga igrača">';
+            echo '    <div class="opentt-player-picker-list" role="listbox">';
             if (!empty($all_players_index)) {
                 foreach ($all_players_index as $p) {
                     $pid = isset($p['id']) ? (int) $p['id'] : 0;
@@ -2639,13 +2639,13 @@ HTML;
                     if ($pid <= 0 || $pname === '') {
                         continue;
                     }
-                    echo '<button type="button" class="stkb-player-picker-item" data-player-id="' . (int) $pid . '" data-player-name="' . esc_attr($pname) . '">';
+                    echo '<button type="button" class="opentt-player-picker-item" data-player-id="' . (int) $pid . '" data-player-name="' . esc_attr($pname) . '">';
                     echo '<span class="name">' . esc_html($pname) . '</span>';
                     echo '<span class="club">' . esc_html($pclub !== '' ? $pclub : 'Bez kluba') . '</span>';
                     echo '</button>';
                 }
             } else {
-                echo '<div class="stkb-player-picker-empty">Nema igrača za prikaz.</div>';
+                echo '<div class="opentt-player-picker-empty">Nema igrača za prikaz.</div>';
             }
             echo '    </div>';
             echo '  </div>';
@@ -2674,39 +2674,39 @@ HTML;
         $thumb_id = $club ? get_post_thumbnail_id($club->ID) : 0;
         $thumb_html = $thumb_id ? wp_get_attachment_image($thumb_id, 'medium') : '<div style="width:120px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema grba</div>';
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>' . ($club ? 'Uredi klub' : 'Dodaj klub') . '</h1>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-wizard-form" data-stkb-steps="3">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-wizard-form" data-opentt-steps="3">';
         wp_nonce_field('opentt_unified_save_club');
         echo '<input type="hidden" name="action" value="opentt_unified_save_club">';
         echo '<input type="hidden" name="id" value="' . esc_attr((string) $club_id) . '">';
-        echo '<div class="stkb-wizard-steps"><span class="stkb-step-pill">1. Osnovno</span><span class="stkb-step-pill">2. Mediji</span><span class="stkb-step-pill">3. Kontakt i detalji</span></div>';
+        echo '<div class="opentt-wizard-steps"><span class="opentt-step-pill">1. Osnovno</span><span class="opentt-step-pill">2. Mediji</span><span class="opentt-step-pill">3. Kontakt i detalji</span></div>';
         echo '<table class="form-table"><tbody>';
-        echo '<tr data-stkb-step="1"><th>Naziv kluba</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($club_title) . '" required></td></tr>';
-        echo '<tr data-stkb-step="1"><th>Opis</th><td><textarea name="post_content" rows="6" class="large-text">' . esc_textarea($club_content) . '</textarea></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Grb</th><td><div id="stkb_club_thumb_preview">' . $thumb_html . '</div><input type="hidden" id="stkb_club_thumb_id" name="featured_image_id" value="' . esc_attr((string) $thumb_id) . '"><p><button type="button" class="button" id="stkb_club_thumb_btn">Izaberi grb</button> <button type="button" class="button" id="stkb_club_thumb_remove">Ukloni</button></p></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Naziv kluba</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($club_title) . '" required></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Opis</th><td><textarea name="post_content" rows="6" class="large-text">' . esc_textarea($club_content) . '</textarea></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Grb</th><td><div id="stkb_club_thumb_preview">' . $thumb_html . '</div><input type="hidden" id="stkb_club_thumb_id" name="featured_image_id" value="' . esc_attr((string) $thumb_id) . '"><p><button type="button" class="button" id="stkb_club_thumb_btn">Izaberi grb</button> <button type="button" class="button" id="stkb_club_thumb_remove">Ukloni</button></p></td></tr>';
         $opstina_selected = (string) get_post_meta($club_id, 'opstina', true);
         if ($opstina_selected === '') {
             $opstina_selected = (string) get_post_meta($club_id, 'grad', true);
         }
-        echo '<tr data-stkb-step="3"><th>Opština</th><td>' . self::municipality_dropdown_admin('opstina', $opstina_selected, false) . '</td></tr>';
-        echo '<tr data-stkb-step="3"><th>Grad</th><td><input name="grad" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'grad', true)) . '"><p class="description">Opcionalno: mesto/grad kluba (ako želiš detaljnije od opštine).</p></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Kontakt</th><td><input name="kontakt" type="text" class="regular-text" placeholder="+381601234567" value="' . esc_attr((string) get_post_meta($club_id, 'kontakt', true)) . '"><p class="description">Primer formata: <code>+381601234567</code> ili <code>0601234567</code>.</p></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Email</th><td><input name="email" type="email" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'email', true)) . '"></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Zastupnik kluba</th><td><input name="zastupnik_kluba" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'zastupnik_kluba', true)) . '"></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Website kluba</th><td><input name="website_kluba" type="url" class="regular-text" placeholder="https://..." value="' . esc_attr((string) get_post_meta($club_id, 'website_kluba', true)) . '"></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Boja dresa</th><td><input name="boja_dresa" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'boja_dresa', true)) . '"></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Loptice</th><td><input name="loptice" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'loptice', true)) . '"></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Adresa kluba</th><td><input name="adresa_kluba" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'adresa_kluba', true)) . '"></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Adresa sale</th><td><input name="adresa_sale" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'adresa_sale', true)) . '"></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Termin igranja</th><td><input name="termin_igranja" type="text" class="regular-text" placeholder="npr. Petak 20:00" value="' . esc_attr((string) get_post_meta($club_id, 'termin_igranja', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Opština</th><td>' . self::municipality_dropdown_admin('opstina', $opstina_selected, false) . '</td></tr>';
+        echo '<tr data-opentt-step="3"><th>Grad</th><td><input name="grad" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'grad', true)) . '"><p class="description">Opcionalno: mesto/grad kluba (ako želiš detaljnije od opštine).</p></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Kontakt</th><td><input name="kontakt" type="text" class="regular-text" placeholder="+381601234567" value="' . esc_attr((string) get_post_meta($club_id, 'kontakt', true)) . '"><p class="description">Primer formata: <code>+381601234567</code> ili <code>0601234567</code>.</p></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Email</th><td><input name="email" type="email" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'email', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Zastupnik kluba</th><td><input name="zastupnik_kluba" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'zastupnik_kluba', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Website kluba</th><td><input name="website_kluba" type="url" class="regular-text" placeholder="https://..." value="' . esc_attr((string) get_post_meta($club_id, 'website_kluba', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Boja dresa</th><td><input name="boja_dresa" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'boja_dresa', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Loptice</th><td><input name="loptice" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'loptice', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Adresa kluba</th><td><input name="adresa_kluba" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'adresa_kluba', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Adresa sale</th><td><input name="adresa_sale" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($club_id, 'adresa_sale', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Termin igranja</th><td><input name="termin_igranja" type="text" class="regular-text" placeholder="npr. Petak 20:00" value="' . esc_attr((string) get_post_meta($club_id, 'termin_igranja', true)) . '"></td></tr>';
         echo '</tbody></table>';
-        echo '<div class="stkb-wizard-nav">';
-        echo '<button type="button" class="button stkb-wizard-prev">Nazad</button>';
-        echo '<button type="button" class="button stkb-wizard-next">Dalje</button>';
-        echo '<button type="submit" class="button button-primary stkb-wizard-submit">' . esc_html($club ? 'Sačuvaj izmene' : 'Dodaj klub') . '</button>';
-        echo '<span class="stkb-wizard-help"></span>';
+        echo '<div class="opentt-wizard-nav">';
+        echo '<button type="button" class="button opentt-wizard-prev">Nazad</button>';
+        echo '<button type="button" class="button opentt-wizard-next">Dalje</button>';
+        echo '<button type="submit" class="button button-primary opentt-wizard-submit">' . esc_html($club ? 'Sačuvaj izmene' : 'Dodaj klub') . '</button>';
+        echo '<span class="opentt-wizard-help"></span>';
         echo '</div>';
         echo '</form></div>';
         echo <<<'JS'
@@ -2753,32 +2753,32 @@ JS;
         $thumb_id = $player ? get_post_thumbnail_id($player->ID) : 0;
         $thumb_html = $thumb_id ? wp_get_attachment_image($thumb_id, 'medium') : '<div style="width:120px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema slike</div>';
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>' . ($player ? 'Uredi igrača' : 'Dodaj igrača') . '</h1>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-wizard-form" data-stkb-steps="3">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-wizard-form" data-opentt-steps="3">';
         wp_nonce_field('opentt_unified_save_player');
         echo '<input type="hidden" name="action" value="opentt_unified_save_player">';
         echo '<input type="hidden" name="id" value="' . esc_attr((string) $player_id) . '">';
-        echo '<div class="stkb-wizard-steps"><span class="stkb-step-pill">1. Osnovno</span><span class="stkb-step-pill">2. Klub i slika</span><span class="stkb-step-pill">3. Dodatno</span></div>';
+        echo '<div class="opentt-wizard-steps"><span class="opentt-step-pill">1. Osnovno</span><span class="opentt-step-pill">2. Klub i slika</span><span class="opentt-step-pill">3. Dodatno</span></div>';
         echo '<table class="form-table"><tbody>';
-        echo '<tr data-stkb-step="1"><th>Ime i prezime</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($player_title) . '" required></td></tr>';
-        echo '<tr data-stkb-step="1"><th>Biografija</th><td><textarea name="post_content" rows="6" class="large-text">' . esc_textarea($player_content) . '</textarea></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Slika</th><td><div id="stkb_player_thumb_preview">' . $thumb_html . '</div><input type="hidden" id="stkb_player_thumb_id" name="featured_image_id" value="' . esc_attr((string) $thumb_id) . '"><p><button type="button" class="button" id="stkb_player_thumb_btn">Izaberi sliku</button> <button type="button" class="button" id="stkb_player_thumb_remove">Ukloni</button></p></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Povezani klub</th><td>' . self::clubs_dropdown_admin('povezani_klub', self::get_player_club_id($player_id), false) . '</td></tr>';
-        echo '<tr data-stkb-step="3"><th>Datum rođenja</th><td><input name="datum_rodjenja" type="date" value="' . esc_attr((string) get_post_meta($player_id, 'datum_rodjenja', true)) . '"></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Mesto rođenja</th><td><input name="mesto_rodjenja" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($player_id, 'mesto_rodjenja', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Ime i prezime</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($player_title) . '" required></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Biografija</th><td><textarea name="post_content" rows="6" class="large-text">' . esc_textarea($player_content) . '</textarea></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Slika</th><td><div id="stkb_player_thumb_preview">' . $thumb_html . '</div><input type="hidden" id="stkb_player_thumb_id" name="featured_image_id" value="' . esc_attr((string) $thumb_id) . '"><p><button type="button" class="button" id="stkb_player_thumb_btn">Izaberi sliku</button> <button type="button" class="button" id="stkb_player_thumb_remove">Ukloni</button></p></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Povezani klub</th><td>' . self::clubs_dropdown_admin('povezani_klub', self::get_player_club_id($player_id), false) . '</td></tr>';
+        echo '<tr data-opentt-step="3"><th>Datum rođenja</th><td><input name="datum_rodjenja" type="date" value="' . esc_attr((string) get_post_meta($player_id, 'datum_rodjenja', true)) . '"></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Mesto rođenja</th><td><input name="mesto_rodjenja" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($player_id, 'mesto_rodjenja', true)) . '"></td></tr>';
         $player_country = (string) get_post_meta($player_id, 'drzavljanstvo', true);
         if ($player_country === '') {
             $player_country = 'RS';
         }
-        echo '<tr data-stkb-step="3"><th>Državljanstvo</th><td>' . self::country_dropdown_admin('drzavljanstvo', $player_country, false) . '</td></tr>';
+        echo '<tr data-opentt-step="3"><th>Državljanstvo</th><td>' . self::country_dropdown_admin('drzavljanstvo', $player_country, false) . '</td></tr>';
         echo '</tbody></table>';
-        echo '<div class="stkb-wizard-nav">';
-        echo '<button type="button" class="button stkb-wizard-prev">Nazad</button>';
-        echo '<button type="button" class="button stkb-wizard-next">Dalje</button>';
-        echo '<button type="submit" class="button button-primary stkb-wizard-submit">' . esc_html($player ? 'Sačuvaj izmene' : 'Dodaj igrača') . '</button>';
-        echo '<span class="stkb-wizard-help"></span>';
+        echo '<div class="opentt-wizard-nav">';
+        echo '<button type="button" class="button opentt-wizard-prev">Nazad</button>';
+        echo '<button type="button" class="button opentt-wizard-next">Dalje</button>';
+        echo '<button type="submit" class="button button-primary opentt-wizard-submit">' . esc_html($player ? 'Sačuvaj izmene' : 'Dodaj igrača') . '</button>';
+        echo '<span class="opentt-wizard-help"></span>';
         echo '</div>';
         echo '</form></div>';
         echo <<<'JS'
@@ -2808,7 +2808,7 @@ JS;
     public static function render_league_edit_page()
     {
         self::require_cap();
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         $action = isset($_GET['action']) ? sanitize_key((string) $_GET['action']) : 'new';
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -2825,21 +2825,21 @@ JS;
         $content = $league ? (string) $league->post_content : '';
 
         echo '<h1>' . ($league ? 'Uredi ligu' : 'Dodaj ligu') . '</h1>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-wizard-form" data-stkb-steps="2">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-wizard-form" data-opentt-steps="2">';
         wp_nonce_field('opentt_unified_save_league');
         echo '<input type="hidden" name="action" value="opentt_unified_save_league">';
         echo '<input type="hidden" name="id" value="' . esc_attr((string) ($league ? (int) $league->ID : 0)) . '">';
-        echo '<div class="stkb-wizard-steps"><span class="stkb-step-pill">1. Osnovno</span><span class="stkb-step-pill">2. Potvrda</span></div>';
+        echo '<div class="opentt-wizard-steps"><span class="opentt-step-pill">1. Osnovno</span><span class="opentt-step-pill">2. Potvrda</span></div>';
         echo '<table class="form-table"><tbody>';
-        echo '<tr data-stkb-step="1"><th>Naziv lige</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($title) . '" required></td></tr>';
-        echo '<tr data-stkb-step="1"><th>Opis</th><td><textarea name="post_content" rows="5" class="large-text">' . esc_textarea($content) . '</textarea></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Potvrda</th><td><p class="description">Sačuvaj ligu. Slug će se automatski formirati iz naziva.</p></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Naziv lige</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($title) . '" required></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Opis</th><td><textarea name="post_content" rows="5" class="large-text">' . esc_textarea($content) . '</textarea></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Potvrda</th><td><p class="description">Sačuvaj ligu. Slug će se automatski formirati iz naziva.</p></td></tr>';
         echo '</tbody></table>';
-        echo '<div class="stkb-wizard-nav">';
-        echo '<button type="button" class="button stkb-wizard-prev">Nazad</button>';
-        echo '<button type="button" class="button stkb-wizard-next">Dalje</button>';
-        echo '<button type="submit" class="button button-primary stkb-wizard-submit">' . esc_html($league ? 'Sačuvaj izmene' : 'Dodaj ligu') . '</button>';
-        echo '<span class="stkb-wizard-help"></span>';
+        echo '<div class="opentt-wizard-nav">';
+        echo '<button type="button" class="button opentt-wizard-prev">Nazad</button>';
+        echo '<button type="button" class="button opentt-wizard-next">Dalje</button>';
+        echo '<button type="submit" class="button button-primary opentt-wizard-submit">' . esc_html($league ? 'Sačuvaj izmene' : 'Dodaj ligu') . '</button>';
+        echo '<span class="opentt-wizard-help"></span>';
         echo '</div>';
         echo '</form></div>';
     }
@@ -2847,7 +2847,7 @@ JS;
     public static function render_season_edit_page()
     {
         self::require_cap();
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         $action = isset($_GET['action']) ? sanitize_key((string) $_GET['action']) : 'new';
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -2862,20 +2862,20 @@ JS;
 
         $title = $season ? (string) $season->post_title : '';
         echo '<h1>' . ($season ? 'Uredi sezonu' : 'Dodaj sezonu') . '</h1>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-wizard-form" data-stkb-steps="2">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-wizard-form" data-opentt-steps="2">';
         wp_nonce_field('opentt_unified_save_season');
         echo '<input type="hidden" name="action" value="opentt_unified_save_season">';
         echo '<input type="hidden" name="id" value="' . esc_attr((string) ($season ? (int) $season->ID : 0)) . '">';
-        echo '<div class="stkb-wizard-steps"><span class="stkb-step-pill">1. Osnovno</span><span class="stkb-step-pill">2. Potvrda</span></div>';
+        echo '<div class="opentt-wizard-steps"><span class="opentt-step-pill">1. Osnovno</span><span class="opentt-step-pill">2. Potvrda</span></div>';
         echo '<table class="form-table"><tbody>';
-        echo '<tr data-stkb-step="1"><th>Naziv sezone</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($title) . '" required><p class="description">Npr. 2025-26</p></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Potvrda</th><td><p class="description">Sačuvaj sezonu. Pravila se podešavaju u meniju <strong>Takmičenja</strong>.</p></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Naziv sezone</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($title) . '" required><p class="description">Npr. 2025-26</p></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Potvrda</th><td><p class="description">Sačuvaj sezonu. Pravila se podešavaju u meniju <strong>Takmičenja</strong>.</p></td></tr>';
         echo '</tbody></table>';
-        echo '<div class="stkb-wizard-nav">';
-        echo '<button type="button" class="button stkb-wizard-prev">Nazad</button>';
-        echo '<button type="button" class="button stkb-wizard-next">Dalje</button>';
-        echo '<button type="submit" class="button button-primary stkb-wizard-submit">' . esc_html($season ? 'Sačuvaj izmene' : 'Dodaj sezonu') . '</button>';
-        echo '<span class="stkb-wizard-help"></span>';
+        echo '<div class="opentt-wizard-nav">';
+        echo '<button type="button" class="button opentt-wizard-prev">Nazad</button>';
+        echo '<button type="button" class="button opentt-wizard-next">Dalje</button>';
+        echo '<button type="submit" class="button button-primary opentt-wizard-submit">' . esc_html($season ? 'Sačuvaj izmene' : 'Dodaj sezonu') . '</button>';
+        echo '<span class="opentt-wizard-help"></span>';
         echo '</div>';
         echo '</form></div>';
     }
@@ -2888,7 +2888,7 @@ JS;
         $state = self::get_migration_state();
         $report = self::get_validation_report();
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Migracija: Legacy CPT -> STKB DB</h1>';
 
@@ -3002,15 +3002,15 @@ JS;
         }
         $rows = get_posts($query_args) ?: [];
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Takmičenja</h1>';
         echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px 0;">';
         echo '<a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-competition')) . '">+ Dodaj takmičenje</a>';
-        echo '<form method="get" action="" class="stkb-list-search-form" style="display:flex;gap:8px;align-items:center;">';
+        echo '<form method="get" action="" class="opentt-list-search-form" style="display:flex;gap:8px;align-items:center;">';
         echo '<input type="hidden" name="page" value="stkb-unified-competitions">';
-        echo '<input type="search" name="competition_search" value="' . esc_attr($search) . '" placeholder="Pretraga takmičenja..." class="regular-text stkb-live-search-input" data-stkb-live-target="stkb-competitions-table" oninput="window.stkbLiveSearchFilter&&window.stkbLiveSearchFilter(this)" onkeyup="window.stkbLiveSearchFilter&&window.stkbLiveSearchFilter(this)">';
-        echo '<button type="submit" class="button stkb-search-submit">Pretraži</button>';
+        echo '<input type="search" name="competition_search" value="' . esc_attr($search) . '" placeholder="Pretraga takmičenja..." class="regular-text opentt-live-search-input" data-opentt-live-target="opentt-competitions-table" oninput="window.openttLiveSearchFilter&&window.openttLiveSearchFilter(this)" onkeyup="window.openttLiveSearchFilter&&window.openttLiveSearchFilter(this)">';
+        echo '<button type="submit" class="button opentt-search-submit">Pretraži</button>';
         if ($search !== '') {
             echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-competitions')) . '">Reset</a>';
         }
@@ -3022,9 +3022,9 @@ JS;
             return;
         }
 
-        echo '<p class="stkb-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
-        echo '<div class="stkb-table-scroll">';
-        echo '<table id="stkb-competitions-table" class="widefat striped stkb-live-search-table"><thead><tr><th>Liga</th><th>Sezona</th><th>Rang</th><th>Savez</th><th>Bodovanje</th><th>Format</th><th>Prom/isp</th><th>Akcije</th></tr></thead><tbody>';
+        echo '<p class="opentt-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
+        echo '<div class="opentt-table-scroll">';
+        echo '<table id="opentt-competitions-table" class="widefat striped opentt-live-search-table"><thead><tr><th>Liga</th><th>Sezona</th><th>Rang</th><th>Savez</th><th>Bodovanje</th><th>Format</th><th>Prom/isp</th><th>Akcije</th></tr></thead><tbody>';
         foreach ($rows as $r) {
             $liga_slug = (string) get_post_meta($r->ID, 'opentt_competition_league_slug', true);
             $sezona_slug = (string) get_post_meta($r->ID, 'opentt_competition_season_slug', true);
@@ -3077,7 +3077,7 @@ JS;
         if ($action === 'edit' && $id > 0) {
             $rule = get_post($id);
             if (!$rule || $rule->post_type !== 'pravilo_takmicenja') {
-                echo '<div class="wrap stkb-admin">';
+                echo '<div class="wrap opentt-admin">';
                 self::render_admin_topbar();
                 echo '<h1>Takmičenje</h1><p>Zapis nije pronađen.</p></div>';
                 return;
@@ -3111,41 +3111,41 @@ JS;
             $format = 'format_a';
         }
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>' . ($rule ? 'Uredi takmičenje' : 'Dodaj takmičenje') . '</h1>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-wizard-form" data-stkb-steps="3">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-wizard-form" data-opentt-steps="3">';
         wp_nonce_field('opentt_unified_save_competition_rule');
         echo '<input type="hidden" name="action" value="opentt_unified_save_competition_rule">';
         echo '<input type="hidden" name="id" value="' . esc_attr((string) ($rule ? (int) $rule->ID : 0)) . '">';
-        echo '<div class="stkb-wizard-steps"><span class="stkb-step-pill">1. Kontekst</span><span class="stkb-step-pill">2. Pravila</span><span class="stkb-step-pill">3. Potvrda</span></div>';
+        echo '<div class="opentt-wizard-steps"><span class="opentt-step-pill">1. Kontekst</span><span class="opentt-step-pill">2. Pravila</span><span class="opentt-step-pill">3. Potvrda</span></div>';
         echo '<table class="form-table"><tbody>';
-        echo '<tr data-stkb-step="1"><th>Naziv takmičenja</th><td><input type="text" name="league_name" class="regular-text" value="' . esc_attr($liga_name) . '" required><p class="description">Npr. Kvalitetna liga</p></td></tr>';
-        echo '<tr data-stkb-step="1"><th>Sezona</th><td><input type="text" name="season_name" class="regular-text" value="' . esc_attr($sezona_name) . '" required><p class="description">Npr. 2025-26</p></td></tr>';
-        echo '<tr data-stkb-step="1"><th>Savez</th><td><select name="savez" required>';
+        echo '<tr data-opentt-step="1"><th>Naziv takmičenja</th><td><input type="text" name="league_name" class="regular-text" value="' . esc_attr($liga_name) . '" required><p class="description">Npr. Kvalitetna liga</p></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Sezona</th><td><input type="text" name="season_name" class="regular-text" value="' . esc_attr($sezona_name) . '" required><p class="description">Npr. 2025-26</p></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Savez</th><td><select name="savez" required>';
         foreach (self::competition_federation_options() as $code => $row) {
             echo '<option value="' . esc_attr((string) $code) . '" ' . selected($savez_code, (string) $code, false) . '>' . esc_html((string) $row['label']) . '</option>';
         }
         echo '</select><p class="description">Izaberi savez pod čijim je okriljem takmičenje.</p></td></tr>';
-        echo '<tr data-stkb-step="1"><th>Rang takmičenja</th><td><select name="rang" required>';
+        echo '<tr data-opentt-step="1"><th>Rang takmičenja</th><td><select name="rang" required>';
         for ($i = 1; $i <= 5; $i++) {
             echo '<option value="' . esc_attr((string) $i) . '" ' . selected($rank, $i, false) . '>' . esc_html((string) $i) . '</option>';
         }
         echo '</select><p class="description">1 = najprestižnije, 5 = najniži rang.</p></td></tr>';
-        echo '<tr data-stkb-step="1"><th>Grb takmičenja</th><td><div id="stkb_comp_thumb_preview">' . $thumb_html . '</div><input type="hidden" id="stkb_comp_thumb_id" name="featured_image_id" value="' . esc_attr((string) $thumb_id) . '"><p><button type="button" class="button" id="stkb_comp_thumb_btn">Izaberi grb</button> <button type="button" class="button" id="stkb_comp_thumb_remove">Ukloni</button></p></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Koliko ekipa ide gore</th><td><input type="number" min="0" name="promocija_broj" value="' . esc_attr((string) $promo) . '" style="width:120px;"></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Baraž za ulazak (gore)</th><td><input type="number" min="0" name="promocija_baraz_broj" value="' . esc_attr((string) $promo_baraz) . '" style="width:120px;"><p class="description">Broj ekipa ispod direktne promocije koje igraju baraž za viši rang.</p></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Koliko ekipa ispada</th><td><input type="number" min="0" name="ispadanje_broj" value="' . esc_attr((string) $releg) . '" style="width:120px;"></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Razigravanje za opstanak</th><td><input type="number" min="0" name="ispadanje_razigravanje_broj" value="' . esc_attr((string) $releg_razigravanje) . '" style="width:120px;"><p class="description">Broj ekipa iznad zone direktnog ispadanja koje igraju razigravanje za opstanak.</p></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Bodovanje</th><td><select name="bodovanje_tip"><option value="2-1" ' . selected($scoring, '2-1', false) . '>2-1</option><option value="3-0_4-3_2-1" ' . selected($scoring, '3-0_4-3_2-1', false) . '>3-0 (4:3 = 2/1)</option></select></td></tr>';
-        echo '<tr data-stkb-step="2"><th>Format partija</th><td><select name="format_partija"><option value="format_a" ' . selected($format, 'format_a', false) . '>Format A (dubl 4. partija)</option><option value="format_b" ' . selected($format, 'format_b', false) . '>Format B (dubl 7. partija)</option></select><p class="description">Izaberi format prema pravilima takmičenja.</p></td></tr>';
-        echo '<tr data-stkb-step="3"><th>Potvrda</th><td><p class="description">Sačuvaj pravila za izabranu ligu i sezonu.</p></td></tr>';
+        echo '<tr data-opentt-step="1"><th>Grb takmičenja</th><td><div id="stkb_comp_thumb_preview">' . $thumb_html . '</div><input type="hidden" id="stkb_comp_thumb_id" name="featured_image_id" value="' . esc_attr((string) $thumb_id) . '"><p><button type="button" class="button" id="stkb_comp_thumb_btn">Izaberi grb</button> <button type="button" class="button" id="stkb_comp_thumb_remove">Ukloni</button></p></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Koliko ekipa ide gore</th><td><input type="number" min="0" name="promocija_broj" value="' . esc_attr((string) $promo) . '" style="width:120px;"></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Baraž za ulazak (gore)</th><td><input type="number" min="0" name="promocija_baraz_broj" value="' . esc_attr((string) $promo_baraz) . '" style="width:120px;"><p class="description">Broj ekipa ispod direktne promocije koje igraju baraž za viši rang.</p></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Koliko ekipa ispada</th><td><input type="number" min="0" name="ispadanje_broj" value="' . esc_attr((string) $releg) . '" style="width:120px;"></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Razigravanje za opstanak</th><td><input type="number" min="0" name="ispadanje_razigravanje_broj" value="' . esc_attr((string) $releg_razigravanje) . '" style="width:120px;"><p class="description">Broj ekipa iznad zone direktnog ispadanja koje igraju razigravanje za opstanak.</p></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Bodovanje</th><td><select name="bodovanje_tip"><option value="2-1" ' . selected($scoring, '2-1', false) . '>2-1</option><option value="3-0_4-3_2-1" ' . selected($scoring, '3-0_4-3_2-1', false) . '>3-0 (4:3 = 2/1)</option></select></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Format partija</th><td><select name="format_partija"><option value="format_a" ' . selected($format, 'format_a', false) . '>Format A (dubl 4. partija)</option><option value="format_b" ' . selected($format, 'format_b', false) . '>Format B (dubl 7. partija)</option></select><p class="description">Izaberi format prema pravilima takmičenja.</p></td></tr>';
+        echo '<tr data-opentt-step="3"><th>Potvrda</th><td><p class="description">Sačuvaj pravila za izabranu ligu i sezonu.</p></td></tr>';
         echo '</tbody></table>';
-        echo '<div class="stkb-wizard-nav">';
-        echo '<button type="button" class="button stkb-wizard-prev">Nazad</button>';
-        echo '<button type="button" class="button stkb-wizard-next">Dalje</button>';
-        echo '<button type="submit" class="button button-primary stkb-wizard-submit">' . esc_html($rule ? 'Sačuvaj izmene' : 'Dodaj takmičenje') . '</button>';
-        echo '<span class="stkb-wizard-help"></span>';
+        echo '<div class="opentt-wizard-nav">';
+        echo '<button type="button" class="button opentt-wizard-prev">Nazad</button>';
+        echo '<button type="button" class="button opentt-wizard-next">Dalje</button>';
+        echo '<button type="submit" class="button button-primary opentt-wizard-submit">' . esc_html($rule ? 'Sačuvaj izmene' : 'Dodaj takmičenje') . '</button>';
+        echo '<span class="opentt-wizard-help"></span>';
         echo '</div>';
         echo '</form></div>';
         echo <<<'JS'
@@ -3268,24 +3268,24 @@ JS;
     private static function shortcode_css_class_reference()
     {
         return [
-            'opentt_matches_grid' => ['module' => 'utakmice.css', 'classes' => ['.stkb-grid', '.stkb-grid-filters', '.stkb-item', '.team.pobednik', '.team.gubitnik', '.meta']],
+            'opentt_matches_grid' => ['module' => 'utakmice.css', 'classes' => ['.opentt-grid', '.opentt-grid-filters', '.opentt-item', '.team.pobednik', '.team.gubitnik', '.meta']],
             'opentt_standings_table' => ['module' => 'tabela.css', 'classes' => ['.tabela-lige', '.tabela-lige tr.highlight', '.zone-promote-direct', '.zone-promote-playoff', '.zone-relegate-direct', '.zone-relegate-playoff']],
-            'opentt_match_teams' => ['module' => 'ekipe.css', 'classes' => ['.stkb-ekipe', '.stkb-ekipe-home', '.stkb-ekipe-away', '.stkb-ekipe-score']],
+            'opentt_match_teams' => ['module' => 'ekipe.css', 'classes' => ['.opentt-ekipe', '.opentt-ekipe-home', '.opentt-ekipe-away', '.opentt-ekipe-score']],
             'opentt_match_games' => ['module' => 'partije.css', 'classes' => ['.lista-partija', '.partija-row', '.lp2-win', '.lp2-name']],
             'opentt_top_players' => ['module' => 'rang-lista.css', 'classes' => ['.igrac-rang-lista', '.igrac-card-list', '.igrac-card-list.highlight']],
-            'opentt_club_info' => ['module' => 'info-kluba.css', 'classes' => ['.stkb-info-kluba', '.stkb-info-kluba-head', '.stkb-info-kluba-meta']],
-            'opentt_player_info' => ['module' => 'info-igraca.css', 'classes' => ['.stkb-info-igraca', '.stkb-info-igraca-head', '.stkb-info-igraca-meta']],
-            'opentt_club_form' => ['module' => 'forma-kluba.css', 'classes' => ['.stkb-forma-kluba', '.stkb-forma-item', '.stkb-forma-win', '.stkb-forma-loss']],
-            'opentt_team_stats' => ['module' => 'statistika-ekipe.css', 'classes' => ['.stkb-stat-ekipe', '.stkb-stat-ekipe-card', '.stkb-stat-ekipe-table', '.stkb-stat-ekipe-table tr.highlight']],
-            'opentt_player_stats' => ['module' => 'statistika-igraca.css', 'classes' => ['.stkb-stat-igraca', '.stkb-stat-igraca-cards', '.stkb-stat-igraca-card']],
-            'opentt_player_transfers' => ['module' => 'transferi.css', 'classes' => ['.stkb-transferi', '.stkb-transferi-table', '.stkb-transferi-row']],
+            'opentt_club_info' => ['module' => 'info-kluba.css', 'classes' => ['.opentt-info-kluba', '.opentt-info-kluba-head', '.opentt-info-kluba-meta']],
+            'opentt_player_info' => ['module' => 'info-igraca.css', 'classes' => ['.opentt-info-igraca', '.opentt-info-igraca-head', '.opentt-info-igraca-meta']],
+            'opentt_club_form' => ['module' => 'forma-kluba.css', 'classes' => ['.opentt-forma-kluba', '.opentt-forma-item', '.opentt-forma-win', '.opentt-forma-loss']],
+            'opentt_team_stats' => ['module' => 'statistika-ekipe.css', 'classes' => ['.opentt-stat-ekipe', '.opentt-stat-ekipe-card', '.opentt-stat-ekipe-table', '.opentt-stat-ekipe-table tr.highlight']],
+            'opentt_player_stats' => ['module' => 'statistika-igraca.css', 'classes' => ['.opentt-stat-igraca', '.opentt-stat-igraca-cards', '.opentt-stat-igraca-card']],
+            'opentt_player_transfers' => ['module' => 'transferi.css', 'classes' => ['.opentt-transferi', '.opentt-transferi-table', '.opentt-transferi-row']],
             'opentt_club_news' => ['module' => 'vesti-kluba.css', 'classes' => ['.stoni-vesti-grid', '.stoni-vesti-kartica', '.vest-klub-slika', '.vest-klub-naslov']],
             'opentt_player_news' => ['module' => 'vesti-kluba.css', 'classes' => ['.stoni-vesti-grid', '.stoni-vesti-kartica', '.vest-klub-slika', '.vest-klub-naslov']],
             'opentt_related_posts' => ['module' => 'related-posts.css', 'classes' => ['.related-posts-grid', '.related-post-item', '.related-post-content']],
             'opentt_players' => ['module' => 'prikaz-igraca.css', 'classes' => ['.stoni-igraci-list', '.stoni-igrac-card', '.stoni-igrac-row']],
-            'opentt_competition_info' => ['module' => 'takmicenje-info.css', 'classes' => ['.stkb-takmicenje-info', '.stkb-takmicenje-info-title', '.stkb-takmicenje-info-meta']],
-            'opentt_competitions' => ['module' => 'takmicenja-prikaz.css', 'classes' => ['.stkb-prikaz-takmicenja', '.stkb-prikaz-takmicenja-card', '.stkb-prikaz-takmicenja-title', '.stkb-prikaz-takmicenja-club-logo']],
-            'opentt_clubs' => ['module' => 'prikaz-klubova.css', 'classes' => ['.stkb-klubovi', '.stkb-klubovi-grid', '.stkb-klubovi-item', '.stkb-klubovi-filters', '.stkb-klubovi-name']],
+            'opentt_competition_info' => ['module' => 'takmicenje-info.css', 'classes' => ['.opentt-takmicenje-info', '.opentt-takmicenje-info-title', '.opentt-takmicenje-info-meta']],
+            'opentt_competitions' => ['module' => 'takmicenja-prikaz.css', 'classes' => ['.opentt-prikaz-takmicenja', '.opentt-prikaz-takmicenja-card', '.opentt-prikaz-takmicenja-title', '.opentt-prikaz-takmicenja-club-logo']],
+            'opentt_clubs' => ['module' => 'prikaz-klubova.css', 'classes' => ['.opentt-klubovi', '.opentt-klubovi-grid', '.opentt-klubovi-item', '.opentt-klubovi-filters', '.opentt-klubovi-name']],
         ];
     }
 
@@ -3295,15 +3295,15 @@ JS;
         $catalog = self::shortcode_catalog();
         $admin_ui_lang = self::get_admin_ui_language();
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Podešavanja</h1>';
         echo '<p><a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-onboarding&preview=1')) . '">First Time Setup (pregled)</a></p>';
 
-        echo '<div class="stkb-panel stkb-settings-panel">';
+        echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>Jezik admin interfejsa</h2>';
         echo '<p class="description">Izaberi jezik za OpenTT admin interfejs.</p>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-settings-css-form">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
         wp_nonce_field('opentt_unified_save_settings');
         echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
         echo '<input type="hidden" name="stkb_settings_section" value="ui_lang">';
@@ -3313,16 +3313,16 @@ JS;
             echo '<option value="' . esc_attr((string) $code) . '"' . selected($admin_ui_lang, (string) $code, false) . '>' . esc_html((string) $label) . '</option>';
         }
         echo '</select></label>';
-        echo '<div class="stkb-settings-actions">';
+        echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" class="button button-primary">Sačuvaj jezik</button>';
         echo '</div>';
         echo '</form>';
         echo '</div>';
 
-        echo '<div class="stkb-panel stkb-settings-panel">';
+        echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>Katalog shortcode-ova</h2>';
         echo '<p class="description">Klikni na shortcode da se otvore detalji, primer i mini builder za generisanje shortcode niza.</p>';
-        echo '<div class="stkb-shortcode-details-list">';
+        echo '<div class="opentt-shortcode-details-list">';
         foreach ($catalog as $row) {
             $tag = (string) $row['tag'];
             $builder = isset($row['builder']) && is_array($row['builder']) ? $row['builder'] : [];
@@ -3330,15 +3330,15 @@ JS;
             if (!is_string($builder_json)) {
                 $builder_json = '[]';
             }
-            echo '<details class="stkb-shortcode-details">';
-            echo '<summary><code>[' . esc_html($tag) . ']</code> <span>' . esc_html((string) $row['desc']) . '</span><span class="stkb-shortcode-chevron" aria-hidden="true">▾</span></summary>';
-            echo '<div class="stkb-shortcode-details-body">';
+            echo '<details class="opentt-shortcode-details">';
+            echo '<summary><code>[' . esc_html($tag) . ']</code> <span>' . esc_html((string) $row['desc']) . '</span><span class="opentt-shortcode-chevron" aria-hidden="true">▾</span></summary>';
+            echo '<div class="opentt-shortcode-details-body">';
             echo '<p><strong>Opis:</strong> ' . esc_html((string) ($row['details'] ?? '')) . '</p>';
             echo '<p><strong>Atributi:</strong> <code>' . esc_html((string) $row['attrs']) . '</code></p>';
             $help_map = self::shortcode_attribute_help_map();
             $attr_names = array_filter(array_map('trim', explode(',', (string) ($row['attrs'] ?? ''))));
             if (!empty($attr_names) && strtolower((string) ($row['attrs'] ?? '')) !== 'kontekstualno') {
-                echo '<ul class="stkb-shortcode-attr-help">';
+                echo '<ul class="opentt-shortcode-attr-help">';
                 foreach ($attr_names as $attr_name) {
                     $a = sanitize_key((string) $attr_name);
                     if ($a === '') {
@@ -3356,13 +3356,13 @@ JS;
                 }
                 echo '</ul>';
             }
-            echo '<div class="stkb-shortcode-builder" data-tag="' . esc_attr($tag) . '" data-builder="' . esc_attr($builder_json) . '">';
-            echo '<div class="stkb-shortcode-builder-fields"></div>';
+            echo '<div class="opentt-shortcode-builder" data-tag="' . esc_attr($tag) . '" data-builder="' . esc_attr($builder_json) . '">';
+            echo '<div class="opentt-shortcode-builder-fields"></div>';
             echo '<label>Dodatni atributi (opciono)</label>';
-            echo '<input type="text" class="stkb-shortcode-extra" placeholder="npr. odigrana=&quot;1&quot; klub=&quot;bubusinci&quot;">';
+            echo '<input type="text" class="opentt-shortcode-extra" placeholder="npr. odigrana=&quot;1&quot; klub=&quot;bubusinci&quot;">';
             echo '<label>Generisani shortcode</label>';
-            echo '<textarea class="stkb-shortcode-output" rows="2" readonly></textarea>';
-            echo '<div><button type="button" class="button stkb-shortcode-copy">Kopiraj</button></div>';
+            echo '<textarea class="opentt-shortcode-output" rows="2" readonly></textarea>';
+            echo '<div><button type="button" class="button opentt-shortcode-copy">Kopiraj</button></div>';
             echo '</div>';
             echo '</div>';
             echo '</details>';
@@ -3370,15 +3370,15 @@ JS;
         echo '</div>';
         echo '</div>';
 
-        echo '<div class="stkb-panel stkb-settings-panel stkb-danger-panel">';
+        echo '<div class="opentt-panel opentt-settings-panel opentt-danger-panel">';
         echo '<h2>Brisanje svih podataka</h2>';
         echo '<p class="description">Ova akcija briše sve OpenTT podatke (DB tabele, OpenTT opcije, klubove, igrače, takmičenja i povezane taksonomije). Akcija je nepovratna.</p>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-delete-data-form">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-delete-data-form">';
         wp_nonce_field('opentt_unified_delete_all_data');
         echo '<input type="hidden" name="action" value="opentt_unified_delete_all_data">';
         echo '<label><strong>Potvrda:</strong> upiši tačno <code>saglasan sam</code></label>';
         echo '<input type="text" name="stkb_confirm_phrase" class="regular-text" placeholder="saglasan sam" autocomplete="off">';
-        echo '<div class="stkb-settings-actions">';
+        echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" class="button button-link-delete" onclick="return confirm(\'Da li ste sigurni? Ovim brišete sve podatke i ne možete ih vratiti.\')">Obriši sve podatke</button>';
         echo '</div>';
         echo '</form>';
@@ -3399,20 +3399,20 @@ JS;
       if (!name || !val) { return; }
       attrs.push(name + '="' + val.replace(/"/g, '\\"') + '"');
     });
-    var extra = root.querySelector('.stkb-shortcode-extra');
+    var extra = root.querySelector('.opentt-shortcode-extra');
     if (extra) {
       var extraVal = String(extra.value || '').trim();
       if (extraVal) { attrs.push(extraVal); }
     }
     var out = '[' + tag + (attrs.length ? ' ' + attrs.join(' ') : '') + ']';
-    var outEl = root.querySelector('.stkb-shortcode-output');
+    var outEl = root.querySelector('.opentt-shortcode-output');
     if (outEl) { outEl.value = out; }
   }
   function initBuilder(root){
     var raw = root.getAttribute('data-builder') || '[]';
     var fields = [];
     try { fields = JSON.parse(raw); } catch(e) { fields = []; }
-    var wrap = root.querySelector('.stkb-shortcode-builder-fields');
+    var wrap = root.querySelector('.opentt-shortcode-builder-fields');
     if (!wrap) { return; }
     fields.forEach(function(field){
       var row = document.createElement('div');
@@ -3428,12 +3428,12 @@ JS;
       row.appendChild(input);
       wrap.appendChild(row);
     });
-    var extra = root.querySelector('.stkb-shortcode-extra');
+    var extra = root.querySelector('.opentt-shortcode-extra');
     if (extra) { extra.addEventListener('input', function(){ buildOutput(root); }); }
-    var copyBtn = root.querySelector('.stkb-shortcode-copy');
+    var copyBtn = root.querySelector('.opentt-shortcode-copy');
     if (copyBtn) {
       copyBtn.addEventListener('click', function(){
-        var out = root.querySelector('.stkb-shortcode-output');
+        var out = root.querySelector('.opentt-shortcode-output');
         if (!out) { return; }
         out.select();
         try { document.execCommand('copy'); } catch (e) {}
@@ -3441,7 +3441,7 @@ JS;
     }
     buildOutput(root);
   }
-  document.querySelectorAll('.stkb-shortcode-builder').forEach(initBuilder);
+  document.querySelectorAll('.opentt-shortcode-builder').forEach(initBuilder);
 })();
 </script>
 HTML;
@@ -3458,44 +3458,44 @@ HTML;
         }
         $css_ref = self::shortcode_css_class_reference();
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Prilagođavanje</h1>';
 
-        echo '<div class="stkb-panel stkb-settings-panel stkb-visual-panel">';
+        echo '<div class="opentt-panel opentt-settings-panel opentt-visual-panel">';
         echo '<h2>Globalna stilizacija</h2>';
         echo '<p class="description">Za manje napredne korisnike: ovde menjaš osnovni izgled svih OpenTT blokova bez pisanja CSS-a.</p>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-settings-css-form">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
         wp_nonce_field('opentt_unified_save_settings');
         echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
         echo '<input type="hidden" name="stkb_settings_section" value="visual">';
-        echo '<div class="stkb-visual-grid">';
-        echo '<label><span>Boja pozadine kontejnera</span><small>Menja pozadinu kartica i glavnih blokova shortcode-ova.</small><input type="text" name="visual_settings[container_bg]" value="' . esc_attr((string) $visual['container_bg']) . '" class="stkb-color-field"></label>';
-        echo '<label><span>Boja ivice kontejnera</span><small>Menja linije/okvire kartica, tabela i listi.</small><input type="text" name="visual_settings[container_border]" value="' . esc_attr((string) $visual['container_border']) . '" class="stkb-color-field"></label>';
-        echo '<label><span>Boja naslova</span><small>Menja naslove blokova i istaknute tekstove.</small><input type="text" name="visual_settings[title_color]" value="' . esc_attr((string) $visual['title_color']) . '" class="stkb-color-field"></label>';
-        echo '<label><span>Boja teksta</span><small>Menja podnaslove, opise i standardni tekst.</small><input type="text" name="visual_settings[text_color]" value="' . esc_attr((string) $visual['text_color']) . '" class="stkb-color-field"></label>';
-        echo '<label><span>Akcent boja</span><small>Menja boju linkova i naglašenih elemenata.</small><input type="text" name="visual_settings[accent_color]" value="' . esc_attr((string) $visual['accent_color']) . '" class="stkb-color-field"></label>';
+        echo '<div class="opentt-visual-grid">';
+        echo '<label><span>Boja pozadine kontejnera</span><small>Menja pozadinu kartica i glavnih blokova shortcode-ova.</small><input type="text" name="visual_settings[container_bg]" value="' . esc_attr((string) $visual['container_bg']) . '" class="opentt-color-field"></label>';
+        echo '<label><span>Boja ivice kontejnera</span><small>Menja linije/okvire kartica, tabela i listi.</small><input type="text" name="visual_settings[container_border]" value="' . esc_attr((string) $visual['container_border']) . '" class="opentt-color-field"></label>';
+        echo '<label><span>Boja naslova</span><small>Menja naslove blokova i istaknute tekstove.</small><input type="text" name="visual_settings[title_color]" value="' . esc_attr((string) $visual['title_color']) . '" class="opentt-color-field"></label>';
+        echo '<label><span>Boja teksta</span><small>Menja podnaslove, opise i standardni tekst.</small><input type="text" name="visual_settings[text_color]" value="' . esc_attr((string) $visual['text_color']) . '" class="opentt-color-field"></label>';
+        echo '<label><span>Akcent boja</span><small>Menja boju linkova i naglašenih elemenata.</small><input type="text" name="visual_settings[accent_color]" value="' . esc_attr((string) $visual['accent_color']) . '" class="opentt-color-field"></label>';
         echo '<label><span>Zaobljenje kontejnera (px)</span><small>Menja koliko su kartice i blokovi zaobljeni.</small><input type="number" min="0" max="32" step="1" name="visual_settings[radius]" value="' . esc_attr((string) $visual['radius']) . '"></label>';
         echo '<label><span>Naslovi shortcode-ova</span><small>Uključi ili isključi automatske naslove sekcija koje plugin prikazuje na frontendu.</small><span style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="visual_settings[show_shortcode_titles]" value="0"><input type="checkbox" name="visual_settings[show_shortcode_titles]" value="1" ' . checked((int) ($visual['show_shortcode_titles'] ?? 1), 1, false) . '> Prikaži naslove shortcode-ova</span></label>';
         echo '</div>';
-        echo '<div class="stkb-settings-actions">';
+        echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" name="stkb_css_action" value="save" class="button button-primary">Sačuvaj globalni stil</button>';
         echo '<button type="submit" name="stkb_css_action" value="reset" class="button" onclick="return confirm(\'Resetovati globalnu stilizaciju?\')">Reset globalnog stila</button>';
         echo '</div>';
         echo '</form>';
         echo '</div>';
 
-        echo '<div class="stkb-panel stkb-settings-panel">';
+        echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>CSS Override (Shortcode-ovi)</h2>';
         echo '<p class="description">Napredna sekcija: puni CSS override (globalni + po shortcode-u). Uvek ima prioritet nad globalnom stilizacijom.</p>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-settings-css-form">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
         wp_nonce_field('opentt_unified_save_settings');
         echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
         echo '<input type="hidden" name="stkb_settings_section" value="css">';
         echo '<h3>Globalni CSS Override</h3>';
-        echo '<textarea name="custom_shortcode_css" class="stkb-settings-css-editor" spellcheck="false" placeholder=".stkb-item { border-radius: 12px; }">' . esc_textarea($custom_css) . '</textarea>';
+        echo '<textarea name="custom_shortcode_css" class="opentt-settings-css-editor" spellcheck="false" placeholder=".opentt-item { border-radius: 12px; }">' . esc_textarea($custom_css) . '</textarea>';
         echo '<h3>CSS Override po Shortcode-u</h3>';
-        echo '<div class="stkb-css-shortcode-list">';
+        echo '<div class="opentt-css-shortcode-list">';
         $changed_count = 0;
         foreach ($css_ref as $tag => $meta) {
             $value = isset($css_map[$tag]) && is_string($css_map[$tag]) ? (string) $css_map[$tag] : '';
@@ -3504,7 +3504,7 @@ HTML;
             }
         }
         if ($changed_count > 0) {
-            echo '<p class="description stkb-css-changed-summary">Promenjeni CSS override-i: <strong>' . intval($changed_count) . '</strong></p>';
+            echo '<p class="description opentt-css-changed-summary">Promenjeni CSS override-i: <strong>' . intval($changed_count) . '</strong></p>';
         }
         foreach ($css_ref as $tag => $meta) {
             $module = (string) ($meta['module'] ?? '');
@@ -3515,24 +3515,24 @@ HTML;
             echo '<details class="' . esc_attr($card_class) . '">';
             echo '<summary><code>[' . esc_html($tag) . ']</code> <span>' . esc_html($module) . '</span>';
             if ($is_changed) {
-                echo '<span class="stkb-css-changed-badge">(Promenjen CSS)</span>';
+                echo '<span class="opentt-css-changed-badge">(Promenjen CSS)</span>';
             }
-            echo '<span class="stkb-shortcode-chevron" aria-hidden="true">▾</span></summary>';
-            echo '<div class="stkb-css-shortcode-body">';
+            echo '<span class="opentt-shortcode-chevron" aria-hidden="true">▾</span></summary>';
+            echo '<div class="opentt-css-shortcode-body">';
             echo '<p class="description">Klase koje najčešće koristi ovaj shortcode:</p>';
             if (!empty($classes)) {
-                echo '<ul class="stkb-css-class-list">';
+                echo '<ul class="opentt-css-class-list">';
                 foreach ($classes as $cls) {
                     echo '<li><code>' . esc_html((string) $cls) . '</code></li>';
                 }
                 echo '</ul>';
             }
-            echo '<textarea name="custom_shortcode_css_map[' . esc_attr((string) $tag) . ']" class="stkb-settings-css-editor stkb-settings-css-editor-small" spellcheck="false" placeholder="/* CSS override za [' . esc_attr((string) $tag) . '] */">' . esc_textarea($value) . '</textarea>';
+            echo '<textarea name="custom_shortcode_css_map[' . esc_attr((string) $tag) . ']" class="opentt-settings-css-editor opentt-settings-css-editor-small" spellcheck="false" placeholder="/* CSS override za [' . esc_attr((string) $tag) . '] */">' . esc_textarea($value) . '</textarea>';
             echo '</div>';
             echo '</details>';
         }
         echo '</div>';
-        echo '<div class="stkb-settings-actions">';
+        echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" name="stkb_css_action" value="save" class="button button-primary">Sačuvaj CSS</button>';
         echo '<button type="submit" name="stkb_css_action" value="reset" class="button" onclick="return confirm(\'Resetovati sav custom CSS override?\')">Reset CSS</button>';
         echo '</div>';
@@ -3570,9 +3570,9 @@ HTML;
     private static function render_transfer_sections_checkboxes($name, $selected)
     {
         $selected = is_array($selected) ? $selected : [];
-        echo '<div class="stkb-transfer-sections">';
+        echo '<div class="opentt-transfer-sections">';
         foreach (self::data_transfer_sections() as $key => $label) {
-            echo '<label class="stkb-transfer-check">';
+            echo '<label class="opentt-transfer-check">';
             echo '<input type="checkbox" name="' . esc_attr($name) . '[]" value="' . esc_attr($key) . '" ' . checked(in_array($key, $selected, true), true, false) . '>';
             echo '<span>' . esc_html($label) . '</span>';
             echo '</label>';
@@ -3593,18 +3593,18 @@ HTML;
             $competition_diag = [];
         }
 
-        echo '<div class="wrap stkb-admin">';
+        echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Uvezi/Izvezi</h1>';
 
-        echo '<div class="stkb-panel stkb-settings-panel">';
+        echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>Izvezi podatke</h2>';
         echo '<p class="description">Izaberi šta želiš da izvezeš. Dobijaš jedan JSON fajl koji možeš kasnije uvesti u OpenTT. Featured slike (grbovi, slike igrača, logo takmičenja) se izvoze zajedno sa podacima.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('opentt_unified_export_data');
         echo '<input type="hidden" name="action" value="opentt_unified_export_data">';
         self::render_transfer_sections_checkboxes('sections', $all_sections);
-        echo '<div class="stkb-settings-actions">';
+        echo '<div class="opentt-settings-actions">';
         echo '<button type="button" class="button" onclick="(function(btn){var f=btn.form;f.querySelectorAll(\'input[type=checkbox][name=\\\'sections[]\\\']\').forEach(function(c){c.checked=true;});})(this)">Izaberi sve</button>';
         echo '<button type="button" class="button" onclick="(function(btn){var f=btn.form;f.querySelectorAll(\'input[type=checkbox][name=\\\'sections[]\\\']\').forEach(function(c){c.checked=false;});})(this)">Poništi izbor</button>';
         echo '<button type="submit" class="button button-primary">Izvezi JSON</button>';
@@ -3612,7 +3612,7 @@ HTML;
         echo '</form>';
         echo '</div>';
 
-        echo '<div class="stkb-panel stkb-settings-panel">';
+        echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>Uvezi podatke</h2>';
         echo '<p class="description">1) Izaberi JSON fajl i sekcije. 2) Pokreni validaciju. 3) Pregledaj rezultate i potvrdi uvoz. Featured slike iz paketa će biti automatski uvezene i povezane.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" enctype="multipart/form-data">';
@@ -3620,7 +3620,7 @@ HTML;
         echo '<input type="hidden" name="action" value="opentt_unified_import_validate">';
         echo '<p><input type="file" name="import_file" accept=".json,application/json" required></p>';
         self::render_transfer_sections_checkboxes('sections', $all_sections);
-        echo '<div class="stkb-settings-actions">';
+        echo '<div class="opentt-settings-actions">';
         echo '<button type="button" class="button" onclick="(function(btn){var f=btn.form;f.querySelectorAll(\'input[type=checkbox][name=\\\'sections[]\\\']\').forEach(function(c){c.checked=true;});})(this)">Izaberi sve</button>';
         echo '<button type="button" class="button" onclick="(function(btn){var f=btn.form;f.querySelectorAll(\'input[type=checkbox][name=\\\'sections[]\\\']\').forEach(function(c){c.checked=false;});})(this)">Poništi izbor</button>';
         echo '<button type="submit" class="button button-primary">Validiraj uvoz</button>';
@@ -3628,27 +3628,27 @@ HTML;
         echo '</form>';
         echo '</div>';
 
-        echo '<div class="stkb-panel stkb-settings-panel">';
+        echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>Reset utakmica po takmičenju</h2>';
         echo '<p class="description">Obriši utakmice, partije i setove za jednu ligu/sezonu (bez SQL-a). Koristi pre ponovnog uvoza ako je stanje parcijalno.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" onsubmit="return confirm(\'Ovo će obrisati sve utakmice/partije/setove za izabrano takmičenje. Nastaviti?\')">';
         wp_nonce_field('opentt_unified_reset_competition_matches');
         echo '<input type="hidden" name="action" value="opentt_unified_reset_competition_matches">';
         echo '<p>' . self::competition_rules_dropdown_admin('competition_rule_id', 0, true) . '</p>';
-        echo '<div class="stkb-settings-actions">';
+        echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" class="button button-secondary">Resetuj sezonu (utakmice/partije/setovi)</button>';
         echo '</div>';
         echo '</form>';
         echo '</div>';
 
-        echo '<div class="stkb-panel stkb-settings-panel">';
+        echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>Dijagnostika takmičenja</h2>';
         echo '<p class="description">Proveri stanje po kolima i po potrebi popravi <code>played</code> flag prema rezultatu utakmice.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('opentt_unified_competition_diagnostics');
         echo '<input type="hidden" name="action" value="opentt_unified_competition_diagnostics">';
         echo '<p>' . self::competition_rules_dropdown_admin('competition_rule_id', 0, true) . '</p>';
-        echo '<div class="stkb-settings-actions">';
+        echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" class="button">Prikaži dijagnostiku</button>';
         echo '</div>';
         echo '</form>';
@@ -3656,7 +3656,7 @@ HTML;
         wp_nonce_field('opentt_unified_repair_competition_played');
         echo '<input type="hidden" name="action" value="opentt_unified_repair_competition_played">';
         echo '<p>' . self::competition_rules_dropdown_admin('competition_rule_id', 0, true) . '</p>';
-        echo '<div class="stkb-settings-actions">';
+        echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" class="button button-secondary">Repair played po rezultatu</button>';
         echo '</div>';
         echo '</form>';
@@ -3669,7 +3669,7 @@ HTML;
             if ($diag_generated !== '') {
                 echo '<p class="description">Generisano: ' . esc_html($diag_generated) . '</p>';
             }
-            echo '<div class="stkb-table-scroll">';
+            echo '<div class="opentt-table-scroll">';
             echo '<table class="widefat striped"><thead><tr><th>Kolo</th><th>Utakmice</th><th>Played=1</th><th>Sa rezultatom (&gt;0)</th><th>Partije</th><th>Status</th></tr></thead><tbody>';
             foreach ($diag_rows as $row) {
                 $kolo_slug = sanitize_title((string) ($row['kolo_slug'] ?? ''));
@@ -3700,10 +3700,10 @@ HTML;
             $player_conflicts = isset($preview['player_conflicts']) && is_array($preview['player_conflicts']) ? $preview['player_conflicts'] : [];
             $valid = !empty($preview['valid']);
 
-            echo '<div class="stkb-panel stkb-settings-panel">';
+            echo '<div class="opentt-panel opentt-settings-panel">';
             echo '<h2>Validacija uvoza</h2>';
             echo '<p><strong>Status:</strong> ' . ($valid ? '<span style="color:#14c767">Spreman za uvoz</span>' : '<span style="color:#ff4d4f">Ima problema</span>') . '</p>';
-            echo '<ul class="stkb-transfer-summary">';
+            echo '<ul class="opentt-transfer-summary">';
             foreach (self::data_transfer_sections() as $key => $label) {
                 if (!in_array($key, $sections, true)) {
                     continue;
@@ -3713,7 +3713,7 @@ HTML;
             }
             echo '</ul>';
             if (!empty($issues)) {
-                echo '<div class="stkb-transfer-issues"><strong>Problemi / upozorenja:</strong><ul>';
+                echo '<div class="opentt-transfer-issues"><strong>Problemi / upozorenja:</strong><ul>';
                 foreach (array_slice($issues, 0, 120) as $issue) {
                     echo '<li>' . esc_html((string) $issue) . '</li>';
                 }
@@ -3728,13 +3728,13 @@ HTML;
                 if (!empty($player_conflicts)) {
                     echo '<h3>Podudaranja igrača (merge pregled)</h3>';
                     echo '<p class="description">Pre potvrde uvoza izaberi šta raditi sa igračima koji liče na postojeće unose.</p>';
-                    echo '<div class="stkb-settings-actions" style="margin:10px 0 12px 0;">';
-                    echo '<button type="button" class="button" data-stkb-bulk-player-resolution="merge">Merge sve sa prvim kandidatom</button>';
-                    echo '<button type="button" class="button" data-stkb-bulk-player-resolution="new">Kreiraj sve kao nove</button>';
-                    echo '<button type="button" class="button" data-stkb-bulk-player-resolution="skip">Preskoči sve</button>';
-                    echo '<button type="button" class="button" data-stkb-bulk-player-resolution="default">Vrati preporučeno</button>';
+                    echo '<div class="opentt-settings-actions" style="margin:10px 0 12px 0;">';
+                    echo '<button type="button" class="button" data-opentt-bulk-player-resolution="merge">Merge sve sa prvim kandidatom</button>';
+                    echo '<button type="button" class="button" data-opentt-bulk-player-resolution="new">Kreiraj sve kao nove</button>';
+                    echo '<button type="button" class="button" data-opentt-bulk-player-resolution="skip">Preskoči sve</button>';
+                    echo '<button type="button" class="button" data-opentt-bulk-player-resolution="default">Vrati preporučeno</button>';
                     echo '</div>';
-                    echo '<div class="stkb-table-scroll">';
+                    echo '<div class="opentt-table-scroll">';
                     echo '<table class="widefat striped"><thead><tr><th>Dolazni igrač</th><th>Kandidat(i) u bazi</th><th>Akcija</th></tr></thead><tbody>';
                     foreach ($player_conflicts as $conflict) {
                         $source_id = intval($conflict['source_id'] ?? 0);
@@ -3772,7 +3772,7 @@ HTML;
                         }
                         echo '</td>';
                         echo '<td>';
-                        echo '<select class="stkb-player-resolution-select" name="player_resolution[' . intval($source_id) . ']" data-default-resolution="' . esc_attr($default_resolution) . '">';
+                        echo '<select class="opentt-player-resolution-select" name="player_resolution[' . intval($source_id) . ']" data-default-resolution="' . esc_attr($default_resolution) . '">';
                         foreach ($candidates as $candidate) {
                             $cid = intval($candidate['id'] ?? 0);
                             if ($cid <= 0) {
@@ -3794,14 +3794,14 @@ HTML;
                         . 'function setSelectValue(sel,target){if(!sel){return;}if(target==="default"){var d=sel.getAttribute("data-default-resolution")||"new";sel.value=d;return;}'
                         . 'if(target==="merge"){var opts=sel.options||[];for(var i=0;i<opts.length;i++){var v=(opts[i].value||"");if(v.indexOf("merge:")===0){sel.value=v;return;}}return;}'
                         . 'sel.value=target;}'
-                        . 'document.addEventListener("click",function(e){var btn=e.target&&e.target.closest?e.target.closest("[data-stkb-bulk-player-resolution]"):null;if(!btn){return;}'
-                        . 'var target=btn.getAttribute("data-stkb-bulk-player-resolution")||"";if(!target){return;}'
-                        . 'var scope=btn.closest("form")||document;var sels=scope.querySelectorAll(".stkb-player-resolution-select");'
+                        . 'document.addEventListener("click",function(e){var btn=e.target&&e.target.closest?e.target.closest("[data-opentt-bulk-player-resolution]"):null;if(!btn){return;}'
+                        . 'var target=btn.getAttribute("data-opentt-bulk-player-resolution")||"";if(!target){return;}'
+                        . 'var scope=btn.closest("form")||document;var sels=scope.querySelectorAll(".opentt-player-resolution-select");'
                         . 'for(var i=0;i<sels.length;i++){setSelectValue(sels[i],target);}'
                         . '});'
                     . '})();</script>';
                 }
-                echo '<div class="stkb-settings-actions">';
+                echo '<div class="opentt-settings-actions">';
                 echo '<button type="submit" class="button button-primary" onclick="return confirm(\'Da li želiš da potvrdiš uvoz ovih podataka?\')">Potvrdi uvoz</button>';
                 echo '</div>';
                 echo '</form>';
@@ -5048,28 +5048,28 @@ HTML;
             $logo_url = plugins_url('opentt-logo.png', self::$plugin_file);
         }
 
-        echo '<div class="wrap stkb-admin stkb-onboarding-wrap">';
-        echo '<div class="stkb-panel stkb-onboarding-panel">';
-        echo '<div class="stkb-onboarding-head">';
+        echo '<div class="wrap stkb-admin opentt-onboarding-wrap">';
+        echo '<div class="opentt-panel opentt-onboarding-panel">';
+        echo '<div class="opentt-onboarding-head">';
         if ($logo_url !== '') {
-            echo '<img class="stkb-onboarding-logo" src="' . esc_url($logo_url) . '" alt="OpenTT logo">';
+            echo '<img class="opentt-onboarding-logo" src="' . esc_url($logo_url) . '" alt="OpenTT logo">';
         }
         echo '<h1>Dobrodošao u OpenTT</h1>';
         echo '<p>One-time setup će te provesti kroz prve korake: takmičenje, timove, igrače i utakmice.</p>';
         echo '</div>';
 
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-wizard-form stkb-onboarding-form" data-stkb-steps="5">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-wizard-form opentt-onboarding-form" data-opentt-steps="5">';
         wp_nonce_field('opentt_unified_onboarding_action');
         echo '<input type="hidden" name="action" value="opentt_unified_onboarding_action">';
-        echo '<div class="stkb-wizard-steps">';
-        echo '<span class="stkb-step-pill">1. Uvod</span>';
-        echo '<span class="stkb-step-pill">2. Takmičenje</span>';
-        echo '<span class="stkb-step-pill">3. Timovi</span>';
-        echo '<span class="stkb-step-pill">4. Igrači</span>';
-        echo '<span class="stkb-step-pill">5. Utakmice</span>';
+        echo '<div class="opentt-wizard-steps">';
+        echo '<span class="opentt-step-pill">1. Uvod</span>';
+        echo '<span class="opentt-step-pill">2. Takmičenje</span>';
+        echo '<span class="opentt-step-pill">3. Timovi</span>';
+        echo '<span class="opentt-step-pill">4. Igrači</span>';
+        echo '<span class="opentt-step-pill">5. Utakmice</span>';
         echo '</div>';
 
-        echo '<div class="stkb-onboarding-step" data-stkb-step="1">';
+        echo '<div class="opentt-onboarding-step" data-opentt-step="1">';
         echo '<h3>OpenTT Setup</h3>';
         echo '<p>OpenTT je nastao iz želje da se zajednici stonog tenisa vrati moderan, otvoren i praktičan alat za vođenje takmičenja. Ideja je jednostavna: klubovi, savezi i ljudi koji vode takmičenja zaslužuju sistem za 21. vek - brz, jasan i održiv, bez komplikovanih dodataka i ručnih workaround-a.</p>';
         echo '<p>Umesto rasutih tabela i nepovezanih podataka, OpenTT objedinjuje ceo tok rada na jednom mestu: takmičenja, klubove, igrače, utakmice, partije i statistiku. Sistem je napravljen da bude lak za svakodnevni unos rezultata, ali i dovoljno moćan za ozbiljno praćenje forme, rangova i istorije.</p>';
@@ -5084,39 +5084,39 @@ HTML;
         echo '<p>Kreni redom kroz sledeće korake i za nekoliko minuta imaćeš postavljen kompletan sistem.</p>';
         echo '</div>';
 
-        echo '<div class="stkb-onboarding-step" data-stkb-step="2">';
+        echo '<div class="opentt-onboarding-step" data-opentt-step="2">';
         echo '<h3>Kreiraj prvo takmičenje</h3>';
         echo '<p>Unesi naziv, sezonu, format i pravila bodovanja.</p>';
         echo '<p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-competition')) . '">+ Dodaj takmičenje</a></p>';
         echo '</div>';
 
-        echo '<div class="stkb-onboarding-step" data-stkb-step="3">';
+        echo '<div class="opentt-onboarding-step" data-opentt-step="3">';
         echo '<h3>Dodaj timove (klubove)</h3>';
         echo '<p>Dodaj sve klubove koji učestvuju u takmičenju.</p>';
         echo '<p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-club')) . '">+ Dodaj klub</a></p>';
         echo '</div>';
 
-        echo '<div class="stkb-onboarding-step" data-stkb-step="4">';
+        echo '<div class="opentt-onboarding-step" data-opentt-step="4">';
         echo '<h3>Dodaj igrače</h3>';
         echo '<p>Dodaj igrače i poveži ih sa klubovima. Kasnije možeš unositi i istorijske partije.</p>';
         echo '<p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-player')) . '">+ Dodaj igrača</a></p>';
         echo '</div>';
 
-        echo '<div class="stkb-onboarding-step" data-stkb-step="5">';
+        echo '<div class="opentt-onboarding-step" data-opentt-step="5">';
         echo '<h3>Dodaj prvu utakmicu</h3>';
         echo '<p>Posle kreiranja utakmice unesi partije i setove iz edit ekrana utakmice.</p>';
         echo '<p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-match')) . '">+ Dodaj utakmicu</a></p>';
         echo '<p class="description">Kada završiš, klikni <strong>Završi setup</strong>.</p>';
         echo '</div>';
 
-        echo '<div class="stkb-onboarding-actions">';
-        echo '<button type="button" class="button stkb-wizard-prev">Nazad</button>';
-        echo '<button type="button" class="button stkb-wizard-next">Dalje</button>';
-        echo '<button type="submit" name="stkb_onboarding_action" value="complete" class="button button-primary stkb-wizard-submit">Završi setup</button>';
+        echo '<div class="opentt-onboarding-actions">';
+        echo '<button type="button" class="button opentt-wizard-prev">Nazad</button>';
+        echo '<button type="button" class="button opentt-wizard-next">Dalje</button>';
+        echo '<button type="submit" name="stkb_onboarding_action" value="complete" class="button button-primary opentt-wizard-submit">Završi setup</button>';
         echo '</div>';
         echo '</form>';
 
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="stkb-onboarding-skip-form">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-onboarding-skip-form">';
         wp_nonce_field('opentt_unified_onboarding_action');
         echo '<input type="hidden" name="action" value="opentt_unified_onboarding_action">';
         echo '<input type="hidden" name="stkb_onboarding_action" value="skip">';

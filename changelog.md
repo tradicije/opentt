@@ -2,6 +2,23 @@
 
 All notable changes to the OpenTT plugin are documented in this file.
 
+## Unreleased
+
+### Next
+
+#### Assets & UI
+
+- Migrated frontend/admin asset selector namespace from `stkb-*` to `opentt-*` and aligned PHP-rendered markup/selectors accordingly.
+- Updated admin live-search/wizard/player-picker script bindings to the new `opentt-*` selectors and data attributes.
+- Standardized key admin asset microcopy in JavaScript to English (search/step/result helper text).
+
+#### Engineering
+
+- Added refactor freeze contract document for public/internal integration boundaries: `docs/refactor/API_CONTRACT.md`.
+- Introduced Phase 2 PSR-4 foundation with a new Composer package manifest and `OpenTT\\Unified\\` namespace mapping.
+- Added a namespaced plugin bootstrap (`src/Plugin.php`) that preserves existing runtime behavior through a legacy-core bridge.
+- Updated root plugin bootstrap to prefer Composer autoload when available, with safe local fallback for non-Composer installs.
+
 ## Releases
 
 ### 1.1.0-beta.1 - 2026-03-03

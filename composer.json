@@ -1,0 +1,11 @@
+{
+  "name": "tradicije/opentt",
+  "description": "OpenTT WordPress plugin for table tennis competitions, clubs, and player statistics.",
+  "type": "wordpress-plugin",
+  "license": "AGPL-3.0-or-later",
+  "autoload": {
+    "psr-4": {
+      "OpenTT\\Unified\\": "src/"
+    }
+  }
+}

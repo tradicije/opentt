@@ -1,4 +1,4 @@
-.stkb-forma-kluba {
+.opentt-forma-kluba {
   margin: 12px 0 16px;
   padding: 12px;
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -6,18 +6,18 @@
   background: rgba(0, 0, 0, 0.16);
 }
 
-.stkb-forma-kluba-title {
+.opentt-forma-kluba-title {
   margin: 0 0 8px;
   font-size: 1.1rem;
 }
 
-.stkb-forma-kluba-list {
+.opentt-forma-kluba-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.stkb-forma-item {
+.opentt-forma-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -30,17 +30,17 @@
   text-decoration: none;
 }
 
-.stkb-forma-item.is-win {
+.opentt-forma-item.is-win {
   background: rgba(38, 152, 77, 0.25);
   border-color: rgba(38, 152, 77, 0.45);
 }
 
-.stkb-forma-item.is-loss {
+.opentt-forma-item.is-loss {
   background: rgba(186, 43, 43, 0.25);
   border-color: rgba(186, 43, 43, 0.45);
 }
 
-.stkb-forma-main {
+.opentt-forma-main {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -48,14 +48,14 @@
   flex: 1 1 auto;
 }
 
-.stkb-forma-line {
+.opentt-forma-line {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
 
-.stkb-forma-status {
+.opentt-forma-status {
   font-size: 0.72rem;
   letter-spacing: 0.02em;
   text-transform: lowercase;
@@ -67,51 +67,51 @@
   color: #fff;
 }
 
-.stkb-forma-score {
+.opentt-forma-score {
   font-variant-numeric: tabular-nums;
   font-size: 1.1rem;
   min-width: 20px;
   text-align: right;
 }
 
-.stkb-forma-score.is-winner {
+.opentt-forma-score.is-winner {
   font-weight: 700 !important;
   color: #fff;
 }
 
-.stkb-forma-score.is-loser {
+.opentt-forma-score.is-loser {
   font-weight: 400 !important;
   color: #ffffffa8;
 }
 
-.stkb-forma-line .stkb-forma-team.is-winner + .stkb-forma-score {
+.opentt-forma-line .opentt-forma-team.is-winner + .opentt-forma-score {
   font-weight: 700 !important;
   color: #fff;
   opacity: 1;
 }
 
-.stkb-forma-line .stkb-forma-team.is-loser + .stkb-forma-score {
+.opentt-forma-line .opentt-forma-team.is-loser + .opentt-forma-score {
   font-weight: 400 !important;
   color: #ffffffa8;
   opacity: 0.72;
 }
 
-.stkb-forma-team {
+.opentt-forma-team {
   display: inline-flex;
   align-items: center;
   min-width: 0;
   gap: 8px;
 }
 
-.stkb-forma-home {
+.opentt-forma-home {
   justify-content: flex-start;
 }
 
-.stkb-forma-away {
+.opentt-forma-away {
   justify-content: flex-end;
 }
 
-.stkb-forma-side {
+.opentt-forma-side {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -120,7 +120,7 @@
   align-self: stretch;
 }
 
-.stkb-forma-separator {
+.opentt-forma-separator {
   display: inline-block;
   width: 1px;
   height: 100%;
@@ -128,7 +128,7 @@
   background: rgba(255, 255, 255, 0.28);
 }
 
-.stkb-forma-logo img {
+.opentt-forma-logo img {
   width: 24px;
   height: 24px;
   object-fit: contain;
@@ -136,25 +136,25 @@
   display: block;
 }
 
-.stkb-forma-name {
+.opentt-forma-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.stkb-forma-team.is-winner .stkb-forma-name {
+.opentt-forma-team.is-winner .opentt-forma-name {
   font-weight: 700;
   opacity: 1;
   color: #fff;
 }
 
-.stkb-forma-team.is-loser .stkb-forma-name {
+.opentt-forma-team.is-loser .opentt-forma-name {
   font-weight: 400;
   opacity: 0.72;
 }
 
 @media (max-width: 640px) {
-  .stkb-forma-status {
+  .opentt-forma-status {
     transform: none;
   }
 }

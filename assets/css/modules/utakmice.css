@@ -2,18 +2,18 @@ body a {
   text-decoration: none !important;
 }
 
-.stkb-grid {
+.opentt-grid {
   display: grid;
   gap: 16px;
 }
-.stkb-grid.cols-1 { grid-template-columns: repeat(1, 1fr); }
-.stkb-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
-.stkb-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
-.stkb-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
-.stkb-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
-.stkb-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
+.opentt-grid.cols-1 { grid-template-columns: repeat(1, 1fr); }
+.opentt-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.opentt-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.opentt-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.opentt-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+.opentt-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
 
-.stkb-grid-filters {
+.opentt-grid-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 10px 14px;
@@ -21,7 +21,7 @@ body a {
   margin-bottom: 14px;
 }
 
-.stkb-grid-filters label {
+.opentt-grid-filters label {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -29,7 +29,7 @@ body a {
   color: #c7d7ff;
 }
 
-.stkb-grid-filters select {
+.opentt-grid-filters select {
   min-width: 170px;
   padding: 6px 8px;
   border-radius: 6px;
@@ -38,7 +38,7 @@ body a {
   color: #fff;
 }
 
-.stkb-grid-filter-reset {
+.opentt-grid-filter-reset {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -52,19 +52,19 @@ body a {
   line-height: 1;
 }
 
-.stkb-grid-filter-reset:hover {
+.opentt-grid-filter-reset:hover {
   background: rgba(8, 30, 82, 0.32) !important;
   color: #fff !important;
 }
 
-.stkb-grid-sentinel {
+.opentt-grid-sentinel {
   width: 100%;
   height: 1px;
   margin-top: 4px;
 }
 
 /* === POJEDINAČNA UTAKMICA === */
-.stkb-item {
+.opentt-item {
   border: 2px solid #ffffff26;
   padding: 8px;
   border-radius: 6px;
@@ -76,28 +76,28 @@ body a {
   cursor: pointer;
   transition: box-shadow 0.2s ease;
 }
-.stkb-item:hover {
+.opentt-item:hover {
   box-shadow: 0 2px 8px #0084FF26;
 }
 
 /* === DOMAĆIN / GOST RED === */
-.stkb-item .team {
+.opentt-item .team {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0;
 }
 
-.stkb-item .team {
+.opentt-item .team {
   margin-bottom: 8px; /* razmak ispod svakog tima */
 }
 
 /* ali ako ne želiš razmak ispod poslednjeg (gosta), možeš dodati ovo: */
-.stkb-item .team:last-of-type {
+.opentt-item .team:last-of-type {
   margin-bottom: 0;
 }
 
-.stkb-item .team img {
+.opentt-item .team img {
   width: 32px;
   height: 32px;
   aspect-ratio: 1/1;
@@ -106,12 +106,12 @@ body a {
   margin-right: 8px;
   flex-shrink: 0;
 }
-.stkb-item .team span {
+.opentt-item .team span {
   flex: 1;
   font-weight: 600;
   font-size: 1rem;
 }
-.stkb-item .team strong {
+.opentt-item .team strong {
   font-size: 1.2rem;
   font-weight: 700;
   min-width: 24px;
@@ -119,7 +119,7 @@ body a {
 }
 
 /* === META PODACI === */
-.stkb-item .meta {
+.opentt-item .meta {
   display: flex;
   justify-content: space-between;
   font-size: 1rem;
@@ -143,7 +143,7 @@ body a {
 }
 
 /* === LIST VARIJANTA === */
-.stkb-list {
+.opentt-list {
   list-style: none;
   padding: 12px;
   margin: 0;
@@ -152,25 +152,25 @@ body a {
   display: flex;
   flex-direction: column;
 }
-.stkb-list li {
+.opentt-list li {
   padding: 12px 0;
   border-bottom: 1px solid rgba(255,255,255,0.2);
 }
-.stkb-list li:last-child {
+.opentt-list li:last-child {
   border-bottom: none;
 }
-.stkb-list li a {
+.opentt-list li a {
   display: block;
   text-decoration: none;
   color: inherit;
   font-weight: 500;
 }
 
-.stkb-klub {
+.opentt-klub {
   text-align: center;
 }
 
-.stkb-klub a {
+.opentt-klub a {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -180,29 +180,29 @@ body a {
   gap: 6px;
 }
 
-.stkb-grb-wrap img {
+.opentt-grb-wrap img {
   width: 96px;
   height: 96px;
   object-fit: contain;
   border-radius: 4px;
 }
 
-.stkb-naziv {
+.opentt-naziv {
 	font-size: 1.3rem;
 	font-weight: 500;
 }
 
-.stkb-naziv:hover {
+.opentt-naziv:hover {
 	color: #0084FF;
 }
 
 @media (max-width: 767px) {
-  .stkb-grid.cols-1,
-  .stkb-grid.cols-2,
-  .stkb-grid.cols-3,
-  .stkb-grid.cols-4,
-  .stkb-grid.cols-5,
-  .stkb-grid.cols-6 {
+  .opentt-grid.cols-1,
+  .opentt-grid.cols-2,
+  .opentt-grid.cols-3,
+  .opentt-grid.cols-4,
+  .opentt-grid.cols-5,
+  .opentt-grid.cols-6 {
     grid-template-columns: 1fr;
   }
 }

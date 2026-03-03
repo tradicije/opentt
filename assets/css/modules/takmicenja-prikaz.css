@@ -1,26 +1,26 @@
-.stkb-prikaz-takmicenja {
+.opentt-prikaz-takmicenja {
   display: grid;
   gap: 24px;
 }
 
-.stkb-prikaz-takmicenja-rank {
+.opentt-prikaz-takmicenja-rank {
   margin: 0;
 }
 
-.stkb-prikaz-takmicenja-rank-title {
+.opentt-prikaz-takmicenja-rank-title {
   margin: 0 0 16px;
   font-size: 1.5rem;
   font-weight: bold;
   line-height: 1.2;
 }
 
-.stkb-prikaz-takmicenja-grid {
+.opentt-prikaz-takmicenja-grid {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
-.stkb-prikaz-takmicenja-card {
+.opentt-prikaz-takmicenja-card {
   display: block;
   text-decoration: none !important;
   color: inherit;
@@ -31,19 +31,19 @@
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.stkb-prikaz-takmicenja-card:hover {
+.opentt-prikaz-takmicenja-card:hover {
   border-color: rgba(142, 197, 255, 0.7);
   background: rgba(8, 30, 82, 0.32);
 }
 
-.stkb-prikaz-takmicenja-card-head {
+.opentt-prikaz-takmicenja-card-head {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
 }
 
-.stkb-prikaz-takmicenja-logo {
+.opentt-prikaz-takmicenja-logo {
   width: 48px;
   height: 48px;
   flex: 0 0 48px;
@@ -52,48 +52,48 @@
   justify-content: center;
 }
 
-.stkb-prikaz-takmicenja-logo-img {
+.opentt-prikaz-takmicenja-logo-img {
   width: 48px;
   height: 48px;
   object-fit: contain;
 }
 
-.stkb-prikaz-takmicenja-logo-fallback {
+.opentt-prikaz-takmicenja-logo-fallback {
   width: 30px;
   height: 30px;
   background: rgba(255, 255, 255, 0.22);
 }
 
-.stkb-prikaz-takmicenja-meta {
+.opentt-prikaz-takmicenja-meta {
   min-width: 0;
 }
 
-.stkb-prikaz-takmicenja-title {
+.opentt-prikaz-takmicenja-title {
   font-size: 1.06rem;
   font-weight: 700;
   line-height: 1.25;
   color: #fff;
 }
 
-.stkb-prikaz-takmicenja-season {
+.opentt-prikaz-takmicenja-season {
   margin-top: 2px;
   font-size: 0.92rem;
   color: #c7d7ff;
 }
 
-.stkb-prikaz-takmicenja-sep {
+.opentt-prikaz-takmicenja-sep {
   margin: 10px 0 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.stkb-prikaz-takmicenja-clubs {
+.opentt-prikaz-takmicenja-clubs {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   min-height: 24px;
 }
 
-.stkb-prikaz-takmicenja-club {
+.opentt-prikaz-takmicenja-club {
   width: 28px;
   height: 28px;
   display: inline-flex;
@@ -101,29 +101,29 @@
   justify-content: center;
 }
 
-.stkb-prikaz-takmicenja-club-logo,
-.stkb-prikaz-takmicenja-club-fallback {
+.opentt-prikaz-takmicenja-club-logo,
+.opentt-prikaz-takmicenja-club-fallback {
   width: 28px;
   height: 28px;
   object-fit: contain;
 }
 
-.stkb-prikaz-takmicenja-club-fallback {
+.opentt-prikaz-takmicenja-club-fallback {
   display: inline-block;
   background: rgba(255, 255, 255, 0.22);
 }
 
-.stkb-prikaz-takmicenja-no-clubs {
+.opentt-prikaz-takmicenja-no-clubs {
   font-size: 0.82rem;
   opacity: 0.82;
 }
 
 @media (max-width: 640px) {
-  .stkb-prikaz-takmicenja-grid {
+  .opentt-prikaz-takmicenja-grid {
     grid-template-columns: 1fr;
   }
 
-  .stkb-prikaz-takmicenja-title {
+  .opentt-prikaz-takmicenja-title {
     font-size: 1rem;
   }
 }

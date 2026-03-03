@@ -1,20 +1,20 @@
 (function () {
   function applyTableFilters() {
-    var tables = document.querySelectorAll(".stkb-admin table.widefat");
+    var tables = document.querySelectorAll(".opentt-admin table.widefat");
     tables.forEach(function (table) {
-      if (table.classList.contains("stkb-live-search-table")) {
+      if (table.classList.contains("opentt-live-search-table")) {
         return;
       }
-      if (table.dataset.stkbFilterReady === "1") {
+      if (table.dataset.openttFilterReady === "1") {
         return;
       }
-      table.dataset.stkbFilterReady = "1";
+      table.dataset.openttFilterReady = "1";
       var wrapper = document.createElement("div");
-      wrapper.className = "stkb-table-filter";
+      wrapper.className = "opentt-table-filter";
       var input = document.createElement("input");
       input.type = "search";
-      input.placeholder = "Brza pretraga u tabeli...";
-      input.setAttribute("aria-label", "Brza pretraga u tabeli");
+      input.placeholder = "Quick table search...";
+      input.setAttribute("aria-label", "Quick table search");
       wrapper.appendChild(input);
       table.parentNode.insertBefore(wrapper, table);
 
@@ -31,14 +31,14 @@
 
   function initLiveAdminSearch() {
     function bind(input, table) {
-      if (!input || !table || input.dataset.stkbLiveBound === "1") {
+      if (!input || !table || input.dataset.openttLiveBound === "1") {
         return;
       }
       var tbody = table.querySelector("tbody");
       if (!tbody) {
         return;
       }
-      input.dataset.stkbLiveBound = "1";
+      input.dataset.openttLiveBound = "1";
 
       var apply = function () {
         var q = String(input.value || "").toLowerCase().trim();
@@ -47,7 +47,7 @@
           var text = String(row.textContent || "").toLowerCase();
           var match = !q || text.indexOf(q) !== -1;
           row.style.display = match ? "" : "none";
-          row.classList.toggle("stkb-live-hit", !!q && match);
+          row.classList.toggle("opentt-live-hit", !!q && match);
         });
       };
 
@@ -57,9 +57,9 @@
       apply();
     }
 
-    var directInputs = document.querySelectorAll(".stkb-live-search-input[data-stkb-live-target]");
+    var directInputs = document.querySelectorAll(".opentt-live-search-input[data-opentt-live-target]");
     directInputs.forEach(function (input) {
-      var targetId = input.getAttribute("data-stkb-live-target");
+      var targetId = input.getAttribute("data-opentt-live-target");
       if (!targetId) {
         return;
       }
@@ -68,10 +68,10 @@
 
     var fallbackInputs = document.querySelectorAll('input[type="search"][name="club_search"], input[type="search"][name="player_search"], input[type="search"][name="competition_search"]');
     fallbackInputs.forEach(function (input) {
-      if (input.dataset.stkbLiveBound === "1") {
+      if (input.dataset.openttLiveBound === "1") {
         return;
       }
-      var wrap = input.closest(".wrap.stkb-admin");
+      var wrap = input.closest(".wrap.opentt-admin");
       if (!wrap) {
         return;
       }
@@ -81,30 +81,30 @@
   }
 
   function initWizards() {
-    var forms = document.querySelectorAll(".stkb-wizard-form");
+    var forms = document.querySelectorAll(".opentt-wizard-form");
     forms.forEach(function (form) {
-      var stepsCount = parseInt(form.getAttribute("data-stkb-steps") || "1", 10);
+      var stepsCount = parseInt(form.getAttribute("data-opentt-steps") || "1", 10);
       if (!stepsCount || stepsCount < 2) {
         return;
       }
-      var rows = form.querySelectorAll("[data-stkb-step]");
+      var rows = form.querySelectorAll("[data-opentt-step]");
       if (!rows.length) {
         return;
       }
-      var stepPills = form.querySelectorAll(".stkb-step-pill");
-      var prevBtn = form.querySelector(".stkb-wizard-prev");
-      var nextBtn = form.querySelector(".stkb-wizard-next");
-      var submitBtn = form.querySelector(".stkb-wizard-submit");
-      var help = form.querySelector(".stkb-wizard-help");
+      var stepPills = form.querySelectorAll(".opentt-step-pill");
+      var prevBtn = form.querySelector(".opentt-wizard-prev");
+      var nextBtn = form.querySelector(".opentt-wizard-next");
+      var submitBtn = form.querySelector(".opentt-wizard-submit");
+      var help = form.querySelector(".opentt-wizard-help");
       var current = 1;
 
       function render() {
         rows.forEach(function (row) {
-          var step = parseInt(row.getAttribute("data-stkb-step") || "1", 10);
+          var step = parseInt(row.getAttribute("data-opentt-step") || "1", 10);
           if (step === current) {
-            row.classList.remove("stkb-hidden-row");
+            row.classList.remove("opentt-hidden-row");
           } else {
-            row.classList.add("stkb-hidden-row");
+            row.classList.add("opentt-hidden-row");
           }
         });
         stepPills.forEach(function (pill, idx) {
@@ -120,7 +120,7 @@
           submitBtn.style.display = current >= stepsCount ? "" : "none";
         }
         if (help) {
-          help.textContent = "Korak " + current + " od " + stepsCount;
+          help.textContent = "Step " + current + " of " + stepsCount;
         }
       }
 
@@ -146,15 +146,15 @@
   }
 
   function initPlayerPicker() {
-    var modal = document.getElementById("stkb-player-picker-modal");
+    var modal = document.getElementById("opentt-player-picker-modal");
     if (!modal) {
       return;
     }
     modal.setAttribute("hidden", "hidden");
 
-    var closeBtn = modal.querySelector(".stkb-player-picker-close");
-    var search = modal.querySelector(".stkb-player-picker-search");
-    var list = modal.querySelector(".stkb-player-picker-list");
+    var closeBtn = modal.querySelector(".opentt-player-picker-close");
+    var search = modal.querySelector(".opentt-player-picker-search");
+    var list = modal.querySelector(".opentt-player-picker-list");
     var activeSelect = null;
 
     function closeModal() {
@@ -176,7 +176,7 @@
         return;
       }
       var q = (query || "").toLowerCase().trim();
-      var items = list.querySelectorAll(".stkb-player-picker-item");
+      var items = list.querySelectorAll(".opentt-player-picker-item");
       var anyVisible = false;
       items.forEach(function (item) {
         var name = String(item.getAttribute("data-player-name") || "").toLowerCase();
@@ -188,11 +188,11 @@
         }
       });
 
-      var empty = list.querySelector(".stkb-player-picker-empty");
+      var empty = list.querySelector(".opentt-player-picker-empty");
       if (!empty) {
         empty = document.createElement("div");
-        empty.className = "stkb-player-picker-empty";
-        empty.textContent = "Nema rezultata za pretragu.";
+        empty.className = "opentt-player-picker-empty";
+        empty.textContent = "No search results found.";
         list.appendChild(empty);
       }
       empty.hidden = anyVisible || !q;
@@ -211,7 +211,7 @@
     }
 
     document.addEventListener("click", function (e) {
-      var openBtn = e.target.closest(".stkb-player-picker-open");
+      var openBtn = e.target.closest(".opentt-player-picker-open");
       if (openBtn) {
         var targetId = openBtn.getAttribute("data-target-select");
         var sel = targetId ? document.getElementById(targetId) : null;
@@ -221,7 +221,7 @@
         return;
       }
 
-      var item = e.target.closest(".stkb-player-picker-item");
+      var item = e.target.closest(".opentt-player-picker-item");
       if (item && activeSelect) {
         var playerId = String(item.getAttribute("data-player-id") || "");
         var playerName = String(item.getAttribute("data-player-name") || "");
@@ -242,7 +242,7 @@
         return;
       }
 
-      if (e.target === modal || e.target.closest(".stkb-player-picker-close")) {
+      if (e.target === modal || e.target.closest(".opentt-player-picker-close")) {
         closeModal();
       }
     });
@@ -261,7 +261,7 @@
   }
 
   function initHelpGuideModal() {
-    var modal = document.getElementById("stkb-help-modal");
+    var modal = document.getElementById("opentt-help-modal");
     if (!modal) {
       return;
     }
@@ -275,12 +275,12 @@
     }
 
     document.addEventListener("click", function (e) {
-      var openBtn = e.target.closest(".stkb-help-open");
+      var openBtn = e.target.closest(".opentt-help-open");
       if (openBtn) {
         openModal();
         return;
       }
-      var closeBtn = e.target.closest(".stkb-help-close");
+      var closeBtn = e.target.closest(".opentt-help-close");
       if (closeBtn) {
         closeModal();
       }
@@ -300,14 +300,14 @@
   }
 
   function initCodeEditors() {
-    if (!window.wp || !wp.codeEditor || !window.stkbCodeEditorSettings) {
+    if (!window.wp || !wp.codeEditor || !window.openttCodeEditorSettings) {
       return;
     }
-    document.querySelectorAll(".stkb-settings-css-editor").forEach(function (el) {
+    document.querySelectorAll(".opentt-settings-css-editor").forEach(function (el) {
       if (el.dataset.stkbCodeEditorReady === "1") {
         return;
       }
-      wp.codeEditor.initialize(el, window.stkbCodeEditorSettings);
+      wp.codeEditor.initialize(el, window.openttCodeEditorSettings);
       el.dataset.stkbCodeEditorReady = "1";
     });
   }
@@ -316,7 +316,7 @@
     if (!window.jQuery || !jQuery.fn || !jQuery.fn.wpColorPicker) {
       return;
     }
-    jQuery(".stkb-color-field").each(function () {
+    jQuery(".opentt-color-field").each(function () {
       var el = jQuery(this);
       if (el.data("stkbColorReady") === 1) {
         return;
@@ -387,19 +387,19 @@
     }
 
     bindBulkSelection(
-      "stkb-players-table",
-      "stkb-players-check-all",
-      "input.stkb-player-bulk-checkbox[type='checkbox']"
+      "opentt-players-table",
+      "opentt-players-check-all",
+      "input.opentt-player-bulk-checkbox[type='checkbox']"
     );
     bindBulkSelection(
-      "stkb-clubs-table",
-      "stkb-clubs-check-all",
-      "input.stkb-club-bulk-checkbox[type='checkbox']"
+      "opentt-clubs-table",
+      "opentt-clubs-check-all",
+      "input.opentt-club-bulk-checkbox[type='checkbox']"
     );
     bindBulkSelection(
-      "stkb-matches-table",
-      "stkb-matches-check-all",
-      "input.stkb-match-bulk-checkbox[type='checkbox']"
+      "opentt-matches-table",
+      "opentt-matches-check-all",
+      "input.opentt-match-bulk-checkbox[type='checkbox']"
     );
   }
 

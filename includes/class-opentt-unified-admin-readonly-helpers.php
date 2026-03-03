@@ -319,9 +319,9 @@ final class OpenTT_Unified_Admin_Readonly_Helpers
         if ($select_id === '') {
             $select_id = 'stkb_player_' . wp_unique_id();
         }
-        $html = '<div class="stkb-player-field">';
-        $html .= '<div class="stkb-player-field-main">';
-        $html .= '<select id="' . esc_attr($select_id) . '" class="stkb-player-select" name="' . esc_attr((string) $name) . '"' . $attr . '>';
+        $html = '<div class="opentt-player-field">';
+        $html .= '<div class="opentt-player-field-main">';
+        $html .= '<select id="' . esc_attr($select_id) . '" class="opentt-player-select" name="' . esc_attr((string) $name) . '"' . $attr . '>';
         $html .= '<option value="">— izaberi —</option>';
         foreach ($rows as $r) {
             $label = (string) $r->post_title;
@@ -334,7 +334,7 @@ final class OpenTT_Unified_Admin_Readonly_Helpers
             $html .= '<option value="' . (int) $r->ID . '" ' . selected($selected, (int) $r->ID, false) . '>' . esc_html($label) . '</option>';
         }
         $html .= '</select>';
-        $html .= '<button type="button" class="button stkb-player-picker-open" data-target-select="' . esc_attr($select_id) . '">Lista igrača</button>';
+        $html .= '<button type="button" class="button opentt-player-picker-open" data-target-select="' . esc_attr($select_id) . '">Lista igrača</button>';
         $html .= '</div>';
         $html .= '</div>';
         return $html;

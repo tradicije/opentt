@@ -13,10 +13,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once __DIR__ . '/includes/class-opentt-unified-core.php';
+$autoload = __DIR__ . '/vendor/autoload.php';
+if (file_exists($autoload)) {
+    require_once $autoload;
+}
 
-register_activation_hook(__FILE__, function () {
-    OpenTT_Unified_Core::activate(__FILE__);
-});
+if (!class_exists('OpenTT\\Unified\\Plugin')) {
+    require_once __DIR__ . '/src/Plugin.php';
+}
 
-OpenTT_Unified_Core::init(__FILE__);
+\OpenTT\Unified\Plugin::boot(__FILE__);
