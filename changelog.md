@@ -30,6 +30,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Extracted settings persistence/reset operations (visual defaults, admin UI language validation, CSS override map sanitization) into `OpenTT\\Unified\\WordPress\\SettingsManager`.
 - Extracted onboarding action submit flow into `OpenTT\\Unified\\WordPress\\OnboardingActionManager` and destructive full-data purge sequence into `OpenTT\\Unified\\WordPress\\DataPurgeManager`.
 - Extracted admin notice URL construction and request-time notice rendering into `OpenTT\\Unified\\WordPress\\AdminNoticeManager`.
+- Extracted league/season admin CRUD handlers (save/delete + validation/nonce/cap flow) into `OpenTT\\Unified\\WordPress\\LeagueSeasonAdminManager`.
 - Standardized AGPL file headers across all PHP sources and aligned main plugin metadata to `1.1.0-beta.1`.
 
 ## Releases

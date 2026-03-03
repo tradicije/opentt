@@ -4691,93 +4691,22 @@ HTML;
 
     public static function handle_save_league_admin()
     {
-        self::require_cap();
-        check_admin_referer('opentt_unified_save_league');
-        $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
-        $title = sanitize_text_field((string) ($_POST['post_title'] ?? ''));
-        if ($title === '') {
-            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-league'), 'error', 'Naziv lige je obavezan.'));
-            exit;
-        }
-
-        $post_data = [
-            'post_type' => 'liga',
-            'post_title' => $title,
-            'post_content' => wp_kses_post((string) ($_POST['post_content'] ?? '')),
-            'post_status' => 'publish',
-        ];
-        if ($id > 0) {
-            $post_data['ID'] = $id;
-            $league_id = wp_update_post($post_data, true);
-        } else {
-            $league_id = wp_insert_post($post_data, true);
-        }
-
-        if (!$league_id || is_wp_error($league_id)) {
-            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-league'), 'error', 'Neuspešno čuvanje lige.'));
-            exit;
-        }
-
-        wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-leagues'), 'success', 'Liga je sačuvana.'));
-        exit;
+        \OpenTT\Unified\WordPress\LeagueSeasonAdminManager::handleSaveLeague(self::CAP);
     }
 
     public static function handle_delete_league_admin()
     {
-        self::require_cap();
-        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-        if ($id <= 0) {
-            wp_die('Nedostaje ID.');
-        }
-        check_admin_referer('opentt_unified_delete_league_' . $id);
-        wp_trash_post($id);
-        wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-leagues'), 'success', 'Liga je obrisana.'));
-        exit;
+        \OpenTT\Unified\WordPress\LeagueSeasonAdminManager::handleDeleteLeague(self::CAP);
     }
 
     public static function handle_save_season_admin()
     {
-        self::require_cap();
-        check_admin_referer('opentt_unified_save_season');
-        $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
-        $title = sanitize_text_field((string) ($_POST['post_title'] ?? ''));
-        if ($title === '') {
-            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-season'), 'error', 'Naziv sezone je obavezan.'));
-            exit;
-        }
-
-        $post_data = [
-            'post_type' => 'sezona',
-            'post_title' => $title,
-            'post_status' => 'publish',
-        ];
-        if ($id > 0) {
-            $post_data['ID'] = $id;
-            $season_id = wp_update_post($post_data, true);
-        } else {
-            $season_id = wp_insert_post($post_data, true);
-        }
-
-        if (!$season_id || is_wp_error($season_id)) {
-            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-season'), 'error', 'Neuspešno čuvanje sezone.'));
-            exit;
-        }
-
-        wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-seasons'), 'success', 'Sezona je sačuvana.'));
-        exit;
+        \OpenTT\Unified\WordPress\LeagueSeasonAdminManager::handleSaveSeason(self::CAP);
     }
 
     public static function handle_delete_season_admin()
     {
-        self::require_cap();
-        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-        if ($id <= 0) {
-            wp_die('Nedostaje ID.');
-        }
-        check_admin_referer('opentt_unified_delete_season_' . $id);
-        wp_trash_post($id);
-        wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-seasons'), 'success', 'Sezona je obrisana.'));
-        exit;
+        \OpenTT\Unified\WordPress\LeagueSeasonAdminManager::handleDeleteSeason(self::CAP);
     }
 
     public static function handle_save_competition_rule_admin()
