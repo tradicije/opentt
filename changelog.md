@@ -21,6 +21,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added a local PSR-4 autoload fallback and extracted DB table resolution/cache logic into `OpenTT\\Unified\\Infrastructure\\DbTableResolver`, reducing core responsibility while preserving legacy table compatibility behavior.
 - Continued Phase 2 extraction by moving admin UI translation parsing/replacement to `OpenTT\\Unified\\Infrastructure\\AdminUiTranslator`, with core kept as a compatibility wrapper.
 - Extracted legacy CPT/taxonomy registration into `OpenTT\\Unified\\WordPress\\LegacyContentTypeRegistrar`, keeping `OpenTT_Unified_Core::register_legacy_content_types()` as a stable delegation point.
+- Extracted shortcode tag registration into `OpenTT\\Unified\\WordPress\\ShortcodeRegistrar` while preserving all existing `opentt_*` tags and core callback methods.
 - Standardized AGPL file headers across all PHP sources and aligned main plugin metadata to `1.1.0-beta.1`.
 
 ## Releases

@@ -583,57 +583,7 @@ final class OpenTT_Unified_Core
 
     public static function register_shortcodes()
     {
-        remove_shortcode('opentt_matches_grid');
-        remove_shortcode('opentt_standings_table');
-        remove_shortcode('opentt_match_games');
-        remove_shortcode('opentt_h2h');
-        remove_shortcode('opentt_mvp');
-        remove_shortcode('opentt_match_report');
-        remove_shortcode('opentt_match_video');
-        remove_shortcode('opentt_home_club');
-        remove_shortcode('opentt_away_club');
-        remove_shortcode('opentt_club');
-        remove_shortcode('opentt_match_teams');
-        remove_shortcode('opentt_top_players');
-        remove_shortcode('opentt_players');
-        remove_shortcode('opentt_club_news');
-        remove_shortcode('opentt_player_news');
-        remove_shortcode('opentt_related_posts');
-        remove_shortcode('opentt_club_info');
-        remove_shortcode('opentt_competition_info');
-        remove_shortcode('opentt_club_form');
-        remove_shortcode('opentt_player_stats');
-        remove_shortcode('opentt_team_stats');
-        remove_shortcode('opentt_player_transfers');
-        remove_shortcode('opentt_player_info');
-        remove_shortcode('opentt_competitions');
-        remove_shortcode('opentt_clubs');
-
-        add_shortcode('opentt_matches_grid', [__CLASS__, 'shortcode_matches_grid']);
-        add_shortcode('opentt_standings_table', [__CLASS__, 'shortcode_standings_table']);
-        add_shortcode('opentt_match_games', [__CLASS__, 'shortcode_games_list']);
-        add_shortcode('opentt_h2h', [__CLASS__, 'shortcode_h2h']);
-        add_shortcode('opentt_mvp', [__CLASS__, 'shortcode_mvp']);
-        add_shortcode('opentt_match_report', [__CLASS__, 'shortcode_match_report']);
-        add_shortcode('opentt_match_video', [__CLASS__, 'shortcode_match_video']);
-        add_shortcode('opentt_home_club', [__CLASS__, 'shortcode_show_home_club']);
-        add_shortcode('opentt_away_club', [__CLASS__, 'shortcode_show_away_club']);
-        add_shortcode('opentt_club', [__CLASS__, 'shortcode_show_club_by_name']);
-        add_shortcode('opentt_match_teams', [__CLASS__, 'shortcode_show_match_teams']);
-        add_shortcode('opentt_top_players', [__CLASS__, 'shortcode_top_players_list']);
-        add_shortcode('opentt_players', [__CLASS__, 'shortcode_show_players']);
-        add_shortcode('opentt_club_news', [__CLASS__, 'shortcode_club_news']);
-        add_shortcode('opentt_player_news', [__CLASS__, 'shortcode_player_news']);
-        add_shortcode('opentt_related_posts', [__CLASS__, 'shortcode_related_posts']);
-        add_shortcode('opentt_club_info', [__CLASS__, 'shortcode_club_info']);
-        add_shortcode('opentt_competition_info', [__CLASS__, 'shortcode_competition_info']);
-        add_shortcode('opentt_club_form', [__CLASS__, 'shortcode_club_form']);
-        add_shortcode('opentt_player_stats', [__CLASS__, 'shortcode_player_stats']);
-        add_shortcode('opentt_team_stats', [__CLASS__, 'shortcode_team_stats']);
-        add_shortcode('opentt_player_transfers', [__CLASS__, 'shortcode_player_transfers']);
-        add_shortcode('opentt_player_info', [__CLASS__, 'shortcode_player_info']);
-        add_shortcode('opentt_competitions', [__CLASS__, 'shortcode_competitions_grid']);
-        add_shortcode('opentt_clubs', [__CLASS__, 'shortcode_clubs_grid']);
+        \OpenTT\Unified\WordPress\ShortcodeRegistrar::register(__CLASS__);
     }
 
     public static function capture_virtual_match_context()
