@@ -16,6 +16,18 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Renamed frontend CSS override style handle namespace from `stkb-unified-*` to `opentt-unified-*`.
 - Updated admin JS initialization dataset/data flags from `stkb*` to `opentt*` keys.
 - Switched admin branding logo source (topbar + onboarding) from root `opentt-logo.png` to `assets/img/admin-ui-logo.png` without changing frontend/readme logo usage.
+- Enhanced `opentt_matches_grid` (`filter=true`) with a right-aligned popup calendar date filter (`opentt_match_date`) that highlights match days by status: played (green tint) and upcoming (blue tint).
+- Updated admin Settings shortcode catalog/help for `opentt_matches_grid` to document calendar behavior and the optional `opentt_match_date` attribute.
+- Aligned the matches-grid calendar toggle visual style with existing filter controls and switched its icon to `assets/icons/calendar.svg` rendered in white.
+- Simplified the matches-grid calendar trigger to icon-only and switched calendar month/day labels to English.
+
+#### Tooling
+
+- Added standalone legacy export converter CLI app: `tools/convert-stkb-export.php` for transforming older `stkb_*` JSON packages (format/meta/section/table/key names) into OpenTT-compatible import JSON.
+
+#### Import/Export
+
+- Improved import upload error messaging for PHP upload limits (`UPLOAD_ERR_INI_SIZE` / code `1` and form size / code `2`) by showing file size and current `upload_max_filesize` / `post_max_size` values.
 
 #### Localization
 

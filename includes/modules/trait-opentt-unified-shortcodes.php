@@ -39,6 +39,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             'sezona' => '',
             'filter' => '',
             'infinite' => '',
+            'opentt_match_date' => '',
         ], $atts);
 
         $columns = max(1, min(6, intval($atts['columns'])));
@@ -124,8 +125,19 @@ trait OpenTT_Unified_Shortcodes_Trait
             $selected_kolo = isset($_GET['opentt_kolo']) ? sanitize_title((string) wp_unslash($_GET['opentt_kolo'])) : '';
             $selected_club = isset($_GET['opentt_club']) ? intval($_GET['opentt_club']) : 0;
             $selected_sort = isset($_GET['opentt_sort']) ? sanitize_key((string) wp_unslash($_GET['opentt_sort'])) : 'kolo_desc';
+            $selected_match_date = isset($_GET['opentt_match_date'])
+                ? sanitize_text_field((string) wp_unslash($_GET['opentt_match_date']))
+                : sanitize_text_field((string) $atts['opentt_match_date']);
             if (!in_array($selected_sort, ['kolo_desc', 'kolo_asc', 'date_desc', 'date_asc'], true)) {
                 $selected_sort = 'kolo_desc';
+            }
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $selected_match_date)) {
+                $selected_match_date = '';
+            } else {
+                $date_parts = array_map('intval', explode('-', $selected_match_date));
+                if (count($date_parts) !== 3 || !checkdate($date_parts[1], $date_parts[2], $date_parts[0])) {
+                    $selected_match_date = '';
+                }
             }
 
             $kolo_map = [];
@@ -211,7 +223,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '<form method="get" class="opentt-grid-filters">';
             foreach ($_GET as $k => $v) {
                 $k = (string) $k;
-                if (in_array($k, ['opentt_kolo', 'opentt_club', 'opentt_sort'], true)) {
+                if (in_array($k, ['opentt_kolo', 'opentt_club', 'opentt_sort', 'opentt_match_date'], true)) {
                     continue;
                 }
                 if (is_array($v)) {
@@ -219,6 +231,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 }
                 echo '<input type="hidden" name="' . esc_attr($k) . '" value="' . esc_attr((string) wp_unslash($v)) . '">';
             }
+            echo '<div class="opentt-grid-filters-left">';
             echo '<label>Kolo <select name="opentt_kolo" class="opentt-grid-filter-kolo" onchange="this.form.submit()"><option value="">Sva kola</option>';
             foreach ($kolo_options as $opt) {
                 echo '<option value="' . esc_attr((string) $opt['slug']) . '" ' . selected($selected_kolo, (string) $opt['slug'], false) . '>' . esc_html((string) $opt['name']) . '</option>';
@@ -237,9 +250,31 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '<option value="date_desc" ' . selected($selected_sort, 'date_desc', false) . '>Datum: najnovije</option>';
             echo '<option value="date_asc" ' . selected($selected_sort, 'date_asc', false) . '>Datum: najstarije</option>';
             echo '</select></label>';
-            if ($selected_kolo !== '' || $selected_club > 0 || isset($_GET['opentt_sort'])) {
-                echo '<a class="button opentt-grid-filter-reset" href="' . esc_url(remove_query_arg(['opentt_kolo', 'opentt_club', 'opentt_sort'])) . '">Reset</a>';
+            if ($selected_kolo !== '' || $selected_club > 0 || $selected_match_date !== '' || isset($_GET['opentt_sort'])) {
+                echo '<a class="button opentt-grid-filter-reset" href="' . esc_url(remove_query_arg(['opentt_kolo', 'opentt_club', 'opentt_sort', 'opentt_match_date'])) . '">Reset</a>';
             }
+            echo '</div>';
+            echo '<div class="opentt-grid-filters-right">';
+            echo '<input type="hidden" name="opentt_match_date" class="opentt-grid-filter-date-input" value="' . esc_attr($selected_match_date) . '">';
+            echo '<button type="button" class="button opentt-grid-calendar-toggle" aria-label="Calendar filter" title="Calendar filter" aria-haspopup="dialog" aria-expanded="false">';
+            echo '<span class="opentt-grid-calendar-icon" aria-hidden="true"></span>';
+            echo '</button>';
+            echo '<div class="opentt-grid-calendar-popover" role="dialog" aria-label="Filter datuma utakmica" hidden>';
+            echo '<div class="opentt-grid-calendar-head">';
+            echo '<button type="button" class="opentt-grid-cal-nav" data-opentt-cal-nav="prev" aria-label="Prethodni mesec">&lsaquo;</button>';
+            echo '<strong class="opentt-grid-cal-month"></strong>';
+            echo '<button type="button" class="opentt-grid-cal-nav" data-opentt-cal-nav="next" aria-label="Sledeći mesec">&rsaquo;</button>';
+            echo '</div>';
+            echo '<div class="opentt-grid-cal-weekdays">';
+            echo '<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>';
+            echo '</div>';
+            echo '<div class="opentt-grid-cal-days"></div>';
+            echo '<div class="opentt-grid-cal-legend">';
+            echo '<span class="played">Odigrano</span><span class="upcoming">Predstoji</span>';
+            echo '</div>';
+            echo '<button type="button" class="button-link opentt-grid-cal-clear">Očisti datum</button>';
+            echo '</div>';
+            echo '</div>';
             echo '</form>';
 
             echo self::render_matches_grid_html($rows, $columns, true);
@@ -257,6 +292,12 @@ trait OpenTT_Unified_Shortcodes_Trait
                     var koloSelect = root.querySelector('.opentt-grid-filter-kolo');
                     var clubSelect = root.querySelector('.opentt-grid-filter-club');
                     var sortSelect = root.querySelector('.opentt-grid-filter-sort');
+                    var dateInput = root.querySelector('.opentt-grid-filter-date-input');
+                    var calToggle = root.querySelector('.opentt-grid-calendar-toggle');
+                    var calPopover = root.querySelector('.opentt-grid-calendar-popover');
+                    var calMonth = root.querySelector('.opentt-grid-cal-month');
+                    var calDays = root.querySelector('.opentt-grid-cal-days');
+                    var calClear = root.querySelector('.opentt-grid-cal-clear');
                     var grid = root.querySelector('.opentt-grid');
                     if (!grid) { return false; }
                     var sentinel = root.querySelector('.opentt-grid-sentinel');
@@ -265,6 +306,20 @@ trait OpenTT_Unified_Shortcodes_Trait
                     var visibleCount = chunkSize;
                     var observer = null;
                     var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-item'));
+                    var calendarMonthDate = (function(){
+                        if (dateInput && dateInput.value) {
+                            var parts = dateInput.value.split('-');
+                            if (parts.length === 3) {
+                                var y = parseInt(parts[0], 10);
+                                var m = parseInt(parts[1], 10) - 1;
+                                if (!isNaN(y) && !isNaN(m)) {
+                                    return new Date(y, m, 1);
+                                }
+                            }
+                        }
+                        var now = new Date();
+                        return new Date(now.getFullYear(), now.getMonth(), 1);
+                    })();
 
                     function getNum(val) {
                         var n = parseInt(val || '0', 10);
@@ -272,6 +327,20 @@ trait OpenTT_Unified_Shortcodes_Trait
                     }
 
                     function matchesFilter(item) {
+                        var wantKolo = koloSelect ? (koloSelect.value || '') : '';
+                        var wantClub = clubSelect ? (clubSelect.value || '') : '';
+                        var wantDate = dateInput ? (dateInput.value || '') : '';
+                        var itemKolo = item.getAttribute('data-kolo-slug') || '';
+                        var homeClub = item.getAttribute('data-home-club-id') || '';
+                        var awayClub = item.getAttribute('data-away-club-id') || '';
+                        var itemDate = item.getAttribute('data-match-date') || '';
+                        var koloOk = !wantKolo || itemKolo === wantKolo;
+                        var clubOk = !wantClub || homeClub === wantClub || awayClub === wantClub;
+                        var dateOk = !wantDate || itemDate === wantDate;
+                        return koloOk && clubOk && dateOk;
+                    }
+
+                    function matchesFilterWithoutDate(item) {
                         var wantKolo = koloSelect ? (koloSelect.value || '') : '';
                         var wantClub = clubSelect ? (clubSelect.value || '') : '';
                         var itemKolo = item.getAttribute('data-kolo-slug') || '';
@@ -310,6 +379,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                         if (infiniteEnabled && sentinel) {
                             sentinel.style.display = (toRender.length < visible.length) ? '' : 'none';
                         }
+                        renderCalendar();
                     }
 
                     function resetAndRender() {
@@ -317,9 +387,143 @@ trait OpenTT_Unified_Shortcodes_Trait
                         render();
                     }
 
+                    function collectCalendarState() {
+                        var state = {};
+                        allItems.forEach(function(item){
+                            if (!matchesFilterWithoutDate(item)) {
+                                return;
+                            }
+                            var iso = item.getAttribute('data-match-date') || '';
+                            if (!iso) {
+                                return;
+                            }
+                            if (!state[iso]) {
+                                state[iso] = { played: false, upcoming: false };
+                            }
+                            if ((item.getAttribute('data-played') || '0') === '1') {
+                                state[iso].played = true;
+                            } else {
+                                state[iso].upcoming = true;
+                            }
+                        });
+                        return state;
+                    }
+
+                    function monthLabel(date) {
+                        return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    }
+
+                    function pad(n) {
+                        return n < 10 ? ('0' + n) : String(n);
+                    }
+
+                    function closeCalendar() {
+                        if (!calPopover || !calToggle) { return; }
+                        calPopover.hidden = true;
+                        calToggle.setAttribute('aria-expanded', 'false');
+                    }
+
+                    function openCalendar() {
+                        if (!calPopover || !calToggle) { return; }
+                        calPopover.hidden = false;
+                        calToggle.setAttribute('aria-expanded', 'true');
+                    }
+
+                    function applyDateSelection(iso) {
+                        if (!dateInput) { return; }
+                        dateInput.value = iso || '';
+                        closeCalendar();
+                        if (dateInput.form) {
+                            dateInput.form.submit();
+                        } else {
+                            resetAndRender();
+                        }
+                    }
+
+                    function renderCalendar() {
+                        if (!calMonth || !calDays) { return; }
+                        var map = collectCalendarState();
+                        calMonth.textContent = monthLabel(calendarMonthDate);
+                        calDays.innerHTML = '';
+
+                        var year = calendarMonthDate.getFullYear();
+                        var month = calendarMonthDate.getMonth();
+                        var first = new Date(year, month, 1);
+                        var firstWeekday = (first.getDay() + 6) % 7;
+                        var daysInMonth = new Date(year, month + 1, 0).getDate();
+                        var totalCells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+
+                        for (var i = 0; i < totalCells; i++) {
+                            var cell = document.createElement('button');
+                            cell.type = 'button';
+                            cell.className = 'opentt-grid-cal-day';
+
+                            var dayNo = i - firstWeekday + 1;
+                            if (dayNo < 1 || dayNo > daysInMonth) {
+                                cell.className += ' is-empty';
+                                cell.disabled = true;
+                                cell.setAttribute('aria-hidden', 'true');
+                                calDays.appendChild(cell);
+                                continue;
+                            }
+
+                            cell.textContent = String(dayNo);
+                            var iso = year + '-' + pad(month + 1) + '-' + pad(dayNo);
+                            var state = map[iso] || null;
+                            if (state) {
+                                if (state.played && state.upcoming) {
+                                    cell.className += ' has-both';
+                                } else if (state.played) {
+                                    cell.className += ' has-played';
+                                } else if (state.upcoming) {
+                                    cell.className += ' has-upcoming';
+                                }
+                            }
+                            if (dateInput && dateInput.value === iso) {
+                                cell.className += ' is-selected';
+                            }
+                            cell.addEventListener('click', (function(selectedIso){
+                                return function(){ applyDateSelection(selectedIso); };
+                            })(iso));
+                            calDays.appendChild(cell);
+                        }
+                    }
+
                     if (koloSelect) { koloSelect.addEventListener('change', resetAndRender); }
                     if (clubSelect) { clubSelect.addEventListener('change', resetAndRender); }
                     if (sortSelect) { sortSelect.addEventListener('change', resetAndRender); }
+                    if (calToggle && calPopover) {
+                        calToggle.addEventListener('click', function(){
+                            if (calPopover.hidden) {
+                                openCalendar();
+                                renderCalendar();
+                            } else {
+                                closeCalendar();
+                            }
+                        });
+                    }
+                    root.querySelectorAll('[data-opentt-cal-nav]').forEach(function(btn){
+                        btn.addEventListener('click', function(){
+                            var dir = (btn.getAttribute('data-opentt-cal-nav') === 'next') ? 1 : -1;
+                            calendarMonthDate = new Date(calendarMonthDate.getFullYear(), calendarMonthDate.getMonth() + dir, 1);
+                            renderCalendar();
+                        });
+                    });
+                    if (calClear) {
+                        calClear.addEventListener('click', function(){
+                            applyDateSelection('');
+                        });
+                    }
+                    document.addEventListener('click', function(ev){
+                        if (!calPopover || calPopover.hidden) { return; }
+                        if (root.contains(ev.target)) { return; }
+                        closeCalendar();
+                    });
+                    document.addEventListener('keydown', function(ev){
+                        if (ev.key === 'Escape') {
+                            closeCalendar();
+                        }
+                    });
 
                     if (infiniteEnabled && sentinel && 'IntersectionObserver' in window) {
                         observer = new IntersectionObserver(function(entries){
@@ -4033,9 +4237,15 @@ trait OpenTT_Unified_Shortcodes_Trait
                 if ($match_ts === false) {
                     $match_ts = 0;
                 }
+                $match_date_iso = substr((string) $row->match_date, 0, 10);
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $match_date_iso)) {
+                    $match_date_iso = '';
+                }
                 $attr = ' data-kolo-slug="' . esc_attr($kolo_slug) . '"';
                 $attr .= ' data-kolo-no="' . esc_attr((string) self::extract_round_no($kolo_slug)) . '"';
                 $attr .= ' data-match-ts="' . esc_attr((string) intval($match_ts)) . '"';
+                $attr .= ' data-match-date="' . esc_attr($match_date_iso) . '"';
+                $attr .= ' data-played="' . esc_attr((string) intval($row->played)) . '"';
                 $attr .= ' data-home-club-id="' . esc_attr((string) $home_id) . '"';
                 $attr .= ' data-away-club-id="' . esc_attr((string) $away_id) . '"';
             }

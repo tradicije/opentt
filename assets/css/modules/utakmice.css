@@ -18,7 +18,20 @@ body a {
   flex-wrap: wrap;
   gap: 10px 14px;
   align-items: end;
+  justify-content: space-between;
   margin-bottom: 14px;
+}
+
+.opentt-grid-filters-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: end;
+}
+
+.opentt-grid-filters-right {
+  margin-left: auto;
+  position: relative;
 }
 
 .opentt-grid-filters label {
@@ -55,6 +68,155 @@ body a {
 .opentt-grid-filter-reset:hover {
   background: rgba(8, 30, 82, 0.32) !important;
   color: #fff !important;
+}
+
+.opentt-grid-calendar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  width: 36px;
+  min-width: 36px;
+  padding: 6px !important;
+  border: 1px solid #ffffff33 !important;
+  border-radius: 6px !important;
+  background: #000a26 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.opentt-grid-calendar-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  background-color: #ffffff;
+  -webkit-mask: url('../../icons/calendar.svg') no-repeat center / contain;
+  mask: url('../../icons/calendar.svg') no-repeat center / contain;
+}
+
+.opentt-grid-calendar-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 290px;
+  border: 1px solid #8ec5ff66;
+  border-radius: 10px;
+  background: #000a26;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.36);
+  padding: 12px;
+  z-index: 50;
+}
+
+.opentt-grid-calendar-head {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.opentt-grid-cal-month {
+  text-align: center;
+  color: #f2f7ff;
+  text-transform: capitalize;
+}
+
+.opentt-grid-cal-nav {
+  border: 1px solid #8ec5ff66;
+  border-radius: 6px;
+  background: #001340;
+  color: #cfe0ff;
+  min-height: 28px;
+  cursor: pointer;
+}
+
+.opentt-grid-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+  color: #97b6e8;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.opentt-grid-cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.opentt-grid-cal-day {
+  border: 1px solid #ffffff2b;
+  border-radius: 7px;
+  background: #001240;
+  color: #eaf2ff;
+  min-height: 32px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.opentt-grid-cal-day.is-empty {
+  border-color: transparent;
+  background: transparent;
+  cursor: default;
+}
+
+.opentt-grid-cal-day.has-played {
+  border-color: #27d06f99;
+  background: rgba(39, 208, 111, 0.2);
+}
+
+.opentt-grid-cal-day.has-upcoming {
+  border-color: #3c95ff99;
+  background: rgba(60, 149, 255, 0.2);
+}
+
+.opentt-grid-cal-day.has-both {
+  border-color: #80b8ff;
+  background: linear-gradient(135deg, rgba(39, 208, 111, 0.2) 0%, rgba(60, 149, 255, 0.2) 100%);
+}
+
+.opentt-grid-cal-day.is-selected {
+  box-shadow: inset 0 0 0 2px #ffffff;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.opentt-grid-cal-legend {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.opentt-grid-cal-legend span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid #ffffff4d;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  color: #d9e8ff;
+}
+
+.opentt-grid-cal-legend .played {
+  border-color: #27d06f99;
+  background: rgba(39, 208, 111, 0.2);
+}
+
+.opentt-grid-cal-legend .upcoming {
+  border-color: #3c95ff99;
+  background: rgba(60, 149, 255, 0.2);
+}
+
+.opentt-grid-cal-clear {
+  font-size: 0.84rem;
+  color: #cfe0ff !important;
+  text-decoration: none !important;
 }
 
 .opentt-grid-sentinel {
@@ -204,5 +366,21 @@ body a {
   .opentt-grid.cols-5,
   .opentt-grid.cols-6 {
     grid-template-columns: 1fr;
+  }
+
+  .opentt-grid-filters-right {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .opentt-grid-calendar-toggle {
+    width: 36px;
+    min-width: 36px;
+  }
+
+  .opentt-grid-calendar-popover {
+    left: 0;
+    right: auto;
+    width: min(100%, 320px);
   }
 }

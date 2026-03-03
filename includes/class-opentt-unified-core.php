@@ -2526,17 +2526,18 @@ JS;
         return [
             [
                 'tag' => 'opentt_matches_grid',
-                'desc' => 'Grid prikaz utakmica sa filterima/sortiranjem i infinite opcijom.',
-                'attrs' => 'columns, limit, klub, odigrana, liga, sezona, filter, infinite',
-                'details' => 'Najčešći shortcode za listing utakmica na početnoj ili liga stranici.',
+                'desc' => 'Grid prikaz utakmica sa filterima/sortiranjem, kalendarskim filterom datuma i infinite opcijom.',
+                'attrs' => 'columns, limit, klub, odigrana, liga, sezona, filter, infinite, opentt_match_date',
+                'details' => 'Najčešći shortcode za listing utakmica na početnoj ili liga stranici. Kada je `filter=true`, prikazuje i kalendar (desno) sa obojenim danima: odigrane (zeleno), predstojeće (plavo).',
                 'builder' => [
                     ['name' => 'columns', 'label' => 'Kolone', 'type' => 'number', 'default' => '4', 'help' => 'Broj kolona u gridu (1-6).'],
                     ['name' => 'limit', 'label' => 'Limit', 'type' => 'number', 'default' => '8', 'help' => 'Broj utakmica inicijalno (i chunk za infinite).'],
                     ['name' => 'liga', 'label' => 'Liga slug', 'type' => 'text', 'default' => '', 'help' => 'Slug lige/takmičenja.'],
                     ['name' => 'sezona', 'label' => 'Sezona slug', 'type' => 'text', 'default' => '', 'help' => 'Slug sezone (npr. 2025-26).'],
                     ['name' => 'odigrana', 'label' => 'Odigrana', 'type' => 'text', 'default' => '', 'help' => '1 = odigrane, 0 = neodigrane, prazno = sve.'],
-                    ['name' => 'filter', 'label' => 'Filter', 'type' => 'text', 'default' => 'true', 'help' => 'Uključuje filter/sort panel.'],
+                    ['name' => 'filter', 'label' => 'Filter', 'type' => 'text', 'default' => 'true', 'help' => 'Uključuje filter/sort panel i kalendar datuma.'],
                     ['name' => 'infinite', 'label' => 'Infinite', 'type' => 'text', 'default' => 'true', 'help' => 'Učitavanje dodatnih kartica pri skrolu.'],
+                    ['name' => 'opentt_match_date', 'label' => 'Datum (YYYY-MM-DD)', 'type' => 'text', 'default' => '', 'help' => 'Opcioni početni datum filtera (npr. 2026-03-03).'],
                 ],
             ],
             [
@@ -2604,6 +2605,7 @@ JS;
             'sezona' => 'Slug sezone (npr. 2025-26).',
             'odigrana' => 'Filter odigranosti: 1 odigrane, 0 neodigrane.',
             'filter' => 'Uključuje dodatne filtere/sort opcije.',
+            'opentt_match_date' => 'Filter po tačnom datumu utakmice (YYYY-MM-DD).',
             'infinite' => 'Uključuje infinite scroll učitavanje.',
             'highlight' => 'Naglašava prosleđene klubove u tabeli.',
             'kolo' => 'Ograničava prikaz do određenog kola.',
@@ -2617,7 +2619,7 @@ JS;
     private static function shortcode_css_class_reference()
     {
         return [
-            'opentt_matches_grid' => ['module' => 'utakmice.css', 'classes' => ['.opentt-grid', '.opentt-grid-filters', '.opentt-item', '.team.pobednik', '.team.gubitnik', '.meta']],
+            'opentt_matches_grid' => ['module' => 'utakmice.css', 'classes' => ['.opentt-grid', '.opentt-grid-filters', '.opentt-grid-calendar-toggle', '.opentt-grid-calendar-popover', '.opentt-grid-cal-day', '.opentt-item', '.team.pobednik', '.team.gubitnik', '.meta']],
             'opentt_standings_table' => ['module' => 'tabela.css', 'classes' => ['.tabela-lige', '.tabela-lige tr.highlight', '.zone-promote-direct', '.zone-promote-playoff', '.zone-relegate-direct', '.zone-relegate-playoff']],
             'opentt_match_teams' => ['module' => 'ekipe.css', 'classes' => ['.opentt-ekipe', '.opentt-ekipe-home', '.opentt-ekipe-away', '.opentt-ekipe-score']],
             'opentt_match_games' => ['module' => 'partije.css', 'classes' => ['.lista-partija', '.partija-row', '.lp2-win', '.lp2-name']],
@@ -3419,7 +3421,15 @@ HTML;
         }
         $file = $_FILES[$file_field];
         if (!empty($file['error']) && (int) $file['error'] !== UPLOAD_ERR_OK) {
-            return [null, 'Greška pri upload-u fajla (kod: ' . (int) $file['error'] . ').'];
+            $code = (int) $file['error'];
+            if ($code === UPLOAD_ERR_INI_SIZE || $code === UPLOAD_ERR_FORM_SIZE) {
+                $max_upload = (string) ini_get('upload_max_filesize');
+                $max_post = (string) ini_get('post_max_size');
+                $size = isset($file['size']) ? (int) $file['size'] : 0;
+                $size_mb = number_format($size / 1024 / 1024, 2, '.', '');
+                return [null, 'Upload je odbijen jer je fajl prevelik (kod: ' . $code . ', veličina: ' . $size_mb . ' MB). Povećaj PHP limite `upload_max_filesize` (trenutno ' . $max_upload . ') i `post_max_size` (trenutno ' . $max_post . ').'];
+            }
+            return [null, 'Greška pri upload-u fajla (kod: ' . $code . ').'];
         }
         $tmp = (string) ($file['tmp_name'] ?? '');
         if ($tmp === '' || !is_uploaded_file($tmp)) {
