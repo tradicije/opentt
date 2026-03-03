@@ -191,52 +191,8 @@ final class OpenTT_Unified_Core
             return;
         }
 
-        self::ensure_default_lige_page();
+        \OpenTT\Unified\WordPress\DefaultPagesProvisioner::ensureCompetitionsPage();
         update_option(self::OPTION_DEFAULT_PAGES_SETUP_DONE, '1', false);
-    }
-
-    private static function ensure_default_lige_page()
-    {
-        if (!post_type_exists('page')) {
-            return;
-        }
-
-        $existing_slug = get_posts([
-            'post_type' => 'page',
-            'name' => 'lige',
-            'numberposts' => 1,
-            'post_status' => ['publish', 'private', 'draft', 'pending', 'future', 'trash'],
-            'fields' => 'ids',
-            'suppress_filters' => true,
-        ]);
-        if (!empty($existing_slug)) {
-            return;
-        }
-
-        global $wpdb;
-        $posts_table = $wpdb->posts;
-        $like = '%[opentt_competitions%';
-        $found_shortcode = $wpdb->get_var($wpdb->prepare(
-            "SELECT ID FROM {$posts_table}
-             WHERE post_type='page'
-               AND post_status IN ('publish','private','draft','pending','future','trash')
-               AND post_content LIKE %s
-             LIMIT 1",
-            $like
-        ));
-        if (!empty($found_shortcode)) {
-            return;
-        }
-
-        wp_insert_post([
-            'post_type' => 'page',
-            'post_status' => 'publish',
-            'post_title' => 'Lige',
-            'post_name' => 'lige',
-            'post_content' => '[opentt_competitions]',
-            'comment_status' => 'closed',
-            'ping_status' => 'closed',
-        ]);
     }
 
     public static function enqueue_frontend_assets()
