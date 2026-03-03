@@ -4315,39 +4315,21 @@ HTML;
 
     public static function handle_onboarding_action()
     {
-        self::require_cap();
-        check_admin_referer('opentt_unified_onboarding_action');
-
-        $state = \OpenTT\Unified\WordPress\OnboardingActionManager::resolveStateFromRequest(
-            'opentt_onboarding_action',
-            'completed'
-        );
-        \OpenTT\Unified\WordPress\OnboardingActionManager::persistStateAndClearRedirect(
-            self::OPTION_ONBOARDING_STATE,
-            $state,
-            'opentt_unified_onboarding_redirect'
-        );
-
-        $message = ($state === 'skipped')
-            ? 'First Time Setup je preskočen.'
-            : 'First Time Setup je završen.';
-
-        wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified'), 'success', $message));
-        exit;
+        \OpenTT\Unified\WordPress\AdminSettingsActionManager::handleOnboardingAction([
+            'capability' => self::CAP,
+            'action_key' => 'opentt_onboarding_action',
+            'state_option_key' => self::OPTION_ONBOARDING_STATE,
+            'redirect_transient_key' => 'opentt_unified_onboarding_redirect',
+            'dashboard_url' => admin_url('admin.php?page=stkb-unified'),
+        ]);
     }
 
     public static function handle_delete_all_data()
     {
-        self::require_cap();
-        check_admin_referer('opentt_unified_delete_all_data');
-
-        $phrase = isset($_POST['opentt_confirm_phrase']) ? sanitize_text_field((string) wp_unslash($_POST['opentt_confirm_phrase'])) : '';
-        if (trim($phrase) !== 'saglasan sam') {
-            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-settings'), 'error', 'Brisanje nije izvršeno. Upiši tačno: saglasan sam.'));
-            exit;
-        }
-
-        \OpenTT\Unified\WordPress\DataPurgeManager::purgeAll([
+        \OpenTT\Unified\WordPress\AdminSettingsActionManager::handleDeleteAllData([
+            'capability' => self::CAP,
+            'confirm_phrase_key' => 'opentt_confirm_phrase',
+            'settings_url' => admin_url('admin.php?page=stkb-unified-settings'),
             'post_types' => ['pravilo_takmicenja', 'sezona', 'liga', 'igrac', 'klub'],
             'taxonomies' => ['kolo', 'liga_sezona'],
             'option_keys' => [
@@ -4367,87 +4349,22 @@ HTML;
             ],
             'transient_keys' => ['opentt_unified_onboarding_redirect'],
         ]);
-
-        wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-settings'), 'success', 'Svi OpenTT podaci su obrisani.'));
-        exit;
     }
 
     public static function handle_save_settings_admin()
     {
-        self::require_cap();
-        check_admin_referer('opentt_unified_save_settings');
-
-        $section = isset($_POST['opentt_settings_section']) ? sanitize_key((string) $_POST['opentt_settings_section']) : 'all';
-        $action = isset($_POST['opentt_css_action']) ? sanitize_key((string) $_POST['opentt_css_action']) : 'save';
-        $settings_url = admin_url('admin.php?page=stkb-unified-settings');
-        $customize_url = admin_url('admin.php?page=stkb-unified-customize');
-
-        if ($action === 'reset') {
-            if ($section === 'visual') {
-                \OpenTT\Unified\WordPress\SettingsManager::resetVisualSettings(self::OPTION_VISUAL_SETTINGS);
-                wp_safe_redirect(self::admin_notice_url($customize_url, 'success', 'Globalna stilizacija je resetovana.'));
-                exit;
-            }
-            if ($section === 'css') {
-                \OpenTT\Unified\WordPress\SettingsManager::resetCustomCss(
-                    self::OPTION_CUSTOM_SHORTCODE_CSS,
-                    self::OPTION_CUSTOM_SHORTCODE_CSS_MAP
-                );
-                wp_safe_redirect(self::admin_notice_url($customize_url, 'success', 'CSS override je resetovan.'));
-                exit;
-            }
-            \OpenTT\Unified\WordPress\SettingsManager::resetCustomCss(
-                self::OPTION_CUSTOM_SHORTCODE_CSS,
-                self::OPTION_CUSTOM_SHORTCODE_CSS_MAP
-            );
-            \OpenTT\Unified\WordPress\SettingsManager::resetVisualSettings(self::OPTION_VISUAL_SETTINGS);
-            wp_safe_redirect(self::admin_notice_url($settings_url, 'success', 'Podešavanja su resetovana.'));
-            exit;
-        }
-
-        if ($section === 'ui_lang' || $section === 'all') {
-            $raw_lang = isset($_POST['admin_ui_language']) ? (string) wp_unslash($_POST['admin_ui_language']) : 'sr';
-            \OpenTT\Unified\WordPress\SettingsManager::saveAdminUiLanguage(
-                self::OPTION_ADMIN_UI_LANGUAGE,
-                self::get_available_admin_ui_languages(),
-                $raw_lang,
-                'sr'
-            );
-            if ($section === 'ui_lang') {
-                wp_safe_redirect(self::admin_notice_url($settings_url, 'success', 'Jezik admin interfejsa je sačuvan.'));
-                exit;
-            }
-        }
-
-        if ($section === 'visual' || $section === 'all') {
-            $visual_settings = isset($_POST['visual_settings']) && is_array($_POST['visual_settings']) ? (array) wp_unslash($_POST['visual_settings']) : [];
-            \OpenTT\Unified\WordPress\SettingsManager::saveVisualSettings(
-                self::OPTION_VISUAL_SETTINGS,
-                $visual_settings
-            );
-            if ($section === 'visual') {
-                wp_safe_redirect(self::admin_notice_url($customize_url, 'success', 'Globalna stilizacija je sačuvana.'));
-                exit;
-            }
-        }
-
-        if ($section === 'css' || $section === 'all') {
-            $css_raw = isset($_POST['custom_shortcode_css']) ? (string) wp_unslash($_POST['custom_shortcode_css']) : '';
-            $css_map_in = isset($_POST['custom_shortcode_css_map']) && is_array($_POST['custom_shortcode_css_map']) ? (array) $_POST['custom_shortcode_css_map'] : [];
-            \OpenTT\Unified\WordPress\SettingsManager::saveCustomCssOverrides(
-                self::OPTION_CUSTOM_SHORTCODE_CSS,
-                self::OPTION_CUSTOM_SHORTCODE_CSS_MAP,
-                $css_raw,
-                $css_map_in
-            );
-            if ($section === 'css') {
-                wp_safe_redirect(self::admin_notice_url($customize_url, 'success', 'CSS override je sačuvan.'));
-                exit;
-            }
-        }
-
-        wp_safe_redirect(self::admin_notice_url($settings_url, 'success', 'Podešavanja su sačuvana.'));
-        exit;
+        \OpenTT\Unified\WordPress\AdminSettingsActionManager::handleSaveSettings([
+            'capability' => self::CAP,
+            'section_key' => 'opentt_settings_section',
+            'css_action_key' => 'opentt_css_action',
+            'settings_url' => admin_url('admin.php?page=stkb-unified-settings'),
+            'customize_url' => admin_url('admin.php?page=stkb-unified-customize'),
+            'option_visual_settings' => self::OPTION_VISUAL_SETTINGS,
+            'option_custom_css' => self::OPTION_CUSTOM_SHORTCODE_CSS,
+            'option_custom_css_map' => self::OPTION_CUSTOM_SHORTCODE_CSS_MAP,
+            'option_admin_ui_language' => self::OPTION_ADMIN_UI_LANGUAGE,
+            'available_languages' => self::get_available_admin_ui_languages(),
+        ]);
     }
 
     public static function render_admin_notice()

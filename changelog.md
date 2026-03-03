@@ -20,6 +20,10 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 - Updated admin UI translation dictionaries in `languages/` to align key strings with the new `opentt-*`/`opentt_*` markup and action/query identifiers.
 
+#### Architecture
+
+- Extracted admin settings/onboarding/data-purge action orchestration from core into `src/WordPress/AdminSettingsActionManager.php`, keeping `includes/class-opentt-unified-core.php` as a delegating entry layer.
+
 ## Releases
 
 ### 1.1.0-beta.2 - 2026-03-03
