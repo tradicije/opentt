@@ -5440,40 +5440,16 @@ HTML;
 
     public static function get_competition_rule_data($liga_slug, $sezona_slug)
     {
-        $liga_slug = sanitize_title((string) $liga_slug);
-        $sezona_slug = sanitize_title((string) $sezona_slug);
-        if ($liga_slug === '' || $sezona_slug === '') {
-            return null;
-        }
-        $post = \OpenTT\Unified\WordPress\CompetitionRuleStore::findBySlugs($liga_slug, $sezona_slug);
-        if (!$post) {
-            return null;
-        }
-        return [
-            'id' => (int) $post->ID,
-            'liga_slug' => $liga_slug,
-            'sezona_slug' => $sezona_slug,
-            'rang' => max(1, min(5, (int) get_post_meta($post->ID, 'opentt_competition_rank', true) ?: 3)),
-            'promocija_broj' => (int) get_post_meta($post->ID, 'opentt_competition_promotion_slots', true),
-            'promocija_baraz_broj' => (int) get_post_meta($post->ID, 'opentt_competition_promotion_playoff_slots', true),
-            'ispadanje_broj' => (int) get_post_meta($post->ID, 'opentt_competition_relegation_slots', true),
-            'ispadanje_razigravanje_broj' => (int) get_post_meta($post->ID, 'opentt_competition_relegation_playoff_slots', true),
-            'bodovanje_tip' => (string) get_post_meta($post->ID, 'opentt_competition_scoring_type', true),
-            'format_partija' => (string) get_post_meta($post->ID, 'opentt_competition_match_format', true),
-            'savez' => self::normalize_competition_federation((string) get_post_meta($post->ID, 'opentt_competition_federation', true)),
-        ];
+        return \OpenTT\Unified\WordPress\CompetitionRuleProfile::getRuleData($liga_slug, $sezona_slug);
     }
 
     private static function match_competition_format($liga_slug, $sezona_slug)
     {
-        $rule = self::get_competition_rule_data($liga_slug, $sezona_slug);
-        if (is_array($rule)) {
-            $format = (string) ($rule['format_partija'] ?? '');
-            if ($format === 'format_b') {
-                return 'format_b';
-            }
-        }
-        return 'format_a';
+        return \OpenTT\Unified\WordPress\CompetitionRuleProfile::resolveMatchFormat(
+            $liga_slug,
+            $sezona_slug,
+            'format_a'
+        );
     }
 
     private static function migrate_competition_rules_from_existing_data()

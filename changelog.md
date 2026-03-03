@@ -37,6 +37,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Extracted competition rule storage helpers (find by league/season slugs + ensure league/season entities) into `OpenTT\\Unified\\WordPress\\CompetitionRuleStore`.
 - Extracted competition rule catalog helpers (federation options/normalization/data + rule ID lookup + has-any-rules check) into `OpenTT\\Unified\\WordPress\\CompetitionRuleCatalog`.
 - Extracted competition round diagnostics query/normalization into `OpenTT\\Unified\\WordPress\\CompetitionDiagnosticsQuery`.
+- Extracted competition rule profile resolution (rule data map + match format resolution) into `OpenTT\\Unified\\WordPress\\CompetitionRuleProfile`.
 - Standardized AGPL file headers across all PHP sources and aligned main plugin metadata to `1.1.0-beta.1`.
 
 ## Releases
