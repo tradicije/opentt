@@ -170,8 +170,8 @@ Doprinosi su dobrodošli:
 
 ## Status projekta
 
-Stabilna verzija: **1.0.0**.
-Beta verzija: **1.1.0-beta.1**.
+- Stabilna verzija: **1.0.0**.
+- Beta verzija: **1.1.0-beta.1**.
 
 ## Napomena
 
