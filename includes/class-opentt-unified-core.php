@@ -4577,30 +4577,35 @@ HTML;
 
         if ($action === 'reset') {
             if ($section === 'visual') {
-                update_option(self::OPTION_VISUAL_SETTINGS, self::default_visual_settings(), false);
+                \OpenTT\Unified\WordPress\SettingsManager::resetVisualSettings(self::OPTION_VISUAL_SETTINGS);
                 wp_safe_redirect(self::admin_notice_url($customize_url, 'success', 'Globalna stilizacija je resetovana.'));
                 exit;
             }
             if ($section === 'css') {
-                update_option(self::OPTION_CUSTOM_SHORTCODE_CSS, '', false);
-                update_option(self::OPTION_CUSTOM_SHORTCODE_CSS_MAP, [], false);
+                \OpenTT\Unified\WordPress\SettingsManager::resetCustomCss(
+                    self::OPTION_CUSTOM_SHORTCODE_CSS,
+                    self::OPTION_CUSTOM_SHORTCODE_CSS_MAP
+                );
                 wp_safe_redirect(self::admin_notice_url($customize_url, 'success', 'CSS override je resetovan.'));
                 exit;
             }
-            update_option(self::OPTION_CUSTOM_SHORTCODE_CSS, '', false);
-            update_option(self::OPTION_CUSTOM_SHORTCODE_CSS_MAP, [], false);
-            update_option(self::OPTION_VISUAL_SETTINGS, self::default_visual_settings(), false);
+            \OpenTT\Unified\WordPress\SettingsManager::resetCustomCss(
+                self::OPTION_CUSTOM_SHORTCODE_CSS,
+                self::OPTION_CUSTOM_SHORTCODE_CSS_MAP
+            );
+            \OpenTT\Unified\WordPress\SettingsManager::resetVisualSettings(self::OPTION_VISUAL_SETTINGS);
             wp_safe_redirect(self::admin_notice_url($settings_url, 'success', 'Podešavanja su resetovana.'));
             exit;
         }
 
         if ($section === 'ui_lang' || $section === 'all') {
-            $lang = isset($_POST['admin_ui_language']) ? sanitize_key((string) wp_unslash($_POST['admin_ui_language'])) : 'sr';
-            $available_langs = self::get_available_admin_ui_languages();
-            if (!isset($available_langs[$lang])) {
-                $lang = 'sr';
-            }
-            update_option(self::OPTION_ADMIN_UI_LANGUAGE, $lang, false);
+            $raw_lang = isset($_POST['admin_ui_language']) ? (string) wp_unslash($_POST['admin_ui_language']) : 'sr';
+            \OpenTT\Unified\WordPress\SettingsManager::saveAdminUiLanguage(
+                self::OPTION_ADMIN_UI_LANGUAGE,
+                self::get_available_admin_ui_languages(),
+                $raw_lang,
+                'sr'
+            );
             if ($section === 'ui_lang') {
                 wp_safe_redirect(self::admin_notice_url($settings_url, 'success', 'Jezik admin interfejsa je sačuvan.'));
                 exit;
@@ -4609,7 +4614,10 @@ HTML;
 
         if ($section === 'visual' || $section === 'all') {
             $visual_settings = isset($_POST['visual_settings']) && is_array($_POST['visual_settings']) ? (array) wp_unslash($_POST['visual_settings']) : [];
-            update_option(self::OPTION_VISUAL_SETTINGS, self::sanitize_visual_settings($visual_settings), false);
+            \OpenTT\Unified\WordPress\SettingsManager::saveVisualSettings(
+                self::OPTION_VISUAL_SETTINGS,
+                $visual_settings
+            );
             if ($section === 'visual') {
                 wp_safe_redirect(self::admin_notice_url($customize_url, 'success', 'Globalna stilizacija je sačuvana.'));
                 exit;
@@ -4618,21 +4626,13 @@ HTML;
 
         if ($section === 'css' || $section === 'all') {
             $css_raw = isset($_POST['custom_shortcode_css']) ? (string) wp_unslash($_POST['custom_shortcode_css']) : '';
-            $css_raw = str_replace("\r\n", "\n", $css_raw);
-            update_option(self::OPTION_CUSTOM_SHORTCODE_CSS, $css_raw, false);
-
             $css_map_in = isset($_POST['custom_shortcode_css_map']) && is_array($_POST['custom_shortcode_css_map']) ? (array) $_POST['custom_shortcode_css_map'] : [];
-            $css_map = [];
-            foreach ($css_map_in as $tag => $css_part) {
-                $tag = sanitize_key((string) $tag);
-                if ($tag === '') {
-                    continue;
-                }
-                $css_part = is_string($css_part) ? (string) wp_unslash($css_part) : '';
-                $css_part = str_replace("\r\n", "\n", $css_part);
-                $css_map[$tag] = $css_part;
-            }
-            update_option(self::OPTION_CUSTOM_SHORTCODE_CSS_MAP, $css_map, false);
+            \OpenTT\Unified\WordPress\SettingsManager::saveCustomCssOverrides(
+                self::OPTION_CUSTOM_SHORTCODE_CSS,
+                self::OPTION_CUSTOM_SHORTCODE_CSS_MAP,
+                $css_raw,
+                $css_map_in
+            );
             if ($section === 'css') {
                 wp_safe_redirect(self::admin_notice_url($customize_url, 'success', 'CSS override je sačuvan.'));
                 exit;
