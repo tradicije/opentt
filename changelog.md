@@ -2,16 +2,24 @@
 
 All notable changes to the OpenTT plugin are documented in this file.
 
-## Unreleased
+## Releases
 
-### Next
+### 1.1.0-beta.3 - 2026-03-04
 
-#### Naming Consistency
+#### Highlights
 
-- Replaced remaining non-legacy `stkb` identifiers in shortcode filter/query keys with `opentt_*` equivalents (matches, clubs, competitions, player/team season filters).
-- Unified remaining internal admin/UI identifiers to `opentt` (settings form keys, onboarding action key, confirm phrase field, thumbnail picker IDs/selectors, live-search hit class, help modal target, shortcode builder/card classes).
+- Release focused on completing shortcode architecture extraction and finalizing naming/UI consistency across admin, filters, and import/export UX.
+- Unified shortcode trait is now a delegating layer, with all shortcode implementations moved into dedicated PSR-4 classes.
 
-#### Assets
+#### Engineering
+
+- Completed remaining `stkb` to `opentt` identifier normalization across shortcode filter/query keys and internal admin/UI identifiers.
+- Continued core service extraction by moving admin settings/onboarding actions, import/export actions, schema migration orchestration, and import payload inspection into dedicated PSR-4 service classes (`src/WordPress/*`, `src/Infrastructure/*`), with `OpenTT_Unified_Core` kept as a delegating layer.
+- Removed redundant core wrappers (notice URL and ID/date parsing) and switched related call sites to direct helper/service usage.
+- Completed shortcode architecture migration: all shortcode implementations are now extracted from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes.
+- Shortcodes now extracted include match views (`matches_grid`, `matches_list`, `match_games`, `match_report`, `match_video`, `show_match_teams`), club/player content (`clubs`, `show_players`, `club_news`, `player_news`, `related_posts`, `club_info`, `player_info`, `club_form`, `player_transfers`), rankings/stats (`standings_table`, `top_players_list`, `mvp`, `player_stats`, `team_stats`), and competition views (`competition_info`, `competitions_grid`, `h2h`).
+
+#### Assets & UI
 
 - Renamed frontend CSS override style handle namespace from `stkb-unified-*` to `opentt-unified-*`.
 - Updated admin JS initialization dataset/data flags from `stkb*` to `opentt*` keys.
@@ -37,33 +45,6 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 - Fixed `opentt_matches_grid` contextual league-season filtering so league archives now respect the active `sezona` context instead of aggregating matches from all seasons of the same league.
 - Updated `opentt_match_teams` center display logic to show scheduled match time (for example `19h`) instead of `0:0` for not-yet-played matches, using backend `played`, match date, and score fallback checks.
-
-#### Architecture
-
-- Extracted admin settings/onboarding/data-purge action orchestration from core into `src/WordPress/AdminSettingsActionManager.php`, keeping `includes/class-opentt-unified-core.php` as a delegating entry layer.
-- Extracted import/export admin action orchestration into `src/WordPress/DataTransferActionManager.php` while keeping existing transfer/validation/import algorithms unchanged via delegated callbacks.
-- Extracted DB schema migration and legacy table sync orchestration into `src/Infrastructure/SchemaMigrationManager.php`, reducing `includes` core DB bootstrap responsibilities.
-- Removed redundant core wrapper methods for notice URL and ID/date parsing, and switched core call sites to direct helper/service usage.
-- Extracted import payload parsing/summarizing/validation logic into `src/WordPress/ImportPayloadInspector.php`, with `OpenTT_Unified_Core` keeping lightweight delegating wrappers.
-- Extracted `opentt_matches_grid` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/MatchesGridShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_clubs` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/ClubsGridShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_standings_table` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/StandingsTableShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_match_games` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/GamesListShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_h2h` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/H2hShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_show_players` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/ShowPlayersShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_club_news` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/ClubNewsShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_player_news` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/PlayerNewsShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_related_posts` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/RelatedPostsShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_match_video` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/MatchVideoShortcode.php`, keeping trait as a thin delegator.
-- Extracted `opentt_show_home_club`, `opentt_show_away_club`, and `opentt_show_club_by_name` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, keeping trait methods as delegators.
-- Extracted `opentt_match_report` and `opentt_club_form` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, keeping trait methods as delegators.
-- Extracted `opentt_show_match_teams` and `opentt_competition_info` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, keeping trait methods as delegators.
-- Extracted `opentt_matches_list` and `opentt_mvp` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, keeping trait methods as delegators.
-- Extracted `opentt_player_transfers` and `opentt_top_players_list` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, keeping trait methods as delegators.
-- Extracted `opentt_club_info` and `opentt_player_info` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, keeping trait methods as delegators.
-- Extracted `opentt_player_stats`, `opentt_team_stats`, and `opentt_competitions_grid` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, completing shortcode extraction for the unified shortcode trait.
-
-## Releases
 
 ### 1.1.0-beta.2 - 2026-03-03
 
