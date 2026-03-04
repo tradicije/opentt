@@ -417,20 +417,14 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     public static function shortcode_match_video($atts = [])
     {
-        $ctx = self::current_match_context();
-        if (!$ctx || empty($ctx['legacy_id'])) {
-            return '';
-        }
-        $legacy_match_id = intval($ctx['legacy_id']);
-        $video_url = (string) get_post_meta($legacy_match_id, 'snimak_utakmice', true);
-        if ($video_url === '') {
-            return '';
-        }
-        $embed = wp_oembed_get($video_url);
-        if (!$embed) {
-            return '';
-        }
-        return self::shortcode_title_html('Snimak utakmice') . '<div class="snimak-utakmice-section"><div class="video-wrapper">' . $embed . '</div></div>';
+        return \OpenTT\Unified\WordPress\Shortcodes\MatchVideoShortcode::render($atts, [
+            'current_match_context' => static function () {
+                return self::current_match_context();
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+        ]);
     }
 
     public static function shortcode_show_home_club($atts = [])
