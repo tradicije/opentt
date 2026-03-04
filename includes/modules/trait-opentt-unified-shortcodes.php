@@ -462,74 +462,29 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     public static function shortcode_h2h($atts = [])
     {
-        $ctx = self::current_match_context();
-        if (!$ctx || empty($ctx['db_row'])) {
-            return '';
-        }
-
-        $cur = $ctx['db_row'];
-        $home_id = intval($cur->home_club_post_id);
-        $away_id = intval($cur->away_club_post_id);
-        if ($home_id <= 0 || $away_id <= 0) {
-            return '';
-        }
-
-        $rows = self::db_get_h2h_matches(intval($cur->id), $home_id, $away_id);
-        if (empty($rows)) {
-            return '';
-        }
-
-        ob_start();
-        echo self::shortcode_title_html('Međusobni dueli');
-        foreach ($rows as $row) {
-            $rd = intval($row->home_score);
-            $rg = intval($row->away_score);
-            if ($rd === 0 && $rg === 0) {
-                continue;
-            }
-
-            $domacin_id = intval($row->home_club_post_id);
-            $gost_id = intval($row->away_club_post_id);
-            if ($domacin_id <= 0 || $gost_id <= 0) {
-                continue;
-            }
-
-            $domacin_title = get_the_title($domacin_id);
-            $gost_title = get_the_title($gost_id);
-            $grb_d = self::club_logo_url($domacin_id, 'thumbnail');
-            $grb_g = self::club_logo_url($gost_id, 'thumbnail');
-
-            $pobednik = null;
-            if ($rd === 4) {
-                $pobednik = 'domacin';
-            } elseif ($rg === 4) {
-                $pobednik = 'gost';
-            }
-
-            $kolo = self::kolo_name_from_slug((string) $row->kolo_slug);
-            $datum = self::display_match_date_long($row->match_date);
-            $link = self::match_permalink($row);
-            ?>
-            <a href="<?php echo esc_url($link); ?>" class="h2h-box">
-                <div class="h2h-club">
-                    <?php if ($grb_d): ?><img src="<?php echo esc_url($grb_d); ?>" alt="<?php echo esc_attr($domacin_title); ?>"><?php endif; ?>
-                    <span class="h2h-ime <?php echo esc_attr($pobednik === 'domacin' ? 'pobednik' : 'gubitnik'); ?>"><?php echo esc_html($domacin_title); ?></span>
-                    <span class="h2h-rez <?php echo esc_attr($pobednik === 'domacin' ? 'pobednik' : 'gubitnik'); ?>"><?php echo intval($rd); ?></span>
-                </div>
-                <div class="h2h-club">
-                    <?php if ($grb_g): ?><img src="<?php echo esc_url($grb_g); ?>" alt="<?php echo esc_attr($gost_title); ?>"><?php endif; ?>
-                    <span class="h2h-ime <?php echo esc_attr($pobednik === 'gost' ? 'pobednik' : 'gubitnik'); ?>"><?php echo esc_html($gost_title); ?></span>
-                    <span class="h2h-rez <?php echo esc_attr($pobednik === 'gost' ? 'pobednik' : 'gubitnik'); ?>"><?php echo intval($rg); ?></span>
-                </div>
-                <div class="h2h-meta">
-                    <span><?php echo esc_html($kolo); ?></span>
-                    <span><?php echo esc_html($datum); ?></span>
-                </div>
-            </a>
-            <?php
-        }
-
-        return ob_get_clean();
+        return \OpenTT\Unified\WordPress\Shortcodes\H2hShortcode::render($atts, [
+            'current_match_context' => static function () {
+                return self::current_match_context();
+            },
+            'db_get_h2h_matches' => static function ($current_match_db_id, $home_club_id, $away_club_id) {
+                return self::db_get_h2h_matches($current_match_db_id, $home_club_id, $away_club_id);
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+            'club_logo_url' => static function ($club_id, $size = 'thumbnail') {
+                return self::club_logo_url($club_id, $size);
+            },
+            'kolo_name_from_slug' => static function ($slug) {
+                return self::kolo_name_from_slug($slug);
+            },
+            'display_match_date_long' => static function ($match_date) {
+                return self::display_match_date_long($match_date);
+            },
+            'match_permalink' => static function ($row) {
+                return self::match_permalink($row);
+            },
+        ]);
     }
 
     public static function shortcode_mvp($atts = [])

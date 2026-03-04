@@ -44,6 +44,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Extracted `opentt_clubs` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/ClubsGridShortcode.php`, keeping trait as a thin delegator.
 - Extracted `opentt_standings_table` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/StandingsTableShortcode.php`, keeping trait as a thin delegator.
 - Extracted `opentt_match_games` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/GamesListShortcode.php`, keeping trait as a thin delegator.
+- Extracted `opentt_h2h` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/H2hShortcode.php`, keeping trait as a thin delegator.
 
 ## Releases
 
