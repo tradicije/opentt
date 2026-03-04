@@ -25,6 +25,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Fixed persistent featured-card side accent inversion by enforcing explicit inset edge accents (`home` on left, `away` on right) and simplifying overlay glow.
 - Corrected inset shadow direction on `opentt_featured_match` so side accents truly render as home-left and away-right.
 - Reworked featured-card side accents to explicit pseudo-element bars (`::before` home-left, `::after` away-right), removing inset-shadow accents for deterministic left/right color rendering.
+- Removed duplicated featured-match style blocks from `main.css` and `legacy-ui.css` so `featured-match.css` is the single source of truth, preventing cross-file overrides.
+- Updated featured-match card to use uninterrupted edge-to-edge gradient (without solid side bars) while retaining subtle top highlight overlay.
 
 #### Admin & Data
 

@@ -7,7 +7,6 @@
   --opentt-featured-away: #0084ff;
   position: relative;
   display: block;
-  border: 2px solid #ffffff33;
   border-radius: 14px;
   padding: 18px 20px;
   color: #ffffff;
@@ -27,22 +26,15 @@
 .opentt-featured-match-card::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--opentt-featured-home);
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 8, 24, 0.25)),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 60%);
   pointer-events: none;
 }
 
 .opentt-featured-match-card::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--opentt-featured-away);
+  content: none;
   pointer-events: none;
 }
 
