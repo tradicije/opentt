@@ -2843,6 +2843,7 @@ trait OpenTT_Unified_Shortcodes_Trait
         $limit = isset($atts['limit']) ? intval($atts['limit']) : 5;
         $liga = sanitize_title((string) ($atts['liga'] ?? ''));
         $sezona_from_atts = !empty($atts['sezona']) ? sanitize_title((string) $atts['sezona']) : '';
+        $sezona_from_context = '';
         $kolo = '';
         $odigrana = '';
         $club_id = 0;
@@ -2861,6 +2862,23 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $liga_qv = get_query_var('liga_sezona');
                 if ($liga_qv) {
                     $liga = sanitize_title((string) $liga_qv);
+                }
+            }
+        }
+
+        if ($sezona_from_atts === '') {
+            if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'liga_sezona') {
+                $sezona_from_context = sanitize_title((string) ($archive_ctx['sezona_slug'] ?? ''));
+            } elseif (is_tax('liga_sezona')) {
+                $term = get_queried_object();
+                if ($term && !is_wp_error($term) && !empty($term->slug)) {
+                    $parsed_tax = self::parse_legacy_liga_sezona((string) $term->slug, '');
+                    $sezona_from_context = sanitize_title((string) ($parsed_tax['season_slug'] ?? ''));
+                }
+            } else {
+                $sezona_qv = get_query_var('sezona');
+                if ($sezona_qv) {
+                    $sezona_from_context = sanitize_title((string) $sezona_qv);
                 }
             }
         }
@@ -2911,9 +2929,10 @@ trait OpenTT_Unified_Shortcodes_Trait
 
         // Back-compat: dozvoli i legacy spojeni slug tipa "kvalitetna-liga-2025-26".
         // Ako je sezona već eksplicitno prosleđena, ona ima prioritet.
-        $parsed = self::parse_legacy_liga_sezona($liga, $sezona_from_atts);
+        $resolved_sezona = $sezona_from_atts !== '' ? $sezona_from_atts : $sezona_from_context;
+        $parsed = self::parse_legacy_liga_sezona($liga, $resolved_sezona);
         $liga = sanitize_title((string) ($parsed['league_slug'] ?? $liga));
-        $sezona_slug = sanitize_title((string) ($parsed['season_slug'] ?? $sezona_from_atts));
+        $sezona_slug = sanitize_title((string) ($parsed['season_slug'] ?? $resolved_sezona));
         if ($sezona_from_atts !== '') {
             $sezona_slug = $sezona_from_atts;
         }

@@ -33,6 +33,10 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 - Updated admin UI translation dictionaries in `languages/` to align key strings with the new `opentt-*`/`opentt_*` markup and action/query identifiers.
 
+#### Fixes
+
+- Fixed `opentt_matches_grid` contextual league-season filtering so league archives now respect the active `sezona` context instead of aggregating matches from all seasons of the same league.
+
 #### Architecture
 
 - Extracted admin settings/onboarding/data-purge action orchestration from core into `src/WordPress/AdminSettingsActionManager.php`, keeping `includes/class-opentt-unified-core.php` as a delegating entry layer.
