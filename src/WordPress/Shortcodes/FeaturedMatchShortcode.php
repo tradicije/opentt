@@ -202,12 +202,14 @@ final class FeaturedMatchShortcode
             return null;
         }
 
-        $where = ['liga_slug=%s', 'match_date IS NOT NULL', "match_date <> '0000-00-00 00:00:00'", 'match_date >= %s'];
-        $params = [$liga, current_time('mysql')];
+        $where = ['liga_slug=%s', 'match_date IS NOT NULL', "match_date <> '0000-00-00 00:00:00'"];
+        $params = [$liga];
         if ($sezona !== '') {
             $where[] = 'sezona_slug=%s';
             $params[] = $sezona;
         }
+        $where[] = 'match_date >= %s';
+        $params[] = current_time('mysql');
         $sql = "SELECT * FROM {$table} WHERE " . implode(' AND ', $where) . " ORDER BY match_date ASC, id ASC LIMIT 120";
         $rows = $wpdb->get_results($wpdb->prepare($sql, $params)) ?: [];
         if (empty($rows)) {

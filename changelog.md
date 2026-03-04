@@ -13,6 +13,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added new `opentt_featured_match` shortcode with standout card layout (league/season/round meta, team crests/names, countdown center, location footer) and home/away gradient based on club jersey colors.
 - Extended `opentt_featured_match` with `mode` selector: `manual` (admin featured flag) and `auto` (context-aware league/season selection of nearest upcoming match with derby tie-break based on standings rank).
 - Updated club admin form (`boja_dresa`) to use WordPress color picker for reliable color input used by featured-match gradients.
+- Fixed `opentt_featured_match` auto mode SQL filtering order so league+season contextual lookup returns upcoming matches correctly.
+- Ensured featured-match CSS module is enqueued on frontend by adding `featured-match` to the module asset loader list.
 
 #### Admin & Data
 

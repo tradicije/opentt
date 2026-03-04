@@ -37,6 +37,7 @@ final class FrontendAssetsEnqueuer
             'info-kluba',
             'info-igraca',
             'prikaz-klubova',
+            'featured-match',
         ];
 
         foreach ($modules as $mod) {
