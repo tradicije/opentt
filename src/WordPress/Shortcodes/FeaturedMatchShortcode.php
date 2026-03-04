@@ -419,7 +419,7 @@ final class FeaturedMatchShortcode
         if (self::isMatchPlayedByStatusOrScore($match)) {
             return 'Rezultat';
         }
-        return 'Početak utakmice za:';
+        return 'Početak za:';
     }
 
     private static function matchLocationLabel($match)
