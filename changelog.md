@@ -61,6 +61,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Extracted `opentt_matches_list` and `opentt_mvp` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, keeping trait methods as delegators.
 - Extracted `opentt_player_transfers` and `opentt_top_players_list` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, keeping trait methods as delegators.
 - Extracted `opentt_club_info` and `opentt_player_info` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, keeping trait methods as delegators.
+- Extracted `opentt_player_stats`, `opentt_team_stats`, and `opentt_competitions_grid` shortcode implementations from `includes/modules/trait-opentt-unified-shortcodes.php` into dedicated `src/WordPress/Shortcodes/*` classes, completing shortcode extraction for the unified shortcode trait.
 
 ## Releases
 

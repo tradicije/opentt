@@ -342,569 +342,86 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     public static function shortcode_player_stats($atts = [])
     {
-        $atts = shortcode_atts([
-            'igrac' => '',
-            'filter' => 'false',
-        ], $atts);
-
-        $player_id = 0;
-        if (!empty($atts['igrac'])) {
-            $lookup = sanitize_title((string) $atts['igrac']);
-            $post = get_page_by_path($lookup, OBJECT, 'igrac');
-            if (!$post) {
-                $post = get_page_by_title((string) $atts['igrac'], OBJECT, 'igrac');
-            }
-            if ($post && !is_wp_error($post)) {
-                $player_id = intval($post->ID);
-            }
-        } elseif (is_singular('igrac')) {
-            $player_id = intval(get_the_ID());
-        }
-
-        if ($player_id <= 0) {
-            return '';
-        }
-
-        $enable_filter = in_array(strtolower(trim((string) $atts['filter'])), ['1', 'true', 'yes', 'da', 'on'], true);
-        $season_key = 'opentt_player_season_' . $player_id;
-        $selected_season = isset($_GET[$season_key]) ? sanitize_title((string) wp_unslash($_GET[$season_key])) : '';
-
-        $season_options = [];
-        if ($enable_filter) {
-            $season_options = self::db_get_player_season_options($player_id);
-            if ($selected_season !== '' && !in_array($selected_season, $season_options, true)) {
-                $selected_season = '';
-            }
-        } else {
-            $selected_season = '';
-        }
-
-        $stats = self::db_get_player_stats($player_id, $selected_season);
-        $mvp_count = self::db_get_player_mvp_count($player_id, $selected_season);
-        $played = intval($stats['wins']) + intval($stats['losses']);
-        $pct = $played > 0 ? round((intval($stats['wins']) / $played) * 100, 1) : 0;
-        $season_label = $selected_season !== '' ? self::season_display_name($selected_season) : 'Ukupno';
-
-        $latest_comp = self::db_get_latest_competition_for_player($player_id);
-        $ranking_season = $selected_season;
-        if ($ranking_season === '') {
-            $ranking_season = is_array($latest_comp) ? sanitize_title((string) ($latest_comp['sezona_slug'] ?? '')) : '';
-            if ($ranking_season === '' && !empty($season_options)) {
-                $ranking_season = (string) $season_options[0];
-            }
-        }
-        $ranking_liga = '';
-        if ($ranking_season !== '') {
-            $ranking_liga = self::db_get_latest_liga_for_player_and_season($player_id, $ranking_season);
-        }
-        if ($ranking_liga === '' && is_array($latest_comp)) {
-            $ranking_liga = sanitize_title((string) ($latest_comp['liga_slug'] ?? ''));
-        }
-
-        $ranking_data = [];
-        $ranking_rows = [];
-        $ranking_slice = [];
-        $player_rank = 0;
-        if ($ranking_liga !== '') {
-            $ranking_data = self::db_get_top_players_data($ranking_liga, $ranking_season, null);
-            if (!empty($ranking_data)) {
-                $rank = 0;
-                foreach ($ranking_data as $pid => $info) {
-                    $rank++;
-                    $ranking_rows[] = [
-                        'rank' => $rank,
-                        'player_id' => intval($pid),
-                        'info' => is_array($info) ? $info : [],
-                    ];
-                    if (intval($pid) === $player_id) {
-                        $player_rank = $rank;
-                    }
-                }
-                if ($player_rank > 0) {
-                    $from = max(1, $player_rank - 2);
-                    $to = $player_rank + 2;
-                    foreach ($ranking_rows as $rr) {
-                        $rr_rank = intval($rr['rank']);
-                        if ($rr_rank >= $from && $rr_rank <= $to) {
-                            $ranking_slice[] = $rr;
-                        }
-                    }
-                }
-            }
-        }
-        $ranking_uid = 'opentt-player-ranking-' . wp_unique_id();
-
-        $uid = 'opentt-player-stats-' . wp_unique_id();
-
-        ob_start();
-        echo '<div id="' . esc_attr($uid) . '" class="opentt-stat-igraca">';
-        echo self::shortcode_title_html('Statistika igrača');
-        if ($enable_filter && !empty($season_options)) {
-            echo '<div class="opentt-stat-igraca-filter">';
-            echo '<label>Sezona ';
-            echo '<select class="opentt-stat-igraca-season">';
-            echo '<option value="">Ukupno</option>';
-            foreach ($season_options as $opt) {
-                echo '<option value="' . esc_attr((string) $opt) . '" ' . selected($selected_season, (string) $opt, false) . '>' . esc_html(self::season_display_name((string) $opt)) . '</option>';
-            }
-            echo '</select>';
-            echo '</label>';
-            echo '</div>';
-        }
-
-        echo '<div class="opentt-stat-igraca-meta">Period: <strong>' . esc_html($season_label) . '</strong></div>';
-        echo '<div class="opentt-stat-igraca-cards">';
-        echo '<div class="opentt-stat-card"><span class="k">Pobede</span><strong class="v">' . intval($stats['wins']) . '</strong></div>';
-        echo '<div class="opentt-stat-card"><span class="k">Porazi</span><strong class="v">' . intval($stats['losses']) . '</strong></div>';
-        echo '<div class="opentt-stat-card"><span class="k">Uspešnost</span><strong class="v">' . esc_html((string) $pct) . '%</strong></div>';
-        echo '<div class="opentt-stat-card"><span class="k">Igrač utakmice</span><strong class="v">' . intval($mvp_count) . '</strong></div>';
-        echo '</div>';
-
-        echo '<div class="opentt-stat-igraca-rang-wrap">';
-        echo '<div class="opentt-stat-igraca-rang-head">';
-        echo '<h4 class="opentt-stat-igraca-rang-title">Skraćena rang lista</h4>';
-        if ($ranking_season !== '') {
-            echo '<div class="opentt-stat-igraca-rang-season">Sezona: ' . esc_html(self::season_display_name($ranking_season)) . '</div>';
-        }
-        if (!empty($ranking_rows) && $player_rank > 0) {
-            echo '<button type="button" class="opentt-stat-igraca-toggle" data-target="' . esc_attr($ranking_uid) . '" data-open-text="Vidi celu rang listu" data-close-text="Sakrij celu rang listu">Vidi celu rang listu</button>';
-        }
-        echo '</div>';
-        if (!empty($ranking_slice) && $player_rank > 0) {
-            echo '<div class="opentt-stat-igraca-rang-short" id="' . esc_attr($ranking_uid . '-short') . '">';
-            echo '<div class="top-igraci-list opentt-stat-igraca-rang-list">';
-            foreach ($ranking_slice as $rr) {
-                $pid = intval($rr['player_id']);
-                $rank = intval($rr['rank']);
-                $info = is_array($rr['info']) ? $rr['info'] : [];
-                if ($pid > 0 && get_post_type($pid) === 'igrac') {
-                    echo self::render_top_player_card_list($pid, $rank, $info, $pid === $player_id); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                }
-            }
-            echo '</div>';
-            echo '</div>';
-
-            echo '<div id="' . esc_attr($ranking_uid) . '" class="opentt-stat-igraca-rang-full" hidden>';
-            echo '<div class="top-igraci-list opentt-stat-igraca-rang-list">';
-            foreach ($ranking_rows as $rr) {
-                $pid = intval($rr['player_id']);
-                $rank = intval($rr['rank']);
-                $info = is_array($rr['info']) ? $rr['info'] : [];
-                if ($pid > 0 && get_post_type($pid) === 'igrac') {
-                    echo self::render_top_player_card_list($pid, $rank, $info, $pid === $player_id); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                }
-            }
-            echo '</div>';
-            echo '</div>';
-        } else {
-            echo '<div class="opentt-stat-igraca-rang-empty">Nema dovoljno podataka za prikaz rang liste.</div>';
-        }
-        echo '</div>';
-        echo '</div>';
-
-        if ($enable_filter && !empty($season_options)) {
-            ?>
-            <script>
-            (function(){
-                var root = document.getElementById('<?php echo esc_js($uid); ?>');
-                if (!root) { return; }
-                var sel = root.querySelector('.opentt-stat-igraca-season');
-                if (!sel) { return; }
-                sel.addEventListener('change', function(){
-                    var url = new URL(window.location.href);
-                    if (sel.value) {
-                        url.searchParams.set('<?php echo esc_js($season_key); ?>', sel.value);
-                    } else {
-                        url.searchParams.delete('<?php echo esc_js($season_key); ?>');
-                    }
-                    window.location.href = url.toString();
-                });
-
-                var toggle = root.querySelector('.opentt-stat-igraca-toggle');
-                if (toggle) {
-                    toggle.addEventListener('click', function(){
-                        var targetId = toggle.getAttribute('data-target');
-                        if (!targetId) { return; }
-                        var full = document.getElementById(targetId);
-                        var shortList = document.getElementById(targetId + '-short');
-                        if (!full) { return; }
-                        var willOpen = full.hasAttribute('hidden');
-                        if (willOpen) {
-                            full.removeAttribute('hidden');
-                            if (shortList) { shortList.setAttribute('hidden', 'hidden'); }
-                            toggle.textContent = toggle.getAttribute('data-close-text') || 'Sakrij celu rang listu';
-                        } else {
-                            full.setAttribute('hidden', 'hidden');
-                            if (shortList) { shortList.removeAttribute('hidden'); }
-                            toggle.textContent = toggle.getAttribute('data-open-text') || 'Vidi celu rang listu';
-                        }
-                    });
-                }
-            })();
-            </script>
-            <?php
-        } else {
-            ?>
-            <script>
-            (function(){
-                var root = document.getElementById('<?php echo esc_js($uid); ?>');
-                if (!root) { return; }
-                var toggle = root.querySelector('.opentt-stat-igraca-toggle');
-                if (!toggle) { return; }
-                toggle.addEventListener('click', function(){
-                    var targetId = toggle.getAttribute('data-target');
-                    if (!targetId) { return; }
-                    var full = document.getElementById(targetId);
-                    var shortList = document.getElementById(targetId + '-short');
-                    if (!full) { return; }
-                    var willOpen = full.hasAttribute('hidden');
-                    if (willOpen) {
-                        full.removeAttribute('hidden');
-                        if (shortList) { shortList.setAttribute('hidden', 'hidden'); }
-                        toggle.textContent = toggle.getAttribute('data-close-text') || 'Sakrij celu rang listu';
-                    } else {
-                        full.setAttribute('hidden', 'hidden');
-                        if (shortList) { shortList.removeAttribute('hidden'); }
-                        toggle.textContent = toggle.getAttribute('data-open-text') || 'Vidi celu rang listu';
-                    }
-                });
-            })();
-            </script>
-            <?php
-        }
-
-        return ob_get_clean();
+        return \OpenTT\Unified\WordPress\Shortcodes\PlayerStatsShortcode::render($atts, [
+            'db_get_player_season_options' => static function ($player_id) {
+                return self::db_get_player_season_options($player_id);
+            },
+            'db_get_player_stats' => static function ($player_id, $season_slug = '') {
+                return self::db_get_player_stats($player_id, $season_slug);
+            },
+            'db_get_player_mvp_count' => static function ($player_id, $season_slug = '') {
+                return self::db_get_player_mvp_count($player_id, $season_slug);
+            },
+            'season_display_name' => static function ($sezona_slug) {
+                return self::season_display_name($sezona_slug);
+            },
+            'db_get_latest_competition_for_player' => static function ($player_id) {
+                return self::db_get_latest_competition_for_player($player_id);
+            },
+            'db_get_latest_liga_for_player_and_season' => static function ($player_id, $season_slug = '') {
+                return self::db_get_latest_liga_for_player_and_season($player_id, $season_slug);
+            },
+            'db_get_top_players_data' => static function ($liga_slug, $sezona_slug = '', $max_kolo = null) {
+                return self::db_get_top_players_data($liga_slug, $sezona_slug, $max_kolo);
+            },
+            'render_top_player_card_list' => static function ($player_id, $rank, $info, $highlight = false) {
+                return self::render_top_player_card_list($player_id, $rank, $info, $highlight);
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+        ]);
     }
 
     public static function shortcode_team_stats($atts = [])
     {
-        $atts = shortcode_atts([
-            'klub' => '',
-            'filter' => 'false',
-        ], $atts);
-
-        $club_id = 0;
-        if (!empty($atts['klub'])) {
-            $lookup = sanitize_title((string) $atts['klub']);
-            $post = get_page_by_path($lookup, OBJECT, 'klub');
-            if (!$post) {
-                $post = get_page_by_title((string) $atts['klub'], OBJECT, 'klub');
-            }
-            if ($post && !is_wp_error($post)) {
-                $club_id = intval($post->ID);
-            }
-        } elseif (is_singular('klub')) {
-            $club_id = intval(get_the_ID());
-        }
-
-        if ($club_id <= 0) {
-            return '';
-        }
-
-        $enable_filter = in_array(strtolower(trim((string) $atts['filter'])), ['1', 'true', 'yes', 'da', 'on'], true);
-        $season_key = 'opentt_team_season_' . $club_id;
-        $season_options = [];
-        if ($enable_filter) {
-            $season_options = self::db_get_club_season_options($club_id);
-        }
-        $selected_season = isset($_GET[$season_key]) ? sanitize_title((string) wp_unslash($_GET[$season_key])) : '';
-        if ($selected_season !== '' && !in_array($selected_season, $season_options, true)) {
-            $selected_season = '';
-        }
-
-        $stats = self::db_get_club_team_stats($club_id, $selected_season);
-        $season_label = $selected_season !== '' ? self::season_display_name($selected_season) : 'Ukupno';
-
-        $current_comp = self::db_get_latest_competition_for_club($club_id);
-        $current_season = '';
-        if (is_array($current_comp) && !empty($current_comp['sezona_slug'])) {
-            $current_season = sanitize_title((string) $current_comp['sezona_slug']);
-        }
-        if ($current_season === '' && !empty($season_options)) {
-            $current_season = (string) $season_options[0];
-        }
-        $best_player = $current_season !== '' ? self::db_get_club_season_best_player_by_success($club_id, $current_season) : null;
-
-        // Tabela prati izabranu sezonu; ako je "Ukupno", koristi najnoviju sezonu.
-        $table_liga_slug = '';
-        $table_sezona_slug = '';
-        $latest_comp = self::db_get_latest_competition_for_club($club_id);
-        $latest_season = '';
-        if (is_array($latest_comp)) {
-            $latest_season = sanitize_title((string) ($latest_comp['sezona_slug'] ?? ''));
-        }
-        if ($latest_season === '' && !empty($season_options)) {
-            $latest_season = (string) $season_options[0];
-        }
-
-        $table_sezona_slug = $selected_season !== '' ? $selected_season : $latest_season;
-        if ($table_sezona_slug !== '') {
-            $table_liga_slug = self::db_get_latest_liga_for_club_and_season($club_id, $table_sezona_slug);
-        } elseif (is_array($latest_comp)) {
-            $table_liga_slug = sanitize_title((string) ($latest_comp['liga_slug'] ?? ''));
-            $table_sezona_slug = sanitize_title((string) ($latest_comp['sezona_slug'] ?? ''));
-        }
-
-        $standings = [];
-        $standings_slice = [];
-        $club_rank = 0;
-        $table_label = '';
-        $table_uid = 'opentt-team-table-' . wp_unique_id();
-        $table_short_uid = 'opentt-team-table-short-' . wp_unique_id();
-        if ($table_liga_slug !== '') {
-            $standings = self::db_build_standings_for_competition($table_liga_slug, $table_sezona_slug, null);
-            if (!empty($standings)) {
-                $club_rank = self::find_club_rank_in_standings($standings, $club_id);
-                if ($club_rank > 0) {
-                    $standings_slice = self::build_standings_window_around_club($standings, $club_rank, 2);
-                }
-                $table_label = self::competition_display_name($table_liga_slug, $table_sezona_slug);
-            }
-        }
-        $table_rule = ($table_liga_slug !== '' && $table_sezona_slug !== '') ? self::get_competition_rule_data($table_liga_slug, $table_sezona_slug) : null;
-        $table_promo_direct = is_array($table_rule) ? max(0, intval($table_rule['promocija_broj'] ?? 0)) : 0;
-        $table_promo_playoff = is_array($table_rule) ? max(0, intval($table_rule['promocija_baraz_broj'] ?? 0)) : 0;
-        $table_releg_direct = is_array($table_rule) ? max(0, intval($table_rule['ispadanje_broj'] ?? 0)) : 0;
-        $table_releg_playoff = is_array($table_rule) ? max(0, intval($table_rule['ispadanje_razigravanje_broj'] ?? 0)) : 0;
-        $table_total_teams = !empty($standings) ? count($standings) : 0;
-
-        $uid = 'opentt-team-stats-' . wp_unique_id();
-        $home_pct = self::format_percentage_value(floatval($stats['home_win_pct']));
-        $away_pct = self::format_percentage_value(floatval($stats['away_win_pct']));
-        $doubles_pct = self::format_percentage_value(floatval($stats['doubles_win_pct']));
-
-        ob_start();
-        echo '<section id="' . esc_attr($uid) . '" class="opentt-stat-ekipe">';
-        echo self::shortcode_title_html('Statistika ekipe');
-
-        echo '<h3 class="opentt-stat-ekipe-title">Najkorisniji igrač</h3>';
-        if (is_array($best_player) && !empty($best_player['player_id'])) {
-            $mvp_id = intval($best_player['player_id']);
-            $mvp_name = $mvp_id > 0 ? (string) get_the_title($mvp_id) : '';
-            $mvp_link = $mvp_id > 0 ? (string) get_permalink($mvp_id) : '';
-            $mvp_photo = $mvp_id > 0 ? get_the_post_thumbnail($mvp_id, 'thumbnail', ['class' => 'opentt-stat-ekipe-mvp-photo']) : '';
-            if ($mvp_photo === '') {
-                $mvp_photo = '<img src="' . esc_url(self::player_fallback_image_url()) . '" alt="Igrač" class="opentt-stat-ekipe-mvp-photo" />';
-            }
-            $mvp_wins = intval($best_player['wins'] ?? 0);
-            $mvp_losses = intval($best_player['losses'] ?? 0);
-            $mvp_success = self::format_percentage_value(floatval($best_player['success_pct'] ?? 0));
-            $mvp_season_label = self::season_display_name((string) ($best_player['season_slug'] ?? $current_season));
-
-            echo '<div class="opentt-stat-ekipe-mvp">';
-            echo '<a class="opentt-stat-ekipe-mvp-link" href="' . esc_url($mvp_link) . '">';
-            echo '<span class="opentt-stat-ekipe-mvp-photo-wrap">' . $mvp_photo . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo '<span class="opentt-stat-ekipe-mvp-main">';
-            echo '<span class="opentt-stat-ekipe-mvp-name">' . esc_html($mvp_name) . '</span>';
-            echo '<span class="opentt-stat-ekipe-mvp-meta">Sezona: ' . esc_html($mvp_season_label) . ' • Učinak: ' . intval($mvp_wins) . '-' . intval($mvp_losses) . ' • Uspešnost: ' . esc_html($mvp_success) . '%</span>';
-            echo '</span>';
-            echo '</a>';
-            echo '</div>';
-        } else {
-            echo '<div class="opentt-stat-ekipe-empty">Nema dovoljno podataka za obračun uspešnosti igrača u trenutnoj sezoni.</div>';
-        }
-
-        echo '<h3 class="opentt-stat-ekipe-title opentt-stat-ekipe-title-secondary">Statistika ekipe</h3>';
-        if ($enable_filter && !empty($season_options)) {
-            echo '<div class="opentt-stat-ekipe-filter">';
-            echo '<label>Sezona ';
-            echo '<select class="opentt-stat-ekipe-season">';
-            echo '<option value="">Ukupno</option>';
-            foreach ($season_options as $opt) {
-                echo '<option value="' . esc_attr((string) $opt) . '" ' . selected($selected_season, (string) $opt, false) . '>' . esc_html(self::season_display_name((string) $opt)) . '</option>';
-            }
-            echo '</select>';
-            echo '</label>';
-            echo '</div>';
-        }
-
-        echo '<div class="opentt-stat-ekipe-meta">Period: <strong>' . esc_html($season_label) . '</strong></div>';
-        echo '<div class="opentt-stat-ekipe-cards">';
-        echo '<div class="opentt-stat-ekipe-card"><span class="k">Odigrane</span><strong class="v">' . intval($stats['played']) . '</strong></div>';
-        echo '<div class="opentt-stat-ekipe-card"><span class="k">Pobede</span><strong class="v">' . intval($stats['wins']) . '</strong></div>';
-        echo '<div class="opentt-stat-ekipe-card"><span class="k">Porazi</span><strong class="v">' . intval($stats['losses']) . '</strong></div>';
-        echo '<div class="opentt-stat-ekipe-card"><span class="k">Najduži niz pobeda</span><strong class="v">' . intval($stats['longest_win_streak']) . '</strong></div>';
-        echo '<div class="opentt-stat-ekipe-card"><span class="k">Kući pobede</span><strong class="v">' . esc_html($home_pct) . '%</strong></div>';
-        echo '<div class="opentt-stat-ekipe-card"><span class="k">U gostima pobede</span><strong class="v">' . esc_html($away_pct) . '%</strong></div>';
-        echo '<div class="opentt-stat-ekipe-card"><span class="k">Dubl učinak</span><strong class="v">' . esc_html($doubles_pct) . '%</strong></div>';
-        echo '</div>';
-
-        echo '<div class="opentt-stat-ekipe-table-wrap">';
-        echo '<div class="opentt-stat-ekipe-table-head">';
-        echo '<h4 class="opentt-stat-ekipe-table-title">Skraćena tabela</h4>';
-        if ($table_sezona_slug !== '') {
-            echo '<div class="opentt-stat-ekipe-table-season">Sezona: ' . esc_html(self::season_display_name($table_sezona_slug)) . '</div>';
-        }
-        if (!empty($standings) && $club_rank > 0) {
-            echo '<button type="button" class="opentt-stat-ekipe-toggle" data-target="' . esc_attr($table_uid) . '" data-open-text="Vidi celu tabelu" data-close-text="Sakrij celu tabelu">Vidi celu tabelu</button>';
-        }
-        echo '</div>';
-        if (!empty($standings_slice) && $club_rank > 0) {
-            if ($table_label !== '') {
-                echo '<div class="opentt-stat-ekipe-table-meta">' . esc_html($table_label) . '</div>';
-            }
-            echo '<div id="' . esc_attr($table_short_uid) . '" class="opentt-stat-ekipe-short-wrap">';
-            echo '<table class="opentt-stat-ekipe-table">';
-            echo '<thead><tr><th>#</th><th>Klub</th><th>P</th><th>W</th><th>L</th><th>Pts</th><th>+/-</th></tr></thead><tbody>';
-            foreach ($standings_slice as $row) {
-                $is_highlight = intval($row['club_id']) === $club_id;
-                $row_rank = intval($row['rank']);
-                $row_classes = [];
-                if ($table_promo_direct > 0 && $row_rank <= $table_promo_direct) {
-                    $row_classes[] = 'zone-promote-direct';
-                } elseif ($table_promo_playoff > 0 && $row_rank <= ($table_promo_direct + $table_promo_playoff)) {
-                    $row_classes[] = 'zone-promote-playoff';
-                }
-                if ($table_releg_direct > 0 && $table_total_teams > 0 && $row_rank > ($table_total_teams - $table_releg_direct)) {
-                    $row_classes[] = 'zone-relegate-direct';
-                } elseif ($table_releg_playoff > 0 && $table_total_teams > 0 && $row_rank > ($table_total_teams - $table_releg_direct - $table_releg_playoff) && $row_rank <= ($table_total_teams - $table_releg_direct)) {
-                    $row_classes[] = 'zone-relegate-playoff';
-                }
-                if ($is_highlight) {
-                    $row_classes[] = 'highlight';
-                }
-                $cls = !empty($row_classes) ? ' class="' . esc_attr(implode(' ', $row_classes)) . '"' : '';
-                $club_name = (string) get_the_title(intval($row['club_id']));
-                $club_link = get_permalink(intval($row['club_id']));
-                echo '<tr' . $cls . '>';
-                echo '<td>' . intval($row['rank']) . '</td>';
-                echo '<td class="club">';
-                echo '<a href="' . esc_url((string) $club_link) . '">';
-                echo self::club_logo_html(intval($row['club_id']), 'thumbnail', ['style' => 'width:24px;height:24px;object-fit:contain;border-radius:3px;']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                echo '<span>' . esc_html($club_name) . '</span>';
-                echo '</a>';
-                echo '</td>';
-                echo '<td>' . intval($row['odigrane']) . '</td>';
-                echo '<td>' . intval($row['pobede']) . '</td>';
-                echo '<td>' . intval($row['porazi']) . '</td>';
-                echo '<td>' . intval($row['bodovi']) . '</td>';
-                $kol = intval($row['meckol']);
-                echo '<td>' . ($kol > 0 ? '+' : '') . $kol . '</td>';
-                echo '</tr>';
-            }
-            echo '</tbody></table>';
-            echo '</div>';
-
-            echo '<div id="' . esc_attr($table_uid) . '" class="opentt-stat-ekipe-full-wrap" hidden>';
-            echo '<table class="opentt-stat-ekipe-table opentt-stat-ekipe-table-full">';
-            echo '<thead><tr><th>#</th><th>Klub</th><th>P</th><th>W</th><th>L</th><th>Pts</th><th>+/-</th></tr></thead><tbody>';
-            foreach ($standings as $row) {
-                $is_highlight = intval($row['club_id']) === $club_id;
-                $row_rank = intval($row['rank']);
-                $row_classes = [];
-                if ($table_promo_direct > 0 && $row_rank <= $table_promo_direct) {
-                    $row_classes[] = 'zone-promote-direct';
-                } elseif ($table_promo_playoff > 0 && $row_rank <= ($table_promo_direct + $table_promo_playoff)) {
-                    $row_classes[] = 'zone-promote-playoff';
-                }
-                if ($table_releg_direct > 0 && $table_total_teams > 0 && $row_rank > ($table_total_teams - $table_releg_direct)) {
-                    $row_classes[] = 'zone-relegate-direct';
-                } elseif ($table_releg_playoff > 0 && $table_total_teams > 0 && $row_rank > ($table_total_teams - $table_releg_direct - $table_releg_playoff) && $row_rank <= ($table_total_teams - $table_releg_direct)) {
-                    $row_classes[] = 'zone-relegate-playoff';
-                }
-                if ($is_highlight) {
-                    $row_classes[] = 'highlight';
-                }
-                $cls = !empty($row_classes) ? ' class="' . esc_attr(implode(' ', $row_classes)) . '"' : '';
-                $club_name = (string) get_the_title(intval($row['club_id']));
-                $club_link = get_permalink(intval($row['club_id']));
-                echo '<tr' . $cls . '>';
-                echo '<td>' . intval($row['rank']) . '</td>';
-                echo '<td class="club">';
-                echo '<a href="' . esc_url((string) $club_link) . '">';
-                echo self::club_logo_html(intval($row['club_id']), 'thumbnail', ['style' => 'width:24px;height:24px;object-fit:contain;border-radius:3px;']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                echo '<span>' . esc_html($club_name) . '</span>';
-                echo '</a>';
-                echo '</td>';
-                echo '<td>' . intval($row['odigrane']) . '</td>';
-                echo '<td>' . intval($row['pobede']) . '</td>';
-                echo '<td>' . intval($row['porazi']) . '</td>';
-                echo '<td>' . intval($row['bodovi']) . '</td>';
-                $kol = intval($row['meckol']);
-                echo '<td>' . ($kol > 0 ? '+' : '') . $kol . '</td>';
-                echo '</tr>';
-            }
-            echo '</tbody></table>';
-            echo '</div>';
-        } else {
-            echo '<div class="opentt-stat-ekipe-empty">Nema dovoljno podataka za prikaz skraćene tabele.</div>';
-        }
-        echo '</div>';
-
-        echo '</section>';
-
-        if ($enable_filter && !empty($season_options)) {
-            ?>
-            <script>
-            (function(){
-                var root = document.getElementById('<?php echo esc_js($uid); ?>');
-                if (!root) { return; }
-                var sel = root.querySelector('.opentt-stat-ekipe-season');
-                if (!sel) { return; }
-                sel.addEventListener('change', function(){
-                    var url = new URL(window.location.href);
-                    if (sel.value) {
-                        url.searchParams.set('<?php echo esc_js($season_key); ?>', sel.value);
-                    } else {
-                        url.searchParams.delete('<?php echo esc_js($season_key); ?>');
-                    }
-                    window.location.href = url.toString();
-                });
-
-                var toggle = root.querySelector('.opentt-stat-ekipe-toggle');
-                if (toggle) {
-                    toggle.addEventListener('click', function(){
-                        var targetId = toggle.getAttribute('data-target');
-                        if (!targetId) { return; }
-                        var full = document.getElementById(targetId);
-                        var shortTable = document.getElementById('<?php echo esc_js($table_short_uid); ?>');
-                        if (!full) { return; }
-                        var willOpen = full.hasAttribute('hidden');
-                        if (willOpen) {
-                            full.removeAttribute('hidden');
-                            if (shortTable) { shortTable.setAttribute('hidden', 'hidden'); }
-                            toggle.textContent = toggle.getAttribute('data-close-text') || 'Sakrij celu tabelu';
-                        } else {
-                            full.setAttribute('hidden', 'hidden');
-                            if (shortTable) { shortTable.removeAttribute('hidden'); }
-                            toggle.textContent = toggle.getAttribute('data-open-text') || 'Vidi celu tabelu';
-                        }
-                    });
-                }
-            })();
-            </script>
-            <?php
-        } else {
-            ?>
-            <script>
-            (function(){
-                var root = document.getElementById('<?php echo esc_js($uid); ?>');
-                if (!root) { return; }
-                var toggle = root.querySelector('.opentt-stat-ekipe-toggle');
-                if (!toggle) { return; }
-                toggle.addEventListener('click', function(){
-                    var targetId = toggle.getAttribute('data-target');
-                    if (!targetId) { return; }
-                    var full = document.getElementById(targetId);
-                    var shortTable = document.getElementById('<?php echo esc_js($table_short_uid); ?>');
-                    if (!full) { return; }
-                    var willOpen = full.hasAttribute('hidden');
-                    if (willOpen) {
-                        full.removeAttribute('hidden');
-                        if (shortTable) { shortTable.setAttribute('hidden', 'hidden'); }
-                        toggle.textContent = toggle.getAttribute('data-close-text') || 'Sakrij celu tabelu';
-                    } else {
-                        full.setAttribute('hidden', 'hidden');
-                        if (shortTable) { shortTable.removeAttribute('hidden'); }
-                        toggle.textContent = toggle.getAttribute('data-open-text') || 'Vidi celu tabelu';
-                    }
-                });
-            })();
-            </script>
-            <?php
-        }
-
-        return ob_get_clean();
+        return \OpenTT\Unified\WordPress\Shortcodes\TeamStatsShortcode::render($atts, [
+            'db_get_club_season_options' => static function ($club_id) {
+                return self::db_get_club_season_options($club_id);
+            },
+            'db_get_club_team_stats' => static function ($club_id, $season_slug = '') {
+                return self::db_get_club_team_stats($club_id, $season_slug);
+            },
+            'season_display_name' => static function ($sezona_slug) {
+                return self::season_display_name($sezona_slug);
+            },
+            'db_get_latest_competition_for_club' => static function ($club_id) {
+                return self::db_get_latest_competition_for_club($club_id);
+            },
+            'db_get_club_season_best_player_by_success' => static function ($club_id, $season_slug) {
+                return self::db_get_club_season_best_player_by_success($club_id, $season_slug);
+            },
+            'db_get_latest_liga_for_club_and_season' => static function ($club_id, $season_slug = '') {
+                return self::db_get_latest_liga_for_club_and_season($club_id, $season_slug);
+            },
+            'db_build_standings_for_competition' => static function ($liga_slug, $sezona_slug = '', $max_kolo = null) {
+                return self::db_build_standings_for_competition($liga_slug, $sezona_slug, $max_kolo);
+            },
+            'find_club_rank_in_standings' => static function ($standings, $club_id) {
+                return self::find_club_rank_in_standings($standings, $club_id);
+            },
+            'build_standings_window_around_club' => static function ($standings, $club_rank, $radius = 2) {
+                return self::build_standings_window_around_club($standings, $club_rank, $radius);
+            },
+            'competition_display_name' => static function ($liga_slug, $sezona_slug) {
+                return self::competition_display_name($liga_slug, $sezona_slug);
+            },
+            'get_competition_rule_data' => static function ($liga_slug, $sezona_slug = '') {
+                return self::get_competition_rule_data($liga_slug, $sezona_slug);
+            },
+            'format_percentage_value' => static function ($value) {
+                return self::format_percentage_value($value);
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+            'player_fallback_image_url' => static function () {
+                return self::player_fallback_image_url();
+            },
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
+        ]);
     }
 
     public static function shortcode_player_transfers($atts = [])
@@ -1092,193 +609,29 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     public static function shortcode_competitions_grid($atts = [])
     {
-        $atts = shortcode_atts([
-            'limit' => '0',
-            'filter' => '',
-        ], $atts);
-
-        $limit = max(0, intval($atts['limit']));
-        $filter_mode = strtolower(trim((string) $atts['filter']));
-        $enable_filter = in_array($filter_mode, ['1', 'true', 'yes', 'da', 'on'], true);
-        $rows = get_posts([
-            'post_type' => 'pravilo_takmicenja',
-            'numberposts' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC',
-            'post_status' => ['publish', 'draft', 'pending', 'private'],
-        ]) ?: [];
-
-        if (empty($rows)) {
-            return self::shortcode_title_html('Takmičenja') . '<p>Nema unetih takmičenja.</p>';
-        }
-
-        $groups = [
-            1 => [],
-            2 => [],
-            3 => [],
-            4 => [],
-            5 => [],
-        ];
-        $season_options = [];
-        $selected_season = '';
-        if ($enable_filter) {
-            $selected_season = isset($_GET['opentt_competition_season']) ? sanitize_title((string) wp_unslash($_GET['opentt_competition_season'])) : '';
-            $season_pool = [];
-            foreach ($rows as $r) {
-                $s = sanitize_title((string) get_post_meta($r->ID, 'opentt_competition_season_slug', true));
-                if ($s !== '') {
-                    $season_pool[$s] = $s;
-                }
-            }
-            $season_pool = array_values($season_pool);
-            usort($season_pool, function ($a, $b) {
-                $ak = self::season_sort_key((string) $a);
-                $bk = self::season_sort_key((string) $b);
-                if ($ak === $bk) {
-                    return strnatcasecmp((string) $b, (string) $a);
-                }
-                return $bk <=> $ak;
-            });
-            if ($selected_season !== '' && !in_array($selected_season, $season_pool, true)) {
-                $selected_season = '';
-            }
-            if ($selected_season === '' && !empty($season_pool)) {
-                $selected_season = (string) $season_pool[0];
-            }
-        }
-
-        foreach ($rows as $r) {
-            $liga_slug = sanitize_title((string) get_post_meta($r->ID, 'opentt_competition_league_slug', true));
-            $sezona_slug = sanitize_title((string) get_post_meta($r->ID, 'opentt_competition_season_slug', true));
-            if ($liga_slug === '') {
-                continue;
-            }
-            if ($sezona_slug !== '') {
-                $season_options[$sezona_slug] = self::season_display_name($sezona_slug);
-            }
-            if ($enable_filter && $selected_season !== '' && $selected_season !== $sezona_slug) {
-                continue;
-            }
-            $rank = (int) get_post_meta($r->ID, 'opentt_competition_rank', true);
-            if ($rank < 1 || $rank > 5) {
-                $rank = 3;
-            }
-
-            $archive_url = self::competition_archive_url($liga_slug, $sezona_slug);
-            $league_name = self::slug_to_title($liga_slug);
-            if ($league_name === '') {
-                $league_name = $liga_slug;
-            }
-
-            $club_ids = self::db_get_competition_club_ids($liga_slug, $sezona_slug);
-            $groups[$rank][] = [
-                'rule_id' => (int) $r->ID,
-                'league_name' => $league_name,
-                'season_name' => self::season_display_name($sezona_slug),
-                'url' => $archive_url,
-                'club_ids' => $club_ids,
-            ];
-        }
-
-        $rank_titles = [
-            1 => 'Prvi rang takmičenja',
-            2 => 'Drugi rang takmičenja',
-            3 => 'Treći rang takmičenja',
-            4 => 'Četvrti rang takmičenja',
-            5 => 'Peti rang takmičenja',
-        ];
-        uasort($season_options, function ($a, $b) {
-            return strnatcasecmp((string) $a, (string) $b);
-        });
-
-        ob_start();
-        echo self::shortcode_title_html('Takmičenja');
-        echo '<div class="opentt-prikaz-takmicenja">';
-        if ($enable_filter) {
-            echo '<form method="get" class="opentt-grid-filters">';
-            foreach ($_GET as $k => $v) {
-                $k = (string) $k;
-                if ($k === 'opentt_competition_season') {
-                    continue;
-                }
-                if (is_array($v)) {
-                    continue;
-                }
-                echo '<input type="hidden" name="' . esc_attr($k) . '" value="' . esc_attr((string) wp_unslash($v)) . '">';
-            }
-            echo '<label>Sezona <select name="opentt_competition_season" onchange="this.form.submit()">';
-            foreach ($season_options as $slug => $label) {
-                echo '<option value="' . esc_attr((string) $slug) . '"' . selected($selected_season, (string) $slug, false) . '>' . esc_html((string) $label) . '</option>';
-            }
-            echo '</select></label>';
-            if (isset($_GET['opentt_competition_season'])) {
-                echo '<a class="button opentt-grid-filter-reset" href="' . esc_url(remove_query_arg(['opentt_competition_season'])) . '">Reset</a>';
-            }
-            echo '</form>';
-        }
-        $has_items = false;
-        for ($rank = 1; $rank <= 5; $rank++) {
-            $items = $groups[$rank];
-            if (empty($items)) {
-                continue;
-            }
-            $has_items = true;
-            if ($limit > 0) {
-                $items = array_slice($items, 0, $limit);
-            }
-
-            echo '<section class="opentt-prikaz-takmicenja-rank opentt-prikaz-takmicenja-rank-' . intval($rank) . '">';
-            echo '<h3 class="opentt-prikaz-takmicenja-rank-title">' . esc_html($rank_titles[$rank]) . '</h3>';
-            echo '<div class="opentt-prikaz-takmicenja-grid">';
-            foreach ($items as $item) {
-                $url = (string) ($item['url'] ?? '');
-                $tag = $url !== '' ? 'a' : 'div';
-                $open_attrs = $url !== ''
-                    ? ' class="opentt-prikaz-takmicenja-card" href="' . esc_url($url) . '"'
-                    : ' class="opentt-prikaz-takmicenja-card"';
-
-                echo '<' . $tag . $open_attrs . '>';
-                echo '<div class="opentt-prikaz-takmicenja-card-head">';
-                echo '<div class="opentt-prikaz-takmicenja-logo">';
-                if (!empty($item['rule_id']) && has_post_thumbnail((int) $item['rule_id'])) {
-                    echo get_the_post_thumbnail((int) $item['rule_id'], 'thumbnail', ['class' => 'opentt-prikaz-takmicenja-logo-img']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                } else {
-                    echo '<div class="opentt-prikaz-takmicenja-logo-fallback"></div>';
-                }
-                echo '</div>';
-                echo '<div class="opentt-prikaz-takmicenja-meta">';
-                echo '<div class="opentt-prikaz-takmicenja-title">' . esc_html((string) $item['league_name']) . '</div>';
-                echo '<div class="opentt-prikaz-takmicenja-season">Sezona ' . esc_html((string) $item['season_name']) . '</div>';
-                echo '</div>';
-                echo '</div>';
-                echo '<div class="opentt-prikaz-takmicenja-sep"></div>';
-                echo '<div class="opentt-prikaz-takmicenja-clubs">';
-                $club_ids = is_array($item['club_ids']) ? $item['club_ids'] : [];
-                if (empty($club_ids)) {
-                    echo '<span class="opentt-prikaz-takmicenja-no-clubs">Nema klubova</span>';
-                } else {
-                    foreach ($club_ids as $club_id) {
-                        $club_id = (int) $club_id;
-                        if ($club_id <= 0) {
-                            continue;
-                        }
-                        $club_name = (string) get_the_title($club_id);
-                        echo '<span class="opentt-prikaz-takmicenja-club">';
-                        echo self::club_logo_html($club_id, 'thumbnail', ['class' => 'opentt-prikaz-takmicenja-club-logo', 'title' => $club_name]); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                        echo '</span>';
-                    }
-                }
-                echo '</div>';
-                echo '</' . $tag . '>';
-            }
-            echo '</div>';
-            echo '</section>';
-        }
-        if (!$has_items) {
-            echo '<p>Nema takmičenja za zadatu sezonu.</p>';
-        }
-        echo '</div>';
-        return ob_get_clean();
+        return \OpenTT\Unified\WordPress\Shortcodes\CompetitionsGridShortcode::render($atts, [
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+            'season_sort_key' => static function ($season_slug) {
+                return self::season_sort_key($season_slug);
+            },
+            'season_display_name' => static function ($sezona_slug) {
+                return self::season_display_name($sezona_slug);
+            },
+            'competition_archive_url' => static function ($liga_slug, $sezona_slug) {
+                return self::competition_archive_url($liga_slug, $sezona_slug);
+            },
+            'slug_to_title' => static function ($slug) {
+                return self::slug_to_title($slug);
+            },
+            'db_get_competition_club_ids' => static function ($liga_slug, $sezona_slug = '') {
+                return self::db_get_competition_club_ids($liga_slug, $sezona_slug);
+            },
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
+        ]);
     }
 
     private static function competition_display_name($liga_slug, $sezona_slug)
