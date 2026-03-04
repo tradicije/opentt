@@ -69,10 +69,15 @@ final class ShowPlayersShortcode
         }
 
         ob_start();
+        $uid = 'opentt-players-' . wp_unique_id();
+        $visible_limit = 5;
+        $idx = 0;
         echo (string) $call('shortcode_title_html', 'Igrači');
+        echo '<div id="' . esc_attr($uid) . '" class="stoni-igraci-list-wrap">';
         echo '<div class="stoni-igraci-list">';
         while ($q->have_posts()) {
             $q->the_post();
+            $idx++;
             $id = intval(get_the_ID());
             $slika = get_the_post_thumbnail($id, 'medium', ['class' => 'stoni-igrac-slika']);
             if (!$slika) {
@@ -89,7 +94,8 @@ final class ShowPlayersShortcode
                 $ime_prezime = (string) ($parts[1] ?? '');
             }
 
-            echo '<div class="stoni-igrac-card">';
+            $hidden_attr = ($idx > $visible_limit) ? ' hidden data-opentt-player-extra="1"' : '';
+            echo '<div class="stoni-igrac-card"' . $hidden_attr . '>';
             echo '<a href="' . esc_url($link) . '" class="stoni-igrac-row">';
             echo '<div class="stoni-igrac-left">';
             echo $slika; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -103,7 +109,40 @@ final class ShowPlayersShortcode
             echo '</div>';
         }
         echo '</div>';
+        if ($idx > $visible_limit) {
+            echo '<button type="button" class="opentt-stat-ekipe-toggle stoni-igraci-toggle" data-open-text="Prikaži sve" data-close-text="Sakrij">Prikaži sve</button>';
+        }
+        echo '</div>';
         wp_reset_postdata();
+
+        if ($idx > $visible_limit) {
+            ?>
+            <script>
+            (function(){
+                var root = document.getElementById('<?php echo esc_js($uid); ?>');
+                if (!root) { return; }
+                var toggle = root.querySelector('.stoni-igraci-toggle');
+                if (!toggle) { return; }
+                var items = root.querySelectorAll('[data-opentt-player-extra="1"]');
+                if (!items.length) { return; }
+                toggle.addEventListener('click', function(){
+                    var opening = toggle.getAttribute('data-opened') !== '1';
+                    items.forEach(function(item){
+                        if (opening) {
+                            item.removeAttribute('hidden');
+                        } else {
+                            item.setAttribute('hidden', 'hidden');
+                        }
+                    });
+                    toggle.setAttribute('data-opened', opening ? '1' : '0');
+                    toggle.textContent = opening
+                        ? (toggle.getAttribute('data-close-text') || 'Sakrij')
+                        : (toggle.getAttribute('data-open-text') || 'Prikaži sve');
+                });
+            })();
+            </script>
+            <?php
+        }
 
         return ob_get_clean();
     }

@@ -2,6 +2,14 @@
 
 All notable changes to the OpenTT plugin are documented in this file.
 
+## Unreleased
+
+### Next
+
+#### Assets & UI
+
+- Updated `opentt_players` to render the first 5 player cards by default and added a bottom toggle button (`Prikaži sve` / `Sakrij`) for expanding the full list.
+
 ## Releases
 
 ### 1.1.0-beta.3 - 2026-03-04
