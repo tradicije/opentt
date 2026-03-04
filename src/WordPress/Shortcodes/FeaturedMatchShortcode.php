@@ -428,7 +428,27 @@ final class FeaturedMatchShortcode
             return $location;
         }
 
-        return trim((string) ($match->lokacija_utakmice ?? ''));
+        $location = trim((string) ($match->lokacija_utakmice ?? ''));
+        if ($location !== '') {
+            return $location;
+        }
+
+        $homeId = intval($match->home_club_post_id ?? 0);
+        if ($homeId <= 0) {
+            return '';
+        }
+
+        $hall = trim((string) get_post_meta($homeId, 'adresa_sale', true));
+        if ($hall !== '') {
+            return $hall;
+        }
+
+        $clubAddress = trim((string) get_post_meta($homeId, 'adresa_kluba', true));
+        if ($clubAddress !== '') {
+            return $clubAddress;
+        }
+
+        return trim((string) get_post_meta($homeId, 'grad', true));
     }
 
     private static function matchTargetDateAttr($matchDate)

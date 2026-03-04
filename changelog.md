@@ -19,6 +19,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Refined `opentt_featured_match` auto mode selection: it now ignores matches considered played (`played=1` or score not `0:0`), prioritizes upcoming matches with explicit kickoff time, and falls back to date-only matches when needed.
 - Aligned `opentt_featured_match` auto context detection with `opentt_matches_grid` by reusing the same match query context builder (`build_match_query_args`) for league/season resolution.
 - Enqueued WordPress color picker assets across OpenTT admin pages so club `boja_dresa` consistently renders as a visual color picker (not plain HEX input).
+- Updated featured-match location resolution to use match-level location first and fall back to home-club location when match location is empty.
 
 #### Admin & Data
 
@@ -26,6 +27,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added featured controls in admin matches workflow: quick list toggle action (`Feature/Unfeature`), featured indicator column, and featured checkbox in match edit details.
 - Bumped schema version to force migration and added runtime fallback for auto-adding missing `featured` column when older installs hit admin featured actions.
 - Added dedicated match `location` field in admin match form and persistence layer, and switched featured/match venue rendering to prefer this match-level location over club address fallbacks.
+- Added admin helper note on match `Lokacija` field clarifying it should be overridden only when match is not played at the home venue.
 
 ## Releases
 
