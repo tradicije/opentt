@@ -42,6 +42,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Extracted import payload parsing/summarizing/validation logic into `src/WordPress/ImportPayloadInspector.php`, with `OpenTT_Unified_Core` keeping lightweight delegating wrappers.
 - Extracted `opentt_matches_grid` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/MatchesGridShortcode.php`, keeping trait as a thin delegator.
 - Extracted `opentt_clubs` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/ClubsGridShortcode.php`, keeping trait as a thin delegator.
+- Extracted `opentt_standings_table` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/StandingsTableShortcode.php`, keeping trait as a thin delegator.
 
 ## Releases
 
