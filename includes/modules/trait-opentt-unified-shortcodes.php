@@ -54,43 +54,23 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     public static function shortcode_matches_list($atts)
     {
-        $atts = shortcode_atts([
-            'limit' => 5,
-            'klub' => '',
-            'odigrana' => '',
-            'liga' => '',
-            'sezona' => '',
-        ], $atts);
-
-        $rows = self::db_get_matches(self::build_match_query_args($atts));
-        if (empty($rows)) {
-            return self::shortcode_title_html('Utakmice lista') . '<p>Nema utakmica za prikaz.</p>';
-        }
-
-        ob_start();
-        echo self::shortcode_title_html('Utakmice lista');
-        echo '<ul class="opentt-list">';
-        foreach ($rows as $row) {
-            $home_id = intval($row->home_club_post_id);
-            $away_id = intval($row->away_club_post_id);
-            $rd = intval($row->home_score);
-            $rg = intval($row->away_score);
-            $home_win = ($rd === 4);
-            $away_win = ($rg === 4);
-            $date = self::display_match_date($row->match_date);
-            $link = self::match_permalink($row);
-
-            echo '<li><a href="' . esc_url($link) . '">';
-            echo '<span class="' . esc_attr($home_win ? 'pobednik' : 'gubitnik') . '">' . esc_html(get_the_title($home_id)) . ' ' . intval($rd) . '</span>';
-            echo ' : ';
-            echo '<span class="' . esc_attr($away_win ? 'pobednik' : 'gubitnik') . '">' . intval($rg) . ' ' . esc_html(get_the_title($away_id)) . '</span>';
-            if ($date !== '') {
-                echo ' – ' . esc_html($date);
-            }
-            echo '</a></li>';
-        }
-        echo '</ul>';
-        return ob_get_clean();
+        return \OpenTT\Unified\WordPress\Shortcodes\MatchesListShortcode::render($atts, [
+            'build_match_query_args' => static function ($args) {
+                return self::build_match_query_args($args);
+            },
+            'db_get_matches' => static function ($args) {
+                return self::db_get_matches($args);
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+            'display_match_date' => static function ($match_date) {
+                return self::display_match_date($match_date);
+            },
+            'match_permalink' => static function ($row) {
+                return self::match_permalink($row);
+            },
+        ]);
     }
 
     public static function shortcode_clubs_grid($atts = [])
@@ -251,119 +231,26 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     public static function shortcode_mvp($atts = [])
     {
-        $ctx = self::current_match_context();
-        if (!$ctx || empty($ctx['db_row'])) {
-            return '';
-        }
-        $match_row = $ctx['db_row'];
-        $games = self::db_get_games_for_match_id(intval($match_row->id));
-        if (empty($games)) {
-            return self::shortcode_title_html('Najkorisniji igrač') . '<div class="mvp-box">Nema MVP za ovu utakmicu.</div>';
-        }
-
-        $stat = [];
-        foreach ($games as $g) {
-            if (intval($g->is_doubles) === 1 || intval($g->home_player2_post_id) > 0 || intval($g->away_player2_post_id) > 0) {
-                continue;
-            }
-
-            $pid_home = intval($g->home_player_post_id);
-            $pid_away = intval($g->away_player_post_id);
-            if ($pid_home <= 0 || $pid_away <= 0) {
-                continue;
-            }
-
-            $d_set = intval($g->home_sets);
-            $g_set = intval($g->away_sets);
-            if ($d_set === 0 && $g_set === 0) {
-                continue;
-            }
-
-            $sets = self::db_get_sets_for_game_id(intval($g->id));
-            $poeni_d = 0;
-            $poeni_g = 0;
-            foreach ($sets as $set) {
-                $poeni_d += intval($set->home_points);
-                $poeni_g += intval($set->away_points);
-            }
-
-            foreach ([$pid_home, $pid_away] as $pid) {
-                if (!isset($stat[$pid])) {
-                    $stat[$pid] = ['pobede' => 0, 'setovi' => 0, 'poeni' => 0];
-                }
-            }
-
-            if ($d_set > $g_set) {
-                $stat[$pid_home]['pobede'] += 1;
-            } else {
-                $stat[$pid_away]['pobede'] += 1;
-            }
-            $stat[$pid_home]['setovi'] += ($d_set - $g_set);
-            $stat[$pid_away]['setovi'] += ($g_set - $d_set);
-            $stat[$pid_home]['poeni'] += ($poeni_d - $poeni_g);
-            $stat[$pid_away]['poeni'] += ($poeni_g - $poeni_d);
-        }
-
-        if (empty($stat)) {
-            return self::shortcode_title_html('Najkorisniji igrač') . '<div class="mvp-box">Nema MVP za ovu utakmicu.</div>';
-        }
-
-        uasort($stat, function ($a, $b) {
-            if ($a['pobede'] !== $b['pobede']) {
-                return $b['pobede'] - $a['pobede'];
-            }
-            if ($a['setovi'] !== $b['setovi']) {
-                return $b['setovi'] - $a['setovi'];
-            }
-            return $b['poeni'] - $a['poeni'];
-        });
-
-        $mvp_id = intval(array_key_first($stat));
-        if ($mvp_id <= 0) {
-            return self::shortcode_title_html('Najkorisniji igrač') . '<div class="mvp-box">Nema MVP za ovu utakmicu.</div>';
-        }
-
-        $ime = esc_html((string) get_the_title($mvp_id));
-        $slika = get_the_post_thumbnail_url($mvp_id, 'medium');
-        if (empty($slika)) {
-            $slika = self::player_fallback_image_url();
-        }
-        $igrac_link = get_permalink($mvp_id);
-
-        $klub_id = intval(get_post_meta($mvp_id, 'klub_igraca', true));
-        if ($klub_id <= 0) {
-            $klub_id = intval(get_post_meta($mvp_id, 'povezani_klub', true));
-        }
-        $klub_ime = $klub_id > 0 ? esc_html((string) get_the_title($klub_id)) : '';
-        $klub_grb = $klub_id > 0 ? self::club_logo_url($klub_id, 'thumbnail') : '';
-        $klub_link = $klub_id > 0 ? get_permalink($klub_id) : '';
-
-        ob_start(); ?>
-        <?php echo self::shortcode_title_html('Najkorisniji igrač'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        <div class="mvp-box">
-            <a href="<?php echo esc_url($igrac_link); ?>">
-                <img src="<?php echo esc_url($slika); ?>" alt="<?php echo esc_attr($ime); ?>" class="mvp-slika">
-            </a>
-            <div class="mvp-info">
-                <div class="mvp-ime">
-                    <a href="<?php echo esc_url($igrac_link); ?>" style="color:white; text-decoration:none;">
-                        <?php echo $ime; ?>
-                    </a>
-                </div>
-                <div class="mvp-klub">
-                    <?php if ($klub_link): ?>
-                    <a href="<?php echo esc_url($klub_link); ?>" style="display:inline-flex; align-items:center; gap:5px; color:#ccc; text-decoration:none;">
-                        <?php if ($klub_grb): ?>
-                            <img src="<?php echo esc_url($klub_grb); ?>" alt="<?php echo esc_attr($klub_ime); ?>" class="mvp-grb" style="width:20px; height:20px;">
-                        <?php endif; ?>
-                        <span><?php echo esc_html($klub_ime); ?></span>
-                    </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
+        return \OpenTT\Unified\WordPress\Shortcodes\MvpShortcode::render($atts, [
+            'current_match_context' => static function () {
+                return self::current_match_context();
+            },
+            'db_get_games_for_match_id' => static function ($match_id) {
+                return self::db_get_games_for_match_id($match_id);
+            },
+            'db_get_sets_for_game_id' => static function ($game_id) {
+                return self::db_get_sets_for_game_id($game_id);
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+            'player_fallback_image_url' => static function () {
+                return self::player_fallback_image_url();
+            },
+            'club_logo_url' => static function ($club_id, $size = 'thumbnail') {
+                return self::club_logo_url($club_id, $size);
+            },
+        ]);
     }
 
     public static function shortcode_match_report($atts = [])
