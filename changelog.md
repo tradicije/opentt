@@ -6,6 +6,16 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 ### Next
 
+- No changes yet.
+
+## Releases
+
+### 1.1.0 - 2026-03-04
+
+#### Highlights
+
+- Finalized frontend shortcode UX polish for players list expansion and calendar-assisted match discovery in `opentt_matches_grid`.
+
 #### Assets & UI
 
 - Updated `opentt_players` to render the first 5 player cards by default and added a bottom toggle button (`Prikaži sve` / `Sakrij`) for expanding the full list.
@@ -13,8 +23,6 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Enhanced `opentt_matches_grid` calendar hover behavior with per-day match preview rows (`HOME | SCORE | AWAY`) and compact club naming (`BUB` for single-word names, `TSK` initials for multi-word names).
 - Added direct navigation from `opentt_matches_grid` calendar hover preview: each match row is now a clickable link to that match page.
 - Fixed round label rendering across frontend shortcodes so `kolo` slugs like `11-kolo` are displayed as `11. kolo`.
-
-## Releases
 
 ### 1.1.0-beta.3 - 2026-03-04
 
