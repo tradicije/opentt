@@ -39,6 +39,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Extracted import/export admin action orchestration into `src/WordPress/DataTransferActionManager.php` while keeping existing transfer/validation/import algorithms unchanged via delegated callbacks.
 - Extracted DB schema migration and legacy table sync orchestration into `src/Infrastructure/SchemaMigrationManager.php`, reducing `includes` core DB bootstrap responsibilities.
 - Removed redundant core wrapper methods for notice URL and ID/date parsing, and switched core call sites to direct helper/service usage.
+- Extracted import payload parsing/summarizing/validation logic into `src/WordPress/ImportPayloadInspector.php`, with `OpenTT_Unified_Core` keeping lightweight delegating wrappers.
+- Extracted `opentt_matches_grid` shortcode implementation from `includes/modules/trait-opentt-unified-shortcodes.php` into `src/WordPress/Shortcodes/MatchesGridShortcode.php`, keeping trait as a thin delegator.
 
 ## Releases
 
