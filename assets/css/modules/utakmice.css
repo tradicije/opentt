@@ -198,12 +198,22 @@ a.opentt-grid-cal-preview-row:focus {
 }
 
 .opentt-grid-cal-preview-more {
+  display: block;
   margin-top: 4px;
   border-top: 1px solid #ffffff24;
   padding-top: 4px;
   font-size: 0.72rem;
   color: #97b6e8;
   text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.opentt-grid-cal-preview-more:hover,
+a.opentt-grid-cal-preview-more:focus {
+  color: #d8e9ff;
+  text-decoration: underline;
+  outline: none;
 }
 
 .opentt-grid-cal-day {

@@ -6,7 +6,9 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 ### Next
 
-- No changes yet.
+#### Assets & UI
+
+- Updated `opentt_matches_grid` calendar preview so the `+X more` indicator is clickable and applies direct date filtering for that day.
 
 ## Releases
 

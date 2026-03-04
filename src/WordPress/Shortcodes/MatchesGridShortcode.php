@@ -491,7 +491,7 @@ final class MatchesGridShortcode
                         }, 140);
                     }
 
-                    function showCalendarPreview(anchorCell, matches) {
+                    function showCalendarPreview(anchorCell, matches, selectedIso) {
                         if (!calPreview || !calPopover || !anchorCell || !matches || !matches.length) {
                             hideCalendarPreview();
                             return;
@@ -528,9 +528,14 @@ final class MatchesGridShortcode
                             calPreview.appendChild(row);
                         });
                         if (matches.length > maxRows) {
-                            var more = document.createElement('div');
+                            var more = document.createElement('a');
                             more.className = 'opentt-grid-cal-preview-more';
+                            more.href = '#';
                             more.textContent = '+' + String(matches.length - maxRows) + ' more';
+                            more.addEventListener('click', function(ev){
+                                ev.preventDefault();
+                                applyDateSelection(selectedIso || '');
+                            });
                             calPreview.appendChild(more);
                         }
 
@@ -602,13 +607,13 @@ final class MatchesGridShortcode
                                     cell.className += ' has-upcoming';
                                 }
                                 if (state.matches && state.matches.length) {
-                                    cell.addEventListener('mouseenter', (function(anchorCell, dayMatches){
-                                        return function(){ showCalendarPreview(anchorCell, dayMatches); };
-                                    })(cell, state.matches));
+                                    cell.addEventListener('mouseenter', (function(anchorCell, dayMatches, dayIso){
+                                        return function(){ showCalendarPreview(anchorCell, dayMatches, dayIso); };
+                                    })(cell, state.matches, iso));
                                     cell.addEventListener('mouseleave', scheduleHideCalendarPreview);
-                                    cell.addEventListener('focus', (function(anchorCell, dayMatches){
-                                        return function(){ showCalendarPreview(anchorCell, dayMatches); };
-                                    })(cell, state.matches));
+                                    cell.addEventListener('focus', (function(anchorCell, dayMatches, dayIso){
+                                        return function(){ showCalendarPreview(anchorCell, dayMatches, dayIso); };
+                                    })(cell, state.matches, iso));
                                     cell.addEventListener('blur', scheduleHideCalendarPreview);
                                 }
                             }
