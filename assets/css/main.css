@@ -2337,7 +2337,7 @@ border: solid 2px #ffffff26;
   padding: 14px;
   color: #ffffff;
   text-decoration: none;
-  background: linear-gradient(110deg, var(--opentt-featured-home) 0%, #00113d 48%, var(--opentt-featured-away) 100%);
+  background: linear-gradient(90deg, var(--opentt-featured-home) 0%, #00113d 48%, var(--opentt-featured-away) 100%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
   overflow: hidden;
 }

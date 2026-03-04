@@ -20,6 +20,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Aligned `opentt_featured_match` auto context detection with `opentt_matches_grid` by reusing the same match query context builder (`build_match_query_args`) for league/season resolution.
 - Enqueued WordPress color picker assets across OpenTT admin pages so club `boja_dresa` consistently renders as a visual color picker (not plain HEX input).
 - Updated featured-match location resolution to use match-level location first and fall back to home-club location when match location is empty.
+- Fixed `opentt_featured_match` card gradient edge consistency by switching to horizontal gradient direction so left/right accent lines no longer appear color-inverted.
 
 #### Admin & Data
 
