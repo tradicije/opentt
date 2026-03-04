@@ -2339,8 +2339,8 @@ border: solid 2px #ffffff26;
   text-decoration: none;
   background: linear-gradient(90deg, var(--opentt-featured-home) 0%, #031745 50%, var(--opentt-featured-away) 100%);
   box-shadow:
-    inset 3px 0 0 var(--opentt-featured-home),
-    inset -3px 0 0 var(--opentt-featured-away),
+    inset -3px 0 0 var(--opentt-featured-home),
+    inset 3px 0 0 var(--opentt-featured-away),
     0 16px 30px rgba(0, 0, 0, 0.35);
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -2504,8 +2504,8 @@ border: solid 2px #ffffff26;
   .opentt-featured-match-card:hover {
     transform: translateY(-2px);
     box-shadow:
-      inset 3px 0 0 var(--opentt-featured-home),
-      inset -3px 0 0 var(--opentt-featured-away),
+      inset -3px 0 0 var(--opentt-featured-home),
+      inset 3px 0 0 var(--opentt-featured-away),
       0 20px 34px rgba(0, 0, 0, 0.4);
   }
 }
