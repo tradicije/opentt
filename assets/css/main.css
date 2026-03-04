@@ -2324,7 +2324,7 @@ border: solid 2px #ffffff26;
 }
 
 .opentt-featured-match-wrap {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .opentt-featured-match-card {
@@ -2332,21 +2332,32 @@ border: solid 2px #ffffff26;
   --opentt-featured-away: #0084ff;
   position: relative;
   display: block;
-  border: 2px solid #ffffff2b;
-  border-radius: 12px;
-  padding: 14px;
+  border: 2px solid #ffffff33;
+  border-radius: 14px;
+  padding: 18px 20px;
   color: #ffffff;
   text-decoration: none;
-  background: linear-gradient(90deg, var(--opentt-featured-home) 0%, #00113d 48%, var(--opentt-featured-away) 100%);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  background: linear-gradient(90deg, var(--opentt-featured-home) 0%, #031745 50%, var(--opentt-featured-away) 100%);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .opentt-featured-match-card::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 10, 38, 0.28) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 8, 24, 0.32) 100%);
+  pointer-events: none;
+}
+
+.opentt-featured-match-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 50%, rgba(255, 255, 255, 0.1), transparent 46%),
+    radial-gradient(circle at 90% 50%, rgba(255, 255, 255, 0.1), transparent 46%);
   pointer-events: none;
 }
 
@@ -2358,17 +2369,19 @@ border: solid 2px #ffffff26;
 }
 
 .opentt-featured-meta-top {
-  margin-bottom: 10px;
-  font-size: 0.86rem;
+  margin-bottom: 14px;
+  font-size: 0.82rem;
   color: #d9e8ff;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .opentt-featured-main {
   display: grid;
-  grid-template-columns: minmax(88px, 1fr) minmax(110px, auto) minmax(88px, 1fr);
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) minmax(140px, auto) minmax(0, 1fr);
+  gap: 16px;
   align-items: center;
 }
 
@@ -2381,11 +2394,11 @@ border: solid 2px #ffffff26;
 }
 
 .opentt-featured-team-crest {
-  width: 66px;
-  height: 66px;
+  width: 74px;
+  height: 74px;
   border-radius: 10px;
-  border: 1px solid #ffffff42;
-  background: rgba(0, 10, 38, 0.26);
+  border: 1px solid #ffffff52;
+  background: rgba(0, 8, 24, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2393,62 +2406,102 @@ border: solid 2px #ffffff26;
 }
 
 .opentt-featured-team-crest img {
-  width: 56px;
-  height: 56px;
+  width: 62px;
+  height: 62px;
   object-fit: cover;
   border-radius: 8px;
 }
 
 .opentt-featured-team-name {
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   font-weight: 700;
   line-height: 1.25;
   color: #ffffff;
+  text-wrap: balance;
 }
 
 .opentt-featured-center {
   text-align: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(0, 10, 38, 0.26);
+  padding: 12px 10px;
 }
 
 .opentt-featured-countdown {
-  font-size: 1.12rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   color: #ffffff;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
 }
 
 .opentt-featured-meta-bottom {
-  margin-top: 12px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
   text-align: center;
   font-size: 0.82rem;
   color: #d4e5ff;
 }
 
 @media (max-width: 700px) {
+  .opentt-featured-match-card {
+    padding: 12px 10px;
+    border-radius: 12px;
+  }
+
+  .opentt-featured-meta-top {
+    margin-bottom: 10px;
+    font-size: 0.72rem;
+  }
+
   .opentt-featured-main {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) minmax(92px, auto) minmax(0, 1fr);
+    gap: 6px;
   }
 
   .opentt-featured-team {
-    flex-direction: row;
-    justify-content: center;
-    text-align: left;
-  }
-
-  .opentt-featured-team.away {
-    flex-direction: row-reverse;
-    text-align: right;
+    gap: 6px;
   }
 
   .opentt-featured-team-crest {
-    width: 54px;
-    height: 54px;
+    width: 48px;
+    height: 48px;
   }
 
   .opentt-featured-team-crest img {
-    width: 46px;
-    height: 46px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .opentt-featured-team-name {
+    font-size: 0.76rem;
+    line-height: 1.2;
+    max-width: 11ch;
+    word-break: break-word;
+  }
+
+  .opentt-featured-center {
+    padding: 8px 4px;
+    border-radius: 8px;
+  }
+
+  .opentt-featured-countdown {
+    font-size: 0.9rem;
+  }
+
+  .opentt-featured-meta-bottom {
+    margin-top: 10px;
+    padding-top: 8px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (hover: hover) {
+  .opentt-featured-match-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 34px rgba(0, 0, 0, 0.4);
   }
 }
