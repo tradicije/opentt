@@ -15,6 +15,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Updated club admin form (`boja_dresa`) to use WordPress color picker for reliable color input used by featured-match gradients.
 - Fixed `opentt_featured_match` auto mode SQL filtering order so league+season contextual lookup returns upcoming matches correctly.
 - Ensured featured-match CSS module is enqueued on frontend by adding `featured-match` to the module asset loader list.
+- Updated `opentt_featured_match` auto mode to support legacy matches without kickoff time by filtering by date and treating `00:00:00` entries as end-of-day for upcoming selection.
+- Refined `opentt_featured_match` auto mode selection: it now ignores matches considered played (`played=1` or score not `0:0`), prioritizes upcoming matches with explicit kickoff time, and falls back to date-only matches when needed.
 
 #### Admin & Data
 

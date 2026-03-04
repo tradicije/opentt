@@ -208,8 +208,9 @@ final class FeaturedMatchShortcode
             $where[] = 'sezona_slug=%s';
             $params[] = $sezona;
         }
-        $where[] = 'match_date >= %s';
-        $params[] = current_time('mysql');
+        // Include whole current day to support legacy rows where time wasn't entered (00:00:00).
+        $where[] = 'DATE(match_date) >= %s';
+        $params[] = current_time('Y-m-d');
         $sql = "SELECT * FROM {$table} WHERE " . implode(' AND ', $where) . " ORDER BY match_date ASC, id ASC LIMIT 120";
         $rows = $wpdb->get_results($wpdb->prepare($sql, $params)) ?: [];
         if (empty($rows)) {
@@ -229,16 +230,44 @@ final class FeaturedMatchShortcode
         }
 
         $nowTs = current_time('timestamp');
+        $timedRows = [];
+        $dateOnlyRows = [];
+
+        foreach ($rows as $row) {
+            if (self::isMatchPlayedByStatusOrScore($row)) {
+                continue;
+            }
+
+            $ts = self::autoSelectionTimestamp((string) ($row->match_date ?? ''));
+            if ($ts === false || $ts < $nowTs) {
+                continue;
+            }
+
+            if (self::hasExplicitKickoffTime((string) ($row->match_date ?? ''))) {
+                $timedRows[] = $row;
+            } else {
+                $dateOnlyRows[] = $row;
+            }
+        }
+
+        $bestTimed = self::pickBestAutoCandidate($timedRows, $rankMap, $nowTs);
+        if ($bestTimed) {
+            return $bestTimed;
+        }
+        return self::pickBestAutoCandidate($dateOnlyRows, $rankMap, $nowTs);
+    }
+
+    private static function pickBestAutoCandidate(array $rows, array $rankMap, $nowTs)
+    {
         $best = null;
         $bestDateDiff = null;
         $bestRankSum = null;
-
         foreach ($rows as $row) {
-            $ts = strtotime((string) ($row->match_date ?? ''));
+            $ts = self::autoSelectionTimestamp((string) ($row->match_date ?? ''));
             if ($ts === false) {
                 continue;
             }
-            $dateDiff = max(0, $ts - $nowTs);
+            $dateDiff = max(0, $ts - intval($nowTs));
             $homeId = intval($row->home_club_post_id ?? 0);
             $awayId = intval($row->away_club_post_id ?? 0);
             $rankSum = intval($rankMap[$homeId] ?? 9999) + intval($rankMap[$awayId] ?? 9999);
@@ -249,8 +278,41 @@ final class FeaturedMatchShortcode
                 $bestRankSum = $rankSum;
             }
         }
-
         return $best;
+    }
+
+    private static function autoSelectionTimestamp($matchDate)
+    {
+        $matchDate = trim((string) $matchDate);
+        if ($matchDate === '') {
+            return false;
+        }
+        if (preg_match('/^(\d{4}-\d{2}-\d{2})\s+00:00:00$/', $matchDate, $m)) {
+            // No explicit kickoff time: treat as end-of-day so today's match is still considered upcoming.
+            return strtotime($m[1] . ' 23:59:59');
+        }
+        return strtotime($matchDate);
+    }
+
+    private static function hasExplicitKickoffTime($matchDate)
+    {
+        $matchDate = trim((string) $matchDate);
+        if ($matchDate === '') {
+            return false;
+        }
+        if (preg_match('/\s+(\d{2}):(\d{2}):(\d{2})$/', $matchDate, $m)) {
+            return !($m[1] === '00' && $m[2] === '00' && $m[3] === '00');
+        }
+        return false;
+    }
+
+    private static function isMatchPlayedByStatusOrScore($match)
+    {
+        $playedFlag = intval($match->played ?? 0) === 1;
+        $homeScore = intval($match->home_score ?? 0);
+        $awayScore = intval($match->away_score ?? 0);
+        $hasRealScore = ($homeScore + $awayScore) > 0;
+        return $playedFlag || $hasRealScore;
     }
 
     private static function resolveCompetitionContext(array $atts, callable $call)
@@ -323,7 +385,7 @@ final class FeaturedMatchShortcode
 
     private static function centerLabel($match)
     {
-        $played = intval($match->played ?? 0) === 1;
+        $played = self::isMatchPlayedByStatusOrScore($match);
         if ($played) {
             return intval($match->home_score ?? 0) . ' : ' . intval($match->away_score ?? 0);
         }
