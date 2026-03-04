@@ -105,6 +105,15 @@
   padding: 12px 10px;
 }
 
+.opentt-featured-countdown-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #c9ddff;
+  margin-bottom: 6px;
+}
+
 .opentt-featured-countdown {
   font-size: 1.2rem;
   font-weight: 800;
@@ -163,6 +172,11 @@
   .opentt-featured-center {
     padding: 8px 4px;
     border-radius: 8px;
+  }
+
+  .opentt-featured-countdown-label {
+    font-size: 0.6rem;
+    margin-bottom: 4px;
   }
 
   .opentt-featured-countdown {

@@ -59,6 +59,7 @@ final class FeaturedMatchShortcode
         $metaTop = trim(implode(' • ', array_values(array_filter([$ligaLabel, $sezonaLabel, $koloLabel]))));
         $location = self::matchLocationLabel($match);
         $centerLabel = self::centerLabel($match);
+        $centerIntroLabel = self::centerIntroLabel($match);
         $targetDate = self::matchTargetDateAttr((string) ($match->match_date ?? ''));
         $uid = 'opentt-featured-' . wp_unique_id();
 
@@ -75,6 +76,7 @@ final class FeaturedMatchShortcode
         echo '<div class="opentt-featured-team-name">' . esc_html($homeName) . '</div>';
         echo '</div>';
         echo '<div class="opentt-featured-center">';
+        echo '<div class="opentt-featured-countdown-label">' . esc_html($centerIntroLabel) . '</div>';
         echo '<div class="opentt-featured-countdown" data-opentt-target="' . esc_attr($targetDate) . '">' . esc_html($centerLabel) . '</div>';
         echo '</div>';
         echo '<div class="opentt-featured-team away">';
@@ -410,6 +412,14 @@ final class FeaturedMatchShortcode
             return wp_date('H:i', $ts) . 'h';
         }
         return 'Uskoro';
+    }
+
+    private static function centerIntroLabel($match)
+    {
+        if (self::isMatchPlayedByStatusOrScore($match)) {
+            return 'Rezultat';
+        }
+        return 'Početak utakmice za:';
     }
 
     private static function matchLocationLabel($match)

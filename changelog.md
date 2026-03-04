@@ -27,6 +27,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Reworked featured-card side accents to explicit pseudo-element bars (`::before` home-left, `::after` away-right), removing inset-shadow accents for deterministic left/right color rendering.
 - Removed duplicated featured-match style blocks from `main.css` and `legacy-ui.css` so `featured-match.css` is the single source of truth, preventing cross-file overrides.
 - Updated featured-match card to use uninterrupted edge-to-edge gradient (without solid side bars) while retaining subtle top highlight overlay.
+- Added center helper label in `opentt_featured_match` above countdown (`Početak utakmice za:`; `Rezultat` for played matches) for clearer context.
 
 #### Admin & Data
 
