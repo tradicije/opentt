@@ -100,6 +100,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'db_build_standings_for_competition' => static function ($liga_slug, $sezona_slug = '', $max_kolo = null) {
                 return self::db_build_standings_for_competition($liga_slug, $sezona_slug, $max_kolo);
             },
+            'build_match_query_args' => static function ($args) {
+                return self::build_match_query_args($args);
+            },
         ]);
     }
 

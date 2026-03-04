@@ -317,6 +317,21 @@ final class FeaturedMatchShortcode
 
     private static function resolveCompetitionContext(array $atts, callable $call)
     {
+        $queryArgs = $call('build_match_query_args', [
+            'limit' => 1,
+            'liga' => (string) ($atts['liga'] ?? ''),
+            'sezona' => (string) ($atts['sezona'] ?? ''),
+            'klub' => '',
+            'odigrana' => '',
+        ]);
+        if (is_array($queryArgs)) {
+            $qLiga = sanitize_title((string) ($queryArgs['liga_slug'] ?? ''));
+            $qSezona = sanitize_title((string) ($queryArgs['sezona_slug'] ?? ''));
+            if ($qLiga !== '') {
+                return ['liga_slug' => $qLiga, 'sezona_slug' => $qSezona];
+            }
+        }
+
         $liga = sanitize_title((string) ($atts['liga'] ?? ''));
         $sezona = sanitize_title((string) ($atts['sezona'] ?? ''));
         $parsed = $call('parse_legacy_liga_sezona', $liga, $sezona);
