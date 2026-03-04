@@ -91,6 +91,15 @@ trait OpenTT_Unified_Shortcodes_Trait
             'slug_to_title' => static function ($slug) {
                 return self::slug_to_title($slug);
             },
+            'current_archive_context' => static function () {
+                return self::current_archive_context();
+            },
+            'parse_legacy_liga_sezona' => static function ($liga_slug, $sezona_slug = '') {
+                return self::parse_legacy_liga_sezona($liga_slug, $sezona_slug);
+            },
+            'db_build_standings_for_competition' => static function ($liga_slug, $sezona_slug = '', $max_kolo = null) {
+                return self::db_build_standings_for_competition($liga_slug, $sezona_slug, $max_kolo);
+            },
         ]);
     }
 

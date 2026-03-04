@@ -186,9 +186,20 @@ final class OpenTT_Unified_Admin_Match_Actions
 
     private static function has_featured_column($table)
     {
+        self::maybe_add_featured_column($table);
         global $wpdb;
         $column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", 'featured'));
         return !empty($column);
+    }
+
+    private static function maybe_add_featured_column($table)
+    {
+        global $wpdb;
+        $column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", 'featured'));
+        if (!empty($column)) {
+            return;
+        }
+        $wpdb->query("ALTER TABLE {$table} ADD COLUMN featured tinyint(1) NOT NULL DEFAULT 0 AFTER played");
     }
 
     public static function handle_delete_matches_bulk_admin()

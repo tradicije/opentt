@@ -34,7 +34,7 @@ final class OpenTT_Unified_Core
     const VERSION = '1.1.0-beta.2';
     const CAP = 'edit_others_posts';
     const OPTION_SCHEMA_VERSION = 'opentt_unified_schema_version';
-    const SCHEMA_VERSION = '3';
+    const SCHEMA_VERSION = '4';
     const OPTION_MIGRATION_STATE = 'opentt_unified_migration_state';
     const OPTION_VALIDATION_REPORT = 'opentt_unified_validation_report';
     const OPTION_LEAGUE_SEASON_VALIDATION_REPORT = 'opentt_unified_league_season_validation_report';
@@ -2552,9 +2552,10 @@ JS;
             [
                 'tag' => 'opentt_featured_match',
                 'desc' => 'Istaknuta utakmica sa countdown karticom i gradijentom boja dresova klubova.',
-                'attrs' => 'id, liga, sezona, title',
-                'details' => 'Prikazuje meč označen kao featured. Ako `id` nije zadat, bira najrelevantniji featured meč (prioritet predstojeći).',
+                'attrs' => 'mode, id, liga, sezona, title',
+                'details' => '`mode="manual"` koristi ručno označen featured meč iz admina. `mode="auto"` koristi kontekst liga+sezona i bira najbliži predstojeći meč, uz derby tie-break (bolje rangirani klubovi po tabeli imaju prioritet).',
                 'builder' => [
+                    ['name' => 'mode', 'label' => 'Mode', 'type' => 'text', 'default' => 'manual', 'help' => 'manual ili auto.'],
                     ['name' => 'id', 'label' => 'ID utakmice', 'type' => 'number', 'default' => '', 'help' => 'Opciono: prisilno prikaži tačno ovaj meč.'],
                     ['name' => 'liga', 'label' => 'Liga slug', 'type' => 'text', 'default' => '', 'help' => 'Opciono ograničenje pri auto-izboru featured meča.'],
                     ['name' => 'sezona', 'label' => 'Sezona slug', 'type' => 'text', 'default' => '', 'help' => 'Opciono ograničenje pri auto-izboru featured meča.'],
@@ -2623,6 +2624,7 @@ JS;
             'columns' => 'Broj kolona prikaza (obično 1-6).',
             'limit' => 'Maksimalan broj stavki za prikaz.',
             'id' => 'ID konkretne utakmice.',
+            'mode' => 'Režim izbora featured meča: manual ili auto.',
             'liga' => 'Slug lige/takmičenja.',
             'sezona' => 'Slug sezone (npr. 2025-26).',
             'odigrana' => 'Filter odigranosti: 1 odigrane, 0 neodigrane.',

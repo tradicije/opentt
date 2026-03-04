@@ -62,7 +62,7 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
             $where[] = 'm.played=%d';
             $params[] = intval($played);
         }
-        if ($featured === '0' || $featured === '1') {
+        if (($featured === '0' || $featured === '1') && self::has_featured_column($matches)) {
             $where[] = 'm.featured=%d';
             $params[] = intval($featured);
         }
@@ -216,5 +216,22 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
         global $wpdb;
         $found = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
         return $found === $table_name;
+    }
+
+    private static function has_featured_column($table_name)
+    {
+        global $wpdb;
+        static $cache = [];
+        $table_name = (string) $table_name;
+        if (isset($cache[$table_name])) {
+            return $cache[$table_name];
+        }
+        if (!self::table_exists($table_name)) {
+            $cache[$table_name] = false;
+            return false;
+        }
+        $column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table_name} LIKE %s", 'featured'));
+        $cache[$table_name] = !empty($column);
+        return $cache[$table_name];
     }
 }

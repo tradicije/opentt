@@ -11,12 +11,14 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Updated `opentt_matches_grid` calendar preview so the `+X more` indicator is clickable and applies direct date filtering for that day.
 - Improved `opentt_matches_grid` calendar preview positioning to reduce hover gap between day cell and preview panel, preventing accidental preview switches to adjacent days.
 - Added new `opentt_featured_match` shortcode with standout card layout (league/season/round meta, team crests/names, countdown center, location footer) and home/away gradient based on club jersey colors.
+- Extended `opentt_featured_match` with `mode` selector: `manual` (admin featured flag) and `auto` (context-aware league/season selection of nearest upcoming match with derby tie-break based on standings rank).
 - Updated club admin form (`boja_dresa`) to use WordPress color picker for reliable color input used by featured-match gradients.
 
 #### Admin & Data
 
 - Added `featured` match flag to match schema and import/export payloads.
 - Added featured controls in admin matches workflow: quick list toggle action (`Feature/Unfeature`), featured indicator column, and featured checkbox in match edit details.
+- Bumped schema version to force migration and added runtime fallback for auto-adding missing `featured` column when older installs hit admin featured actions.
 
 ## Releases
 

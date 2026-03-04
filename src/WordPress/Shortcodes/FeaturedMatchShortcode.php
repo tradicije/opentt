@@ -25,12 +25,13 @@ final class FeaturedMatchShortcode
 
         $atts = shortcode_atts([
             'id' => 0,
+            'mode' => 'manual',
             'liga' => '',
             'sezona' => '',
             'title' => 'Featured match',
         ], $atts);
 
-        $match = self::resolveFeaturedMatch($atts);
+        $match = self::resolveMatch($atts, $call);
         if (!$match) {
             return '<p>Nema featured utakmice za prikaz.</p>';
         }
@@ -124,21 +125,45 @@ final class FeaturedMatchShortcode
         return ob_get_clean();
     }
 
-    private static function resolveFeaturedMatch(array $atts)
+    private static function resolveMatch(array $atts, callable $call)
+    {
+        $id = intval($atts['id'] ?? 0);
+        if ($id > 0) {
+            return self::resolveMatchById($id);
+        }
+
+        $mode = sanitize_key((string) ($atts['mode'] ?? 'manual'));
+        if ($mode !== 'auto' && $mode !== 'manual') {
+            $mode = 'manual';
+        }
+
+        if ($mode === 'auto') {
+            $auto = self::resolveAutoMatch($atts, $call);
+            if ($auto) {
+                return $auto;
+            }
+            return self::resolveManualFeaturedMatch($atts);
+        }
+
+        return self::resolveManualFeaturedMatch($atts);
+    }
+
+    private static function resolveMatchById($id)
     {
         global $wpdb;
         $table = \OpenTT_Unified_Core::db_table('matches');
-        if (!$table) {
+        if (!self::matchesTableIsValid($table)) {
             return null;
         }
-        $tableExists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
-        if ($tableExists !== $table) {
-            return null;
-        }
+        return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id=%d LIMIT 1", intval($id)));
+    }
 
-        $id = intval($atts['id'] ?? 0);
-        if ($id > 0) {
-            return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id=%d LIMIT 1", $id));
+    private static function resolveManualFeaturedMatch(array $atts)
+    {
+        global $wpdb;
+        $table = \OpenTT_Unified_Core::db_table('matches');
+        if (!self::matchesTableIsValid($table, true)) {
+            return null;
         }
 
         $liga = sanitize_title((string) ($atts['liga'] ?? ''));
@@ -160,6 +185,127 @@ final class FeaturedMatchShortcode
         $params[] = $now;
         $sql = $wpdb->prepare($sql, $params);
         return $wpdb->get_row($sql);
+    }
+
+    private static function resolveAutoMatch(array $atts, callable $call)
+    {
+        global $wpdb;
+        $table = \OpenTT_Unified_Core::db_table('matches');
+        if (!self::matchesTableIsValid($table)) {
+            return null;
+        }
+
+        $ctx = self::resolveCompetitionContext($atts, $call);
+        $liga = sanitize_title((string) ($ctx['liga_slug'] ?? ''));
+        $sezona = sanitize_title((string) ($ctx['sezona_slug'] ?? ''));
+        if ($liga === '') {
+            return null;
+        }
+
+        $where = ['liga_slug=%s', 'match_date IS NOT NULL', "match_date <> '0000-00-00 00:00:00'", 'match_date >= %s'];
+        $params = [$liga, current_time('mysql')];
+        if ($sezona !== '') {
+            $where[] = 'sezona_slug=%s';
+            $params[] = $sezona;
+        }
+        $sql = "SELECT * FROM {$table} WHERE " . implode(' AND ', $where) . " ORDER BY match_date ASC, id ASC LIMIT 120";
+        $rows = $wpdb->get_results($wpdb->prepare($sql, $params)) ?: [];
+        if (empty($rows)) {
+            return null;
+        }
+
+        $rankMap = [];
+        $standings = $call('db_build_standings_for_competition', $liga, $sezona, null);
+        if (is_array($standings)) {
+            foreach ($standings as $r) {
+                $clubId = intval($r['club_id'] ?? 0);
+                $rank = intval($r['rank'] ?? 0);
+                if ($clubId > 0 && $rank > 0) {
+                    $rankMap[$clubId] = $rank;
+                }
+            }
+        }
+
+        $nowTs = current_time('timestamp');
+        $best = null;
+        $bestDateDiff = null;
+        $bestRankSum = null;
+
+        foreach ($rows as $row) {
+            $ts = strtotime((string) ($row->match_date ?? ''));
+            if ($ts === false) {
+                continue;
+            }
+            $dateDiff = max(0, $ts - $nowTs);
+            $homeId = intval($row->home_club_post_id ?? 0);
+            $awayId = intval($row->away_club_post_id ?? 0);
+            $rankSum = intval($rankMap[$homeId] ?? 9999) + intval($rankMap[$awayId] ?? 9999);
+
+            if ($best === null || $dateDiff < $bestDateDiff || ($dateDiff === $bestDateDiff && $rankSum < $bestRankSum)) {
+                $best = $row;
+                $bestDateDiff = $dateDiff;
+                $bestRankSum = $rankSum;
+            }
+        }
+
+        return $best;
+    }
+
+    private static function resolveCompetitionContext(array $atts, callable $call)
+    {
+        $liga = sanitize_title((string) ($atts['liga'] ?? ''));
+        $sezona = sanitize_title((string) ($atts['sezona'] ?? ''));
+        $parsed = $call('parse_legacy_liga_sezona', $liga, $sezona);
+        if (is_array($parsed)) {
+            $liga = sanitize_title((string) ($parsed['league_slug'] ?? $liga));
+            $sezona = sanitize_title((string) ($parsed['season_slug'] ?? $sezona));
+        }
+        if ($liga !== '') {
+            return ['liga_slug' => $liga, 'sezona_slug' => $sezona];
+        }
+
+        $archiveCtx = $call('current_archive_context');
+        if (is_array($archiveCtx) && (($archiveCtx['type'] ?? '') === 'liga_sezona')) {
+            return [
+                'liga_slug' => sanitize_title((string) ($archiveCtx['liga_slug'] ?? '')),
+                'sezona_slug' => sanitize_title((string) ($archiveCtx['sezona_slug'] ?? '')),
+            ];
+        }
+
+        if (is_tax('liga_sezona')) {
+            $term = get_queried_object();
+            if ($term && !is_wp_error($term) && !empty($term->slug)) {
+                $parsedTerm = $call('parse_legacy_liga_sezona', (string) $term->slug, '');
+                if (is_array($parsedTerm)) {
+                    return [
+                        'liga_slug' => sanitize_title((string) ($parsedTerm['league_slug'] ?? '')),
+                        'sezona_slug' => sanitize_title((string) ($parsedTerm['season_slug'] ?? '')),
+                    ];
+                }
+            }
+        }
+
+        return ['liga_slug' => '', 'sezona_slug' => ''];
+    }
+
+    private static function matchesTableIsValid($table, $requireFeaturedColumn = false)
+    {
+        global $wpdb;
+        if (!$table) {
+            return false;
+        }
+        $table = (string) $table;
+        $exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
+        if ($exists !== $table) {
+            return false;
+        }
+        if ($requireFeaturedColumn) {
+            $col = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", 'featured'));
+            if (empty($col)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static function clubJerseyColor($clubId, $fallback)
