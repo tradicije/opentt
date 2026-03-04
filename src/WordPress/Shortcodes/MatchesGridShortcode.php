@@ -263,6 +263,7 @@ final class MatchesGridShortcode
             echo '<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>';
             echo '</div>';
             echo '<div class="opentt-grid-cal-days"></div>';
+            echo '<div class="opentt-grid-cal-preview" hidden></div>';
             echo '<div class="opentt-grid-cal-legend">';
             echo '<span class="played">Odigrano</span><span class="upcoming">Predstoji</span>';
             echo '</div>';
@@ -291,6 +292,7 @@ final class MatchesGridShortcode
                     var calPopover = root.querySelector('.opentt-grid-calendar-popover');
                     var calMonth = root.querySelector('.opentt-grid-cal-month');
                     var calDays = root.querySelector('.opentt-grid-cal-days');
+                    var calPreview = root.querySelector('.opentt-grid-cal-preview');
                     var calClear = root.querySelector('.opentt-grid-cal-clear');
                     var grid = root.querySelector('.opentt-grid');
                     if (!grid) { return false; }
@@ -392,15 +394,46 @@ final class MatchesGridShortcode
                                 return;
                             }
                             if (!state[iso]) {
-                                state[iso] = { played: false, upcoming: false };
+                                state[iso] = { played: false, upcoming: false, matches: [] };
                             }
                             if ((item.getAttribute('data-played') || '0') === '1') {
                                 state[iso].played = true;
                             } else {
                                 state[iso].upcoming = true;
                             }
+                            state[iso].matches.push(extractPreviewMatch(item));
                         });
                         return state;
+                    }
+
+                    function compactClubName(name) {
+                        var normalized = (name || '').replace(/\s+/g, ' ').trim();
+                        if (!normalized) {
+                            return '---';
+                        }
+                        var words = normalized.split(' ').filter(Boolean);
+                        if (words.length > 1) {
+                            var initials = words.slice(0, 3).map(function(word){
+                                return word.charAt(0);
+                            }).join('');
+                            return initials.toUpperCase();
+                        }
+                        return normalized.replace(/[^0-9A-Za-z\u00C0-\u017F]/g, '').slice(0, 3).toUpperCase();
+                    }
+
+                    function extractPreviewMatch(item) {
+                        var teams = item.querySelectorAll('.team');
+                        var homeTeam = teams[0] || null;
+                        var awayTeam = teams[1] || null;
+                        var homeName = homeTeam ? ((homeTeam.querySelector('span') || {}).textContent || '') : '';
+                        var awayName = awayTeam ? ((awayTeam.querySelector('span') || {}).textContent || '') : '';
+                        var homeScore = homeTeam ? ((homeTeam.querySelector('strong') || {}).textContent || '-') : '-';
+                        var awayScore = awayTeam ? ((awayTeam.querySelector('strong') || {}).textContent || '-') : '-';
+                        return {
+                            home: compactClubName(homeName),
+                            away: compactClubName(awayName),
+                            score: String(homeScore).trim() + ':' + String(awayScore).trim()
+                        };
                     }
 
                     function monthLabel(date) {
@@ -413,6 +446,7 @@ final class MatchesGridShortcode
 
                     function closeCalendar() {
                         if (!calPopover || !calToggle) { return; }
+                        hideCalendarPreview();
                         calPopover.hidden = true;
                         calToggle.setAttribute('aria-expanded', 'false');
                     }
@@ -434,9 +468,80 @@ final class MatchesGridShortcode
                         }
                     }
 
+                    function hideCalendarPreview() {
+                        if (!calPreview) { return; }
+                        calPreview.hidden = true;
+                        calPreview.innerHTML = '';
+                    }
+
+                    function showCalendarPreview(anchorCell, matches) {
+                        if (!calPreview || !calPopover || !anchorCell || !matches || !matches.length) {
+                            hideCalendarPreview();
+                            return;
+                        }
+
+                        calPreview.innerHTML = '';
+                        var maxRows = 6;
+                        matches.slice(0, maxRows).forEach(function(match){
+                            var row = document.createElement('div');
+                            row.className = 'opentt-grid-cal-preview-row';
+
+                            var home = document.createElement('span');
+                            home.className = 'home';
+                            home.textContent = match.home;
+
+                            var score = document.createElement('span');
+                            score.className = 'score';
+                            score.textContent = match.score;
+
+                            var away = document.createElement('span');
+                            away.className = 'away';
+                            away.textContent = match.away;
+
+                            row.appendChild(home);
+                            row.appendChild(score);
+                            row.appendChild(away);
+                            calPreview.appendChild(row);
+                        });
+                        if (matches.length > maxRows) {
+                            var more = document.createElement('div');
+                            more.className = 'opentt-grid-cal-preview-more';
+                            more.textContent = '+' + String(matches.length - maxRows) + ' more';
+                            calPreview.appendChild(more);
+                        }
+
+                        calPreview.hidden = false;
+
+                        var popRect = calPopover.getBoundingClientRect();
+                        var cellRect = anchorCell.getBoundingClientRect();
+                        var left = (cellRect.right - popRect.left) + 8;
+                        var top = (cellRect.top - popRect.top) + (cellRect.height / 2);
+                        var previewWidth = calPreview.offsetWidth;
+                        var previewHeight = calPreview.offsetHeight;
+                        var maxLeft = calPopover.clientWidth - previewWidth - 4;
+                        if (left > maxLeft) {
+                            left = (cellRect.left - popRect.left) - previewWidth - 8;
+                        }
+                        if (left < 4) {
+                            left = 4;
+                        }
+                        top = top - (previewHeight / 2);
+                        var maxTop = calPopover.clientHeight - previewHeight - 4;
+                        if (top > maxTop) {
+                            top = maxTop;
+                        }
+                        if (top < 4) {
+                            top = 4;
+                        }
+
+                        calPreview.style.left = left + 'px';
+                        calPreview.style.top = top + 'px';
+                    }
+
                     function renderCalendar() {
                         if (!calMonth || !calDays) { return; }
                         var map = collectCalendarState();
+                        hideCalendarPreview();
                         calMonth.textContent = monthLabel(calendarMonthDate);
                         calDays.innerHTML = '';
 
@@ -471,6 +576,16 @@ final class MatchesGridShortcode
                                     cell.className += ' has-played';
                                 } else if (state.upcoming) {
                                     cell.className += ' has-upcoming';
+                                }
+                                if (state.matches && state.matches.length) {
+                                    cell.addEventListener('mouseenter', (function(anchorCell, dayMatches){
+                                        return function(){ showCalendarPreview(anchorCell, dayMatches); };
+                                    })(cell, state.matches));
+                                    cell.addEventListener('mouseleave', hideCalendarPreview);
+                                    cell.addEventListener('focus', (function(anchorCell, dayMatches){
+                                        return function(){ showCalendarPreview(anchorCell, dayMatches); };
+                                    })(cell, state.matches));
+                                    cell.addEventListener('blur', hideCalendarPreview);
                                 }
                             }
                             if (dateInput && dateInput.value === iso) {
