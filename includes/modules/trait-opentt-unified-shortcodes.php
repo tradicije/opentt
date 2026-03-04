@@ -930,159 +930,38 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     public static function shortcode_club_info($atts = [])
     {
-        $atts = shortcode_atts([
-            'klub' => '',
-        ], $atts);
-
-        $club_id = 0;
-        if (!empty($atts['klub'])) {
-            $lookup = sanitize_title((string) $atts['klub']);
-            $post = get_page_by_path($lookup, OBJECT, 'klub');
-            if (!$post) {
-                $post = get_page_by_title((string) $atts['klub'], OBJECT, 'klub');
-            }
-            if ($post && !is_wp_error($post)) {
-                $club_id = intval($post->ID);
-            }
-        } elseif (is_singular('klub')) {
-            $club_id = intval(get_the_ID());
-        }
-
-        if ($club_id <= 0) {
-            return '';
-        }
-
-        $club_name = (string) get_the_title($club_id);
-        $club_logo = self::club_logo_html($club_id, 'medium', ['class' => 'opentt-info-kluba-grb']);
-        $club_link = (string) get_permalink($club_id);
-        $club_display_name = 'STK ' . $club_name;
-
-        $fields = [
-            'grad' => 'Grad',
-            'opstina' => 'Opština',
-            'kontakt' => 'Kontakt',
-            'email' => 'Email',
-            'zastupnik_kluba' => 'Zastupnik kluba',
-            'website_kluba' => 'Website kluba',
-            'boja_dresa' => 'Boja dresa',
-            'loptice' => 'Loptice',
-            'adresa_kluba' => 'Adresa kluba',
-            'adresa_sale' => 'Adresa sale',
-            'termin_igranja' => 'Termin igranja',
-        ];
-
-        $rows = [];
-        $club_meta_subtitle = '';
-
-        $club_comp = self::db_get_latest_competition_for_club($club_id);
-        if (is_array($club_comp)) {
-            $liga_slug = sanitize_title((string) ($club_comp['liga_slug'] ?? ''));
-            $sezona_slug = sanitize_title((string) ($club_comp['sezona_slug'] ?? ''));
-            if ($liga_slug !== '' && $sezona_slug === '') {
-                $parsed = self::parse_legacy_liga_sezona($liga_slug, '');
-                $liga_slug = sanitize_title((string) ($parsed['league_slug'] ?? $liga_slug));
-                $sezona_slug = sanitize_title((string) ($parsed['season_slug'] ?? ''));
-            }
-            if ($liga_slug !== '') {
-                $league_label = self::slug_to_title($liga_slug);
-                if ($league_label === '') {
-                    $league_label = $liga_slug;
-                }
-                $league_label = ucwords(strtolower((string) $league_label));
-                $subtitle_parts = [trim((string) $league_label)];
-
-                if ($sezona_slug !== '') {
-                    $rule = self::get_competition_rule_data($liga_slug, $sezona_slug);
-                    if (is_array($rule) && !empty($rule['savez'])) {
-                        $savez = self::competition_federation_data((string) $rule['savez']);
-                        if (is_array($savez) && !empty($savez['label'])) {
-                            $subtitle_parts[] = (string) $savez['label'];
-                        }
-                    }
-                }
-
-                $subtitle_parts = array_values(array_filter(array_map('trim', $subtitle_parts)));
-                if (!empty($subtitle_parts)) {
-                    $club_meta_subtitle = implode(', ', $subtitle_parts);
-                }
-            }
-        }
-
-        foreach ($fields as $key => $label) {
-            $value = trim((string) get_post_meta($club_id, $key, true));
-            if ($value === '') {
-                continue;
-            }
-            $prefix_icon = '';
-            $suffix_icon = '';
-            if ($key === 'website_kluba') {
-                $href = esc_url($value);
-                if ($href !== '') {
-                    $display = preg_replace('#^https?://#i', '', $value);
-                    $value = '<a href="' . $href . '" target="_blank" rel="noopener">' . esc_html((string) $display) . '</a>';
-                    $suffix_icon = self::info_link_icon_html('external-icon', '↗', 'after');
-                } else {
-                    $value = esc_html($value);
-                }
-            } elseif ($key === 'kontakt') {
-                $phone_href = self::normalize_phone_for_href($value);
-                $phone_display = self::format_phone_for_display($value);
-                if ($phone_href !== '') {
-                    $value = '<a href="tel:' . esc_attr($phone_href) . '">' . esc_html($phone_display) . '</a>';
-                    $suffix_icon = self::info_link_icon_html('external-icon', '↗', 'after');
-                } else {
-                    $value = esc_html($phone_display);
-                }
-            } elseif ($key === 'email') {
-                $email = sanitize_email($value);
-                if ($email !== '') {
-                    $value = '<a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a>';
-                    $suffix_icon = self::info_link_icon_html('external-icon', '↗', 'after');
-                } else {
-                    $value = esc_html($value);
-                }
-            } else {
-                $value = esc_html($value);
-            }
-            if ($prefix_icon !== '' || $suffix_icon !== '') {
-                $value = '<span class="opentt-info-link-wrap">' . $prefix_icon . $value . $suffix_icon . '</span>';
-            }
-            $rows[] = [
-                'label' => $label,
-                'value' => $value,
-            ];
-        }
-
-        ob_start();
-        ?>
-        <?php echo self::shortcode_title_html('Info kluba'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        <section class="opentt-info-kluba">
-            <div class="opentt-info-kluba-head">
-                <a href="<?php echo esc_url($club_link); ?>" class="opentt-info-kluba-brand">
-                    <span class="opentt-info-kluba-grb-wrap">
-                        <?php echo $club_logo ?: ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                    </span>
-                    <span class="opentt-info-kluba-head-text">
-                        <span class="opentt-info-kluba-ime"><?php echo esc_html($club_display_name); ?></span>
-                        <?php if ($club_meta_subtitle !== ''): ?>
-                            <span class="opentt-info-kluba-podnaslov"><?php echo esc_html($club_meta_subtitle); ?></span>
-                        <?php endif; ?>
-                    </span>
-                </a>
-            </div>
-            <?php if (!empty($rows)): ?>
-                <dl class="opentt-info-kluba-lista">
-                    <?php foreach ($rows as $row): ?>
-                        <div class="opentt-info-kluba-row">
-                            <dt><?php echo esc_html((string) $row['label']); ?></dt>
-                            <dd><?php echo $row['value']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></dd>
-                        </div>
-                    <?php endforeach; ?>
-                </dl>
-            <?php endif; ?>
-        </section>
-        <?php
-        return ob_get_clean();
+        return \OpenTT\Unified\WordPress\Shortcodes\ClubInfoShortcode::render($atts, [
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
+            'db_get_latest_competition_for_club' => static function ($club_id) {
+                return self::db_get_latest_competition_for_club($club_id);
+            },
+            'parse_legacy_liga_sezona' => static function ($liga_slug, $sezona_slug = '') {
+                return self::parse_legacy_liga_sezona($liga_slug, $sezona_slug);
+            },
+            'slug_to_title' => static function ($slug) {
+                return self::slug_to_title($slug);
+            },
+            'get_competition_rule_data' => static function ($liga_slug, $sezona_slug = '') {
+                return self::get_competition_rule_data($liga_slug, $sezona_slug);
+            },
+            'competition_federation_data' => static function ($code) {
+                return self::competition_federation_data($code);
+            },
+            'info_link_icon_html' => static function ($icon_file_name, $fallback, $modifier = 'before') {
+                return self::info_link_icon_html($icon_file_name, $fallback, $modifier);
+            },
+            'normalize_phone_for_href' => static function ($raw_phone) {
+                return self::normalize_phone_for_href($raw_phone);
+            },
+            'format_phone_for_display' => static function ($raw_phone) {
+                return self::format_phone_for_display($raw_phone);
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+        ]);
     }
 
     private static function info_link_icon_html($icon_file_name, $fallback, $modifier = 'before')
@@ -1113,134 +992,26 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     public static function shortcode_player_info($atts = [])
     {
-        $atts = shortcode_atts([
-            'igrac' => '',
-        ], $atts);
-
-        $player_id = 0;
-        if (!empty($atts['igrac'])) {
-            $lookup = sanitize_title((string) $atts['igrac']);
-            $post = get_page_by_path($lookup, OBJECT, 'igrac');
-            if (!$post) {
-                $post = get_page_by_title((string) $atts['igrac'], OBJECT, 'igrac');
-            }
-            if ($post && !is_wp_error($post)) {
-                $player_id = intval($post->ID);
-            }
-        } elseif (is_singular('igrac')) {
-            $player_id = intval(get_the_ID());
-        }
-
-        if ($player_id <= 0) {
-            return '';
-        }
-
-        $player_name = (string) get_the_title($player_id);
-        $player_photo = get_the_post_thumbnail($player_id, 'medium', ['class' => 'opentt-info-igraca-slika']);
-        if (!$player_photo) {
-            $player_photo = '<img src="' . esc_url(self::player_fallback_image_url()) . '" alt="' . esc_attr($player_name) . '" class="opentt-info-igraca-slika" />';
-        }
-        $player_link = (string) get_permalink($player_id);
-
-        $club_id = self::get_player_club_id($player_id);
-        $club_name = $club_id > 0 ? (string) get_the_title($club_id) : '';
-        $club_link = $club_id > 0 ? (string) get_permalink($club_id) : '';
-        $club_logo = $club_id > 0 ? self::club_logo_html($club_id, 'thumbnail', ['class' => 'opentt-info-igraca-klub-grb']) : '';
-
-        $rows = [];
-
-        $dob = trim((string) get_post_meta($player_id, 'datum_rodjenja', true));
-        if ($dob !== '') {
-            $ts = strtotime($dob);
-            if ($ts !== false) {
-                $dob = date_i18n('d.m.Y.', $ts);
-            }
-            $rows[] = [
-                'label' => 'Datum rođenja',
-                'value' => esc_html($dob),
-            ];
-        }
-
-        $pob = trim((string) get_post_meta($player_id, 'mesto_rodjenja', true));
-        if ($pob !== '') {
-            $rows[] = [
-                'label' => 'Mesto rođenja',
-                'value' => esc_html($pob),
-            ];
-        }
-
-        $country_code = strtoupper(sanitize_key((string) get_post_meta($player_id, 'drzavljanstvo', true)));
-        if ($country_code !== '') {
-            $country_name = OpenTT_Unified_Core::country_label_by_code($country_code);
-            if ($country_name !== '') {
-                $flag = OpenTT_Unified_Core::country_flag_emoji($country_code);
-                $country_value = '<span class="opentt-info-igraca-nacionalnost">';
-                if ($flag !== '') {
-                    $country_value .= '<span class="flag" aria-hidden="true">' . esc_html($flag) . '</span> ';
-                }
-                $country_value .= '<span class="name">' . esc_html($country_name) . '</span>';
-                $country_value .= '</span>';
-                $rows[] = [
-                    'label' => 'Državljanstvo',
-                    'value' => $country_value,
-                ];
-            }
-        }
-
-        $bio = trim((string) get_post_field('post_content', $player_id));
-        if ($bio !== '') {
-            $rows[] = [
-                'label' => 'Biografija',
-                'value' => wp_kses_post(wpautop($bio)),
-            ];
-        }
-
-        ob_start();
-        ?>
-        <?php echo self::shortcode_title_html('Info igrača'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        <section class="opentt-info-igraca">
-            <div class="opentt-info-igraca-head">
-                <div class="opentt-info-igraca-brand">
-                    <a href="<?php echo esc_url($player_link); ?>" class="opentt-info-igraca-foto-link">
-                        <span class="opentt-info-igraca-slika-wrap">
-                            <?php echo $player_photo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                        </span>
-                    </a>
-                    <span class="opentt-info-igraca-head-text">
-                        <a href="<?php echo esc_url($player_link); ?>" class="opentt-info-igraca-ime"><?php echo esc_html($player_name); ?></a>
-                        <?php if ($club_name !== ''): ?>
-                            <span class="opentt-info-igraca-klub">
-                                <?php if ($club_link !== ''): ?>
-                                    <a class="opentt-info-igraca-klub-link" href="<?php echo esc_url($club_link); ?>">
-                                        <?php if ($club_logo): ?>
-                                            <span class="opentt-info-igraca-klub-logo"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                                        <?php endif; ?>
-                                        <span class="opentt-info-igraca-klub-tekst"><?php echo esc_html($club_name); ?></span>
-                                    </a>
-                                <?php else: ?>
-                                    <?php if ($club_logo): ?>
-                                        <span class="opentt-info-igraca-klub-logo"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                                    <?php endif; ?>
-                                    <span class="opentt-info-igraca-klub-tekst"><?php echo esc_html($club_name); ?></span>
-                                <?php endif; ?>
-                            </span>
-                        <?php endif; ?>
-                    </span>
-                </div>
-            </div>
-            <?php if (!empty($rows)): ?>
-                <dl class="opentt-info-igraca-lista">
-                    <?php foreach ($rows as $row): ?>
-                        <div class="opentt-info-igraca-row">
-                            <dt><?php echo esc_html((string) $row['label']); ?></dt>
-                            <dd><?php echo $row['value']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></dd>
-                        </div>
-                    <?php endforeach; ?>
-                </dl>
-            <?php endif; ?>
-        </section>
-        <?php
-        return ob_get_clean();
+        return \OpenTT\Unified\WordPress\Shortcodes\PlayerInfoShortcode::render($atts, [
+            'player_fallback_image_url' => static function () {
+                return self::player_fallback_image_url();
+            },
+            'get_player_club_id' => static function ($player_id) {
+                return self::get_player_club_id($player_id);
+            },
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
+            'country_label_by_code' => static function ($country_code) {
+                return OpenTT_Unified_Core::country_label_by_code($country_code);
+            },
+            'country_flag_emoji' => static function ($country_code) {
+                return OpenTT_Unified_Core::country_flag_emoji($country_code);
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+        ]);
     }
 
     private static function normalize_phone_for_href($raw_phone)
