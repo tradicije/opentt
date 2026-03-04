@@ -543,13 +543,14 @@ final class MatchesGridShortcode
 
                         var popRect = calPopover.getBoundingClientRect();
                         var cellRect = anchorCell.getBoundingClientRect();
-                        var left = (cellRect.right - popRect.left) + 8;
+                        var previewOffset = 2;
+                        var left = (cellRect.right - popRect.left) + previewOffset;
                         var top = (cellRect.top - popRect.top) + (cellRect.height / 2);
                         var previewWidth = calPreview.offsetWidth;
                         var previewHeight = calPreview.offsetHeight;
                         var maxLeft = calPopover.clientWidth - previewWidth - 4;
                         if (left > maxLeft) {
-                            left = (cellRect.left - popRect.left) - previewWidth - 8;
+                            left = (cellRect.left - popRect.left) - previewWidth - previewOffset;
                         }
                         if (left < 4) {
                             left = 4;
