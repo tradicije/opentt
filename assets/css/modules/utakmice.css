@@ -10,15 +10,18 @@ body a {
 
 @keyframes openttLiveCardPulse {
   0% {
-    background-color: rgba(110, 8, 18, 0.34);
+    filter: brightness(1) saturate(1);
+    border-color: rgba(244, 98, 117, 0.62);
     box-shadow: 0 0 0 0 rgba(214, 36, 58, 0.26);
   }
   50% {
-    background-color: rgba(147, 12, 26, 0.44);
-    box-shadow: 0 0 0 2px rgba(214, 36, 58, 0.38);
+    filter: brightness(1.12) saturate(1.18);
+    border-color: rgba(255, 130, 146, 0.9);
+    box-shadow: 0 0 0 3px rgba(214, 36, 58, 0.44);
   }
   100% {
-    background-color: rgba(110, 8, 18, 0.34);
+    filter: brightness(1) saturate(1);
+    border-color: rgba(244, 98, 117, 0.62);
     box-shadow: 0 0 0 0 rgba(214, 36, 58, 0.26);
   }
 }
@@ -370,6 +373,7 @@ a.opentt-grid-cal-preview-more:focus {
   background:
     linear-gradient(135deg, rgba(183, 20, 43, 0.44), rgba(74, 8, 22, 0.5)),
     #000a26;
+  will-change: filter, box-shadow, border-color;
   animation: openttLiveCardPulse 1.2s ease-in-out infinite;
 }
 

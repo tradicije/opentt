@@ -10,12 +10,18 @@
 
 @keyframes openttLiveCardPulse {
   0% {
+    filter: brightness(1) saturate(1);
+    border-color: rgba(244, 98, 117, 0.62);
     box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(214, 36, 58, 0.24);
   }
   50% {
-    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(214, 36, 58, 0.34);
+    filter: brightness(1.12) saturate(1.18);
+    border-color: rgba(255, 130, 146, 0.9);
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 4px rgba(214, 36, 58, 0.38);
   }
   100% {
+    filter: brightness(1) saturate(1);
+    border-color: rgba(244, 98, 117, 0.62);
     box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(214, 36, 58, 0.24);
   }
 }
@@ -69,6 +75,7 @@
       var(--opentt-featured-away) 100%
     );
   border: 1px solid rgba(244, 98, 117, 0.62);
+  will-change: filter, box-shadow, border-color;
   animation: openttLiveCardPulse 1.2s ease-in-out infinite;
 }
 
