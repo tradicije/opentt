@@ -93,7 +93,18 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
         if ($legacy_id <= 0 || !self::table_exists($table)) {
             return null;
         }
-        $sql = $wpdb->prepare("SELECT * FROM {$table} WHERE legacy_post_id=%d LIMIT 1", $legacy_id);
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$table}
+             WHERE legacy_post_id=%d
+             ORDER BY
+               COALESCE(
+                   STR_TO_DATE(updated_at, '%%Y-%%m-%%d %%H:%%i:%%s'),
+                   STR_TO_DATE(created_at, '%%Y-%%m-%%d %%H:%%i:%%s')
+               ) DESC,
+               id DESC
+             LIMIT 1",
+            $legacy_id
+        );
         $row = $wpdb->get_row($sql);
         return $row ?: null;
     }
@@ -116,7 +127,15 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
 
         if ($sezona_slug !== '') {
             $sql = $wpdb->prepare(
-                "SELECT * FROM {$table} WHERE liga_slug=%s AND sezona_slug=%s AND kolo_slug=%s AND slug=%s LIMIT 1",
+                "SELECT * FROM {$table}
+                 WHERE liga_slug=%s AND sezona_slug=%s AND kolo_slug=%s AND slug=%s
+                 ORDER BY
+                   COALESCE(
+                       STR_TO_DATE(updated_at, '%%Y-%%m-%%d %%H:%%i:%%s'),
+                       STR_TO_DATE(created_at, '%%Y-%%m-%%d %%H:%%i:%%s')
+                   ) DESC,
+                   id DESC
+                 LIMIT 1",
                 $liga_slug,
                 $sezona_slug,
                 $kolo_slug,
@@ -129,7 +148,15 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
         }
 
         $sql = $wpdb->prepare(
-            "SELECT * FROM {$table} WHERE liga_slug=%s AND kolo_slug=%s AND slug=%s LIMIT 1",
+            "SELECT * FROM {$table}
+             WHERE liga_slug=%s AND kolo_slug=%s AND slug=%s
+             ORDER BY
+               COALESCE(
+                   STR_TO_DATE(updated_at, '%%Y-%%m-%%d %%H:%%i:%%s'),
+                   STR_TO_DATE(created_at, '%%Y-%%m-%%d %%H:%%i:%%s')
+               ) DESC,
+               id DESC
+             LIMIT 1",
             $liga_slug,
             $kolo_slug,
             $slug

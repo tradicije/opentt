@@ -39,6 +39,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Reverted temporary timezone fallback override and restored shortcode timing to rely strictly on WordPress `General Settings > Timezone`.
 - Fixed LIVE-mode mismatch between frontend and admin `Uživo` page for legacy non-padded hour values (for example `6:50:00`): match-date save now normalizes to `Y-m-d H:i:s`, shortcode parsers accept both padded/non-padded hour formats, and admin LIVE query uses parsed datetime comparison instead of raw string ordering.
 - Hardened LIVE parser behavior across shortcodes by removing permissive `strtotime` fallback from match timestamp detection, preventing false early LIVE states caused by ambiguous date-string interpretation.
+- Fixed nondeterministic match-context selection by adding explicit ordering (`updated_at`/`created_at`, then `id DESC`) in `db_get_match_by_legacy_id` and `db_get_match_by_keys`, so frontend shortcodes consistently use the latest match row when historical duplicates exist.
 
 #### Admin & Data
 
