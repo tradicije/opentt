@@ -78,17 +78,21 @@ final class FeaturedMatchShortcode
         echo '<div class="opentt-featured-team-crest">' . $homeLogo . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '<div class="opentt-featured-team-name">' . esc_html($homeName) . '</div>';
         echo '</div>';
-        echo '<div class="opentt-featured-center">';
+        echo '<div class="opentt-featured-center-wrap">';
         if ($isLive) {
             echo '<div class="opentt-live-badge">LIVE</div>';
+            echo '<div class="opentt-featured-center">';
             echo '<div class="opentt-featured-live-score-row">';
             echo '<span class="opentt-featured-live-score">' . esc_html((string) $homeScore) . '</span>';
             echo '<span class="opentt-featured-live-sep">:</span>';
             echo '<span class="opentt-featured-live-score">' . esc_html((string) $awayScore) . '</span>';
             echo '</div>';
+            echo '</div>';
         } else {
+            echo '<div class="opentt-featured-center">';
             echo '<div class="opentt-featured-countdown-label">' . esc_html($centerIntroLabel) . '</div>';
             echo '<div class="opentt-featured-countdown" data-opentt-target="' . esc_attr($targetDate) . '">' . esc_html($centerLabel) . '</div>';
+            echo '</div>';
         }
         echo '</div>';
         echo '<div class="opentt-featured-team away">';

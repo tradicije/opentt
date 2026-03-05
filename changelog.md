@@ -50,6 +50,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Restored score visibility in `opentt_featured_match` LIVE state by rendering center row as `home_score LIVE away_score` (with synchronized dot+text LIVE indicator).
 - Polished `opentt_featured_match` LIVE center sizing: larger desktop score/indicator presence, plus mobile-specific balance tweak (slightly smaller LIVE indicator, slightly larger scores, and increased score-group spacing/padding).
 - Updated `opentt_featured_match` LIVE center layout: `LIVE` indicator now sits above the score group, while scores are rendered on a separate line as `home : away` (with stronger desktop emphasis).
+- Refactored featured LIVE center markup to separate indicator and score containers (`LIVE` as sibling above `opentt-featured-center`), ensuring vertical stack consistency.
 
 #### Admin & Data
 
