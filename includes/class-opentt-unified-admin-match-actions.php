@@ -45,7 +45,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         $away = isset($_POST['away_club_post_id']) ? (int) $_POST['away_club_post_id'] : 0;
         $home_score = max(0, (int) ($_POST['home_score'] ?? 0));
         $away_score = max(0, (int) ($_POST['away_score'] ?? 0));
-        $played = ($home_score + $away_score) > 0 ? 1 : 0;
+        $played = ($home_score >= 4 || $away_score >= 4) ? 1 : 0;
         $featured = !empty($_POST['featured']) ? 1 : 0;
         $match_date = (string) ($_POST['match_date'] ?? '');
         $match_date = $match_date ? str_replace('T', ' ', $match_date) . ':00' : null;

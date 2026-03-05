@@ -1344,6 +1344,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             $rd = intval($row->home_score);
             $rg = intval($row->away_score);
             $is_played = intval($row->played) === 1 || $rd > 0 || $rg > 0;
+            $is_live = self::is_match_live($row);
             $is_upcoming_no_score = !$is_played && $rd === 0 && $rg === 0;
             $home_win = ($rd === 4);
             $away_win = ($rg === 4);
@@ -1388,7 +1389,10 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo self::render_team_html($away_id, $rg, $away_win, !$is_upcoming_no_score);
             echo '</div>';
             echo '<div class="opentt-item-side" aria-label="Vreme utakmice">';
-            if ($is_played) {
+            if ($is_live) {
+                echo '<span class="opentt-item-side-top">' . esc_html($date) . '</span>';
+                echo '<span class="opentt-item-side-bottom"><span class="opentt-live-badge">LIVE</span></span>';
+            } elseif ($is_played) {
                 echo '<span class="opentt-item-side-top">' . esc_html($date) . '</span>';
                 echo '<span class="opentt-item-side-bottom">Kraj</span>';
             } else {
@@ -1596,6 +1600,27 @@ trait OpenTT_Unified_Shortcodes_Trait
             return $kolo_name;
         }
         return self::slug_to_title($kolo_slug);
+    }
+
+    private static function is_match_live($row)
+    {
+        if (!is_object($row)) {
+            return false;
+        }
+        $home_score = intval($row->home_score ?? 0);
+        $away_score = intval($row->away_score ?? 0);
+        if ($home_score >= 4 || $away_score >= 4) {
+            return false;
+        }
+        $match_date = trim((string) ($row->match_date ?? ''));
+        if ($match_date === '' || $match_date === '0000-00-00 00:00:00') {
+            return false;
+        }
+        $match_ts = strtotime($match_date);
+        if ($match_ts === false) {
+            return false;
+        }
+        return intval($match_ts) <= intval(current_time('timestamp'));
     }
 
     private static function match_permalink($row)

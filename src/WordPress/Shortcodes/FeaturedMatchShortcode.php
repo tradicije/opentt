@@ -58,6 +58,7 @@ final class FeaturedMatchShortcode
 
         $metaTop = trim(implode(' • ', array_values(array_filter([$ligaLabel, $sezonaLabel, $koloLabel]))));
         $location = self::matchLocationLabel($match);
+        $isLive = self::isLiveMatch($match);
         $centerLabel = self::centerLabel($match);
         $centerIntroLabel = self::centerIntroLabel($match);
         $targetDate = self::matchTargetDateAttr((string) ($match->match_date ?? ''));
@@ -76,8 +77,13 @@ final class FeaturedMatchShortcode
         echo '<div class="opentt-featured-team-name">' . esc_html($homeName) . '</div>';
         echo '</div>';
         echo '<div class="opentt-featured-center">';
-        echo '<div class="opentt-featured-countdown-label">' . esc_html($centerIntroLabel) . '</div>';
-        echo '<div class="opentt-featured-countdown" data-opentt-target="' . esc_attr($targetDate) . '">' . esc_html($centerLabel) . '</div>';
+        if ($isLive) {
+            echo '<div class="opentt-featured-countdown-label">Uživo</div>';
+            echo '<div class="opentt-live-badge">LIVE</div>';
+        } else {
+            echo '<div class="opentt-featured-countdown-label">' . esc_html($centerIntroLabel) . '</div>';
+            echo '<div class="opentt-featured-countdown" data-opentt-target="' . esc_attr($targetDate) . '">' . esc_html($centerLabel) . '</div>';
+        }
         echo '</div>';
         echo '<div class="opentt-featured-team away">';
         echo '<div class="opentt-featured-team-crest">' . $awayLogo . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -90,6 +96,7 @@ final class FeaturedMatchShortcode
         echo '</a>';
         echo '</div>';
         ?>
+        <?php if (!$isLive): ?>
         <script>
         (function(){
             var root = document.getElementById('<?php echo esc_js($uid); ?>');
@@ -123,6 +130,7 @@ final class FeaturedMatchShortcode
             setInterval(update, 1000);
         })();
         </script>
+        <?php endif; ?>
         <?php
         return ob_get_clean();
     }
@@ -416,10 +424,34 @@ final class FeaturedMatchShortcode
 
     private static function centerIntroLabel($match)
     {
+        if (self::isLiveMatch($match)) {
+            return 'Uživo';
+        }
         if (self::isMatchPlayedByStatusOrScore($match)) {
             return 'Rezultat';
         }
         return 'Početak za:';
+    }
+
+    private static function isLiveMatch($match)
+    {
+        if (!is_object($match)) {
+            return false;
+        }
+        $homeScore = intval($match->home_score ?? 0);
+        $awayScore = intval($match->away_score ?? 0);
+        if ($homeScore >= 4 || $awayScore >= 4) {
+            return false;
+        }
+        $matchDate = trim((string) ($match->match_date ?? ''));
+        if ($matchDate === '' || $matchDate === '0000-00-00 00:00:00') {
+            return false;
+        }
+        $ts = strtotime($matchDate);
+        if ($ts === false) {
+            return false;
+        }
+        return intval($ts) <= intval(current_time('timestamp'));
     }
 
     private static function matchLocationLabel($match)

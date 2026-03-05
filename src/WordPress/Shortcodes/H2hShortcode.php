@@ -47,6 +47,7 @@ final class H2hShortcode
             $rd = intval($row->home_score);
             $rg = intval($row->away_score);
             $is_played = intval($row->played ?? 0) === 1 || $rd > 0 || $rg > 0;
+            $is_live = self::isLiveMatch($row);
             $hide_score = !$is_played && $rd === 0 && $rg === 0;
 
             $domacin_id = intval($row->home_club_post_id);
@@ -91,7 +92,7 @@ final class H2hShortcode
                     </div>
                     <div class="h2h-side" aria-label="Vreme utakmice">
                         <span class="h2h-side-top"><?php echo esc_html($datum); ?></span>
-                        <span class="h2h-side-bottom"><?php echo esc_html($is_played ? 'Kraj' : ($vreme !== '' ? $vreme : '--:--')); ?></span>
+                        <span class="h2h-side-bottom"><?php echo $is_live ? '<span class="opentt-live-badge">LIVE</span>' : esc_html($is_played ? 'Kraj' : ($vreme !== '' ? $vreme : '--:--')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                     </div>
                 </div>
             </a>
@@ -125,5 +126,26 @@ final class H2hShortcode
             return '';
         }
         return date_i18n('H:i', $ts);
+    }
+
+    private static function isLiveMatch($row)
+    {
+        if (!is_object($row)) {
+            return false;
+        }
+        $homeScore = intval($row->home_score ?? 0);
+        $awayScore = intval($row->away_score ?? 0);
+        if ($homeScore >= 4 || $awayScore >= 4) {
+            return false;
+        }
+        $matchDate = trim((string) ($row->match_date ?? ''));
+        if ($matchDate === '' || $matchDate === '0000-00-00 00:00:00') {
+            return false;
+        }
+        $ts = strtotime($matchDate);
+        if ($ts === false) {
+            return false;
+        }
+        return intval($ts) <= intval(current_time('timestamp'));
     }
 }

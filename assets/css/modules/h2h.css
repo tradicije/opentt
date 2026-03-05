@@ -1,3 +1,9 @@
+@keyframes openttLivePulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.45; }
+  100% { opacity: 1; }
+}
+
 .h2h-box {
   display: block;
   background: rgba(0, 0, 0, 0.16);
@@ -8,6 +14,23 @@
   text-decoration: none;
   color: inherit;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.opentt-live-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(176, 14, 30, 0.92);
+  border: 1px solid rgba(255, 130, 130, 0.7);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  animation: openttLivePulse 1.2s infinite;
 }
 .h2h-box:hover {
   background: rgba(8, 30, 82, 0.32);

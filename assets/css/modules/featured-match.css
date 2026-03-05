@@ -2,6 +2,29 @@
   margin-bottom: 20px;
 }
 
+@keyframes openttLivePulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.45; }
+  100% { opacity: 1; }
+}
+
+.opentt-live-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(176, 14, 30, 0.92);
+  border: 1px solid rgba(255, 130, 130, 0.75);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  animation: openttLivePulse 1.2s infinite;
+}
+
 .opentt-featured-match-card {
   --opentt-featured-home: #0b4db8;
   --opentt-featured-away: #0084ff;

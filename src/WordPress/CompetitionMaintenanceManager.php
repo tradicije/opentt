@@ -149,7 +149,7 @@ final class CompetitionMaintenanceManager
 
         $updated = $wpdb->query($wpdb->prepare(
             "UPDATE {$matchesTable}
-             SET played = CASE WHEN (home_score + away_score) > 0 THEN 1 ELSE 0 END
+             SET played = CASE WHEN (home_score >= 4 OR away_score >= 4) THEN 1 ELSE 0 END
              WHERE liga_slug=%s AND sezona_slug=%s",
             $leagueSlug,
             $seasonSlug

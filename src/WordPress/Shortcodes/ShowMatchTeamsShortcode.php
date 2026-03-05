@@ -67,6 +67,7 @@ final class ShowMatchTeamsShortcode
         $match_raw_date = (string) ($row->match_date ?? '');
         $match_ts = strtotime($match_raw_date);
         $now_ts = current_time('timestamp');
+        $is_live_match = ($match_ts !== false && intval($match_ts) <= intval($now_ts) && $home_score < 4 && $away_score < 4);
         $is_future_match = ($match_ts !== false && intval($match_ts) > intval($now_ts));
         $is_unplayed = ($played_flag !== null ? $played_flag !== 1 : false) || $is_future_match || $is_score_zero;
         $target_date = self::matchTargetDateAttr($match_raw_date);
@@ -117,7 +118,11 @@ final class ShowMatchTeamsShortcode
                     <span class="opentt-ekipe-name"><?php echo esc_html($home_name); ?></span>
                 </a>
 
-                <?php if ($is_unplayed && $match_time_label !== ''): ?>
+                <?php if ($is_live_match): ?>
+                    <div class="opentt-ekipe-score opentt-ekipe-score-time">
+                        <span class="opentt-live-badge">LIVE</span>
+                    </div>
+                <?php elseif ($is_unplayed && $match_time_label !== ''): ?>
                     <div class="opentt-ekipe-score opentt-ekipe-score-time">
                         <span class="opentt-ekipe-time-label">Početak utakmice za:</span>
                         <span id="<?php echo esc_attr($countdown_uid); ?>" class="opentt-ekipe-time" data-opentt-target="<?php echo esc_attr($target_date); ?>"><?php echo esc_html($match_time_label); ?></span>
@@ -152,7 +157,7 @@ final class ShowMatchTeamsShortcode
                 </div>
             <?php endif; ?>
         </div>
-        <?php if ($is_unplayed): ?>
+        <?php if ($is_unplayed && !$is_live_match): ?>
         <script>
         (function(){
             var el = document.getElementById('<?php echo esc_js($countdown_uid); ?>');

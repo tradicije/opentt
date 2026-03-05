@@ -895,6 +895,7 @@ final class OpenTT_Unified_Core
 
         add_submenu_page('stkb-unified', 'Kontrolna tabla', 'Kontrolna tabla', self::CAP, 'stkb-unified', [__CLASS__, 'render_dashboard_page']);
         add_submenu_page('stkb-unified', 'Utakmice', 'Utakmice', self::CAP, 'stkb-unified-matches', [__CLASS__, 'render_matches_page']);
+        add_submenu_page('stkb-unified', 'Uživo', 'Uživo', self::CAP, 'stkb-unified-live', [__CLASS__, 'render_live_page']);
         add_submenu_page('stkb-unified', 'Klubovi', 'Klubovi', self::CAP, 'stkb-unified-clubs', [__CLASS__, 'render_clubs_page']);
         add_submenu_page('stkb-unified', 'Igrači', 'Igrači', self::CAP, 'stkb-unified-players', [__CLASS__, 'render_players_page']);
         add_submenu_page('stkb-unified', 'Takmičenja', 'Takmičenja', self::CAP, 'stkb-unified-competitions', [__CLASS__, 'render_competition_rules_page']);
@@ -1353,6 +1354,78 @@ JS;
             echo '</tr>';
         }
         echo '</tbody></table></div></form></div>';
+    }
+
+    public static function render_live_page()
+    {
+        self::require_cap();
+        global $wpdb;
+        $table = OpenTT_Unified_Core::db_table('matches');
+        $games_table = OpenTT_Unified_Core::db_table('games');
+
+        echo '<div class="wrap opentt-admin">';
+        self::render_admin_topbar();
+        echo '<h1>Uživo</h1>';
+        echo '<p class="description">U LIVE modu su utakmice kojima je isteklo vreme početka, a još nije postignut završni rezultat (prvi do 4).</p>';
+
+        if (!self::table_exists($table) || !self::table_exists($games_table)) {
+            echo '<p>Nema dostupnih tabela za prikaz.</p></div>';
+            return;
+        }
+
+        $now_mysql = current_time('mysql');
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT m.*, COALESCE(gc.games_count,0) AS games_count
+             FROM {$table} m
+             LEFT JOIN (
+                SELECT match_id, COUNT(*) AS games_count
+                FROM {$games_table}
+                GROUP BY match_id
+             ) gc ON gc.match_id = m.id
+             WHERE m.match_date IS NOT NULL
+               AND m.match_date <> '0000-00-00 00:00:00'
+               AND m.match_date <= %s
+               AND m.home_score < 4
+               AND m.away_score < 4
+             ORDER BY m.match_date ASC, m.id ASC
+             LIMIT 400",
+            $now_mysql
+        )) ?: [];
+
+        if (empty($rows)) {
+            echo '<p>Trenutno nema utakmica u LIVE modu.</p></div>';
+            return;
+        }
+
+        echo '<p class="opentt-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
+        echo '<div class="opentt-table-scroll">';
+        echo '<table class="widefat striped"><thead><tr><th>LIVE</th><th>Liga</th><th>Sezona</th><th>Kolo</th><th>Utakmica</th><th>Rezultat</th><th>Partije</th><th>Datum</th><th>Akcije</th></tr></thead><tbody>';
+        foreach ($rows as $m) {
+            $home = get_the_title((int) $m->home_club_post_id);
+            $away = get_the_title((int) $m->away_club_post_id);
+            $edit_url = admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . (int) $m->id);
+            $result_url = $edit_url . '#opentt-match-score-row';
+            $games_url = $edit_url . '#opentt-games-section';
+            $front_url = self::match_permalink($m);
+            $games_count = isset($m->games_count) ? intval($m->games_count) : 0;
+
+            echo '<tr>';
+            echo '<td><span class="opentt-live-badge">LIVE</span></td>';
+            echo '<td>' . esc_html((string) $m->liga_slug) . '</td>';
+            echo '<td>' . esc_html((string) $m->sezona_slug) . '</td>';
+            echo '<td>' . esc_html(self::kolo_name_from_slug((string) $m->kolo_slug)) . '</td>';
+            echo '<td>' . esc_html((string) $home . ' — ' . (string) $away) . '</td>';
+            echo '<td>' . esc_html((string) $m->home_score . ' : ' . (string) $m->away_score) . '</td>';
+            echo '<td><strong>' . ($games_count > 0 ? '✓' : '✗') . '</strong> <span style="opacity:.75;">(' . esc_html((string) $games_count) . ')</span></td>';
+            echo '<td>' . esc_html(self::display_match_date((string) $m->match_date)) . '</td>';
+            echo '<td>';
+            echo '<a class="button button-small" href="' . esc_url($result_url) . '">Rezultat</a> ';
+            echo '<a class="button button-small" href="' . esc_url($games_url) . '">Partije</a> ';
+            echo '<a class="button button-small" href="' . esc_url($front_url) . '" target="_blank" rel="noopener">Frontend</a>';
+            echo '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table></div></div>';
     }
 
     public static function render_clubs_page()
@@ -1824,6 +1897,7 @@ HTML;
         echo '<div class="opentt-admin-actions">';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified')) . '">Kontrolna tabla</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-matches')) . '">Utakmice</a>';
+        echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-live')) . '">Uživo</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-clubs')) . '">Klubovi</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-players')) . '">Igrači</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-competitions')) . '">Takmičenja</a>';
@@ -1876,7 +1950,7 @@ HTML;
         echo '<tr data-opentt-step="1"><th>Lokacija</th><td><input name="location" type="text" class="regular-text" value="' . esc_attr($m_location) . '" placeholder="Hala, sala ili adresa"><p class="description">Menjaj ovo polje samo ako se utakmica ne igra kod domaćina.</p></td></tr>';
         echo '<tr data-opentt-step="2"><th>Domaći klub</th><td>' . self::clubs_dropdown_admin('home_club_post_id', $m_home, true) . '</td></tr>';
         echo '<tr data-opentt-step="2"><th>Gostujući klub</th><td>' . self::clubs_dropdown_admin('away_club_post_id', $m_away, true) . '</td></tr>';
-        echo '<tr data-opentt-step="2"><th>Rezultat</th><td><input name="home_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_hs) . '" style="width:90px;"> : <input name="away_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_as) . '" style="width:90px;"></td></tr>';
+        echo '<tr id="opentt-match-score-row" data-opentt-step="2"><th>Rezultat</th><td><input name="home_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_hs) . '" style="width:90px;"> : <input name="away_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_as) . '" style="width:90px;"></td></tr>';
         echo '<tr data-opentt-step="2"><th>Featured match</th><td><label><input type="checkbox" name="featured" value="1" ' . checked($m_featured, 1, false) . '> Istakni ovu utakmicu</label></td></tr>';
         echo '<tr data-opentt-step="3"><th>Potvrda</th><td><p class="description">Proveri podatke i klikni na dugme za čuvanje.</p></td></tr>';
         echo '</tbody></table>';
@@ -1914,7 +1988,7 @@ HTML;
             $expected_doubles_order = ($match_format === 'format_b') ? 7 : 4;
             $all_players_index = self::all_players_admin_index();
 
-            echo '<hr><h2>Partije (batch unos)</h2>';
+            echo '<hr><h2 id="opentt-games-section">Partije (batch unos)</h2>';
             echo '<p class="description"><strong>Limit partija po rezultatu:</strong> ' . esc_html((string) $max_games) . ' (rezultat ' . esc_html((string) ((int) $match->home_score)) . ':' . esc_html((string) ((int) $match->away_score)) . '). Trenutno uneto: ' . esc_html((string) $current_games) . '.</p>';
             echo '<p class="description">Unesi sve partije i setove odjednom, pa klikni <strong>Sačuvaj sve partije</strong>. Prazna partija se briše (ako je ranije postojala).</p>';
             echo '<p class="description">Dubl partija je automatski određena pravilima takmičenja: <strong>#' . (int) $expected_doubles_order . '</strong>.</p>';
