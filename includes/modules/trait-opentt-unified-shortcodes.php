@@ -1337,6 +1337,7 @@ trait OpenTT_Unified_Shortcodes_Trait
 
         ob_start();
         echo '<div class="opentt-grid-wrapper"><div class="opentt-grid cols-' . intval($columns) . '">';
+        $last_kolo_slug = null;
         foreach ($rows as $row) {
             $home_id = intval($row->home_club_post_id);
             $away_id = intval($row->away_club_post_id);
@@ -1346,14 +1347,21 @@ trait OpenTT_Unified_Shortcodes_Trait
             $is_upcoming_no_score = !$is_played && $rd === 0 && $rg === 0;
             $home_win = ($rd === 4);
             $away_win = ($rg === 4);
+            $kolo_slug = sanitize_title((string) $row->kolo_slug);
+            $kolo_no = self::extract_round_no($kolo_slug);
+            $kolo_name = self::kolo_heading_label($kolo_slug, $kolo_no);
             $date = self::display_match_date($row->match_date);
             $time = self::display_match_time($row->match_date);
             $time_label = $time !== '' ? $time : '--:--';
             $link = self::match_permalink($row);
 
+            if ($kolo_slug !== '' && $kolo_slug !== $last_kolo_slug) {
+                echo '<div class="opentt-grid-round-heading" data-kolo-slug="' . esc_attr($kolo_slug) . '"><span>' . esc_html($kolo_name) . '</span></div>';
+                $last_kolo_slug = $kolo_slug;
+            }
+
             $attr = '';
             if ($with_kolo_attr) {
-                $kolo_slug = sanitize_title((string) $row->kolo_slug);
                 $match_ts = strtotime((string) $row->match_date);
                 if ($match_ts === false) {
                     $match_ts = 0;
@@ -1363,7 +1371,8 @@ trait OpenTT_Unified_Shortcodes_Trait
                     $match_date_iso = '';
                 }
                 $attr = ' data-kolo-slug="' . esc_attr($kolo_slug) . '"';
-                $attr .= ' data-kolo-no="' . esc_attr((string) self::extract_round_no($kolo_slug)) . '"';
+                $attr .= ' data-kolo-name="' . esc_attr($kolo_name) . '"';
+                $attr .= ' data-kolo-no="' . esc_attr((string) $kolo_no) . '"';
                 $attr .= ' data-match-ts="' . esc_attr((string) intval($match_ts)) . '"';
                 $attr .= ' data-match-date="' . esc_attr($match_date_iso) . '"';
                 $attr .= ' data-played="' . esc_attr((string) intval($row->played)) . '"';
@@ -1573,6 +1582,20 @@ trait OpenTT_Unified_Shortcodes_Trait
             return '';
         }
         return date_i18n('H:i', $ts);
+    }
+
+    private static function kolo_heading_label($kolo_slug, $kolo_no = null)
+    {
+        $kolo_slug = sanitize_title((string) $kolo_slug);
+        $kolo_no = ($kolo_no === null) ? self::extract_round_no($kolo_slug) : intval($kolo_no);
+        if ($kolo_no > 0) {
+            return $kolo_no . '. kolo';
+        }
+        $kolo_name = self::kolo_name_from_slug($kolo_slug);
+        if ($kolo_name !== '') {
+            return $kolo_name;
+        }
+        return self::slug_to_title($kolo_slug);
     }
 
     private static function match_permalink($row)

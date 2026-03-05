@@ -1021,6 +1021,25 @@ thead tr th {
 .opentt-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
 .opentt-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
 
+.opentt-grid-round-heading {
+  grid-column: 1 / -1;
+  margin: 6px 0 2px;
+  padding: 2px 0;
+}
+
+.opentt-grid-round-heading span {
+  display: inline-block;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #eaf2ff;
+  background: rgba(142, 197, 255, 0.14);
+  border: 1px solid #8ec5ff4d;
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
 /* === POJEDINAČNA UTAKMICA === */
 .opentt-item {
   border: 2px solid #ffffff26;

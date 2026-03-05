@@ -58,6 +58,7 @@ final class MatchesGridShortcode
         }
 
         if ($legacy_kolo_filter) {
+            $uid = 'opentt-grid-' . wp_unique_id();
             $kolo_map = [];
             foreach ($rows as $row) {
                 $slug = (string) $row->kolo_slug;
@@ -90,6 +91,7 @@ final class MatchesGridShortcode
 
             ob_start();
             echo (string) $call('shortcode_title_html', 'Utakmice');
+            echo '<div id="' . esc_attr($uid) . '" class="opentt-grid-legacy-filter-block">';
             echo '<div class="opentt-kolo-filter-wrap">';
             echo '<label for="opentt-kolo">Izaberi kolo:</label>';
             echo '<select id="opentt-kolo" onchange="openttFilterKoloChange(this)">';
@@ -100,16 +102,47 @@ final class MatchesGridShortcode
             echo '</select>';
             echo '</div>';
             echo (string) $call('render_matches_grid_html', $rows, $columns, true);
+            echo '</div>';
             ?>
             <script>
+            var openttLegacyGridRoot = document.getElementById('<?php echo esc_js($uid); ?>');
+            function openttRenderRoundHeadings() {
+                if (!openttLegacyGridRoot) { return; }
+                var grid = openttLegacyGridRoot.querySelector('.opentt-grid');
+                if (!grid) { return; }
+                grid.querySelectorAll('.opentt-grid-round-heading').forEach(function(node){ node.remove(); });
+                var items = Array.prototype.slice.call(grid.querySelectorAll('.opentt-item')).filter(function(item){
+                    return item.style.display !== 'none';
+                });
+                var lastSlug = '';
+                items.forEach(function(item){
+                    var slug = item.getAttribute('data-kolo-slug') || '';
+                    if (!slug || slug === lastSlug) { return; }
+                    var title = item.getAttribute('data-kolo-name') || '';
+                    var koloNo = parseInt(item.getAttribute('data-kolo-no') || '0', 10);
+                    if (!title && koloNo > 0) { title = String(koloNo) + '. kolo'; }
+                    if (!title) { title = slug; }
+                    var head = document.createElement('div');
+                    head.className = 'opentt-grid-round-heading';
+                    head.setAttribute('data-kolo-slug', slug);
+                    var text = document.createElement('span');
+                    text.textContent = title;
+                    head.appendChild(text);
+                    grid.insertBefore(head, item);
+                    lastSlug = slug;
+                });
+            }
             function openttFilterKoloChange(sel) {
                 var selected = sel.value;
-                var items = document.querySelectorAll('.opentt-item');
+                if (!openttLegacyGridRoot) { return; }
+                var items = openttLegacyGridRoot.querySelectorAll('.opentt-item');
                 items.forEach(function(it){
                     var slug = it.getAttribute('data-kolo-slug') || '';
                     it.style.display = (!selected || slug === selected) ? 'block' : 'none';
                 });
+                openttRenderRoundHeadings();
             }
+            openttRenderRoundHeadings();
             </script>
             <?php
             return ob_get_clean();
@@ -359,6 +392,27 @@ final class MatchesGridShortcode
                         return dateB - dateA;
                     }
 
+                    function renderRoundHeadings(renderedItems) {
+                        grid.querySelectorAll('.opentt-grid-round-heading').forEach(function(node){ node.remove(); });
+                        var lastSlug = '';
+                        (renderedItems || []).forEach(function(item){
+                            var slug = item.getAttribute('data-kolo-slug') || '';
+                            if (!slug || slug === lastSlug) { return; }
+                            var title = item.getAttribute('data-kolo-name') || '';
+                            var koloNo = parseInt(item.getAttribute('data-kolo-no') || '0', 10);
+                            if (!title && koloNo > 0) { title = String(koloNo) + '. kolo'; }
+                            if (!title) { title = slug; }
+                            var head = document.createElement('div');
+                            head.className = 'opentt-grid-round-heading';
+                            head.setAttribute('data-kolo-slug', slug);
+                            var text = document.createElement('span');
+                            text.textContent = title;
+                            head.appendChild(text);
+                            grid.insertBefore(head, item);
+                            lastSlug = slug;
+                        });
+                    }
+
                     function render() {
                         var sort = sortSelect ? (sortSelect.value || 'kolo_desc') : 'kolo_desc';
                         var visible = allItems.filter(matchesFilter).sort(function(a, b){
@@ -373,6 +427,7 @@ final class MatchesGridShortcode
                             item.style.display = '';
                             grid.appendChild(item);
                         });
+                        renderRoundHeadings(toRender);
                         if (infiniteEnabled && sentinel) {
                             sentinel.style.display = (toRender.length < visible.length) ? '' : 'none';
                         }
@@ -715,7 +770,7 @@ final class MatchesGridShortcode
             ob_start();
             echo (string) $call('shortcode_title_html', 'Utakmice');
             echo '<div id="' . esc_attr($uid) . '" class="opentt-grid-infinite-block">';
-            echo (string) $call('render_matches_grid_html', $rows, $columns, false);
+            echo (string) $call('render_matches_grid_html', $rows, $columns, true);
             echo '<div class="opentt-grid-sentinel" aria-hidden="true"></div>';
             echo '</div>';
             ?>
@@ -730,6 +785,27 @@ final class MatchesGridShortcode
                 var visibleCount = chunkSize;
                 var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-item'));
 
+                function renderRoundHeadings(renderedItems) {
+                    grid.querySelectorAll('.opentt-grid-round-heading').forEach(function(node){ node.remove(); });
+                    var lastSlug = '';
+                    (renderedItems || []).forEach(function(item){
+                        var slug = item.getAttribute('data-kolo-slug') || '';
+                        if (!slug || slug === lastSlug) { return; }
+                        var title = item.getAttribute('data-kolo-name') || '';
+                        var koloNo = parseInt(item.getAttribute('data-kolo-no') || '0', 10);
+                        if (!title && koloNo > 0) { title = String(koloNo) + '. kolo'; }
+                        if (!title) { title = slug; }
+                        var head = document.createElement('div');
+                        head.className = 'opentt-grid-round-heading';
+                        head.setAttribute('data-kolo-slug', slug);
+                        var text = document.createElement('span');
+                        text.textContent = title;
+                        head.appendChild(text);
+                        grid.insertBefore(head, item);
+                        lastSlug = slug;
+                    });
+                }
+
                 function render() {
                     allItems.forEach(function(item){ item.style.display = 'none'; });
                     var shown = allItems.slice(0, Math.max(1, visibleCount));
@@ -737,6 +813,7 @@ final class MatchesGridShortcode
                         item.style.display = '';
                         grid.appendChild(item);
                     });
+                    renderRoundHeadings(shown);
                     sentinel.style.display = shown.length < allItems.length ? '' : 'none';
                 }
 
