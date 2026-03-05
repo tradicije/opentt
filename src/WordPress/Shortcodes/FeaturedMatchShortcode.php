@@ -78,7 +78,6 @@ final class FeaturedMatchShortcode
         echo '</div>';
         echo '<div class="opentt-featured-center">';
         if ($isLive) {
-            echo '<div class="opentt-featured-countdown-label">Uživo</div>';
             echo '<div class="opentt-live-badge">LIVE</div>';
         } else {
             echo '<div class="opentt-featured-countdown-label">' . esc_html($centerIntroLabel) . '</div>';
