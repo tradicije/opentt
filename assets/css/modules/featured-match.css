@@ -8,6 +8,18 @@
   100% { opacity: 1; }
 }
 
+@keyframes openttLiveCardPulse {
+  0% {
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(214, 36, 58, 0.24);
+  }
+  50% {
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(214, 36, 58, 0.34);
+  }
+  100% {
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(214, 36, 58, 0.24);
+  }
+}
+
 .opentt-live-badge {
   display: inline-flex;
   align-items: center;
@@ -46,6 +58,20 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.opentt-featured-match-card.opentt-featured-live {
+  background:
+    linear-gradient(135deg, rgba(183, 20, 43, 0.58), rgba(74, 8, 22, 0.66)),
+    linear-gradient(
+      110deg,
+      var(--opentt-featured-home) 0%,
+      rgba(3, 23, 69, 0.95) 45%,
+      rgba(3, 23, 69, 0.95) 55%,
+      var(--opentt-featured-away) 100%
+    );
+  border: 1px solid rgba(244, 98, 117, 0.62);
+  animation: openttLiveCardPulse 1.2s ease-in-out infinite;
+}
+
 .opentt-featured-match-card::before {
   content: "";
   position: absolute;
@@ -66,6 +92,16 @@
 .opentt-featured-meta-bottom {
   position: relative;
   z-index: 1;
+}
+
+.opentt-featured-match-card.opentt-featured-live .opentt-live-badge {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+  animation: openttLivePulse 1.2s ease-in-out infinite;
 }
 
 .opentt-featured-meta-top {

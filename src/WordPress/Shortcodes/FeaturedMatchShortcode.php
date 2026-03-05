@@ -67,7 +67,7 @@ final class FeaturedMatchShortcode
         ob_start();
         echo '<div class="opentt-featured-match-wrap">';
         echo (string) $call('shortcode_title_html', (string) $atts['title']);
-        echo '<a id="' . esc_attr($uid) . '" class="opentt-featured-match-card" href="' . esc_url($matchLink) . '" style="--opentt-featured-home:' . esc_attr($homeColor) . ';--opentt-featured-away:' . esc_attr($awayColor) . ';">';
+        echo '<a id="' . esc_attr($uid) . '" class="opentt-featured-match-card' . ($isLive ? ' opentt-featured-live' : '') . '" href="' . esc_url($matchLink) . '" style="--opentt-featured-home:' . esc_attr($homeColor) . ';--opentt-featured-away:' . esc_attr($awayColor) . ';">';
         if ($metaTop !== '') {
             echo '<div class="opentt-featured-meta-top">' . esc_html($metaTop) . '</div>';
         }

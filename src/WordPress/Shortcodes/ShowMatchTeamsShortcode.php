@@ -93,7 +93,7 @@ final class ShowMatchTeamsShortcode
         ob_start();
         ?>
         <?php echo (string) $call('shortcode_title_html', 'Prikaz ekipa'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        <div class="opentt-ekipe">
+        <div class="opentt-ekipe<?php echo $is_live_match ? ' opentt-ekipe-live' : ''; ?>">
             <div class="opentt-ekipe-meta">
                 <?php if ($competition_url !== ''): ?>
                     <a href="<?php echo esc_url($competition_url); ?>" class="opentt-ekipe-meta-link"><?php echo esc_html($competition_name); ?></a>

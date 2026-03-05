@@ -8,6 +8,21 @@ body a {
   100% { opacity: 1; }
 }
 
+@keyframes openttLiveCardPulse {
+  0% {
+    background-color: rgba(110, 8, 18, 0.34);
+    box-shadow: 0 0 0 0 rgba(214, 36, 58, 0.26);
+  }
+  50% {
+    background-color: rgba(147, 12, 26, 0.44);
+    box-shadow: 0 0 0 2px rgba(214, 36, 58, 0.38);
+  }
+  100% {
+    background-color: rgba(110, 8, 18, 0.34);
+    box-shadow: 0 0 0 0 rgba(214, 36, 58, 0.26);
+  }
+}
+
 .opentt-live-badge {
   display: inline-flex;
   align-items: center;
@@ -348,6 +363,24 @@ a.opentt-grid-cal-preview-more:focus {
 }
 .opentt-item:hover {
   box-shadow: 0 2px 8px #0084FF26;
+}
+
+.opentt-item.opentt-item-live {
+  border-color: rgba(244, 98, 117, 0.62);
+  background:
+    linear-gradient(135deg, rgba(183, 20, 43, 0.44), rgba(74, 8, 22, 0.5)),
+    #000a26;
+  animation: openttLiveCardPulse 1.2s ease-in-out infinite;
+}
+
+.opentt-item.opentt-item-live .opentt-live-badge {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+  animation: openttLivePulse 1.2s ease-in-out infinite;
 }
 
 .opentt-item > a {

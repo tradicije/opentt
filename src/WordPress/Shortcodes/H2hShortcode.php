@@ -72,7 +72,7 @@ final class H2hShortcode
             $vreme = self::displayMatchTime((string) ($row->match_date ?? ''));
             $link = (string) $call('match_permalink', $row);
             ?>
-            <a href="<?php echo esc_url($link); ?>" class="h2h-box">
+            <a href="<?php echo esc_url($link); ?>" class="h2h-box<?php echo $is_live ? ' h2h-live' : ''; ?>">
                 <div class="h2h-main">
                     <div class="h2h-teams">
                         <div class="h2h-club">

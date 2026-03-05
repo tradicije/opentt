@@ -1381,7 +1381,8 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $attr .= ' data-away-club-id="' . esc_attr((string) $away_id) . '"';
             }
 
-            echo '<div class="opentt-item"' . $attr . '>';
+            $item_class = 'opentt-item' . ($is_live ? ' opentt-item-live' : '');
+            echo '<div class="' . esc_attr($item_class) . '"' . $attr . '>';
             echo '<a href="' . esc_url($link) . '">';
             echo '<div class="opentt-item-main">';
             echo '<div class="opentt-item-teams">';

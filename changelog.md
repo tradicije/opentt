@@ -41,6 +41,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Hardened LIVE parser behavior across shortcodes by removing permissive `strtotime` fallback from match timestamp detection, preventing false early LIVE states caused by ambiguous date-string interpretation.
 - Fixed nondeterministic match-context selection by adding explicit ordering (`updated_at`/`created_at`, then `id DESC`) in `db_get_match_by_legacy_id` and `db_get_match_by_keys`, so frontend shortcodes consistently use the latest match row when historical duplicates exist.
 - Switched LIVE workflow to fully manual control: added `live` match flag (schema/import-export), manual LIVE toggle in matches list and match edit form, `Uživo` tab now lists only manually flagged matches, and each LIVE row now has `Završi utakmicu` action to exit LIVE mode explicitly.
+- Refined LIVE card visuals across frontend shortcodes: LIVE cards now use a synchronized red-tint pulse on the whole card, while the `LIVE` badge switches to white text-only pulse (no badge background) for cleaner contrast.
 
 #### Admin & Data
 
