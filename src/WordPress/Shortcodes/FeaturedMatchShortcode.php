@@ -212,6 +212,35 @@ final class FeaturedMatchShortcode
             return null;
         }
 
+        $rankMap = [];
+        $standings = $call('db_build_standings_for_competition', $liga, $sezona, null);
+        if (is_array($standings)) {
+            foreach ($standings as $r) {
+                $clubId = intval($r['club_id'] ?? 0);
+                $rank = intval($r['rank'] ?? 0);
+                if ($clubId > 0 && $rank > 0) {
+                    $rankMap[$clubId] = $rank;
+                }
+            }
+        }
+
+        $nowTs = current_time('timestamp');
+
+        if (self::matchesTableHasColumn($table, 'live')) {
+            $liveWhere = ['liga_slug=%s', 'live=1'];
+            $liveParams = [$liga];
+            if ($sezona !== '') {
+                $liveWhere[] = 'sezona_slug=%s';
+                $liveParams[] = $sezona;
+            }
+            $liveSql = "SELECT * FROM {$table} WHERE " . implode(' AND ', $liveWhere) . " ORDER BY match_date ASC, id ASC LIMIT 120";
+            $liveRows = $wpdb->get_results($wpdb->prepare($liveSql, $liveParams)) ?: [];
+            $bestLive = self::pickBestLiveCandidate($liveRows, $rankMap, $nowTs);
+            if ($bestLive) {
+                return $bestLive;
+            }
+        }
+
         $where = ['liga_slug=%s', 'match_date IS NOT NULL', "match_date <> '0000-00-00 00:00:00'"];
         $params = [$liga];
         if ($sezona !== '') {
@@ -227,19 +256,6 @@ final class FeaturedMatchShortcode
             return null;
         }
 
-        $rankMap = [];
-        $standings = $call('db_build_standings_for_competition', $liga, $sezona, null);
-        if (is_array($standings)) {
-            foreach ($standings as $r) {
-                $clubId = intval($r['club_id'] ?? 0);
-                $rank = intval($r['rank'] ?? 0);
-                if ($clubId > 0 && $rank > 0) {
-                    $rankMap[$clubId] = $rank;
-                }
-            }
-        }
-
-        $nowTs = current_time('timestamp');
         $timedRows = [];
         $dateOnlyRows = [];
 
@@ -265,6 +281,39 @@ final class FeaturedMatchShortcode
             return $bestTimed;
         }
         return self::pickBestAutoCandidate($dateOnlyRows, $rankMap, $nowTs);
+    }
+
+    private static function pickBestLiveCandidate(array $rows, array $rankMap, $nowTs)
+    {
+        $best = null;
+        $bestRankSum = null;
+        $bestDateDiff = null;
+        $bestId = 0;
+        foreach ($rows as $row) {
+            if (!is_object($row)) {
+                continue;
+            }
+            $homeId = intval($row->home_club_post_id ?? 0);
+            $awayId = intval($row->away_club_post_id ?? 0);
+            $rankSum = intval($rankMap[$homeId] ?? 9999) + intval($rankMap[$awayId] ?? 9999);
+
+            $ts = self::matchTimestamp((string) ($row->match_date ?? ''));
+            $dateDiff = ($ts === false) ? PHP_INT_MAX : abs(intval($nowTs) - intval($ts));
+            $rowId = intval($row->id ?? 0);
+
+            if (
+                $best === null
+                || $rankSum < $bestRankSum
+                || ($rankSum === $bestRankSum && $dateDiff < $bestDateDiff)
+                || ($rankSum === $bestRankSum && $dateDiff === $bestDateDiff && $rowId > $bestId)
+            ) {
+                $best = $row;
+                $bestRankSum = $rankSum;
+                $bestDateDiff = $dateDiff;
+                $bestId = $rowId;
+            }
+        }
+        return $best;
     }
 
     private static function pickBestAutoCandidate(array $rows, array $rankMap, $nowTs)
@@ -395,6 +444,18 @@ final class FeaturedMatchShortcode
             }
         }
         return true;
+    }
+
+    private static function matchesTableHasColumn($table, $columnName)
+    {
+        global $wpdb;
+        $table = (string) $table;
+        $columnName = sanitize_key((string) $columnName);
+        if ($table === '' || $columnName === '') {
+            return false;
+        }
+        $col = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", $columnName));
+        return !empty($col);
     }
 
     private static function clubJerseyColor($clubId, $fallback)

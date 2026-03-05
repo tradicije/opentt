@@ -45,6 +45,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Increased LIVE pulse visibility on full cards (brightness/saturation + border/shadow pulse), keeping synchronized timing with text-only white `LIVE` badge animation.
 - Improved mobile `opentt_prikaz_ekipa` LIVE layout: center block now stacks into 3 rows (`home score`, `LIVE`, `away score`) instead of a single horizontal row.
 - Added a small animated dot indicator before `LIVE` text inside the badge (synchronized pulse) for clearer live-match affordance across frontend card variants.
+- Updated `opentt_featured_match` auto mode to prioritize manually flagged LIVE matches (`live=1`) in active context; when multiple LIVE matches exist, selection now prefers derby quality (better combined standings ranks) with kickoff proximity tie-break.
 
 #### Admin & Data
 
