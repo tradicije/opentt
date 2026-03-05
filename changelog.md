@@ -29,6 +29,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Updated featured-match card to use uninterrupted edge-to-edge gradient (without solid side bars) while retaining subtle top highlight overlay.
 - Added center helper label in `opentt_featured_match` above countdown (`Početak utakmice za:`; `Rezultat` for played matches) for clearer context.
 - Redesigned `opentt_matches_grid` cards to a two-row team layout with a right-side date/time status panel (removed third meta row), including conditional behavior: played matches show `Datum + Kraj`, upcoming `0:0` matches hide scores and show `Datum + Vreme`.
+- Applied the same two-row card pattern to `opentt_h2h` (team rows + right-side date/status panel), including conditional score hiding for upcoming `0:0` matches and `Kraj` status for played matches.
 
 #### Admin & Data
 

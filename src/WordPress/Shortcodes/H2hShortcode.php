@@ -46,9 +46,8 @@ final class H2hShortcode
         foreach ($rows as $row) {
             $rd = intval($row->home_score);
             $rg = intval($row->away_score);
-            if ($rd === 0 && $rg === 0) {
-                continue;
-            }
+            $is_played = intval($row->played ?? 0) === 1 || $rd > 0 || $rg > 0;
+            $hide_score = !$is_played && $rd === 0 && $rg === 0;
 
             $domacin_id = intval($row->home_club_post_id);
             $gost_id = intval($row->away_club_post_id);
@@ -68,29 +67,63 @@ final class H2hShortcode
                 $pobednik = 'gost';
             }
 
-            $kolo = (string) $call('kolo_name_from_slug', (string) $row->kolo_slug);
-            $datum = (string) $call('display_match_date_long', $row->match_date);
+            $datum = self::displayMatchDate((string) ($row->match_date ?? ''));
+            $vreme = self::displayMatchTime((string) ($row->match_date ?? ''));
             $link = (string) $call('match_permalink', $row);
             ?>
             <a href="<?php echo esc_url($link); ?>" class="h2h-box">
-                <div class="h2h-club">
-                    <?php if ($grb_d): ?><img src="<?php echo esc_url($grb_d); ?>" alt="<?php echo esc_attr($domacin_title); ?>"><?php endif; ?>
-                    <span class="h2h-ime <?php echo esc_attr($pobednik === 'domacin' ? 'pobednik' : 'gubitnik'); ?>"><?php echo esc_html($domacin_title); ?></span>
-                    <span class="h2h-rez <?php echo esc_attr($pobednik === 'domacin' ? 'pobednik' : 'gubitnik'); ?>"><?php echo intval($rd); ?></span>
-                </div>
-                <div class="h2h-club">
-                    <?php if ($grb_g): ?><img src="<?php echo esc_url($grb_g); ?>" alt="<?php echo esc_attr($gost_title); ?>"><?php endif; ?>
-                    <span class="h2h-ime <?php echo esc_attr($pobednik === 'gost' ? 'pobednik' : 'gubitnik'); ?>"><?php echo esc_html($gost_title); ?></span>
-                    <span class="h2h-rez <?php echo esc_attr($pobednik === 'gost' ? 'pobednik' : 'gubitnik'); ?>"><?php echo intval($rg); ?></span>
-                </div>
-                <div class="h2h-meta">
-                    <span><?php echo esc_html($kolo); ?></span>
-                    <span><?php echo esc_html($datum); ?></span>
+                <div class="h2h-main">
+                    <div class="h2h-teams">
+                        <div class="h2h-club">
+                            <?php if ($grb_d): ?><img src="<?php echo esc_url($grb_d); ?>" alt="<?php echo esc_attr($domacin_title); ?>"><?php endif; ?>
+                            <span class="h2h-ime <?php echo esc_attr($pobednik === 'domacin' ? 'pobednik' : 'gubitnik'); ?>"><?php echo esc_html($domacin_title); ?></span>
+                            <?php if (!$hide_score): ?>
+                                <span class="h2h-rez <?php echo esc_attr($pobednik === 'domacin' ? 'pobednik' : 'gubitnik'); ?>"><?php echo intval($rd); ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="h2h-club">
+                            <?php if ($grb_g): ?><img src="<?php echo esc_url($grb_g); ?>" alt="<?php echo esc_attr($gost_title); ?>"><?php endif; ?>
+                            <span class="h2h-ime <?php echo esc_attr($pobednik === 'gost' ? 'pobednik' : 'gubitnik'); ?>"><?php echo esc_html($gost_title); ?></span>
+                            <?php if (!$hide_score): ?>
+                                <span class="h2h-rez <?php echo esc_attr($pobednik === 'gost' ? 'pobednik' : 'gubitnik'); ?>"><?php echo intval($rg); ?></span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="h2h-side" aria-label="Vreme utakmice">
+                        <span class="h2h-side-top"><?php echo esc_html($datum); ?></span>
+                        <span class="h2h-side-bottom"><?php echo esc_html($is_played ? 'Kraj' : ($vreme !== '' ? $vreme : '--:--')); ?></span>
+                    </div>
                 </div>
             </a>
             <?php
         }
 
         return ob_get_clean();
+    }
+
+    private static function displayMatchDate($matchDate)
+    {
+        $matchDate = (string) $matchDate;
+        if ($matchDate === '' || $matchDate === '0000-00-00 00:00:00') {
+            return '';
+        }
+        $ts = strtotime($matchDate);
+        if ($ts === false) {
+            return '';
+        }
+        return date_i18n('d.m.Y.', $ts);
+    }
+
+    private static function displayMatchTime($matchDate)
+    {
+        $matchDate = (string) $matchDate;
+        if ($matchDate === '' || $matchDate === '0000-00-00 00:00:00') {
+            return '';
+        }
+        $ts = strtotime($matchDate);
+        if ($ts === false) {
+            return '';
+        }
+        return date_i18n('H:i', $ts);
     }
 }

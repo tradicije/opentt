@@ -4,7 +4,7 @@ body a {
 
 .opentt-grid {
   display: grid;
-  gap: 16px;
+  gap: 24px;
 }
 .opentt-grid.cols-1 { grid-template-columns: repeat(1, 1fr); }
 .opentt-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }

@@ -1447,50 +1447,110 @@ thead tr th {
 
 .h2h-box {
   display: block;
-  background: #051041;
-  padding: 16px;
+  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 10px;
   border-radius: 8px;
   margin-bottom: 16px;
   text-decoration: none;
-  transition: background 0.3s;
-	border: solid 2px #ffffff26;
+  color: inherit;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .h2h-box:hover {
-  background: #000a26;
+  background: rgba(8, 30, 82, 0.32);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 2px 8px #0084FF26;
+}
+
+.h2h-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.h2h-teams {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 .h2h-club {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 5px;
+  min-height: 34px;
 }
 .h2h-club img {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
+  flex-shrink: 0;
 }
 .h2h-ime {
   flex-grow: 1;
   font-weight: 600;
   color: #ffffffa8;
+  font-size: 1rem;
 }
 .h2h-rez {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 1.2rem;
+  font-weight: 700;
   color: #ffffffa8;
+  min-width: 26px;
+  text-align: right;
 }
-.h2h-meta {
-  font-size: 13px;
-  color: #ffffffa8;
+
+.h2h-side {
+  min-width: 86px;
+  border-left: 2px solid #ffffff2e;
+  padding-left: 10px;
   display: flex;
-  justify-content: space-between;
-  border-top: 1px solid #ffffff22;
-  padding-top: 5px;
-  margin-top: 8px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  text-align: right;
+}
+
+.h2h-side-top,
+.h2h-side-bottom {
+  display: block;
+  white-space: nowrap;
+}
+
+.h2h-side-top {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #eef4ff;
+}
+
+.h2h-side-bottom {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #b7cbef;
 }
 .pobednik {
   color: #fff !important;
+}
+
+@media (max-width: 700px) {
+  .h2h-main {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .h2h-side {
+    min-width: 76px;
+    padding-left: 8px;
+  }
+
+  .h2h-side-top {
+    font-size: 0.8rem;
+  }
+
+  .h2h-side-bottom {
+    font-size: 0.76rem;
+  }
 }
 
 .snimak-utakmice-section {
