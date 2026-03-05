@@ -47,8 +47,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         $away_score = max(0, (int) ($_POST['away_score'] ?? 0));
         $played = ($home_score >= 4 || $away_score >= 4) ? 1 : 0;
         $featured = !empty($_POST['featured']) ? 1 : 0;
-        $match_date = (string) ($_POST['match_date'] ?? '');
-        $match_date = $match_date ? str_replace('T', ' ', $match_date) . ':00' : null;
+        $match_date = self::normalize_match_date((string) ($_POST['match_date'] ?? ''));
         $location = sanitize_text_field((string) ($_POST['location'] ?? ''));
 
         if (self::has_any_competition_rules() && $competition_rule_id <= 0) {
@@ -222,6 +221,30 @@ final class OpenTT_Unified_Admin_Match_Actions
             return;
         }
         $wpdb->query("ALTER TABLE {$table} ADD COLUMN location varchar(255) NOT NULL DEFAULT '' AFTER match_date");
+    }
+
+    private static function normalize_match_date($raw)
+    {
+        $raw = trim((string) $raw);
+        if ($raw === '') {
+            return null;
+        }
+
+        $raw = str_replace('T', ' ', $raw);
+        $formats = ['Y-m-d H:i:s', 'Y-m-d H:i', 'Y-m-d G:i:s', 'Y-m-d G:i'];
+        foreach ($formats as $format) {
+            $dt = \DateTimeImmutable::createFromFormat($format, $raw, wp_timezone());
+            if ($dt instanceof \DateTimeImmutable) {
+                return $dt->format('Y-m-d H:i:s');
+            }
+        }
+
+        $ts = strtotime($raw);
+        if ($ts === false) {
+            return null;
+        }
+
+        return wp_date('Y-m-d H:i:s', $ts);
     }
 
     public static function handle_delete_matches_bulk_admin()

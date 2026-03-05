@@ -1633,9 +1633,13 @@ trait OpenTT_Unified_Shortcodes_Trait
             $match_date .= ' 00:00:00';
         }
 
-        $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $match_date, wp_timezone());
-        if ($dt instanceof \DateTimeImmutable) {
-            if ($end_of_day_if_midnight && preg_match('/\s00:00:00$/', $match_date)) {
+        $formats = ['Y-m-d H:i:s', 'Y-m-d G:i:s', 'Y-m-d H:i', 'Y-m-d G:i'];
+        foreach ($formats as $format) {
+            $dt = \DateTimeImmutable::createFromFormat($format, $match_date, wp_timezone());
+            if (!($dt instanceof \DateTimeImmutable)) {
+                continue;
+            }
+            if ($end_of_day_if_midnight && preg_match('/\s00:00(?::00)?$/', $match_date)) {
                 $dt = $dt->setTime(23, 59, 59);
             }
             return $dt->getTimestamp();

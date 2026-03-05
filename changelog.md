@@ -36,6 +36,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added a new LIVE mode flow for matches after kickoff time expires: red blinking `LIVE` badges across key match shortcodes (`opentt_matches_grid`, `opentt_h2h`, `opentt_ekipe`, `opentt_featured_match`) and a new admin `Uživo` page listing active live matches with quick links for score updates and game entry.
 - Updated `opentt_ekipe` LIVE state center display to show score + badge in one row (`home_score LIVE away_score`) while a match is in live mode.
 - Fixed frontend match time drift by switching shortcode LIVE/countdown timestamp parsing from raw `strtotime` to WordPress-timezone-aware parsing (`wp_timezone`) across `opentt_ekipe`, `opentt_h2h`, `opentt_matches_grid`, and `opentt_featured_match`.
+- Reverted temporary timezone fallback override and restored shortcode timing to rely strictly on WordPress `General Settings > Timezone`.
+- Fixed LIVE-mode mismatch between frontend and admin `Uživo` page for legacy non-padded hour values (for example `6:50:00`): match-date save now normalizes to `Y-m-d H:i:s`, shortcode parsers accept both padded/non-padded hour formats, and admin LIVE query uses parsed datetime comparison instead of raw string ordering.
 
 #### Admin & Data
 

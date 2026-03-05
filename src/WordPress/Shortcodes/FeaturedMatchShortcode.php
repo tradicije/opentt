@@ -516,9 +516,13 @@ final class FeaturedMatchShortcode
             $matchDate .= ' 00:00:00';
         }
 
-        $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $matchDate, wp_timezone());
-        if ($dt instanceof \DateTimeImmutable) {
-            if ($endOfDayIfMidnight && preg_match('/\s00:00:00$/', $matchDate)) {
+        $formats = ['Y-m-d H:i:s', 'Y-m-d G:i:s', 'Y-m-d H:i', 'Y-m-d G:i'];
+        foreach ($formats as $format) {
+            $dt = \DateTimeImmutable::createFromFormat($format, $matchDate, wp_timezone());
+            if (!($dt instanceof \DateTimeImmutable)) {
+                continue;
+            }
+            if ($endOfDayIfMidnight && preg_match('/\s00:00(?::00)?$/', $matchDate)) {
                 $dt = $dt->setTime(23, 59, 59);
             }
             return $dt->getTimestamp();

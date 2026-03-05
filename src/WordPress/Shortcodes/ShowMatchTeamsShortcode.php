@@ -221,9 +221,12 @@ final class ShowMatchTeamsShortcode
         }
 
         $tz = wp_timezone();
-        $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $matchDate, $tz);
-        if ($dt instanceof \DateTimeImmutable) {
-            return $dt->getTimestamp();
+        $formats = ['Y-m-d H:i:s', 'Y-m-d G:i:s', 'Y-m-d H:i', 'Y-m-d G:i'];
+        foreach ($formats as $format) {
+            $dt = \DateTimeImmutable::createFromFormat($format, $matchDate, $tz);
+            if ($dt instanceof \DateTimeImmutable) {
+                return $dt->getTimestamp();
+            }
         }
 
         $ts = strtotime($matchDate);

@@ -159,9 +159,12 @@ final class H2hShortcode
             $matchDate .= ' 00:00:00';
         }
 
-        $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $matchDate, wp_timezone());
-        if ($dt instanceof \DateTimeImmutable) {
-            return $dt->getTimestamp();
+        $formats = ['Y-m-d H:i:s', 'Y-m-d G:i:s', 'Y-m-d H:i', 'Y-m-d G:i'];
+        foreach ($formats as $format) {
+            $dt = \DateTimeImmutable::createFromFormat($format, $matchDate, wp_timezone());
+            if ($dt instanceof \DateTimeImmutable) {
+                return $dt->getTimestamp();
+            }
         }
 
         $ts = strtotime($matchDate);

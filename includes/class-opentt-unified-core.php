@@ -1384,10 +1384,16 @@ JS;
              ) gc ON gc.match_id = m.id
              WHERE m.match_date IS NOT NULL
                AND m.match_date <> '0000-00-00 00:00:00'
-               AND m.match_date <= %s
+               AND COALESCE(
+                    STR_TO_DATE(m.match_date, '%%Y-%%m-%%d %%H:%%i:%%s'),
+                    STR_TO_DATE(m.match_date, '%%Y-%%m-%%d %%k:%%i:%%s')
+               ) <= %s
                AND m.home_score < 4
                AND m.away_score < 4
-             ORDER BY m.match_date ASC, m.id ASC
+             ORDER BY COALESCE(
+                    STR_TO_DATE(m.match_date, '%%Y-%%m-%%d %%H:%%i:%%s'),
+                    STR_TO_DATE(m.match_date, '%%Y-%%m-%%d %%k:%%i:%%s')
+               ) ASC, m.id ASC
              LIMIT 400",
             $now_mysql
         )) ?: [];
