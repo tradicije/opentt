@@ -381,6 +381,7 @@ a.opentt-grid-cal-preview-more:focus {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: 8px;
   text-align: right;
 }
