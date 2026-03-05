@@ -291,20 +291,29 @@
   }
 
   .opentt-ekipe-score.opentt-ekipe-score-live {
-    display: flex;
-    grid-template-rows: none;
-    justify-items: unset;
-    align-content: unset;
-    justify-content: center;
-    align-items: center;
-    row-gap: 0;
-    gap: 8px;
-    min-width: 80px;
+    display: grid;
+    grid-template-rows: auto auto auto;
+    justify-items: center;
+    align-content: center;
+    row-gap: 4px;
+    min-width: 54px;
   }
 
   .opentt-ekipe-live-score {
     font-size: 1.05rem;
     min-width: 16px;
+  }
+
+  .opentt-ekipe-score.opentt-ekipe-score-live .opentt-ekipe-live-score:first-child {
+    grid-row: 1;
+  }
+
+  .opentt-ekipe-score.opentt-ekipe-score-live .opentt-live-badge {
+    grid-row: 2;
+  }
+
+  .opentt-ekipe-score.opentt-ekipe-score-live .opentt-ekipe-live-score:last-child {
+    grid-row: 3;
   }
 
   .opentt-ekipe-time-label {

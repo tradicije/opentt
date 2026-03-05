@@ -43,6 +43,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Switched LIVE workflow to fully manual control: added `live` match flag (schema/import-export), manual LIVE toggle in matches list and match edit form, `Uživo` tab now lists only manually flagged matches, and each LIVE row now has `Završi utakmicu` action to exit LIVE mode explicitly.
 - Refined LIVE card visuals across frontend shortcodes: LIVE cards now use a synchronized red-tint pulse on the whole card, while the `LIVE` badge switches to white text-only pulse (no badge background) for cleaner contrast.
 - Increased LIVE pulse visibility on full cards (brightness/saturation + border/shadow pulse), keeping synchronized timing with text-only white `LIVE` badge animation.
+- Improved mobile `opentt_prikaz_ekipa` LIVE layout: center block now stacks into 3 rows (`home score`, `LIVE`, `away score`) instead of a single horizontal row.
 
 #### Admin & Data
 
