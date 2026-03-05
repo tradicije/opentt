@@ -30,6 +30,7 @@ body a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   padding: 2px 8px;
   border-radius: 999px;
   background: rgba(176, 14, 30, 0.92);
@@ -40,6 +41,16 @@ body a {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   line-height: 1;
+  animation: openttLivePulse 1.2s infinite;
+}
+
+.opentt-live-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.16);
   animation: openttLivePulse 1.2s infinite;
 }
 
