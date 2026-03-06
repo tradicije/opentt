@@ -107,7 +107,8 @@ final class MatchesListShortcode
           }
 
           function esc(v) {
-            return String(v || '').replace(/[&<>"']/g, function(ch){
+            var raw = (v === null || v === undefined) ? '' : v;
+            return String(raw).replace(/[&<>"']/g, function(ch){
               if (ch === '&') { return '&amp;'; }
               if (ch === '<') { return '&lt;'; }
               if (ch === '>') { return '&gt;'; }
@@ -134,17 +135,17 @@ final class MatchesListShortcode
               +   '<div class="opentt-matches-list-col opentt-matches-list-col--date">' + esc(match.date) + '</div>'
               +   '<div class="opentt-matches-list-col opentt-matches-list-col--match">'
               +     '<span class="match-side match-side--home">'
-              +       '<span class="team-name team-name--home">' + esc(match.homeName) + '</span>'
+              +       '<span class="team-name team-name--home ' + esc(match.homeClass || '') + '">' + esc(match.homeName) + '</span>'
               +       '<span class="team-crest">' + (match.homeLogo || '') + '</span>'
               +     '</span>'
               +     '<span class="match-score">'
-              +       '<span class="team-score">' + esc(match.homeScore) + '</span>'
+              +       '<span class="team-score ' + esc(match.homeClass || '') + '">' + esc(match.homeScore) + '</span>'
               +       '<span class="team-sep">:</span>'
-              +       '<span class="team-score">' + esc(match.awayScore) + '</span>'
+              +       '<span class="team-score ' + esc(match.awayClass || '') + '">' + esc(match.awayScore) + '</span>'
               +     '</span>'
               +     '<span class="match-side match-side--away">'
               +       '<span class="team-crest">' + (match.awayLogo || '') + '</span>'
-              +       '<span class="team-name team-name--away">' + esc(match.awayName) + '</span>'
+              +       '<span class="team-name team-name--away ' + esc(match.awayClass || '') + '">' + esc(match.awayName) + '</span>'
               +     '</span>'
               +   '</div>'
               +   '<div class="opentt-matches-list-col opentt-matches-list-col--media">' + icons + '</div>'
@@ -254,6 +255,20 @@ final class MatchesListShortcode
             $away_id = intval($row->away_club_post_id ?? 0);
             $legacy_id = intval($row->legacy_post_id ?? 0);
             $match_link = (string) $call('match_permalink', $row);
+            $home_score = intval($row->home_score ?? 0);
+            $away_score = intval($row->away_score ?? 0);
+            $is_played = intval($row->played ?? 0) === 1 || $home_score > 0 || $away_score > 0;
+            $home_class = '';
+            $away_class = '';
+            if ($is_played) {
+                if ($home_score > $away_score) {
+                    $home_class = 'is-winner';
+                    $away_class = 'is-loser';
+                } elseif ($away_score > $home_score) {
+                    $home_class = 'is-loser';
+                    $away_class = 'is-winner';
+                }
+            }
 
             $matches_by_round[$kolo_slug][] = [
                 'id' => intval($row->id ?? 0),
@@ -263,8 +278,10 @@ final class MatchesListShortcode
                 'awayName' => $away_id > 0 ? (string) get_the_title($away_id) : '',
                 'homeLogo' => $home_id > 0 ? (string) $call('club_logo_html', $home_id, 'thumbnail', ['class' => 'opentt-list-team-crest']) : '',
                 'awayLogo' => $away_id > 0 ? (string) $call('club_logo_html', $away_id, 'thumbnail', ['class' => 'opentt-list-team-crest']) : '',
-                'homeScore' => intval($row->home_score ?? 0),
-                'awayScore' => intval($row->away_score ?? 0),
+                'homeScore' => $home_score,
+                'awayScore' => $away_score,
+                'homeClass' => $home_class,
+                'awayClass' => $away_class,
                 'link' => $match_link,
                 'reportUrl' => $legacy_id > 0 ? (string) ($report_map[$legacy_id] ?? '') : '',
                 'videoUrl' => ($legacy_id > 0 && !empty($video_map[$legacy_id])) ? $match_link : '',

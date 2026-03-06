@@ -672,6 +672,20 @@ a.opentt-grid-cal-preview-more:focus {
   color: #ffffff;
 }
 
+.opentt-matches-list-col--match .team-name.is-winner,
+.opentt-matches-list-col--match .team-score.is-winner {
+  color: #ffffff;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.opentt-matches-list-col--match .team-name.is-loser,
+.opentt-matches-list-col--match .team-score.is-loser {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
 .opentt-matches-list-col--media {
   display: inline-flex;
   justify-content: flex-end;
