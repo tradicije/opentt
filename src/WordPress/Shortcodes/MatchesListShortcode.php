@@ -257,8 +257,8 @@ final class MatchesListShortcode
             $away_id = intval($row->away_club_post_id ?? 0);
             $legacy_id = intval($row->legacy_post_id ?? 0);
             $match_link = (string) $call('match_permalink', $row);
-            $home_name = $home_id > 0 ? wp_specialchars_decode((string) get_the_title($home_id), ENT_QUOTES) : '';
-            $away_name = $away_id > 0 ? wp_specialchars_decode((string) get_the_title($away_id), ENT_QUOTES) : '';
+            $home_name = $home_id > 0 ? self::decode_title_entities((string) get_the_title($home_id)) : '';
+            $away_name = $away_id > 0 ? self::decode_title_entities((string) get_the_title($away_id)) : '';
             $home_score = intval($row->home_score ?? 0);
             $away_score = intval($row->away_score ?? 0);
             $is_played = intval($row->played ?? 0) === 1 || $home_score > 0 || $away_score > 0;
@@ -424,5 +424,25 @@ final class MatchesListShortcode
         }
 
         return $map;
+    }
+
+    private static function decode_title_entities($value)
+    {
+        $value = (string) $value;
+        if ($value === '') {
+            return '';
+        }
+
+        // Some legacy titles can be saved as doubly-encoded entities (e.g. &amp;#8211;).
+        // Decode a few passes to normalize to visible UTF-8 characters.
+        for ($i = 0; $i < 3; $i++) {
+            $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if ($decoded === $value) {
+                break;
+            }
+            $value = $decoded;
+        }
+
+        return $value;
     }
 }
