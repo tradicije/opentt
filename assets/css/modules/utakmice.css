@@ -603,12 +603,36 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-matches-list-col--match {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: 7px;
+  gap: 10px;
   min-width: 0;
   text-align: center;
+}
+
+.opentt-matches-list-col--match .match-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.opentt-matches-list-col--match .match-side--home {
+  justify-content: flex-end;
+}
+
+.opentt-matches-list-col--match .match-side--away {
+  justify-content: flex-start;
+}
+
+.opentt-matches-list-col--match .match-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 74px;
+  white-space: nowrap;
 }
 
 .opentt-matches-list-col--match .team-name {
@@ -748,12 +772,18 @@ a.opentt-grid-cal-preview-more:focus {
   }
 
   .opentt-matches-list-col--match {
-    flex-wrap: wrap;
+    grid-template-columns: 1fr;
+    justify-items: center;
     gap: 6px;
   }
 
+  .opentt-matches-list-col--match .match-side--home,
+  .opentt-matches-list-col--match .match-side--away {
+    justify-content: center;
+  }
+
   .opentt-matches-list-col--match .team-name {
-    max-width: 42%;
+    max-width: 100%;
     font-size: 0.86rem;
   }
 }
