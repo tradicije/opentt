@@ -257,6 +257,8 @@ final class MatchesListShortcode
             $away_id = intval($row->away_club_post_id ?? 0);
             $legacy_id = intval($row->legacy_post_id ?? 0);
             $match_link = (string) $call('match_permalink', $row);
+            $home_name = $home_id > 0 ? wp_specialchars_decode((string) get_the_title($home_id), ENT_QUOTES) : '';
+            $away_name = $away_id > 0 ? wp_specialchars_decode((string) get_the_title($away_id), ENT_QUOTES) : '';
             $home_score = intval($row->home_score ?? 0);
             $away_score = intval($row->away_score ?? 0);
             $is_played = intval($row->played ?? 0) === 1 || $home_score > 0 || $away_score > 0;
@@ -277,8 +279,8 @@ final class MatchesListShortcode
                 'id' => intval($row->id ?? 0),
                 'matchDateRaw' => (string) ($row->match_date ?? ''),
                 'date' => (string) $call('display_match_date', $row->match_date ?? ''),
-                'homeName' => $home_id > 0 ? (string) get_the_title($home_id) : '',
-                'awayName' => $away_id > 0 ? (string) get_the_title($away_id) : '',
+                'homeName' => $home_name,
+                'awayName' => $away_name,
                 'homeLogo' => $home_id > 0 ? (string) $call('club_logo_html', $home_id, 'thumbnail', ['class' => 'opentt-list-team-crest']) : '',
                 'awayLogo' => $away_id > 0 ? (string) $call('club_logo_html', $away_id, 'thumbnail', ['class' => 'opentt-list-team-crest']) : '',
                 'homeScore' => $home_score,
