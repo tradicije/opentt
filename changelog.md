@@ -74,6 +74,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added admin helper note on match `Lokacija` field clarifying it should be overridden only when match is not played at the home venue.
 - Updated match completion semantics to best-of-4 (`played=1` only when either side reaches 4), so live-mode matches remain editable until final result is reached.
 - Added match-level `report_url` and `video_url` fields in match add/edit admin form, plus schema/import-export support, and migrated `opentt_match_report`, `opentt_match_video`, and `opentt_matches_list` media indicators to contextual DB-driven links (with legacy fallback for older content).
+- Added empty-state messages for contextual match media shortcodes: `opentt_match_report` now shows `Nema izveštaja za ovu utakmicu.` and `opentt_match_video` shows `Nema snimka za ovu utakmicu.` when links are missing.
+- Refined contextual media rendering: `opentt_match_report` now resolves and displays linked news card content (featured image + post title), while `opentt_match_video` now embeds match video directly on frontend with added YouTube fallback embed parsing.
 
 ## Releases
 

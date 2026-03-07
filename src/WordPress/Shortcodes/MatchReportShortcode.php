@@ -54,28 +54,20 @@ final class MatchReportShortcode
             }
         }
         if ($report_url === '') {
-            return '';
+            return (string) $call('shortcode_title_html', 'Izveštaj utakmice')
+                . '<p>Nema izveštaja za ovu utakmicu.</p>';
         }
 
-        $linked_post_id = url_to_postid($report_url);
+        $linked_post_id = self::resolve_report_post_id($report_url);
         $title = 'Izveštaj utakmice';
-        $excerpt = '';
         $thumb = '';
         if ($linked_post_id > 0) {
             $title = (string) get_the_title($linked_post_id);
-            $excerpt = (string) get_the_excerpt($linked_post_id);
             $thumb = (string) get_the_post_thumbnail($linked_post_id, 'medium');
         }
         if ($title === '') {
             $title = 'Izveštaj utakmice';
         }
-        if ($excerpt === '') {
-            $host = wp_parse_url($report_url, PHP_URL_HOST);
-            if (is_string($host) && $host !== '') {
-                $excerpt = $host;
-            }
-        }
-
         ob_start();
         echo (string) $call('shortcode_title_html', 'Izveštaj utakmice');
         ?>
@@ -85,10 +77,38 @@ final class MatchReportShortcode
             </div>
             <div class="izvestaj-desna-kolona">
                 <h3><?php echo esc_html($title); ?></h3>
-                <?php if ($excerpt !== '') : ?><p><?php echo esc_html($excerpt); ?></p><?php endif; ?>
             </div>
         </a>
         <?php
         return ob_get_clean();
+    }
+
+    private static function resolve_report_post_id($report_url)
+    {
+        $report_url = trim((string) $report_url);
+        if ($report_url === '') {
+            return 0;
+        }
+
+        $post_id = (int) url_to_postid($report_url);
+        if ($post_id > 0) {
+            return $post_id;
+        }
+
+        $path = (string) wp_parse_url($report_url, PHP_URL_PATH);
+        $slug = sanitize_title((string) basename(trim($path, '/')));
+        if ($slug === '') {
+            return 0;
+        }
+
+        $rows = get_posts([
+            'post_type' => 'post',
+            'post_status' => ['publish', 'private', 'draft', 'pending'],
+            'posts_per_page' => 1,
+            'name' => $slug,
+            'fields' => 'ids',
+        ]);
+
+        return !empty($rows) ? (int) $rows[0] : 0;
     }
 }
