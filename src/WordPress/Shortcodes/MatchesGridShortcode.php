@@ -49,14 +49,32 @@ final class MatchesGridShortcode
         if ($chunk_size <= 0) {
             $chunk_size = 8;
         }
+        $requested_limit = intval($atts['limit']);
+        if ($requested_limit <= 0) {
+            $requested_limit = 5;
+        }
 
         $query_args = (array) $call('build_match_query_args', $atts);
         if ($legacy_kolo_filter || $enable_filters || $infinite_mode) {
             $query_args['limit'] = -1;
+        } else {
+            // Non-filtered grid: fetch a wider window so we can reliably fill requested
+            // card count with valid rows even if some latest rows are incomplete.
+            $query_args['limit'] = min(200, max($requested_limit + 12, $requested_limit * 3));
         }
 
         $rows = $call('db_get_matches', $query_args);
         $rows = is_array($rows) ? $rows : [];
+
+        if (!$legacy_kolo_filter && !$enable_filters && !$infinite_mode) {
+            $rows = array_values(array_filter($rows, static function ($row) {
+                if (!is_object($row)) {
+                    return false;
+                }
+                return intval($row->home_club_post_id ?? 0) > 0 && intval($row->away_club_post_id ?? 0) > 0;
+            }));
+            $rows = array_slice($rows, 0, max(1, $requested_limit));
+        }
 
         if (empty($rows)) {
             return (string) $call('shortcode_title_html', 'Utakmice') . '<p>Nema utakmica za prikaz.</p>';

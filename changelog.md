@@ -12,6 +12,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added an explicit project disclaimer in README files clarifying that OpenTT is not affiliated with `opentt.pl`.
 - Added new `opentt_matches` combined shortcode (grid/list switcher): default grid view, dropdown toggle with grid/list icons, list mode without grid filters, and `filter=true` mode using incremental `Prikaži još` loading (no infinite-scroll takeover).
 - Added `season` shortcode attribute support (season slug, for example `2025-26`) across `opentt_matches`, `opentt_matches_grid`, and `opentt_matches_list`, with `sezona` kept as a backward-compatible alias.
+- Fixed non-filtered `opentt_matches_grid` limit consistency by filling the requested card count from valid match rows (skipping incomplete rows without both clubs), so `limit=6` renders six visible cards when data is available.
 - Updated match shortcodes to support `played="true|false"` as the primary public filter attribute (with robust parsing), while keeping `odigrana` as a backward-compatible alias.
 - Added new `opentt_matches_list` shortcode with contextual league/season round navigation (chevrons, no page refresh), per-round match rows, row-to-match linking, and optional report/video indicators when related content exists.
 - Fixed `opentt_matches_list` score-line alignment so the center separator (`:`) and scores stay visually centered regardless of team-name length.
