@@ -24,12 +24,18 @@ final class MatchVideoShortcode
         };
 
         $ctx = $call('current_match_context');
-        if (!$ctx || empty($ctx['legacy_id'])) {
+        if (!$ctx || empty($ctx['db_row'])) {
             return '';
         }
-
-        $legacy_match_id = intval($ctx['legacy_id']);
-        $video_url = (string) get_post_meta($legacy_match_id, 'snimak_utakmice', true);
+        $row = is_object($ctx['db_row']) ? $ctx['db_row'] : null;
+        if (!$row) {
+            return '';
+        }
+        $video_url = trim((string) ($row->video_url ?? ''));
+        if ($video_url === '' && !empty($ctx['legacy_id'])) {
+            $legacy_match_id = intval($ctx['legacy_id']);
+            $video_url = (string) get_post_meta($legacy_match_id, 'snimak_utakmice', true);
+        }
         if ($video_url === '') {
             return '';
         }

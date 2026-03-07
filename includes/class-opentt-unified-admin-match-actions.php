@@ -50,6 +50,8 @@ final class OpenTT_Unified_Admin_Match_Actions
         $live = !empty($_POST['live']) ? 1 : 0;
         $match_date = self::normalize_match_date((string) ($_POST['match_date'] ?? ''));
         $location = sanitize_text_field((string) ($_POST['location'] ?? ''));
+        $report_url = esc_url_raw((string) ($_POST['report_url'] ?? ''));
+        $video_url = esc_url_raw((string) ($_POST['video_url'] ?? ''));
 
         if (self::has_any_competition_rules() && $competition_rule_id <= 0) {
             $url = $id > 0
@@ -110,6 +112,12 @@ final class OpenTT_Unified_Admin_Match_Actions
         }
         if (self::has_live_column($table)) {
             $data['live'] = $live;
+        }
+        if (self::has_report_url_column($table)) {
+            $data['report_url'] = $report_url;
+        }
+        if (self::has_video_url_column($table)) {
+            $data['video_url'] = $video_url;
         }
 
         if ($id > 0) {
@@ -284,6 +292,22 @@ final class OpenTT_Unified_Admin_Match_Actions
         return !empty($column);
     }
 
+    private static function has_report_url_column($table)
+    {
+        self::maybe_add_report_url_column($table);
+        global $wpdb;
+        $column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", 'report_url'));
+        return !empty($column);
+    }
+
+    private static function has_video_url_column($table)
+    {
+        self::maybe_add_video_url_column($table);
+        global $wpdb;
+        $column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", 'video_url'));
+        return !empty($column);
+    }
+
     private static function maybe_add_location_column($table)
     {
         global $wpdb;
@@ -302,6 +326,26 @@ final class OpenTT_Unified_Admin_Match_Actions
             return;
         }
         $wpdb->query("ALTER TABLE {$table} ADD COLUMN live tinyint(1) NOT NULL DEFAULT 0 AFTER featured");
+    }
+
+    private static function maybe_add_report_url_column($table)
+    {
+        global $wpdb;
+        $column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", 'report_url'));
+        if (!empty($column)) {
+            return;
+        }
+        $wpdb->query("ALTER TABLE {$table} ADD COLUMN report_url text NULL AFTER location");
+    }
+
+    private static function maybe_add_video_url_column($table)
+    {
+        global $wpdb;
+        $column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", 'video_url'));
+        if (!empty($column)) {
+            return;
+        }
+        $wpdb->query("ALTER TABLE {$table} ADD COLUMN video_url text NULL AFTER report_url");
     }
 
     private static function normalize_match_date($raw)

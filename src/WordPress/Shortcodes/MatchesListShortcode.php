@@ -230,20 +230,6 @@ final class MatchesListShortcode
 
     private static function build_round_data(array $rows, callable $call)
     {
-        $legacy_ids = [];
-        foreach ($rows as $row) {
-            if (!is_object($row)) {
-                continue;
-            }
-            $legacy_id = intval($row->legacy_post_id ?? 0);
-            if ($legacy_id > 0) {
-                $legacy_ids[] = $legacy_id;
-            }
-        }
-
-        $report_map = self::build_report_map($legacy_ids);
-        $video_map = self::build_video_map($legacy_ids);
-
         $matches_by_round = [];
         foreach ($rows as $row) {
             if (!is_object($row)) {
@@ -257,7 +243,6 @@ final class MatchesListShortcode
 
             $home_id = intval($row->home_club_post_id ?? 0);
             $away_id = intval($row->away_club_post_id ?? 0);
-            $legacy_id = intval($row->legacy_post_id ?? 0);
             $match_link = (string) $call('match_permalink', $row);
             $home_name = $home_id > 0 ? self::decode_title_entities((string) get_the_title($home_id)) : '';
             $away_name = $away_id > 0 ? self::decode_title_entities((string) get_the_title($away_id)) : '';
@@ -292,8 +277,8 @@ final class MatchesListShortcode
                 'showTime' => $show_time,
                 'timeLabel' => (string) $call('display_match_time', $row->match_date ?? ''),
                 'link' => $match_link,
-                'reportUrl' => $legacy_id > 0 ? (string) ($report_map[$legacy_id] ?? '') : '',
-                'videoUrl' => ($legacy_id > 0 && !empty($video_map[$legacy_id])) ? $match_link : '',
+                'reportUrl' => trim((string) ($row->report_url ?? '')),
+                'videoUrl' => trim((string) ($row->video_url ?? '')),
             ];
         }
 
@@ -368,64 +353,6 @@ final class MatchesListShortcode
         }
 
         return '';
-    }
-
-    private static function build_report_map(array $legacy_ids)
-    {
-        $legacy_ids = array_values(array_unique(array_filter(array_map('intval', $legacy_ids), static function ($id) {
-            return $id > 0;
-        })));
-        if (empty($legacy_ids)) {
-            return [];
-        }
-
-        $posts = get_posts([
-            'post_type' => 'post',
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            'ignore_sticky_posts' => true,
-            'orderby' => 'date',
-            'order' => 'DESC',
-            'meta_query' => [[
-                'key' => 'povezana_utakmica',
-                'value' => $legacy_ids,
-                'compare' => 'IN',
-            ]],
-        ]);
-
-        $map = [];
-        foreach ($posts as $post) {
-            if (!($post instanceof \WP_Post)) {
-                continue;
-            }
-            $legacy_id = intval(get_post_meta($post->ID, 'povezana_utakmica', true));
-            if ($legacy_id <= 0 || isset($map[$legacy_id])) {
-                continue;
-            }
-            $map[$legacy_id] = (string) get_permalink($post->ID);
-        }
-
-        return $map;
-    }
-
-    private static function build_video_map(array $legacy_ids)
-    {
-        $legacy_ids = array_values(array_unique(array_filter(array_map('intval', $legacy_ids), static function ($id) {
-            return $id > 0;
-        })));
-        if (empty($legacy_ids)) {
-            return [];
-        }
-
-        $map = [];
-        foreach ($legacy_ids as $legacy_id) {
-            $video = trim((string) get_post_meta($legacy_id, 'snimak_utakmice', true));
-            if ($video !== '') {
-                $map[$legacy_id] = true;
-            }
-        }
-
-        return $map;
     }
 
     private static function decode_title_entities($value)
