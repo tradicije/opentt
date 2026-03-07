@@ -33,6 +33,7 @@ final class MatchesGridShortcode
             'sezona' => '',
             'filter' => '',
             'infinite' => '',
+            'pagination' => '',
             'opentt_match_date' => '',
         ], $atts);
 
@@ -41,6 +42,8 @@ final class MatchesGridShortcode
         $enable_filters = in_array($filter_mode, ['1', 'true', 'yes', 'da', 'on'], true);
         $legacy_kolo_filter = ($filter_mode === 'kolo');
         $infinite_mode = in_array(strtolower(trim((string) $atts['infinite'])), ['1', 'true', 'yes', 'da', 'on'], true);
+        $pagination_mode = strtolower(trim((string) $atts['pagination']));
+        $use_load_more_button = ($pagination_mode === 'button' || $pagination_mode === 'load_more');
         $chunk_size = intval($atts['limit']);
         if ($chunk_size <= 0) {
             $chunk_size = 8;
@@ -308,7 +311,11 @@ final class MatchesGridShortcode
 
             echo (string) $call('render_matches_grid_html', $rows, $columns, true);
             if ($infinite_mode) {
-                echo '<div class="opentt-grid-sentinel" aria-hidden="true"></div>';
+                if ($use_load_more_button) {
+                    echo '<button type="button" class="button opentt-grid-load-more" aria-controls="' . esc_attr($uid) . '">Prikaži još</button>';
+                } else {
+                    echo '<div class="opentt-grid-sentinel" aria-hidden="true"></div>';
+                }
             }
             echo '</div>';
             ?>
@@ -331,7 +338,9 @@ final class MatchesGridShortcode
                     var grid = root.querySelector('.opentt-grid');
                     if (!grid) { return false; }
                     var sentinel = root.querySelector('.opentt-grid-sentinel');
+                    var loadMoreBtn = root.querySelector('.opentt-grid-load-more');
                     var infiniteEnabled = <?php echo $infinite_mode ? 'true' : 'false'; ?>;
+                    var useLoadMoreButton = <?php echo $use_load_more_button ? 'true' : 'false'; ?>;
                     var chunkSize = <?php echo intval($chunk_size); ?>;
                     var visibleCount = chunkSize;
                     var observer = null;
@@ -429,8 +438,13 @@ final class MatchesGridShortcode
                             grid.appendChild(item);
                         });
                         renderRoundHeadings(toRender);
-                        if (infiniteEnabled && sentinel) {
-                            sentinel.style.display = (toRender.length < visible.length) ? '' : 'none';
+                        if (infiniteEnabled) {
+                            var hasMore = (toRender.length < visible.length);
+                            if (useLoadMoreButton && loadMoreBtn) {
+                                loadMoreBtn.style.display = hasMore ? '' : 'none';
+                            } else if (sentinel) {
+                                sentinel.style.display = hasMore ? '' : 'none';
+                            }
                         }
                         renderCalendar();
                     }
@@ -729,7 +743,14 @@ final class MatchesGridShortcode
                         }
                     });
 
-                    if (infiniteEnabled && sentinel && 'IntersectionObserver' in window) {
+                    if (infiniteEnabled && useLoadMoreButton && loadMoreBtn) {
+                        loadMoreBtn.addEventListener('click', function(){
+                            visibleCount += chunkSize;
+                            render();
+                        });
+                    }
+
+                    if (infiniteEnabled && !useLoadMoreButton && sentinel && 'IntersectionObserver' in window) {
                         observer = new IntersectionObserver(function(entries){
                             entries.forEach(function(entry){
                                 if (entry.isIntersecting) {
@@ -772,7 +793,11 @@ final class MatchesGridShortcode
             echo (string) $call('shortcode_title_html', 'Utakmice');
             echo '<div id="' . esc_attr($uid) . '" class="opentt-grid-infinite-block">';
             echo (string) $call('render_matches_grid_html', $rows, $columns, true);
-            echo '<div class="opentt-grid-sentinel" aria-hidden="true"></div>';
+            if ($use_load_more_button) {
+                echo '<button type="button" class="button opentt-grid-load-more" aria-controls="' . esc_attr($uid) . '">Prikaži još</button>';
+            } else {
+                echo '<div class="opentt-grid-sentinel" aria-hidden="true"></div>';
+            }
             echo '</div>';
             ?>
             <script>
@@ -781,7 +806,10 @@ final class MatchesGridShortcode
                 if (!root) { return; }
                 var grid = root.querySelector('.opentt-grid');
                 var sentinel = root.querySelector('.opentt-grid-sentinel');
-                if (!grid || !sentinel) { return; }
+                var loadMoreBtn = root.querySelector('.opentt-grid-load-more');
+                var useLoadMoreButton = <?php echo $use_load_more_button ? 'true' : 'false'; ?>;
+                if (!grid) { return; }
+                if (!useLoadMoreButton && !sentinel) { return; }
                 var chunkSize = <?php echo intval($chunk_size); ?>;
                 var visibleCount = chunkSize;
                 var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-item'));
@@ -815,10 +843,20 @@ final class MatchesGridShortcode
                         grid.appendChild(item);
                     });
                     renderRoundHeadings(shown);
-                    sentinel.style.display = shown.length < allItems.length ? '' : 'none';
+                    var hasMore = shown.length < allItems.length;
+                    if (useLoadMoreButton && loadMoreBtn) {
+                        loadMoreBtn.style.display = hasMore ? '' : 'none';
+                    } else if (sentinel) {
+                        sentinel.style.display = hasMore ? '' : 'none';
+                    }
                 }
 
-                if ('IntersectionObserver' in window) {
+                if (useLoadMoreButton && loadMoreBtn) {
+                    loadMoreBtn.addEventListener('click', function(){
+                        visibleCount += chunkSize;
+                        render();
+                    });
+                } else if ('IntersectionObserver' in window) {
                     var observer = new IntersectionObserver(function(entries){
                         entries.forEach(function(entry){
                             if (entry.isIntersecting) {

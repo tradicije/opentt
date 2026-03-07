@@ -2621,6 +2621,22 @@ JS;
     {
         return [
             [
+                'tag' => 'opentt_matches',
+                'desc' => 'Kombinovani prikaz utakmica (grid/list switcher u jednom shortcode-u).',
+                'attrs' => 'columns, limit, klub, played, liga, sezona, filter, infinite, opentt_match_date',
+                'details' => 'Podrazumevano otvara grid prikaz. Kada je `filter=true`, desno u filter redu dodaje se view switcher (grid/list), a učitavanje dodatnih kartica radi preko dugmeta `Prikaži još`.',
+                'builder' => [
+                    ['name' => 'columns', 'label' => 'Kolone', 'type' => 'number', 'default' => '3', 'help' => 'Broj kolona u grid prikazu (1-6).'],
+                    ['name' => 'limit', 'label' => 'Limit', 'type' => 'number', 'default' => '6', 'help' => 'Inicijalni broj utakmica i veličina sledećeg batch-a na `Prikaži još`.'],
+                    ['name' => 'liga', 'label' => 'Liga slug', 'type' => 'text', 'default' => '', 'help' => 'Slug lige/takmičenja.'],
+                    ['name' => 'sezona', 'label' => 'Sezona slug', 'type' => 'text', 'default' => '', 'help' => 'Slug sezone (npr. 2025-26).'],
+                    ['name' => 'played', 'label' => 'Played', 'type' => 'text', 'default' => '', 'help' => 'true = odigrane, false = neodigrane, prazno = sve.'],
+                    ['name' => 'filter', 'label' => 'Filter', 'type' => 'text', 'default' => 'true', 'help' => 'Grid filter/sort panel i kalendar (list prikaz koristi round navigator).'],
+                    ['name' => 'infinite', 'label' => 'Infinite', 'type' => 'text', 'default' => 'false', 'help' => 'Za ovaj shortcode ostaje opcioni atribut; uz filter=true koristi se `Prikaži još` režim.'],
+                    ['name' => 'opentt_match_date', 'label' => 'Datum (YYYY-MM-DD)', 'type' => 'text', 'default' => '', 'help' => 'Opcioni početni datum filtera.'],
+                ],
+            ],
+            [
                 'tag' => 'opentt_matches_grid',
                 'desc' => 'Grid prikaz utakmica sa filterima/sortiranjem, kalendarskim filterom datuma i infinite opcijom.',
                 'attrs' => 'columns, limit, klub, played, liga, sezona, filter, infinite, opentt_match_date',

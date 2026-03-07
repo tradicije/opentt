@@ -52,6 +52,18 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_matches($atts)
+    {
+        return \OpenTT\Unified\WordPress\Shortcodes\MatchesShortcode::render($atts, [
+            'render_matches_grid' => static function ($inner_atts) {
+                return self::shortcode_matches_grid($inner_atts);
+            },
+            'render_matches_list' => static function ($inner_atts) {
+                return self::shortcode_matches_list($inner_atts);
+            },
+        ]);
+    }
+
     public static function shortcode_matches_list($atts)
     {
         return \OpenTT\Unified\WordPress\Shortcodes\MatchesListShortcode::render($atts, [
