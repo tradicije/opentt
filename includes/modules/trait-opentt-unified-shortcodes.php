@@ -1257,11 +1257,14 @@ trait OpenTT_Unified_Shortcodes_Trait
 
         if (isset($atts['odigrana']) && $atts['odigrana'] !== '') {
             $val = strtolower(trim((string) $atts['odigrana']));
-            if ($val === 'da') {
+            if ($val === 'da' || strpos($val, 'da') === 0) {
                 $val = '1';
             }
-            if ($val === 'ne') {
+            if ($val === 'ne' || strpos($val, 'ne') === 0) {
                 $val = '0';
+            }
+            if ($val !== '0' && $val !== '1' && preg_match('/^[01]/', $val, $m)) {
+                $val = (string) $m[0];
             }
             if ($val === '0' || $val === '1') {
                 $odigrana = $val;
