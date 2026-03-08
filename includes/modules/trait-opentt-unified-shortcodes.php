@@ -163,12 +163,6 @@ trait OpenTT_Unified_Shortcodes_Trait
             'player_fallback_image_url' => static function () {
                 return self::player_fallback_image_url();
             },
-            'current_archive_context' => static function () {
-                return self::current_archive_context();
-            },
-            'current_match_context' => static function () {
-                return self::current_match_context();
-            },
         ]);
     }
 
@@ -1193,14 +1187,12 @@ trait OpenTT_Unified_Shortcodes_Trait
         $percent = $total > 0 ? (string) round(($wins / $total) * 100) . '%' : '-';
         $highlight_class = $highlight ? ' highlight' : '';
         $igrac_link = get_permalink($igrac_id);
-        $elo_badge = self::player_elo_badge_html($igrac_id);
-
         ob_start();
         ?>
         <div class="igrac-card-list<?php echo esc_attr($highlight_class); ?>">
             <div class="igrac-rank"><?php echo intval($rank); ?></div>
             <a class="igrac-link" href="<?php echo esc_url($igrac_link); ?>">
-                <div class="igrac-slika-wrap"><?php echo $slika; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo $elo_badge; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+                <div class="igrac-slika-wrap"><?php echo $slika; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
             </a>
             <div class="igrac-imeprezime">
                 <a class="igrac-link" href="<?php echo esc_url($igrac_link); ?>">
@@ -1812,57 +1804,14 @@ trait OpenTT_Unified_Shortcodes_Trait
         $parts = explode(' ', $title, 2);
         $ime = isset($parts[0]) ? $parts[0] : '';
         $prezime = isset($parts[1]) ? $parts[1] : '';
-        $elo_badge = self::player_elo_badge_html($player_id);
-
         ob_start();
         echo '<div class="lp2-igrac-wrap">';
         echo '<a class="lp2-igrac" href="' . esc_url($link) . '">';
-        echo '<span class="lp2-thumb-wrap">';
         echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        echo $elo_badge; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        echo '</span>';
         echo '<div class="lp2-name"><span>' . esc_html($ime) . '</span><span>' . esc_html($prezime) . '</span></div>';
         echo '</a>';
         echo '</div>';
         return ob_get_clean();
-    }
-
-    private static function player_elo_badge_html($player_id)
-    {
-        $scope = self::current_elo_scope();
-        $elo = \OpenTT\Unified\Infrastructure\EloRatingManager::getPlayerRating(
-            (int) $player_id,
-            (string) ($scope['liga_slug'] ?? ''),
-            (string) ($scope['sezona_slug'] ?? '')
-        );
-        return '<span class="opentt-elo-badge">ELO ' . esc_html((string) $elo) . '</span>';
-    }
-
-    private static function current_elo_scope()
-    {
-        $ctx = self::current_match_context();
-        if (is_array($ctx) && !empty($ctx['db_row']) && is_object($ctx['db_row'])) {
-            return [
-                'liga_slug' => sanitize_title((string) ($ctx['db_row']->liga_slug ?? '')),
-                'sezona_slug' => sanitize_title((string) ($ctx['db_row']->sezona_slug ?? '')),
-            ];
-        }
-
-        $archive_ctx = self::current_archive_context();
-        if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'liga_sezona') {
-            $raw_liga = sanitize_title((string) ($archive_ctx['liga_slug'] ?? ''));
-            $raw_sezona = sanitize_title((string) ($archive_ctx['sezona_slug'] ?? ''));
-            $parsed = self::parse_legacy_liga_sezona($raw_liga, $raw_sezona);
-            return [
-                'liga_slug' => sanitize_title((string) ($parsed['league_slug'] ?? $raw_liga)),
-                'sezona_slug' => sanitize_title((string) ($parsed['season_slug'] ?? $raw_sezona)),
-            ];
-        }
-
-        return [
-            'liga_slug' => sanitize_title((string) (get_query_var('liga') ?: '')),
-            'sezona_slug' => sanitize_title((string) (get_query_var('sezona') ?: '')),
-        ];
     }
 
     private static function render_klub_card_html($klub_id)

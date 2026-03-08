@@ -41,6 +41,20 @@ final class EloRatingManager
             if ($resolvedKey !== '' && isset($ratings[$resolvedKey])) {
                 return (int) round((float) $ratings[$resolvedKey]);
             }
+
+            $latestScope = self::resolveLatestScopeForPlayer($playerId);
+            $latestKey = self::scopeKey((string) ($latestScope['liga_slug'] ?? ''), (string) ($latestScope['sezona_slug'] ?? ''));
+            if ($latestKey !== '' && isset($ratings[$latestKey])) {
+                return (int) round((float) $ratings[$latestKey]);
+            }
+
+            if (!empty($ratings)) {
+                $values = array_values($ratings);
+                $last = end($values);
+                if ($last !== false) {
+                    return (int) round((float) $last);
+                }
+            }
         }
 
         $legacy = get_post_meta($playerId, self::META_KEY, true);
@@ -284,6 +298,44 @@ final class EloRatingManager
         return [
             'liga_slug' => $liga,
             'sezona_slug' => $sezona,
+        ];
+    }
+
+    private static function resolveLatestScopeForPlayer($playerId)
+    {
+        $playerId = (int) $playerId;
+        if ($playerId <= 0) {
+            return ['liga_slug' => '', 'sezona_slug' => ''];
+        }
+
+        global $wpdb;
+        $matches = \OpenTT_Unified_Core::db_table('matches');
+        $games = \OpenTT_Unified_Core::db_table('games');
+        if (!self::tableExists($matches) || !self::tableExists($games)) {
+            return ['liga_slug' => '', 'sezona_slug' => ''];
+        }
+
+        $row = $wpdb->get_row($wpdb->prepare(
+            "SELECT m.liga_slug, m.sezona_slug
+             FROM {$games} g
+             INNER JOIN {$matches} m ON m.id = g.match_id
+             WHERE g.is_doubles = 0
+               AND m.liga_slug <> ''
+               AND m.sezona_slug <> ''
+               AND (g.home_player_post_id=%d OR g.away_player_post_id=%d)
+             ORDER BY COALESCE(m.match_date, m.created_at, m.updated_at) DESC, m.id DESC, g.order_no DESC, g.id DESC
+             LIMIT 1",
+            $playerId,
+            $playerId
+        ));
+
+        if (!is_object($row)) {
+            return ['liga_slug' => '', 'sezona_slug' => ''];
+        }
+
+        return [
+            'liga_slug' => sanitize_title((string) ($row->liga_slug ?? '')),
+            'sezona_slug' => sanitize_title((string) ($row->sezona_slug ?? '')),
         ];
     }
 

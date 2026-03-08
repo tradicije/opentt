@@ -68,10 +68,6 @@ final class ShowPlayersShortcode
             return (string) $call('shortcode_title_html', 'Igrači') . '<p>Nema registrovanih igrača za ovaj klub.</p>';
         }
 
-        $scope = self::resolve_elo_scope($call);
-        $liga_slug = (string) ($scope['liga_slug'] ?? '');
-        $sezona_slug = (string) ($scope['sezona_slug'] ?? '');
-
         ob_start();
         $uid = 'opentt-players-' . wp_unique_id();
         $visible_limit = 5;
@@ -89,7 +85,6 @@ final class ShowPlayersShortcode
             }
             $ime = (string) get_the_title($id);
             $link = get_permalink($id);
-            $elo = \OpenTT\Unified\Infrastructure\EloRatingManager::getPlayerRating($id, $liga_slug, $sezona_slug);
 
             $ime_ime = $ime;
             $ime_prezime = '';
@@ -103,10 +98,7 @@ final class ShowPlayersShortcode
             echo '<div class="stoni-igrac-card"' . $hidden_attr . '>';
             echo '<a href="' . esc_url($link) . '" class="stoni-igrac-row">';
             echo '<div class="stoni-igrac-left">';
-            echo '<div class="stoni-igrac-slika-wrap">';
             echo $slika; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo '<span class="opentt-elo-badge">ELO ' . esc_html((string) $elo) . '</span>';
-            echo '</div>';
             echo '<div class="stoni-igrac-ime">';
             echo '<span class="stoni-igrac-ime-ime">' . esc_html($ime_ime) . '</span>';
             echo '<span class="stoni-igrac-ime-prezime">' . esc_html($ime_prezime) . '</span>';
@@ -153,29 +145,5 @@ final class ShowPlayersShortcode
         }
 
         return ob_get_clean();
-    }
-
-    private static function resolve_elo_scope(callable $call)
-    {
-        $match_ctx = $call('current_match_context');
-        if (is_array($match_ctx) && !empty($match_ctx['db_row']) && is_object($match_ctx['db_row'])) {
-            return [
-                'liga_slug' => sanitize_title((string) ($match_ctx['db_row']->liga_slug ?? '')),
-                'sezona_slug' => sanitize_title((string) ($match_ctx['db_row']->sezona_slug ?? '')),
-            ];
-        }
-
-        $archive_ctx = $call('current_archive_context');
-        if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'liga_sezona') {
-            return [
-                'liga_slug' => sanitize_title((string) ($archive_ctx['liga_slug'] ?? '')),
-                'sezona_slug' => sanitize_title((string) ($archive_ctx['sezona_slug'] ?? '')),
-            ];
-        }
-
-        return [
-            'liga_slug' => sanitize_title((string) (get_query_var('liga') ?: '')),
-            'sezona_slug' => sanitize_title((string) (get_query_var('sezona') ?: '')),
-        ];
     }
 }
