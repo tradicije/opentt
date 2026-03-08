@@ -818,6 +818,13 @@ form.opentt-unos-forma input[type="submit"]:hover {
   gap: 12px;
 }
 
+.stoni-igrac-slika-wrap {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
 /* Slika igrača */
 .stoni-igrac-slika {
   width: 40px;
@@ -828,6 +835,11 @@ form.opentt-unos-forma input[type="submit"]:hover {
 
 .stoni-igrac-slika.prazna {
   background: #ddd;
+}
+
+.stoni-igrac-slika-wrap .opentt-elo-badge {
+  right: -14px;
+  bottom: -8px;
 }
 
 /* Ime i prezime kao stack */
@@ -983,12 +995,35 @@ form.opentt-unos-forma input[type="submit"]:hover {
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  position: relative;
 }
 .igrac-card-list .igrac-slika-wrap img {
   width: 32px;
   height: 32px;
   object-fit: cover;
   border-radius: 50%;
+}
+
+.opentt-elo-badge {
+  position: absolute;
+  right: -10px;
+  bottom: -8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 16px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #0b2346;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
 }
 .igrac-card-list .igrac-imeprezime {
   flex: 1;

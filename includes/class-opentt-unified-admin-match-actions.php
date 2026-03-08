@@ -540,6 +540,12 @@ final class OpenTT_Unified_Admin_Match_Actions
                 wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'error', 'Partija nije dodata.'));
                 exit;
             }
+            if ($is_doubles !== 1) {
+                $winner_id = ($hs > $as) ? $hp : (($as > $hs) ? $ap : 0);
+                if ($winner_id > 0) {
+                    \OpenTT\Unified\Infrastructure\EloRatingManager::updateAfterMatch($hp, $ap, $winner_id);
+                }
+            }
         }
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Partija je sačuvana.'));
@@ -681,6 +687,12 @@ final class OpenTT_Unified_Admin_Match_Actions
                     exit;
                 }
                 $game_id = (int) $wpdb->insert_id;
+                if ($is_doubles !== 1) {
+                    $winner_id = ($hs > $as) ? $hp : (($as > $hs) ? $ap : 0);
+                    if ($winner_id > 0) {
+                        \OpenTT\Unified\Infrastructure\EloRatingManager::updateAfterMatch($hp, $ap, $winner_id);
+                    }
+                }
             }
 
             $wpdb->delete($sets_table, ['game_id' => $game_id]);

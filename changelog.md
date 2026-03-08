@@ -77,6 +77,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added empty-state messages for contextual match media shortcodes: `opentt_match_report` now shows `Nema izveštaja za ovu utakmicu.` and `opentt_match_video` shows `Nema snimka za ovu utakmicu.` when links are missing.
 - Refined contextual media rendering: `opentt_match_report` now resolves and displays linked news card content (featured image + post title), while `opentt_match_video` now embeds match video directly on frontend with added YouTube fallback embed parsing.
 - Replaced match-admin report URL input with a searchable dropdown picker of local site blog posts; save flow now stores the selected post permalink as match report link.
+- Added ELO rating foundation for players (`1500` default, `K=32`) with automatic update on newly added single matches that have a winner, and added a small ELO badge overlay on player images in key player list/ranking card views.
 
 ## Releases
 

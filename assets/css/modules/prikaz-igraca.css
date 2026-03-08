@@ -39,6 +39,13 @@
   gap: 12px;
 }
 
+.stoni-igrac-slika-wrap {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
 .stoni-igrac-slika {
   width: 40px;
   height: 40px;
@@ -48,6 +55,11 @@
 
 .stoni-igrac-slika.prazna {
   background: #ddd;
+}
+
+.stoni-igrac-slika-wrap .opentt-elo-badge {
+  right: -14px;
+  bottom: -8px;
 }
 
 .stoni-igrac-ime {

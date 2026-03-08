@@ -1175,13 +1175,14 @@ trait OpenTT_Unified_Shortcodes_Trait
         $percent = $total > 0 ? (string) round(($wins / $total) * 100) . '%' : '-';
         $highlight_class = $highlight ? ' highlight' : '';
         $igrac_link = get_permalink($igrac_id);
+        $elo_badge = self::player_elo_badge_html($igrac_id);
 
         ob_start();
         ?>
         <div class="igrac-card-list<?php echo esc_attr($highlight_class); ?>">
             <div class="igrac-rank"><?php echo intval($rank); ?></div>
             <a class="igrac-link" href="<?php echo esc_url($igrac_link); ?>">
-                <div class="igrac-slika-wrap"><?php echo $slika; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+                <div class="igrac-slika-wrap"><?php echo $slika; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo $elo_badge; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
             </a>
             <div class="igrac-imeprezime">
                 <a class="igrac-link" href="<?php echo esc_url($igrac_link); ?>">
@@ -1793,15 +1794,25 @@ trait OpenTT_Unified_Shortcodes_Trait
         $parts = explode(' ', $title, 2);
         $ime = isset($parts[0]) ? $parts[0] : '';
         $prezime = isset($parts[1]) ? $parts[1] : '';
+        $elo_badge = self::player_elo_badge_html($player_id);
 
         ob_start();
         echo '<div class="lp2-igrac-wrap">';
         echo '<a class="lp2-igrac" href="' . esc_url($link) . '">';
+        echo '<span class="lp2-thumb-wrap">';
         echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo $elo_badge; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo '</span>';
         echo '<div class="lp2-name"><span>' . esc_html($ime) . '</span><span>' . esc_html($prezime) . '</span></div>';
         echo '</a>';
         echo '</div>';
         return ob_get_clean();
+    }
+
+    private static function player_elo_badge_html($player_id)
+    {
+        $elo = \OpenTT\Unified\Infrastructure\EloRatingManager::getPlayerRating((int) $player_id);
+        return '<span class="opentt-elo-badge">ELO ' . esc_html((string) $elo) . '</span>';
     }
 
     private static function render_klub_card_html($klub_id)

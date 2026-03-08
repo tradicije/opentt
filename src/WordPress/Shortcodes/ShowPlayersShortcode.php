@@ -85,6 +85,7 @@ final class ShowPlayersShortcode
             }
             $ime = (string) get_the_title($id);
             $link = get_permalink($id);
+            $elo = \OpenTT\Unified\Infrastructure\EloRatingManager::getPlayerRating($id);
 
             $ime_ime = $ime;
             $ime_prezime = '';
@@ -98,7 +99,10 @@ final class ShowPlayersShortcode
             echo '<div class="stoni-igrac-card"' . $hidden_attr . '>';
             echo '<a href="' . esc_url($link) . '" class="stoni-igrac-row">';
             echo '<div class="stoni-igrac-left">';
+            echo '<div class="stoni-igrac-slika-wrap">';
             echo $slika; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<span class="opentt-elo-badge">ELO ' . esc_html((string) $elo) . '</span>';
+            echo '</div>';
             echo '<div class="stoni-igrac-ime">';
             echo '<span class="stoni-igrac-ime-ime">' . esc_html($ime_ime) . '</span>';
             echo '<span class="stoni-igrac-ime-prezime">' . esc_html($ime_prezime) . '</span>';
