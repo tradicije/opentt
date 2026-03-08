@@ -78,6 +78,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Refined contextual media rendering: `opentt_match_report` now resolves and displays linked news card content (featured image + post title), while `opentt_match_video` now embeds match video directly on frontend with added YouTube fallback embed parsing.
 - Replaced match-admin report URL input with a searchable dropdown picker of local site blog posts; save flow now stores the selected post permalink as match report link.
 - Added ELO rating foundation for players (`1500` default, `K=32`) with automatic update on newly added single matches that have a winner, and added a small ELO badge overlay on player images in key player list/ranking card views.
+- Updated ELO model to be competition-scoped (`liga + sezona`) so each league-season pair has its own rating track per player, with contextual ELO rendering in `opentt_player_info` (current scope + per-scope list).
+- Fixed ELO badge positioning to render outside player images in the top-right corner (overlay style) instead of inside clipped avatar areas.
 
 ## Releases
 

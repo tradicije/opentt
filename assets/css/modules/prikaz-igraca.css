@@ -59,7 +59,8 @@
 
 .stoni-igrac-slika-wrap .opentt-elo-badge {
   right: -14px;
-  bottom: -8px;
+  top: -8px;
+  bottom: auto;
 }
 
 .stoni-igrac-ime {

@@ -163,6 +163,12 @@ trait OpenTT_Unified_Shortcodes_Trait
             'player_fallback_image_url' => static function () {
                 return self::player_fallback_image_url();
             },
+            'current_archive_context' => static function () {
+                return self::current_archive_context();
+            },
+            'current_match_context' => static function () {
+                return self::current_match_context();
+            },
         ]);
     }
 
@@ -581,6 +587,18 @@ trait OpenTT_Unified_Shortcodes_Trait
             },
             'country_flag_emoji' => static function ($country_code) {
                 return OpenTT_Unified_Core::country_flag_emoji($country_code);
+            },
+            'current_archive_context' => static function () {
+                return self::current_archive_context();
+            },
+            'current_match_context' => static function () {
+                return self::current_match_context();
+            },
+            'slug_to_title' => static function ($slug) {
+                return self::slug_to_title($slug);
+            },
+            'season_display_name' => static function ($sezona_slug) {
+                return self::season_display_name($sezona_slug);
             },
             'shortcode_title_html' => static function ($title) {
                 return self::shortcode_title_html($title);
@@ -1811,8 +1829,40 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function player_elo_badge_html($player_id)
     {
-        $elo = \OpenTT\Unified\Infrastructure\EloRatingManager::getPlayerRating((int) $player_id);
+        $scope = self::current_elo_scope();
+        $elo = \OpenTT\Unified\Infrastructure\EloRatingManager::getPlayerRating(
+            (int) $player_id,
+            (string) ($scope['liga_slug'] ?? ''),
+            (string) ($scope['sezona_slug'] ?? '')
+        );
         return '<span class="opentt-elo-badge">ELO ' . esc_html((string) $elo) . '</span>';
+    }
+
+    private static function current_elo_scope()
+    {
+        $ctx = self::current_match_context();
+        if (is_array($ctx) && !empty($ctx['db_row']) && is_object($ctx['db_row'])) {
+            return [
+                'liga_slug' => sanitize_title((string) ($ctx['db_row']->liga_slug ?? '')),
+                'sezona_slug' => sanitize_title((string) ($ctx['db_row']->sezona_slug ?? '')),
+            ];
+        }
+
+        $archive_ctx = self::current_archive_context();
+        if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'liga_sezona') {
+            $raw_liga = sanitize_title((string) ($archive_ctx['liga_slug'] ?? ''));
+            $raw_sezona = sanitize_title((string) ($archive_ctx['sezona_slug'] ?? ''));
+            $parsed = self::parse_legacy_liga_sezona($raw_liga, $raw_sezona);
+            return [
+                'liga_slug' => sanitize_title((string) ($parsed['league_slug'] ?? $raw_liga)),
+                'sezona_slug' => sanitize_title((string) ($parsed['season_slug'] ?? $raw_sezona)),
+            ];
+        }
+
+        return [
+            'liga_slug' => sanitize_title((string) (get_query_var('liga') ?: '')),
+            'sezona_slug' => sanitize_title((string) (get_query_var('sezona') ?: '')),
+        ];
     }
 
     private static function render_klub_card_html($klub_id)

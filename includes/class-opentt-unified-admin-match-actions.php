@@ -543,7 +543,14 @@ final class OpenTT_Unified_Admin_Match_Actions
             if ($is_doubles !== 1) {
                 $winner_id = ($hs > $as) ? $hp : (($as > $hs) ? $ap : 0);
                 if ($winner_id > 0) {
-                    \OpenTT\Unified\Infrastructure\EloRatingManager::updateAfterMatch($hp, $ap, $winner_id);
+                    \OpenTT\Unified\Infrastructure\EloRatingManager::updateAfterMatch(
+                        $hp,
+                        $ap,
+                        $winner_id,
+                        \OpenTT\Unified\Infrastructure\EloRatingManager::K_FACTOR,
+                        (string) ($match->liga_slug ?? ''),
+                        (string) ($match->sezona_slug ?? '')
+                    );
                 }
             }
         }
@@ -690,7 +697,14 @@ final class OpenTT_Unified_Admin_Match_Actions
                 if ($is_doubles !== 1) {
                     $winner_id = ($hs > $as) ? $hp : (($as > $hs) ? $ap : 0);
                     if ($winner_id > 0) {
-                        \OpenTT\Unified\Infrastructure\EloRatingManager::updateAfterMatch($hp, $ap, $winner_id);
+                        \OpenTT\Unified\Infrastructure\EloRatingManager::updateAfterMatch(
+                            $hp,
+                            $ap,
+                            $winner_id,
+                            \OpenTT\Unified\Infrastructure\EloRatingManager::K_FACTOR,
+                            (string) ($match->liga_slug ?? ''),
+                            (string) ($match->sezona_slug ?? '')
+                        );
                     }
                 }
             }

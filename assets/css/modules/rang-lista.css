@@ -47,7 +47,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  overflow: hidden;
+  overflow: visible;
   flex-shrink: 0;
   position: relative;
 }
@@ -61,8 +61,9 @@
 
 .opentt-elo-badge {
   position: absolute;
-  right: -10px;
-  bottom: -8px;
+  right: -12px;
+  top: -8px;
+  bottom: auto;
   z-index: 2;
   display: inline-flex;
   align-items: center;

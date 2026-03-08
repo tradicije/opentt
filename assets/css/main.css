@@ -839,7 +839,8 @@ form.opentt-unos-forma input[type="submit"]:hover {
 
 .stoni-igrac-slika-wrap .opentt-elo-badge {
   right: -14px;
-  bottom: -8px;
+  top: -8px;
+  bottom: auto;
 }
 
 /* Ime i prezime kao stack */
@@ -1378,7 +1379,7 @@ thead tr th {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  overflow: hidden;
+  overflow: visible;
   flex-shrink: 0;
   position: relative;
 }
@@ -1391,8 +1392,9 @@ thead tr th {
 
 .opentt-elo-badge {
   position: absolute;
-  right: -10px;
-  bottom: -8px;
+  right: -12px;
+  top: -8px;
+  bottom: auto;
   z-index: 2;
   display: inline-flex;
   align-items: center;
@@ -1409,6 +1411,38 @@ thead tr th {
   line-height: 1;
   letter-spacing: 0.02em;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.opentt-info-igraca-slika-wrap {
+  position: relative;
+  overflow: visible;
+}
+
+.opentt-player-elo-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.opentt-player-elo-scope {
+  display: block;
+  margin-top: 4px;
+  color: #cfe0ff;
+  font-weight: 500;
+}
+
+.opentt-player-elo-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.opentt-player-elo-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
 }
 .igrac-card-list .igrac-imeprezime {
   flex: 1;

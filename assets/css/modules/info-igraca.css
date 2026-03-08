@@ -46,6 +46,8 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 62px;
+  position: relative;
+  overflow: visible;
 }
 
 .opentt-info-igraca-slika {
@@ -53,6 +55,12 @@
   height: 62px;
   object-fit: cover;
   border-radius: 50%;
+}
+
+.opentt-info-igraca-slika-wrap .opentt-elo-badge {
+  right: -12px;
+  top: -8px;
+  bottom: auto;
 }
 
 .opentt-info-igraca-head-text {
@@ -123,6 +131,33 @@
 .opentt-info-igraca-row dd {
   margin: 0;
   color: #fff;
+}
+
+.opentt-player-elo-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.opentt-player-elo-scope {
+  display: block;
+  margin-top: 4px;
+  color: #cfe0ff;
+  font-weight: 500;
+}
+
+.opentt-player-elo-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.opentt-player-elo-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
 }
 
 .opentt-info-igraca-row a {
