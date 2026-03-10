@@ -1150,6 +1150,7 @@ JS;
         $sort_by = isset($_GET['sort_by']) ? sanitize_key((string) wp_unslash($_GET['sort_by'])) : 'date';
         $sort_dir = isset($_GET['sort_dir']) ? strtoupper(sanitize_key((string) wp_unslash($_GET['sort_dir']))) : 'DESC';
         $sort_dir = in_array($sort_dir, ['ASC', 'DESC'], true) ? $sort_dir : 'DESC';
+        $quick_edit_id = isset($_GET['quick_edit_id']) ? (int) $_GET['quick_edit_id'] : 0;
 
         if (self::table_exists($table)) {
             self::ensure_matches_live_column($table);
@@ -1229,10 +1230,50 @@ JS;
             'post_status' => ['publish', 'draft', 'pending', 'private'],
         ]) ?: [];
 
+        $current_list_url = admin_url('admin.php?page=stkb-unified-matches');
+        foreach ([
+            'liga_slug' => $f_liga,
+            'sezona_slug' => $f_sezona,
+            'kolo_slug' => $f_kolo,
+            'club_id' => $f_club > 0 ? (string) $f_club : '',
+            'games_status' => $f_games,
+            'sort_by' => $sort_by,
+            'sort_dir' => $sort_dir,
+        ] as $k => $v) {
+            if ((string) $v === '') {
+                continue;
+            }
+            $current_list_url = add_query_arg($k, (string) $v, $current_list_url);
+        }
+
+        $quick_match = null;
+        if ($quick_edit_id > 0 && self::table_exists($table)) {
+            $quick_match = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id=%d LIMIT 1", $quick_edit_id));
+        }
+
         echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Utakmice</h1>';
         echo '<p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-match')) . '">+ Dodaj utakmicu</a></p>';
+
+        if ($quick_match && is_object($quick_match)) {
+            $q_home = get_the_title((int) ($quick_match->home_club_post_id ?? 0));
+            $q_away = get_the_title((int) ($quick_match->away_club_post_id ?? 0));
+            echo '<div id="opentt-quick-score" class="opentt-panel" style="padding:12px;margin-bottom:12px;">';
+            echo '<h2 style="margin-top:0;">Quick edit rezultat</h2>';
+            echo '<p class="description" style="margin-top:0;">' . esc_html((string) $q_home . ' — ' . (string) $q_away) . '</p>';
+            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">';
+            wp_nonce_field('opentt_unified_quick_update_match_score');
+            echo '<input type="hidden" name="action" value="opentt_unified_quick_update_match_score">';
+            echo '<input type="hidden" name="id" value="' . (int) ($quick_match->id ?? 0) . '">';
+            echo '<input type="hidden" name="redirect_to" value="' . esc_attr($current_list_url) . '">';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Domaćin<input type="number" min="0" max="7" name="home_score" value="' . esc_attr((string) intval($quick_match->home_score ?? 0)) . '" style="width:90px;"></label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Gost<input type="number" min="0" max="7" name="away_score" value="' . esc_attr((string) intval($quick_match->away_score ?? 0)) . '" style="width:90px;"></label>';
+            echo '<button type="submit" class="button button-primary">Sačuvaj rezultat</button>';
+            echo '<a class="button" href="' . esc_url($current_list_url) . '">Otkaži</a>';
+            echo '</form>';
+            echo '</div>';
+        }
 
         echo '<form method="get" class="opentt-panel" style="padding:12px;margin-bottom:12px;">';
         echo '<input type="hidden" name="page" value="stkb-unified-matches">';
@@ -1342,6 +1383,7 @@ JS;
                 admin_url('admin-post.php?action=opentt_unified_toggle_live_match&id=' . (int) $m->id),
                 'opentt_unified_toggle_live_match_' . (int) $m->id
             );
+            $quick_url = add_query_arg('quick_edit_id', (int) $m->id, $current_list_url);
             $del_url = wp_nonce_url(
                 admin_url('admin-post.php?action=opentt_unified_delete_match&id=' . (int) $m->id),
                 'opentt_unified_delete_match_' . (int) $m->id
@@ -1362,6 +1404,7 @@ JS;
             echo '<td><strong>' . ($games_count > 0 ? '✓' : '✗') . '</strong> <span style="opacity:.75;">(' . esc_html((string) $games_count) . ')</span></td>';
             echo '<td>' . esc_html(self::display_match_date((string) $m->match_date)) . '</td>';
             echo '<td><a class="button button-small" href="' . esc_url($edit_url) . '">Uredi</a> ';
+            echo '<a class="button button-small" href="' . esc_url($quick_url) . '#opentt-quick-score">Quick rezultat</a> ';
             echo '<a class="button button-small" href="' . esc_url($toggle_featured_url) . '">' . esc_html($is_featured ? 'Unfeature' : 'Feature') . '</a> ';
             echo '<a class="button button-small" href="' . esc_url($toggle_live_url) . '">' . esc_html($is_live ? 'Unset LIVE' : 'Set LIVE') . '</a> ';
             echo '<a class="button button-small" href="' . esc_url($front_url) . '" target="_blank" rel="noopener">Frontend</a> ';
@@ -4518,6 +4561,11 @@ HTML;
     public static function handle_delete_matches_bulk_admin()
     {
         OpenTT_Unified_Admin_Match_Actions::handle_delete_matches_bulk_admin();
+    }
+
+    public static function handle_quick_update_match_score_admin()
+    {
+        OpenTT_Unified_Admin_Match_Actions::handle_quick_update_match_score_admin();
     }
 
     public static function handle_save_game()

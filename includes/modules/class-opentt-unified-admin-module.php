@@ -32,6 +32,7 @@ final class OpenTT_Unified_Admin_Module
         add_action('admin_post_opentt_unified_toggle_live_match', ['OpenTT_Unified_Core', 'handle_toggle_live_match_admin']);
         add_action('admin_post_opentt_unified_finish_live_match', ['OpenTT_Unified_Core', 'handle_finish_live_match_admin']);
         add_action('admin_post_opentt_unified_delete_matches_bulk', ['OpenTT_Unified_Core', 'handle_delete_matches_bulk_admin']);
+        add_action('admin_post_opentt_unified_quick_update_match_score', ['OpenTT_Unified_Core', 'handle_quick_update_match_score_admin']);
         add_action('admin_post_opentt_unified_save_game', ['OpenTT_Unified_Core', 'handle_save_game']);
         add_action('admin_post_opentt_unified_save_games_batch', ['OpenTT_Unified_Core', 'handle_save_games_batch']);
         add_action('admin_post_opentt_unified_delete_game', ['OpenTT_Unified_Core', 'handle_delete_game']);

@@ -434,6 +434,49 @@ final class OpenTT_Unified_Admin_Match_Actions
         exit;
     }
 
+    public static function handle_quick_update_match_score_admin()
+    {
+        self::require_cap();
+        check_admin_referer('opentt_unified_quick_update_match_score');
+
+        $match_id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
+        $home_score = max(0, (int) ($_POST['home_score'] ?? 0));
+        $away_score = max(0, (int) ($_POST['away_score'] ?? 0));
+        $played = ($home_score >= 4 || $away_score >= 4) ? 1 : 0;
+        $redirect_to = isset($_POST['redirect_to']) ? esc_url_raw((string) wp_unslash($_POST['redirect_to'])) : '';
+
+        if ($match_id <= 0) {
+            $fallback = admin_url('admin.php?page=stkb-unified-matches');
+            wp_safe_redirect(self::admin_notice_url($fallback, 'error', 'Nedostaje ID utakmice.'));
+            exit;
+        }
+
+        global $wpdb;
+        $table = OpenTT_Unified_Core::db_table('matches');
+        $ok = $wpdb->update(
+            $table,
+            [
+                'home_score' => $home_score,
+                'away_score' => $away_score,
+                'played' => $played,
+                'updated_at' => current_time('mysql'),
+            ],
+            ['id' => $match_id],
+            ['%d', '%d', '%d', '%s'],
+            ['%d']
+        );
+
+        $target = $redirect_to !== '' ? $redirect_to : admin_url('admin.php?page=stkb-unified-matches');
+        $target = remove_query_arg(['quick_edit_id'], $target);
+        if ($ok === false) {
+            wp_safe_redirect(self::admin_notice_url($target, 'error', 'Greška pri quick edit ažuriranju rezultata.'));
+            exit;
+        }
+
+        wp_safe_redirect(self::admin_notice_url($target, 'success', 'Rezultat je ažuriran (quick edit).'));
+        exit;
+    }
+
     public static function handle_save_game()
     {
         self::require_cap();

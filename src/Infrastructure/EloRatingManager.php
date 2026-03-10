@@ -68,7 +68,7 @@ final class EloRatingManager
 
     public static function isEnabled()
     {
-        $raw = get_option(self::OPTION_ENABLED, '1');
+        $raw = get_option(self::OPTION_ENABLED, '0');
         return (string) $raw !== '0';
     }
 
