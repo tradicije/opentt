@@ -86,6 +86,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added admin Settings toggle for ELO system (enable/disable): when disabled, ELO updates/backfill are skipped and player-profile ELO display is hidden.
 - Added quick score edit workflow in admin `Utakmice` list (`Quick rezultat`) so home/away score can be updated directly from the list page without opening full match edit.
 - Changed default ELO setting to disabled (`OFF`) for fresh installs unless explicitly enabled in Settings.
+- Added new global personalization color `Boja zaglavlja tabela` and wired all frontend table-header surfaces (`thead` tint previously hardcoded as `rgba(8, 30, 82, 0.32)`) to this setting.
 
 ## Releases
 

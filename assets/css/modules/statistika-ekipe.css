@@ -20,7 +20,7 @@
   padding: 10px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
 }
 
 .opentt-stat-ekipe-mvp-link {
@@ -101,7 +101,7 @@
   padding: 10px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
   min-width: 0;
   overflow: hidden;
 }
@@ -155,7 +155,7 @@
 }
 
 .opentt-stat-ekipe-toggle:hover {
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
   color: #fff;
 }
 
@@ -185,7 +185,7 @@
 .opentt-stat-ekipe-table thead {
   color: #ffffffa8;
   font-style: italic;
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
 }
 
 .opentt-stat-ekipe-table .club {
@@ -213,7 +213,7 @@
 }
 
 .opentt-stat-ekipe-table tr.highlight {
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
   font-weight: 700;
 }
 

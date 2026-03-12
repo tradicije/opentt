@@ -43,7 +43,7 @@
 
 .stoni-vesti-kartica:hover {
   transform: translateY(-1px);
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
   border-color: rgba(255, 255, 255, 0.28);
 }
 

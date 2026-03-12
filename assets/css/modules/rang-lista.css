@@ -134,7 +134,7 @@
 }
 
 .igrac-card-list.highlight {
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
   border-left: 4px solid #0084ff;
 }
 

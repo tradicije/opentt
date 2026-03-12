@@ -47,7 +47,7 @@
   padding: 10px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
   min-width: 0;
   overflow: hidden;
 }
@@ -101,7 +101,7 @@
 }
 
 .opentt-stat-igraca-toggle:hover {
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
   color: #fff;
 }
 

@@ -137,7 +137,7 @@ body a {
 }
 
 .opentt-grid-filter-reset:hover {
-  background: rgba(8, 30, 82, 0.32) !important;
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32)) !important;
   color: #fff !important;
 }
 

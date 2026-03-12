@@ -18,6 +18,7 @@ final class VisualSettings
         return [
             'container_bg' => '#000a26',
             'container_border' => '#2b3d6c',
+            'table_head_bg' => '#081e52',
             'title_color' => '#ffffff',
             'text_color' => '#c7d7ff',
             'accent_color' => '#0084ff',
@@ -32,7 +33,7 @@ final class VisualSettings
         $in = is_array($raw) ? $raw : [];
         $out = $defaults;
 
-        foreach (['container_bg', 'container_border', 'title_color', 'text_color', 'accent_color'] as $key) {
+        foreach (['container_bg', 'container_border', 'table_head_bg', 'title_color', 'text_color', 'accent_color'] as $key) {
             if (!isset($in[$key])) {
                 continue;
             }
@@ -69,6 +70,8 @@ final class VisualSettings
         $radius = (int) $s['radius'] . 'px';
         $bg = $s['container_bg'];
         $border = $s['container_border'];
+        $tableHead = $s['table_head_bg'];
+        $tableHeadSoft = self::hexToRgba($tableHead, 0.32);
         $title = $s['title_color'];
         $text = $s['text_color'];
         $accent = $s['accent_color'];
@@ -220,7 +223,7 @@ final class VisualSettings
         ]);
 
         return implode("\n", [
-            ':root{--opentt-box-bg:' . $bg . ';--opentt-box-border:' . $border . ';--opentt-box-title:' . $title . ';--opentt-box-text:' . $text . ';--opentt-box-accent:' . $accent . ';--opentt-box-radius:' . $radius . ';}',
+            ':root{--opentt-box-bg:' . $bg . ';--opentt-box-border:' . $border . ';--opentt-box-table-head-bg:' . $tableHead . ';--opentt-box-table-head-bg-soft:' . $tableHeadSoft . ';--opentt-box-title:' . $title . ';--opentt-box-text:' . $text . ';--opentt-box-accent:' . $accent . ';--opentt-box-radius:' . $radius . ';}',
             $containers . '{background:var(--opentt-box-bg);border-color:var(--opentt-box-border);border-radius:var(--opentt-box-radius);}',
             $subcards . '{background:var(--opentt-box-bg);border-color:var(--opentt-box-border);border-radius:calc(var(--opentt-box-radius) - 4px);}',
             $textSelectors . '{color:var(--opentt-box-text);}',
@@ -230,5 +233,20 @@ final class VisualSettings
             $linkHoverSelectors . '{color:var(--opentt-box-accent) !important;}',
             '.stoni-vesti-kartica,.opentt-item,.opentt-prikaz-takmicenja-card,.opentt-klubovi-item,.related-post-item,.opentt-forma-item,.izvestaj-utakmice-blok{overflow:hidden;}',
         ]);
+    }
+
+    private static function hexToRgba($hex, $alpha)
+    {
+        $hex = ltrim((string) $hex, '#');
+        if (strlen($hex) !== 6) {
+            return 'rgba(8, 30, 82, 0.32)';
+        }
+
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        $a = max(0, min(1, (float) $alpha));
+
+        return sprintf('rgba(%d, %d, %d, %.2f)', $r, $g, $b, $a);
     }
 }

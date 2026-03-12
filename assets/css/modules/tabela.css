@@ -24,7 +24,7 @@
   color: #ffffffa8;
   font-style: italic;
   overflow: hidden; /* da obriše unutrašnji višak */
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
 }
 
 thead tr th {
@@ -59,7 +59,7 @@ thead tr th {
 }
 
 .tabela-lige tr.highlight {
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
   font-weight: bold;
   border-left: 4px solid #0084FF;
 }

@@ -33,7 +33,7 @@
 
 .opentt-prikaz-takmicenja-card:hover {
   border-color: rgba(142, 197, 255, 0.7);
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
 }
 
 .opentt-prikaz-takmicenja-card-head {

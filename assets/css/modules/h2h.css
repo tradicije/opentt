@@ -62,7 +62,7 @@
   animation: openttLivePulse 1.2s infinite;
 }
 .h2h-box:hover {
-  background: rgba(8, 30, 82, 0.32);
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
   border-color: rgba(255, 255, 255, 0.28);
   box-shadow: 0 2px 8px #0084FF26;
 }
