@@ -107,6 +107,18 @@ body a {
   gap: 16px;
 }
 
+.opentt-grid-round-group-items > .opentt-grid-wrapper {
+  width: 100%;
+}
+
+.opentt-grid-round-group-items .opentt-grid {
+  gap: 16px;
+}
+
+.opentt-grid-round-group-items .opentt-grid-round-heading {
+  display: none;
+}
+
 .opentt-grid-filters {
   display: flex;
   flex-wrap: wrap;

@@ -265,6 +265,8 @@ final class MatchesGridShortcode
                 return ($b_k <=> $a_k) ?: ($b_ts <=> $a_ts);
             });
 
+            $round_card_mode = ($selected_club > 0 && $selected_kolo === '');
+
             $uid = 'opentt-grid-' . wp_unique_id();
 
             ob_start();
@@ -328,7 +330,41 @@ final class MatchesGridShortcode
             echo '</div>';
             echo '</form>';
 
-            echo (string) $call('render_matches_grid_html', $rows, $columns, true);
+            if ($round_card_mode) {
+                $rows_by_round = [];
+                foreach ($rows as $row) {
+                    $slug = sanitize_title((string) ($row->kolo_slug ?? ''));
+                    if ($slug === '') {
+                        $slug = 'bez-kola';
+                    }
+                    if (!isset($rows_by_round[$slug])) {
+                        $rows_by_round[$slug] = [];
+                    }
+                    $rows_by_round[$slug][] = $row;
+                }
+
+                echo '<div class="opentt-grid-wrapper"><div class="opentt-grid cols-' . intval($columns) . ' opentt-grid-rounds-as-cards">';
+                foreach ($rows_by_round as $round_slug => $round_rows) {
+                    $kolo_no = intval($call('extract_round_no', (string) $round_slug));
+                    $kolo_name = (string) $call('kolo_name_from_slug', (string) $round_slug);
+                    if ($kolo_name === '' && $kolo_no > 0) {
+                        $kolo_name = $kolo_no . '. kolo';
+                    }
+                    if ($kolo_name === '') {
+                        $kolo_name = (string) $round_slug;
+                    }
+
+                    echo '<div class="opentt-grid-round-group" data-kolo-slug="' . esc_attr((string) $round_slug) . '">';
+                    echo '<div class="opentt-grid-round-heading" data-kolo-slug="' . esc_attr((string) $round_slug) . '"><span>' . esc_html($kolo_name) . '</span></div>';
+                    echo '<div class="opentt-grid-round-group-items">';
+                    echo (string) $call('render_matches_grid_html', $round_rows, 1, true);
+                    echo '</div>';
+                    echo '</div>';
+                }
+                echo '</div></div>';
+            } else {
+                echo (string) $call('render_matches_grid_html', $rows, $columns, true);
+            }
             if ($infinite_mode) {
                 if ($use_load_more_button) {
                     echo '<button type="button" class="button opentt-grid-load-more" aria-controls="' . esc_attr($uid) . '">Prikaži još</button>';
