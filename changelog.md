@@ -87,6 +87,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added quick score edit workflow in admin `Utakmice` list (`Quick rezultat`) so home/away score can be updated directly from the list page without opening full match edit.
 - Changed default ELO setting to disabled (`OFF`) for fresh installs unless explicitly enabled in Settings.
 - Added new global personalization color `Boja zaglavlja tabela` and wired all frontend table-header surfaces (`thead` tint previously hardcoded as `rgba(8, 30, 82, 0.32)`) to this setting.
+- Improved `opentt_matches_grid` round grouping when club filtering is active: rounds now respect the configured `columns` layout by rendering each round as its own grid cell with matches stacked underneath, instead of forcing a single full-width round list.
 
 ## Releases
 

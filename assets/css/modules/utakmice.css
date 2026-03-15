@@ -84,6 +84,29 @@ body a {
   padding: 5px 10px;
 }
 
+.opentt-grid.opentt-grid-rounds-as-cards {
+  align-items: start;
+}
+
+.opentt-grid-round-group {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.opentt-grid-round-group .opentt-grid-round-heading {
+  grid-column: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.opentt-grid-round-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .opentt-grid-filters {
   display: flex;
   flex-wrap: wrap;

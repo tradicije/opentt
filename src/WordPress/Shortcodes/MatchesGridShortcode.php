@@ -360,6 +360,7 @@ final class MatchesGridShortcode
                     var loadMoreBtn = root.querySelector('.opentt-grid-load-more');
                     var infiniteEnabled = <?php echo $infinite_mode ? 'true' : 'false'; ?>;
                     var useLoadMoreButton = <?php echo $use_load_more_button ? 'true' : 'false'; ?>;
+                    var initialClubConstraint = <?php echo !empty($query_args['club_id']) ? 'true' : 'false'; ?>;
                     var chunkSize = <?php echo intval($chunk_size); ?>;
                     var visibleCount = chunkSize;
                     var observer = null;
@@ -421,8 +422,70 @@ final class MatchesGridShortcode
                         return dateB - dateA;
                     }
 
+                    function useRoundCardLayout() {
+                        var selectedClub = clubSelect ? (clubSelect.value || '') : '';
+                        return !!selectedClub || initialClubConstraint;
+                    }
+
+                    function clearRoundLayout() {
+                        grid.classList.remove('opentt-grid-rounds-as-cards');
+                        grid.querySelectorAll('.opentt-grid-round-group').forEach(function(group){
+                            group.querySelectorAll('.opentt-item').forEach(function(item){
+                                grid.appendChild(item);
+                            });
+                            group.remove();
+                        });
+                        grid.querySelectorAll('.opentt-grid-round-heading').forEach(function(node){
+                            node.remove();
+                        });
+                    }
+
                     function renderRoundHeadings(renderedItems) {
-                        grid.querySelectorAll('.opentt-grid-round-heading').forEach(function(node){ node.remove(); });
+                        clearRoundLayout();
+                        if (useRoundCardLayout()) {
+                            grid.classList.add('opentt-grid-rounds-as-cards');
+                            var groups = [];
+                            var map = {};
+                            (renderedItems || []).forEach(function(item){
+                                var slug = item.getAttribute('data-kolo-slug') || '';
+                                if (!slug) { return; }
+                                if (!map[slug]) {
+                                    var title = item.getAttribute('data-kolo-name') || '';
+                                    var koloNo = parseInt(item.getAttribute('data-kolo-no') || '0', 10);
+                                    if (!title && koloNo > 0) { title = String(koloNo) + '. kolo'; }
+                                    if (!title) { title = slug; }
+                                    map[slug] = { slug: slug, title: title, items: [] };
+                                    groups.push(map[slug]);
+                                }
+                                map[slug].items.push(item);
+                            });
+                            groups.forEach(function(groupData){
+                                var group = document.createElement('div');
+                                group.className = 'opentt-grid-round-group';
+                                group.setAttribute('data-kolo-slug', groupData.slug);
+
+                                var head = document.createElement('div');
+                                head.className = 'opentt-grid-round-heading';
+                                head.setAttribute('data-kolo-slug', groupData.slug);
+
+                                var text = document.createElement('span');
+                                text.textContent = groupData.title;
+                                head.appendChild(text);
+
+                                var itemsWrap = document.createElement('div');
+                                itemsWrap.className = 'opentt-grid-round-group-items';
+
+                                group.appendChild(head);
+                                group.appendChild(itemsWrap);
+                                grid.appendChild(group);
+
+                                groupData.items.forEach(function(item){
+                                    itemsWrap.appendChild(item);
+                                });
+                            });
+                            return;
+                        }
+
                         var lastSlug = '';
                         (renderedItems || []).forEach(function(item){
                             var slug = item.getAttribute('data-kolo-slug') || '';
