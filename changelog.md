@@ -91,6 +91,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added `opentt_matches_list` to the admin shortcode catalog with documented `liga`, `sezona`/`season`, `played`, `kolo`, and `highlight` attributes.
 - Improved `opentt_matches_list` mobile layout by giving rows more breathing room, better stacked alignment, larger central score/time typography, and more readable wrapped team names on small screens.
 - Added `highlight` support to `opentt_matches_list`: passing a club ID, slug, or name now visually emphasizes rows where that club appears.
+- Fixed match query compatibility for explicit `liga + season` shortcode filters by adding fallback support for legacy rows where `liga_slug` was historically stored as a combined value (for example `kvalitetna-liga-2025-26`).
 
 ## Releases
 
