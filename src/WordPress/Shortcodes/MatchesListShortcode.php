@@ -45,6 +45,24 @@ final class MatchesListShortcode
         $rows = $call('db_get_matches', $query_args);
         $rows = is_array($rows) ? $rows : [];
         if (empty($rows)) {
+            $raw_liga = sanitize_title((string) ($atts['liga'] ?? ''));
+            $raw_season = sanitize_title((string) (!empty($atts['season']) ? $atts['season'] : ($atts['sezona'] ?? '')));
+            if ($raw_liga !== '' && $raw_season !== '') {
+                $legacy_args = $query_args;
+                $legacy_args['liga_slug'] = sanitize_title($raw_liga . '-' . $raw_season);
+
+                $rows = $call('db_get_matches', $legacy_args);
+                $rows = is_array($rows) ? $rows : [];
+
+                if (empty($rows)) {
+                    // Some older rows used combined liga slug while sezona was empty.
+                    $legacy_args['sezona_slug'] = '';
+                    $rows = $call('db_get_matches', $legacy_args);
+                    $rows = is_array($rows) ? $rows : [];
+                }
+            }
+        }
+        if (empty($rows)) {
             return (string) $call('shortcode_title_html', 'Utakmice') . '<p>Nema utakmica za prikaz.</p>';
         }
 

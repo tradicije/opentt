@@ -50,10 +50,12 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
             // Backward compatibility: support both normalized (liga_slug + sezona_slug)
             // and legacy combined storage where liga_slug already contains season.
             $legacy_combined = sanitize_title($liga_slug . '-' . $sezona_slug);
-            $where[] = '((m.liga_slug=%s AND m.sezona_slug=%s) OR (m.liga_slug=%s AND (m.sezona_slug=%s OR m.sezona_slug IS NULL)))';
+            $where[] = '((m.liga_slug=%s AND (m.sezona_slug=%s OR m.sezona_slug=%s OR m.sezona_slug IS NULL)) OR (m.liga_slug=%s AND (m.sezona_slug=%s OR m.sezona_slug=%s OR m.sezona_slug IS NULL)))';
             $params[] = $liga_slug;
             $params[] = $sezona_slug;
+            $params[] = '';
             $params[] = $legacy_combined;
+            $params[] = $sezona_slug;
             $params[] = '';
         } elseif ($liga_slug !== '') {
             $where[] = 'm.liga_slug=%s';
