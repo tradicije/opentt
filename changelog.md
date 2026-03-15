@@ -88,6 +88,9 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Changed default ELO setting to disabled (`OFF`) for fresh installs unless explicitly enabled in Settings.
 - Added new global personalization color `Boja zaglavlja tabela` and wired all frontend table-header surfaces (`thead` tint previously hardcoded as `rgba(8, 30, 82, 0.32)`) to this setting.
 - Improved `opentt_matches_grid` round grouping when club filtering is active: rounds now respect the configured `columns` layout by rendering each round as its own grid cell with matches stacked underneath, instead of forcing a single full-width round list.
+- Added `opentt_matches_list` to the admin shortcode catalog with documented `liga`, `sezona`/`season`, `played`, `kolo`, and `highlight` attributes.
+- Improved `opentt_matches_list` mobile layout by giving rows more breathing room, better stacked alignment, larger central score/time typography, and more readable wrapped team names on small screens.
+- Added `highlight` support to `opentt_matches_list`: passing a club ID, slug, or name now visually emphasizes rows where that club appears.
 
 ## Releases
 

@@ -32,6 +32,7 @@ final class MatchesListShortcode
             'sezona' => '',
             'season' => '',
             'kolo' => '',
+            'highlight' => '',
         ], $atts);
 
         $query_args = (array) $call('build_match_query_args', $atts);
@@ -47,7 +48,8 @@ final class MatchesListShortcode
             return (string) $call('shortcode_title_html', 'Utakmice') . '<p>Nema utakmica za prikaz.</p>';
         }
 
-        $prepared = self::build_round_data($rows, $call);
+        $highlight_ids = self::resolve_highlight_ids((string) ($atts['highlight'] ?? ''));
+        $prepared = self::build_round_data($rows, $call, $highlight_ids);
         if (empty($prepared['rounds']) || empty($prepared['matches_by_round'])) {
             return (string) $call('shortcode_title_html', 'Utakmice') . '<p>Nema utakmica za prikaz.</p>';
         }
@@ -133,7 +135,7 @@ final class MatchesListShortcode
             }
 
             return ''
-              + '<div class="opentt-matches-list-row" data-link="' + esc(match.link || '#') + '" tabindex="0" role="link">'
+              + '<div class="opentt-matches-list-row ' + esc(match.rowClass || '') + '" data-link="' + esc(match.link || '#') + '" tabindex="0" role="link">'
               +   '<div class="opentt-matches-list-col opentt-matches-list-col--date">' + esc(match.date) + '</div>'
               +   '<div class="opentt-matches-list-col opentt-matches-list-col--match">'
               +     '<span class="match-side match-side--home">'
@@ -228,9 +230,14 @@ final class MatchesListShortcode
         return ob_get_clean();
     }
 
-    private static function build_round_data(array $rows, callable $call)
+    private static function build_round_data(array $rows, callable $call, array $highlight_ids = [])
     {
         $matches_by_round = [];
+        $highlight_map = [];
+        foreach ($highlight_ids as $highlight_id) {
+            $highlight_map[intval($highlight_id)] = true;
+        }
+
         foreach ($rows as $row) {
             if (!is_object($row)) {
                 continue;
@@ -262,6 +269,8 @@ final class MatchesListShortcode
                 }
             }
 
+            $is_highlighted = ($home_id > 0 && isset($highlight_map[$home_id])) || ($away_id > 0 && isset($highlight_map[$away_id]));
+
             $matches_by_round[$kolo_slug][] = [
                 'id' => intval($row->id ?? 0),
                 'matchDateRaw' => (string) ($row->match_date ?? ''),
@@ -279,6 +288,7 @@ final class MatchesListShortcode
                 'link' => $match_link,
                 'reportUrl' => trim((string) ($row->report_url ?? '')),
                 'videoUrl' => trim((string) ($row->video_url ?? '')),
+                'rowClass' => $is_highlighted ? 'is-highlight' : '',
             ];
         }
 
@@ -373,5 +383,31 @@ final class MatchesListShortcode
         }
 
         return $value;
+    }
+
+    private static function resolve_highlight_ids($raw)
+    {
+        $items = array_filter(array_map('trim', explode(',', (string) $raw)));
+        if (empty($items)) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($items as $item) {
+            if (is_numeric($item)) {
+                $ids[] = intval($item);
+                continue;
+            }
+
+            $post = get_page_by_path(sanitize_title($item), OBJECT, 'klub');
+            if (!$post) {
+                $post = get_page_by_title($item, OBJECT, 'klub');
+            }
+            if ($post && !is_wp_error($post)) {
+                $ids[] = intval($post->ID);
+            }
+        }
+
+        return array_values(array_unique(array_filter($ids)));
     }
 }

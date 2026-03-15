@@ -2793,6 +2793,19 @@ JS;
                 ],
             ],
             [
+                'tag' => 'opentt_matches_list',
+                'desc' => 'Lista utakmica po kolima sa navigacijom levo/desno i mobilno optimizovanim redovima.',
+                'attrs' => 'liga, sezona, season, played, kolo, highlight',
+                'details' => 'Prikazuje jedno kolo odjednom i prebacuje između kola bez reload-a. `highlight` prima ID, slug ili naziv kluba i naglašava redove utakmica tog kluba.',
+                'builder' => [
+                    ['name' => 'liga', 'label' => 'Liga slug', 'type' => 'text', 'default' => '', 'help' => 'Slug lige/takmičenja.'],
+                    ['name' => 'season', 'label' => 'Season slug', 'type' => 'text', 'default' => '', 'help' => 'Slug sezone (npr. 2025-26).'],
+                    ['name' => 'played', 'label' => 'Played', 'type' => 'text', 'default' => '', 'help' => 'true = odigrane, false = neodigrane, prazno = sve.'],
+                    ['name' => 'kolo', 'label' => 'Kolo slug', 'type' => 'text', 'default' => '', 'help' => 'Opcioni početni round slug.'],
+                    ['name' => 'highlight', 'label' => 'Highlight klub', 'type' => 'text', 'default' => '', 'help' => 'ID, slug ili naziv kluba za naglašavanje redova utakmica.'],
+                ],
+            ],
+            [
                 'tag' => 'opentt_standings_table',
                 'desc' => 'Tabela lige za kontekst stranice ili zadatu ligu/sezonu.',
                 'attrs' => 'liga, sezona, highlight',
@@ -2860,6 +2873,7 @@ JS;
             'sezona' => 'Slug sezone (npr. 2025-26).',
             'played' => 'Filter odigranosti: true odigrane, false neodigrane.',
             'odigrana' => 'Legacy alias za played: 1 odigrane, 0 neodigrane.',
+            'highlight' => 'ID, slug ili naziv kluba za vizuelno naglašavanje relevantnih redova/stavki.',
             'filter' => 'Uključuje dodatne filtere/sort opcije.',
             'opentt_match_date' => 'Filter po tačnom datumu utakmice (YYYY-MM-DD).',
             'infinite' => 'Uključuje infinite scroll učitavanje.',
