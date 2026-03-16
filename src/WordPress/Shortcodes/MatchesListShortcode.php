@@ -118,6 +118,15 @@ final class MatchesListShortcode
           var body = root.querySelector('.opentt-matches-list-body');
           var rounds = data.rounds;
           var matchesByRound = data.matchesByRound || {};
+          var normalizedRoundKeys = {};
+
+          function normalizeSlug(value) {
+            return String(value || '').toLowerCase().trim();
+          }
+
+          Object.keys(matchesByRound).forEach(function(key){
+            normalizedRoundKeys[normalizeSlug(key)] = key;
+          });
 
           var roundIndex = 0;
           var i;
@@ -176,6 +185,32 @@ final class MatchesListShortcode
               + '</div>';
           }
 
+          function resolveRoundList(roundSlug) {
+            var direct = matchesByRound[roundSlug];
+            if (Array.isArray(direct) && direct.length) {
+              return direct;
+            }
+
+            var normalizedKey = normalizedRoundKeys[normalizeSlug(roundSlug)] || '';
+            if (normalizedKey) {
+              var normalizedList = matchesByRound[normalizedKey];
+              if (Array.isArray(normalizedList) && normalizedList.length) {
+                return normalizedList;
+              }
+            }
+
+            var roundPos;
+            for (roundPos = 0; roundPos < rounds.length; roundPos++) {
+              var slug = String((rounds[roundPos] && rounds[roundPos].slug) || '');
+              var list = matchesByRound[slug];
+              if (Array.isArray(list) && list.length) {
+                return list;
+              }
+            }
+
+            return [];
+          }
+
           function render() {
             var current = rounds[roundIndex] || null;
             if (!current) {
@@ -187,7 +222,7 @@ final class MatchesListShortcode
             navPrev.disabled = roundIndex <= 0;
             navNext.disabled = roundIndex >= (rounds.length - 1);
 
-            var list = matchesByRound[current.slug] || [];
+            var list = resolveRoundList(current.slug || '');
             if (!list.length) {
               body.innerHTML = '<p>' + esc(data.i18n.noMatches || 'Nema utakmica.') + '</p>';
               return;
