@@ -124,6 +124,28 @@ final class MatchesListShortcode
             return String(value || '').toLowerCase().trim();
           }
 
+          function toList(value) {
+            if (Array.isArray(value)) {
+              return value;
+            }
+            if (!value || typeof value !== 'object') {
+              return [];
+            }
+            var keys = Object.keys(value);
+            if (!keys.length) {
+              return [];
+            }
+            keys.sort(function(a, b){
+              var ai = parseInt(a, 10);
+              var bi = parseInt(b, 10);
+              if (isNaN(ai) || isNaN(bi)) {
+                return String(a).localeCompare(String(b));
+              }
+              return ai - bi;
+            });
+            return keys.map(function(key){ return value[key]; }).filter(Boolean);
+          }
+
           Object.keys(matchesByRound).forEach(function(key){
             normalizedRoundKeys[normalizeSlug(key)] = key;
           });
@@ -186,15 +208,15 @@ final class MatchesListShortcode
           }
 
           function resolveRoundList(roundSlug) {
-            var direct = matchesByRound[roundSlug];
-            if (Array.isArray(direct) && direct.length) {
+            var direct = toList(matchesByRound[roundSlug]);
+            if (direct.length) {
               return direct;
             }
 
             var normalizedKey = normalizedRoundKeys[normalizeSlug(roundSlug)] || '';
             if (normalizedKey) {
-              var normalizedList = matchesByRound[normalizedKey];
-              if (Array.isArray(normalizedList) && normalizedList.length) {
+              var normalizedList = toList(matchesByRound[normalizedKey]);
+              if (normalizedList.length) {
                 return normalizedList;
               }
             }
@@ -202,9 +224,17 @@ final class MatchesListShortcode
             var roundPos;
             for (roundPos = 0; roundPos < rounds.length; roundPos++) {
               var slug = String((rounds[roundPos] && rounds[roundPos].slug) || '');
-              var list = matchesByRound[slug];
-              if (Array.isArray(list) && list.length) {
+              var list = toList(matchesByRound[slug]);
+              if (list.length) {
                 return list;
+              }
+            }
+
+            var allKeys = Object.keys(matchesByRound);
+            for (roundPos = 0; roundPos < allKeys.length; roundPos++) {
+              var anyList = toList(matchesByRound[allKeys[roundPos]]);
+              if (anyList.length) {
+                return anyList;
               }
             }
 
