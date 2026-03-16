@@ -23,6 +23,7 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
         $games = OpenTT_Unified_Core::db_table('games');
 
         $limit = isset($args['limit']) ? intval($args['limit']) : 5;
+        $disable_legacy_fallback = !empty($args['_opentt_no_fallback']);
         $liga_slug = isset($args['liga_slug']) ? (string) $args['liga_slug'] : '';
         $sezona_slug = isset($args['sezona_slug']) ? (string) $args['sezona_slug'] : '';
         $kolo_slug = isset($args['kolo_slug']) ? (string) $args['kolo_slug'] : '';
@@ -92,7 +93,32 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
             $sql = $wpdb->prepare($sql, $params);
         }
 
-        return $wpdb->get_results($sql) ?: [];
+        $rows = $wpdb->get_results($sql) ?: [];
+        if (!empty($rows)) {
+            return $rows;
+        }
+
+        // Fallback path: if explicit liga+sezona filter returns no rows, retry without
+        // liga/sezona SQL constraints and normalize row slugs in PHP for legacy schemas.
+        if (!$disable_legacy_fallback && $liga_slug !== '' && $sezona_slug !== '') {
+            $fallback_args = $args;
+            $fallback_args['liga_slug'] = '';
+            $fallback_args['sezona_slug'] = '';
+            $fallback_args['_opentt_no_fallback'] = 1;
+
+            $candidate_rows = self::db_get_matches($fallback_args);
+            if (!empty($candidate_rows)) {
+                $filtered = array_values(array_filter($candidate_rows, static function ($row) use ($liga_slug, $sezona_slug) {
+                    return self::row_matches_league_season($row, $liga_slug, $sezona_slug);
+                }));
+                if ($limit !== -1) {
+                    return array_slice($filtered, 0, max(1, $limit));
+                }
+                return $filtered;
+            }
+        }
+
+        return [];
     }
 
     public static function db_get_match_by_legacy_id($legacy_id)
@@ -270,5 +296,69 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
         $column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table_name} LIKE %s", 'featured'));
         $cache[$table_name] = !empty($column);
         return $cache[$table_name];
+    }
+
+    private static function row_matches_league_season($row, $requested_liga, $requested_sezona)
+    {
+        if (!is_object($row)) {
+            return false;
+        }
+
+        $requested_liga = sanitize_title((string) $requested_liga);
+        $requested_sezona = sanitize_title((string) $requested_sezona);
+        if ($requested_liga === '' || $requested_sezona === '') {
+            return false;
+        }
+
+        $row_liga = sanitize_title((string) ($row->liga_slug ?? ''));
+        $row_sezona = sanitize_title((string) ($row->sezona_slug ?? ''));
+        $parsed = OpenTT_Unified_Readonly_Helpers::parse_legacy_liga_sezona($row_liga, $row_sezona);
+        $parsed_liga = sanitize_title((string) ($parsed['league_slug'] ?? $row_liga));
+        $parsed_sezona = sanitize_title((string) ($parsed['season_slug'] ?? $row_sezona));
+
+        if ($parsed_liga !== $requested_liga) {
+            return false;
+        }
+
+        return self::seasons_equivalent($parsed_sezona, $requested_sezona);
+    }
+
+    private static function seasons_equivalent($left, $right)
+    {
+        $left = sanitize_title((string) $left);
+        $right = sanitize_title((string) $right);
+        if ($left === $right) {
+            return true;
+        }
+        if ($left === '' || $right === '') {
+            return false;
+        }
+
+        $left_parts = self::season_parts($left);
+        $right_parts = self::season_parts($right);
+        if (!$left_parts || !$right_parts) {
+            return false;
+        }
+
+        return intval($left_parts['from']) === intval($right_parts['from'])
+            && intval($left_parts['to']) === intval($right_parts['to']);
+    }
+
+    private static function season_parts($value)
+    {
+        if (!preg_match('/^(\d{4})-(\d{2,4})$/', (string) $value, $m)) {
+            return null;
+        }
+
+        $from = intval($m[1]);
+        $to_raw = (string) $m[2];
+        if (strlen($to_raw) === 2) {
+            $century = substr((string) $from, 0, 2);
+            $to = intval($century . $to_raw);
+        } else {
+            $to = intval($to_raw);
+        }
+
+        return ['from' => $from, 'to' => $to];
     }
 }
