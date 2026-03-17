@@ -99,6 +99,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added non-JS interaction fallback for `opentt_matches_list`: round arrows now have server-side navigation URLs, and row click navigation is preserved via inline `data-link` handlers even when main round JS fails.
 - Updated `opentt_matches_list` round arrows back to JS-first `button` navigation (no page reload between rounds), while keeping server-side round links only inside `noscript` fallback.
 - Fixed `opentt_matches_list` round-arrow enable/disable state so JS now also toggles `is-disabled` class (not just `disabled` attribute), preventing arrows from staying non-clickable after round changes.
+- Stabilized `opentt_matches_list` round switching by shipping server-aligned `roundLists`/`defaultRoundIndex` payload to JS, so arrow navigation now switches by deterministic round index instead of fragile slug-key mapping.
 
 ## Releases
 

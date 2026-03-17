@@ -104,10 +104,19 @@ final class MatchesListShortcode
             }
         }
 
+        $round_lists = [];
+        foreach ($prepared['rounds'] as $round_meta) {
+            $slug = (string) ($round_meta['slug'] ?? '');
+            $list = $prepared['matches_by_round'][$slug] ?? [];
+            $round_lists[] = is_array($list) ? array_values($list) : [];
+        }
+
         $payload = [
             'rounds' => $prepared['rounds'],
             'matchesByRound' => $prepared['matches_by_round'],
+            'roundLists' => $round_lists,
             'defaultRound' => $default_round,
+            'defaultRoundIndex' => $default_round_index,
             'i18n' => [
                 'prev' => '&lsaquo;',
                 'next' => '&rsaquo;',
@@ -172,6 +181,7 @@ final class MatchesListShortcode
           var body = root.querySelector('.opentt-matches-list-body');
           var rounds = data.rounds;
           var matchesByRound = data.matchesByRound || {};
+          var roundLists = Array.isArray(data.roundLists) ? data.roundLists : [];
           var normalizedRoundKeys = {};
 
           function normalizeSlug(value) {
@@ -204,12 +214,15 @@ final class MatchesListShortcode
             normalizedRoundKeys[normalizeSlug(key)] = key;
           });
 
-          var roundIndex = 0;
-          var i;
-          for (i = 0; i < rounds.length; i++) {
-            if ((rounds[i].slug || '') === (data.defaultRound || '')) {
-              roundIndex = i;
-              break;
+          var roundIndex = parseInt(data.defaultRoundIndex || '0', 10);
+          if (isNaN(roundIndex) || roundIndex < 0 || roundIndex >= rounds.length) {
+            roundIndex = 0;
+            var i;
+            for (i = 0; i < rounds.length; i++) {
+              if ((rounds[i].slug || '') === (data.defaultRound || '')) {
+                roundIndex = i;
+                break;
+              }
             }
           }
 
@@ -312,7 +325,10 @@ final class MatchesListShortcode
               navNext.classList.toggle('is-disabled', !!navNext.disabled);
             }
 
-            var list = resolveRoundList(current.slug || '');
+            var list = toList(roundLists[roundIndex]);
+            if (!list.length) {
+              list = resolveRoundList(current.slug || '');
+            }
             if (!list.length) {
               body.innerHTML = '<p>' + esc(data.i18n.noMatches || 'Nema utakmica.') + '</p>';
               return;
