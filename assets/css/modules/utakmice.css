@@ -693,7 +693,6 @@ a.opentt-grid-cal-preview-more:focus {
 .opentt-matches-list-nav-btn.is-disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  pointer-events: none;
 }
 
 .opentt-matches-list-round {
