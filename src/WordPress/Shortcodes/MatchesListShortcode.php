@@ -77,14 +77,17 @@ final class MatchesListShortcode
             $default_round = (string) ($prepared['rounds'][count($prepared['rounds']) - 1]['slug'] ?? '');
         }
         $default_round_name = '';
-        foreach ($prepared['rounds'] as $round_meta) {
+        $default_round_index = 0;
+        foreach ($prepared['rounds'] as $idx => $round_meta) {
             if ((string) ($round_meta['slug'] ?? '') === $default_round) {
                 $default_round_name = (string) ($round_meta['name'] ?? '');
+                $default_round_index = intval($idx);
                 break;
             }
         }
         if ($default_round_name === '' && !empty($prepared['rounds'])) {
             $default_round_name = (string) ($prepared['rounds'][0]['name'] ?? '');
+            $default_round_index = 0;
         }
 
         $initial_list = [];
@@ -115,14 +118,34 @@ final class MatchesListShortcode
         ];
 
         $uid = 'opentt-matches-list-' . wp_unique_id();
+        $prev_slug = '';
+        $next_slug = '';
+        if (!empty($prepared['rounds'])) {
+            if ($default_round_index > 0 && isset($prepared['rounds'][$default_round_index - 1]['slug'])) {
+                $prev_slug = (string) $prepared['rounds'][$default_round_index - 1]['slug'];
+            }
+            if (isset($prepared['rounds'][$default_round_index + 1]['slug'])) {
+                $next_slug = (string) $prepared['rounds'][$default_round_index + 1]['slug'];
+            }
+        }
+        $prev_url = $prev_slug !== '' ? add_query_arg('opentt_matches_list_round', $prev_slug) : '';
+        $next_url = $next_slug !== '' ? add_query_arg('opentt_matches_list_round', $next_slug) : '';
 
         ob_start();
         echo (string) $call('shortcode_title_html', 'Utakmice');
         echo '<div id="' . esc_attr($uid) . '" class="opentt-matches-list" data-opentt-matches-list="1">';
         echo '<div class="opentt-matches-list-nav" role="group" aria-label="Kolo navigacija">';
-        echo '<button type="button" class="opentt-matches-list-nav-btn is-prev" aria-label="Prethodno kolo">&lsaquo;</button>';
+        if ($prev_url !== '') {
+            echo '<a class="opentt-matches-list-nav-btn is-prev" href="' . esc_url($prev_url) . '" aria-label="Prethodno kolo">&lsaquo;</a>';
+        } else {
+            echo '<span class="opentt-matches-list-nav-btn is-prev is-disabled" aria-hidden="true">&lsaquo;</span>';
+        }
         echo '<div class="opentt-matches-list-round" aria-live="polite">' . esc_html($default_round_name) . '</div>';
-        echo '<button type="button" class="opentt-matches-list-nav-btn is-next" aria-label="Sledeće kolo">&rsaquo;</button>';
+        if ($next_url !== '') {
+            echo '<a class="opentt-matches-list-nav-btn is-next" href="' . esc_url($next_url) . '" aria-label="Sledeće kolo">&rsaquo;</a>';
+        } else {
+            echo '<span class="opentt-matches-list-nav-btn is-next is-disabled" aria-hidden="true">&rsaquo;</span>';
+        }
         echo '</div>';
         echo '<div class="opentt-matches-list-body">' . self::render_initial_rows_html($initial_list) . '</div>';
         echo '</div>';
@@ -208,7 +231,7 @@ final class MatchesListShortcode
             }
 
             return ''
-              + '<div class="opentt-matches-list-row ' + esc(match.rowClass || '') + '" data-link="' + esc(match.link || '#') + '" tabindex="0" role="link">'
+              + '<div class="opentt-matches-list-row ' + esc(match.rowClass || '') + '" data-link="' + esc(match.link || '#') + '" tabindex="0" role="link" onclick="var u=this.getAttribute(\'data-link\');if(u){window.location.href=u;}" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();var u=this.getAttribute(\'data-link\');if(u){window.location.href=u;}}">'
               +   '<div class="opentt-matches-list-col opentt-matches-list-col--date">' + esc(match.date) + '</div>'
               +   '<div class="opentt-matches-list-col opentt-matches-list-col--match">'
               +     '<span class="match-side match-side--home">'
@@ -290,19 +313,25 @@ final class MatchesListShortcode
             body.innerHTML = html;
           }
 
-          navPrev.addEventListener('click', function(){
-            if (roundIndex > 0) {
-              roundIndex -= 1;
-              render();
-            }
-          });
+          if (navPrev) {
+            navPrev.addEventListener('click', function(e){
+              e.preventDefault();
+              if (roundIndex > 0) {
+                roundIndex -= 1;
+                render();
+              }
+            });
+          }
 
-          navNext.addEventListener('click', function(){
-            if (roundIndex < rounds.length - 1) {
-              roundIndex += 1;
-              render();
-            }
-          });
+          if (navNext) {
+            navNext.addEventListener('click', function(e){
+              e.preventDefault();
+              if (roundIndex < rounds.length - 1) {
+                roundIndex += 1;
+                render();
+              }
+            });
+          }
 
           root.addEventListener('click', function(e){
             var icon = e.target && e.target.closest ? e.target.closest('.opentt-matches-list-icon') : null;
@@ -455,7 +484,12 @@ final class MatchesListShortcode
 
     private static function resolve_default_round_slug(array $rounds, array $query_args, array $atts)
     {
-        $target = sanitize_title((string) ($query_args['kolo_slug'] ?? ''));
+        $target = isset($_GET['opentt_matches_list_round'])
+            ? sanitize_title((string) wp_unslash($_GET['opentt_matches_list_round'])) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            : '';
+        if ($target === '') {
+            $target = sanitize_title((string) ($query_args['kolo_slug'] ?? ''));
+        }
         if ($target === '') {
             $target = sanitize_title((string) ($atts['kolo'] ?? ''));
         }
@@ -547,7 +581,7 @@ final class MatchesListShortcode
             $report_url = trim((string) ($match['reportUrl'] ?? ''));
             $video_url = trim((string) ($match['videoUrl'] ?? ''));
 
-            echo '<div class="opentt-matches-list-row' . esc_attr($row_class_attr) . '" data-link="' . esc_url($match_link) . '" tabindex="0" role="link">';
+            echo '<div class="opentt-matches-list-row' . esc_attr($row_class_attr) . '" data-link="' . esc_url($match_link) . '" tabindex="0" role="link" onclick="var u=this.getAttribute(\'data-link\');if(u){window.location.href=u;}" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();var u=this.getAttribute(\'data-link\');if(u){window.location.href=u;}}">';
             echo '<div class="opentt-matches-list-col opentt-matches-list-col--date">' . esc_html($date) . '</div>';
             echo '<div class="opentt-matches-list-col opentt-matches-list-col--match">';
             echo '<span class="match-side match-side--home">';

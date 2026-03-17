@@ -670,6 +670,9 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-matches-list-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid #ffffff38;
   background: rgba(3, 22, 66, 0.7);
   color: #f3f8ff;
@@ -679,11 +682,18 @@ a.opentt-grid-cal-preview-more:focus {
   line-height: 1;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none !important;
 }
 
 .opentt-matches-list-nav-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.opentt-matches-list-nav-btn.is-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .opentt-matches-list-round {

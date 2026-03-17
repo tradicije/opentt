@@ -96,6 +96,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Hardened `opentt_matches_list` frontend round-list resolution: when round navigation exists but direct `round slug -> list` mapping is inconsistent, shortcode now resolves normalized keys and falls back to the first non-empty round list instead of showing an empty body.
 - Hardened `opentt_matches_list` frontend payload handling to support both array and object-shaped `matchesByRound` buckets, preventing empty render states when round data exists but JSON shape differs.
 - Added server-rendered first-round fallback for `opentt_matches_list` so matches are visible immediately (and remain visible even if client-side round JS fails or payload mapping breaks).
+- Added non-JS interaction fallback for `opentt_matches_list`: round arrows now have server-side navigation URLs, and row click navigation is preserved via inline `data-link` handlers even when main round JS fails.
 
 ## Releases
 
