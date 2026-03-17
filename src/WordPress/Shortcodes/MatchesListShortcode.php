@@ -305,6 +305,12 @@ final class MatchesListShortcode
             roundLabel.textContent = current.name || current.slug || '';
             navPrev.disabled = roundIndex <= 0;
             navNext.disabled = roundIndex >= (rounds.length - 1);
+            if (navPrev.classList) {
+              navPrev.classList.toggle('is-disabled', !!navPrev.disabled);
+            }
+            if (navNext.classList) {
+              navNext.classList.toggle('is-disabled', !!navNext.disabled);
+            }
 
             var list = resolveRoundList(current.slug || '');
             if (!list.length) {
