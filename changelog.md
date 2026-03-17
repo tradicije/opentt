@@ -95,6 +95,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added additional `opentt_matches_list` runtime fallback for homepage/non-context usage: when explicit `liga + season` yields no rows, shortcode now retries legacy combined league-season slug patterns and normalized season formats (`YYYY-YY` vs `YYYY-YYYY`) before returning empty output.
 - Hardened `opentt_matches_list` frontend round-list resolution: when round navigation exists but direct `round slug -> list` mapping is inconsistent, shortcode now resolves normalized keys and falls back to the first non-empty round list instead of showing an empty body.
 - Hardened `opentt_matches_list` frontend payload handling to support both array and object-shaped `matchesByRound` buckets, preventing empty render states when round data exists but JSON shape differs.
+- Added server-rendered first-round fallback for `opentt_matches_list` so matches are visible immediately (and remain visible even if client-side round JS fails or payload mapping breaks).
 
 ## Releases
 

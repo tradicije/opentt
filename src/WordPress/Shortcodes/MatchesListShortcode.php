@@ -76,6 +76,30 @@ final class MatchesListShortcode
         if ($default_round === '') {
             $default_round = (string) ($prepared['rounds'][count($prepared['rounds']) - 1]['slug'] ?? '');
         }
+        $default_round_name = '';
+        foreach ($prepared['rounds'] as $round_meta) {
+            if ((string) ($round_meta['slug'] ?? '') === $default_round) {
+                $default_round_name = (string) ($round_meta['name'] ?? '');
+                break;
+            }
+        }
+        if ($default_round_name === '' && !empty($prepared['rounds'])) {
+            $default_round_name = (string) ($prepared['rounds'][0]['name'] ?? '');
+        }
+
+        $initial_list = [];
+        if ($default_round !== '' && !empty($prepared['matches_by_round'][$default_round]) && is_array($prepared['matches_by_round'][$default_round])) {
+            $initial_list = $prepared['matches_by_round'][$default_round];
+        } else {
+            foreach ($prepared['rounds'] as $round_meta) {
+                $slug = (string) ($round_meta['slug'] ?? '');
+                $candidate = $prepared['matches_by_round'][$slug] ?? [];
+                if (is_array($candidate) && !empty($candidate)) {
+                    $initial_list = $candidate;
+                    break;
+                }
+            }
+        }
 
         $payload = [
             'rounds' => $prepared['rounds'],
@@ -97,10 +121,10 @@ final class MatchesListShortcode
         echo '<div id="' . esc_attr($uid) . '" class="opentt-matches-list" data-opentt-matches-list="1">';
         echo '<div class="opentt-matches-list-nav" role="group" aria-label="Kolo navigacija">';
         echo '<button type="button" class="opentt-matches-list-nav-btn is-prev" aria-label="Prethodno kolo">&lsaquo;</button>';
-        echo '<div class="opentt-matches-list-round" aria-live="polite"></div>';
+        echo '<div class="opentt-matches-list-round" aria-live="polite">' . esc_html($default_round_name) . '</div>';
         echo '<button type="button" class="opentt-matches-list-nav-btn is-next" aria-label="Sledeće kolo">&rsaquo;</button>';
         echo '</div>';
-        echo '<div class="opentt-matches-list-body"></div>';
+        echo '<div class="opentt-matches-list-body">' . self::render_initial_rows_html($initial_list) . '</div>';
         echo '</div>';
         ?>
         <script>
@@ -492,5 +516,70 @@ final class MatchesListShortcode
         }
 
         return array_values(array_unique(array_filter($ids)));
+    }
+
+    private static function render_initial_rows_html(array $list)
+    {
+        if (empty($list)) {
+            return '<p>Nema utakmica u ovom kolu.</p>';
+        }
+
+        ob_start();
+        echo '<div class="opentt-matches-list-items">';
+        foreach ($list as $match) {
+            if (!is_array($match)) {
+                continue;
+            }
+            $row_class = trim((string) ($match['rowClass'] ?? ''));
+            $row_class_attr = $row_class !== '' ? ' ' . $row_class : '';
+            $match_link = (string) ($match['link'] ?? '#');
+            $date = (string) ($match['date'] ?? '');
+            $home_name = (string) ($match['homeName'] ?? '');
+            $away_name = (string) ($match['awayName'] ?? '');
+            $home_logo = (string) ($match['homeLogo'] ?? '');
+            $away_logo = (string) ($match['awayLogo'] ?? '');
+            $home_class = trim((string) ($match['homeClass'] ?? ''));
+            $away_class = trim((string) ($match['awayClass'] ?? ''));
+            $show_time = !empty($match['showTime']);
+            $time_label = (string) ($match['timeLabel'] ?? '--:--');
+            $home_score = (string) ($match['homeScore'] ?? '0');
+            $away_score = (string) ($match['awayScore'] ?? '0');
+            $report_url = trim((string) ($match['reportUrl'] ?? ''));
+            $video_url = trim((string) ($match['videoUrl'] ?? ''));
+
+            echo '<div class="opentt-matches-list-row' . esc_attr($row_class_attr) . '" data-link="' . esc_url($match_link) . '" tabindex="0" role="link">';
+            echo '<div class="opentt-matches-list-col opentt-matches-list-col--date">' . esc_html($date) . '</div>';
+            echo '<div class="opentt-matches-list-col opentt-matches-list-col--match">';
+            echo '<span class="match-side match-side--home">';
+            echo '<span class="team-name team-name--home ' . esc_attr($home_class) . '">' . esc_html($home_name) . '</span>';
+            echo '<span class="team-crest">' . $home_logo . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '</span>';
+            echo '<span class="match-score ' . ($show_time ? 'is-time' : '') . '">';
+            if ($show_time) {
+                echo '<span class="match-time">' . esc_html($time_label !== '' ? $time_label : '--:--') . '</span>';
+            } else {
+                echo '<span class="team-score ' . esc_attr($home_class) . '">' . esc_html($home_score) . '</span>';
+                echo '<span class="team-sep">:</span>';
+                echo '<span class="team-score ' . esc_attr($away_class) . '">' . esc_html($away_score) . '</span>';
+            }
+            echo '</span>';
+            echo '<span class="match-side match-side--away">';
+            echo '<span class="team-crest">' . $away_logo . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<span class="team-name team-name--away ' . esc_attr($away_class) . '">' . esc_html($away_name) . '</span>';
+            echo '</span>';
+            echo '</div>';
+            echo '<div class="opentt-matches-list-col opentt-matches-list-col--media">';
+            if ($report_url !== '') {
+                echo '<a class="opentt-matches-list-icon opentt-matches-list-icon--report" href="' . esc_url($report_url) . '" aria-label="Izveštaj" title="Izveštaj">R</a>';
+            }
+            if ($video_url !== '') {
+                echo '<a class="opentt-matches-list-icon opentt-matches-list-icon--video" href="' . esc_url($video_url) . '" aria-label="Snimak" title="Snimak">V</a>';
+            }
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+
+        return (string) ob_get_clean();
     }
 }
