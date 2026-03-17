@@ -135,18 +135,25 @@ final class MatchesListShortcode
         echo (string) $call('shortcode_title_html', 'Utakmice');
         echo '<div id="' . esc_attr($uid) . '" class="opentt-matches-list" data-opentt-matches-list="1">';
         echo '<div class="opentt-matches-list-nav" role="group" aria-label="Kolo navigacija">';
-        if ($prev_url !== '') {
-            echo '<a class="opentt-matches-list-nav-btn is-prev" href="' . esc_url($prev_url) . '" aria-label="Prethodno kolo">&lsaquo;</a>';
-        } else {
-            echo '<span class="opentt-matches-list-nav-btn is-prev is-disabled" aria-hidden="true">&lsaquo;</span>';
-        }
+        echo '<button type="button" class="opentt-matches-list-nav-btn is-prev' . ($prev_url === '' ? ' is-disabled' : '') . '" aria-label="Prethodno kolo" ' . ($prev_url === '' ? 'disabled' : '') . '>&lsaquo;</button>';
         echo '<div class="opentt-matches-list-round" aria-live="polite">' . esc_html($default_round_name) . '</div>';
-        if ($next_url !== '') {
-            echo '<a class="opentt-matches-list-nav-btn is-next" href="' . esc_url($next_url) . '" aria-label="Sledeće kolo">&rsaquo;</a>';
-        } else {
-            echo '<span class="opentt-matches-list-nav-btn is-next is-disabled" aria-hidden="true">&rsaquo;</span>';
-        }
+        echo '<button type="button" class="opentt-matches-list-nav-btn is-next' . ($next_url === '' ? ' is-disabled' : '') . '" aria-label="Sledeće kolo" ' . ($next_url === '' ? 'disabled' : '') . '>&rsaquo;</button>';
         echo '</div>';
+        if ($prev_url !== '' || $next_url !== '') {
+            echo '<noscript><div class="opentt-matches-list-nav op-nojs" role="group" aria-label="Kolo navigacija fallback">';
+            if ($prev_url !== '') {
+                echo '<a class="opentt-matches-list-nav-btn is-prev" href="' . esc_url($prev_url) . '" aria-label="Prethodno kolo">&lsaquo;</a>';
+            } else {
+                echo '<span class="opentt-matches-list-nav-btn is-prev is-disabled" aria-hidden="true">&lsaquo;</span>';
+            }
+            echo '<div class="opentt-matches-list-round" aria-hidden="true">' . esc_html($default_round_name) . '</div>';
+            if ($next_url !== '') {
+                echo '<a class="opentt-matches-list-nav-btn is-next" href="' . esc_url($next_url) . '" aria-label="Sledeće kolo">&rsaquo;</a>';
+            } else {
+                echo '<span class="opentt-matches-list-nav-btn is-next is-disabled" aria-hidden="true">&rsaquo;</span>';
+            }
+            echo '</div></noscript>';
+        }
         echo '<div class="opentt-matches-list-body">' . self::render_initial_rows_html($initial_list) . '</div>';
         echo '</div>';
         ?>
@@ -314,8 +321,7 @@ final class MatchesListShortcode
           }
 
           if (navPrev) {
-            navPrev.addEventListener('click', function(e){
-              e.preventDefault();
+            navPrev.addEventListener('click', function(){
               if (roundIndex > 0) {
                 roundIndex -= 1;
                 render();
@@ -324,8 +330,7 @@ final class MatchesListShortcode
           }
 
           if (navNext) {
-            navNext.addEventListener('click', function(e){
-              e.preventDefault();
+            navNext.addEventListener('click', function(){
               if (roundIndex < rounds.length - 1) {
                 roundIndex += 1;
                 render();
