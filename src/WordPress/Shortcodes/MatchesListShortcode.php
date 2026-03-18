@@ -148,9 +148,9 @@ final class MatchesListShortcode
         echo (string) $call('shortcode_title_html', 'Utakmice');
         echo '<div id="' . esc_attr($uid) . '" class="opentt-matches-list" data-opentt-matches-list="1">';
         echo '<div class="opentt-matches-list-nav" role="group" aria-label="Kolo navigacija">';
-        echo '<button type="button" class="opentt-matches-list-nav-btn is-prev' . ($prev_url === '' ? ' is-disabled' : '') . '" aria-label="Prethodno kolo" ' . ($prev_url === '' ? 'disabled' : '') . '>&lsaquo;</button>';
+        echo '<button type="button" class="opentt-matches-list-nav-btn is-prev" aria-label="Prethodno kolo">&lsaquo;</button>';
         echo '<div class="opentt-matches-list-round" aria-live="polite">' . esc_html($default_round_name) . '</div>';
-        echo '<button type="button" class="opentt-matches-list-nav-btn is-next' . ($next_url === '' ? ' is-disabled' : '') . '" aria-label="Sledeće kolo" ' . ($next_url === '' ? 'disabled' : '') . '>&rsaquo;</button>';
+        echo '<button type="button" class="opentt-matches-list-nav-btn is-next" aria-label="Sledeće kolo">&rsaquo;</button>';
         echo '</div>';
         if ($prev_url !== '' || $next_url !== '') {
             echo '<noscript><div class="opentt-matches-list-nav op-nojs" role="group" aria-label="Kolo navigacija fallback">';
@@ -230,6 +230,23 @@ final class MatchesListShortcode
               }
             }
           }
+
+          // If initial index points to an empty bucket (legacy/key mismatch),
+          // move to the latest round that actually has renderable content.
+          (function ensureInitialRoundHasContent(){
+            if (!rounds.length) { return; }
+            var hasCurrent = String(roundHtmlByIndex[roundIndex] || '') !== ''
+              || toList(roundLists[roundIndex]).length > 0;
+            if (hasCurrent) { return; }
+            for (var pos = rounds.length - 1; pos >= 0; pos--) {
+              var ok = String(roundHtmlByIndex[pos] || '') !== ''
+                || toList(roundLists[pos]).length > 0;
+              if (ok) {
+                roundIndex = pos;
+                return;
+              }
+            }
+          })();
 
           function esc(v) {
             var raw = (v === null || v === undefined) ? '' : v;
