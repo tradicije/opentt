@@ -103,6 +103,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added resilient arrow-click fallback for `opentt_matches_list`: inline handlers now attempt JS round stepping first and gracefully fall back to server round URLs when JS state is unavailable.
 - Fixed `opentt_matches_list` arrow inline-handler ID encoding by switching to a safe quoted JS string literal for root lookup, restoring previous-round click behavior.
 - Updated `opentt_matches_list` arrow controls to be JS-only in normal mode (no `window.location` fallback on click), so round changes no longer trigger page refresh; server links remain available only in `noscript` fallback.
+- Refined `opentt_matches_list` per-round data resolution to use only exact/normalized keys for the selected round (removed global non-empty fallback), preventing arrow navigation from repeatedly showing the same round content.
 
 ## Releases
 

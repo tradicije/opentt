@@ -288,23 +288,6 @@ final class MatchesListShortcode
               }
             }
 
-            var roundPos;
-            for (roundPos = 0; roundPos < rounds.length; roundPos++) {
-              var slug = String((rounds[roundPos] && rounds[roundPos].slug) || '');
-              var list = toList(matchesByRound[slug]);
-              if (list.length) {
-                return list;
-              }
-            }
-
-            var allKeys = Object.keys(matchesByRound);
-            for (roundPos = 0; roundPos < allKeys.length; roundPos++) {
-              var anyList = toList(matchesByRound[allKeys[roundPos]]);
-              if (anyList.length) {
-                return anyList;
-              }
-            }
-
             return [];
           }
 
