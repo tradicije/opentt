@@ -144,9 +144,9 @@ final class MatchesListShortcode
         echo (string) $call('shortcode_title_html', 'Utakmice');
         echo '<div id="' . esc_attr($uid) . '" class="opentt-matches-list" data-opentt-matches-list="1">';
         echo '<div class="opentt-matches-list-nav" role="group" aria-label="Kolo navigacija">';
-        echo '<button type="button" class="opentt-matches-list-nav-btn is-prev' . ($prev_url === '' ? ' is-disabled' : '') . '" aria-label="Prethodno kolo" data-fallback-url="' . esc_url($prev_url) . '" onclick="if(window.openttMatchesListStep&&window.openttMatchesListStep(\'' . esc_js($uid) . '\',-1)){return false;}var u=this.getAttribute(\'data-fallback-url\');if(u){window.location.href=u;}return false;" ' . ($prev_url === '' ? 'disabled' : '') . '>&lsaquo;</button>';
+        echo '<button type="button" class="opentt-matches-list-nav-btn is-prev' . ($prev_url === '' ? ' is-disabled' : '') . '" aria-label="Prethodno kolo" ' . ($prev_url === '' ? 'disabled' : '') . '>&lsaquo;</button>';
         echo '<div class="opentt-matches-list-round" aria-live="polite">' . esc_html($default_round_name) . '</div>';
-        echo '<button type="button" class="opentt-matches-list-nav-btn is-next' . ($next_url === '' ? ' is-disabled' : '') . '" aria-label="Sledeće kolo" data-fallback-url="' . esc_url($next_url) . '" onclick="if(window.openttMatchesListStep&&window.openttMatchesListStep(\'' . esc_js($uid) . '\',1)){return false;}var u=this.getAttribute(\'data-fallback-url\');if(u){window.location.href=u;}return false;" ' . ($next_url === '' ? 'disabled' : '') . '>&rsaquo;</button>';
+        echo '<button type="button" class="opentt-matches-list-nav-btn is-next' . ($next_url === '' ? ' is-disabled' : '') . '" aria-label="Sledeće kolo" ' . ($next_url === '' ? 'disabled' : '') . '>&rsaquo;</button>';
         echo '</div>';
         if ($prev_url !== '' || $next_url !== '') {
             echo '<noscript><div class="opentt-matches-list-nav op-nojs" role="group" aria-label="Kolo navigacija fallback">';
@@ -167,14 +167,6 @@ final class MatchesListShortcode
         echo '</div>';
         ?>
         <script>
-        window.openttMatchesListStep = window.openttMatchesListStep || function(rootId, direction){
-          var root = document.getElementById(String(rootId || ''));
-          if (!root || !root.__openttListState || typeof root.__openttListState.step !== 'function') {
-            return false;
-          }
-          root.__openttListState.step(direction);
-          return true;
-        };
         (function(){
           var root = document.getElementById(<?php echo wp_json_encode($uid); ?>);
           if (!root || root.dataset.openttListReady === '1') { return; }
@@ -392,22 +384,6 @@ final class MatchesListShortcode
               window.location.href = link;
             }
           });
-
-          root.__openttListState = {
-            step: function(direction){
-              var dir = parseInt(direction, 10);
-              if (isNaN(dir) || dir === 0) { return; }
-              if (dir < 0 && roundIndex > 0) {
-                roundIndex -= 1;
-                render();
-                return;
-              }
-              if (dir > 0 && roundIndex < rounds.length - 1) {
-                roundIndex += 1;
-                render();
-              }
-            }
-          };
 
           render();
         })();
