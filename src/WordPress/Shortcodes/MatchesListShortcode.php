@@ -105,16 +105,20 @@ final class MatchesListShortcode
         }
 
         $round_lists = [];
+        $round_html_by_index = [];
         foreach ($prepared['rounds'] as $round_meta) {
             $slug = (string) ($round_meta['slug'] ?? '');
             $list = $prepared['matches_by_round'][$slug] ?? [];
-            $round_lists[] = is_array($list) ? array_values($list) : [];
+            $list = is_array($list) ? array_values($list) : [];
+            $round_lists[] = $list;
+            $round_html_by_index[] = self::render_initial_rows_html($list);
         }
 
         $payload = [
             'rounds' => $prepared['rounds'],
             'matchesByRound' => $prepared['matches_by_round'],
             'roundLists' => $round_lists,
+            'roundHtmlByIndex' => $round_html_by_index,
             'defaultRound' => $default_round,
             'defaultRoundIndex' => $default_round_index,
             'i18n' => [
@@ -182,6 +186,7 @@ final class MatchesListShortcode
           var rounds = data.rounds;
           var matchesByRound = data.matchesByRound || {};
           var roundLists = Array.isArray(data.roundLists) ? data.roundLists : [];
+          var roundHtmlByIndex = Array.isArray(data.roundHtmlByIndex) ? data.roundHtmlByIndex : [];
           var normalizedRoundKeys = {};
 
           function normalizeSlug(value) {
@@ -306,6 +311,12 @@ final class MatchesListShortcode
             }
             if (navNext.classList) {
               navNext.classList.toggle('is-disabled', !!navNext.disabled);
+            }
+
+            var htmlByIndex = String(roundHtmlByIndex[roundIndex] || '');
+            if (htmlByIndex) {
+              body.innerHTML = htmlByIndex;
+              return;
             }
 
             var list = toList(roundLists[roundIndex]);
