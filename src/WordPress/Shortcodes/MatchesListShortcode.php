@@ -148,9 +148,9 @@ final class MatchesListShortcode
         echo (string) $call('shortcode_title_html', 'Utakmice');
         echo '<div id="' . esc_attr($uid) . '" class="opentt-matches-list" data-opentt-matches-list="1">';
         echo '<div class="opentt-matches-list-nav" role="group" aria-label="Kolo navigacija">';
-        echo '<button type="button" class="opentt-matches-list-nav-btn is-prev" aria-label="Prethodno kolo">&lsaquo;</button>';
+        echo '<a class="opentt-matches-list-nav-btn is-prev' . ($prev_url === '' ? ' is-disabled' : '') . '" href="' . esc_url($prev_url !== '' ? $prev_url : '#') . '" data-direction="-1" aria-label="Prethodno kolo" ' . ($prev_url === '' ? 'aria-disabled="true"' : '') . '>&lsaquo;</a>';
         echo '<div class="opentt-matches-list-round" aria-live="polite">' . esc_html($default_round_name) . '</div>';
-        echo '<button type="button" class="opentt-matches-list-nav-btn is-next" aria-label="Sledeće kolo">&rsaquo;</button>';
+        echo '<a class="opentt-matches-list-nav-btn is-next' . ($next_url === '' ? ' is-disabled' : '') . '" href="' . esc_url($next_url !== '' ? $next_url : '#') . '" data-direction="1" aria-label="Sledeće kolo" ' . ($next_url === '' ? 'aria-disabled="true"' : '') . '>&rsaquo;</a>';
         echo '</div>';
         if ($prev_url !== '' || $next_url !== '') {
             echo '<noscript><div class="opentt-matches-list-nav op-nojs" role="group" aria-label="Kolo navigacija fallback">';
@@ -353,23 +353,39 @@ final class MatchesListShortcode
             body.innerHTML = html;
           }
 
-          if (navPrev) {
-            navPrev.addEventListener('click', function(){
-              if (roundIndex > 0) {
-                roundIndex -= 1;
-                render();
-              }
-            });
+          function stepRound(direction) {
+            var dir = parseInt(direction, 10);
+            if (isNaN(dir) || dir === 0) { return false; }
+            if (dir < 0 && roundIndex > 0) {
+              roundIndex -= 1;
+              render();
+              return true;
+            }
+            if (dir > 0 && roundIndex < rounds.length - 1) {
+              roundIndex += 1;
+              render();
+              return true;
+            }
+            return false;
           }
 
-          if (navNext) {
-            navNext.addEventListener('click', function(){
-              if (roundIndex < rounds.length - 1) {
-                roundIndex += 1;
-                render();
+          [navPrev, navNext].forEach(function(navEl){
+            if (!navEl) { return; }
+            navEl.addEventListener('click', function(e){
+              e.preventDefault();
+              if (navEl.classList && navEl.classList.contains('is-disabled')) {
+                return;
+              }
+              var dir = parseInt(navEl.getAttribute('data-direction') || '0', 10);
+              var didStep = stepRound(dir);
+              if (!didStep) {
+                var href = navEl.getAttribute('href') || '';
+                if (href && href !== '#') {
+                  window.location.href = href;
+                }
               }
             });
-          }
+          });
 
           root.addEventListener('click', function(e){
             var icon = e.target && e.target.closest ? e.target.closest('.opentt-matches-list-icon') : null;
