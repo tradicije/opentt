@@ -310,6 +310,7 @@ final class MatchesGridShortcode
             echo '<input type="hidden" name="opentt_match_date" class="opentt-grid-filter-date-input" value="' . esc_attr($selected_match_date) . '">';
             echo '<button type="button" class="button opentt-grid-calendar-toggle" aria-label="Calendar filter" title="Calendar filter" aria-haspopup="dialog" aria-expanded="false">';
             echo '<span class="opentt-grid-calendar-icon" aria-hidden="true"></span>';
+            echo '<span class="opentt-grid-calendar-label">Kalendar</span>';
             echo '</button>';
             echo '<div class="opentt-grid-calendar-popover" role="dialog" aria-label="Filter datuma utakmica" hidden>';
             echo '<div class="opentt-grid-calendar-head">';

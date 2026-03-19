@@ -270,9 +270,9 @@ body a {
   justify-content: center;
   gap: 8px;
   min-height: 36px;
-  width: 36px;
+  width: auto;
   min-width: 36px;
-  padding: 6px !important;
+  padding: 6px 10px !important;
   border: 1px solid #ffffff33 !important;
   border-radius: 6px !important;
   background: #000a26 !important;
@@ -288,6 +288,13 @@ body a {
   background-color: #ffffff;
   -webkit-mask: url('../../icons/calendar.svg') no-repeat center / contain;
   mask: url('../../icons/calendar.svg') no-repeat center / contain;
+}
+
+.opentt-grid-calendar-label {
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
 }
 
 .opentt-grid-calendar-popover {
@@ -476,9 +483,27 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-grid-cal-clear {
-  font-size: 0.84rem;
-  color: #cfe0ff !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  margin-top: 4px;
+  padding: 0 10px;
+  border: 1px solid #8ec5ff66 !important;
+  border-radius: 6px;
+  background: #001340 !important;
+  color: #eaf3ff !important;
+  font-size: 0.82rem;
+  font-weight: 700;
   text-decoration: none !important;
+}
+
+.opentt-grid-cal-clear:hover,
+.opentt-grid-cal-clear:focus {
+  background: #0b2969 !important;
+  color: #ffffff !important;
+  border-color: #b9dcff !important;
+  outline: none;
 }
 
 .opentt-grid-sentinel {
@@ -909,8 +934,9 @@ a.opentt-grid-cal-preview-more:focus {
   }
 
   .opentt-grid-calendar-toggle {
-    width: 36px;
+    width: auto;
     min-width: 36px;
+    padding: 6px 10px !important;
   }
 
   .opentt-grid-calendar-popover {
