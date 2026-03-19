@@ -148,9 +148,9 @@ final class MatchesListShortcode
         echo (string) $call('shortcode_title_html', 'Utakmice');
         echo '<div id="' . esc_attr($uid) . '" class="opentt-matches-list" data-opentt-matches-list="1">';
         echo '<div class="opentt-matches-list-nav" role="group" aria-label="Kolo navigacija">';
-        echo '<a class="opentt-matches-list-nav-btn is-prev' . ($prev_url === '' ? ' is-disabled' : '') . '" href="' . esc_url($prev_url !== '' ? $prev_url : '#') . '" data-direction="-1" aria-label="Prethodno kolo" onclick="if(window.openttMatchesListInlineStep){window.openttMatchesListInlineStep(\'' . esc_js($uid) . '\',-1);}return false;" ' . ($prev_url === '' ? 'aria-disabled="true"' : '') . '>&lsaquo;</a>';
+        echo '<button type="button" class="opentt-matches-list-nav-btn is-prev' . ($prev_url === '' ? ' is-disabled' : '') . '" data-direction="-1" aria-label="Prethodno kolo" ' . ($prev_url === '' ? 'disabled aria-disabled="true"' : '') . '>&lsaquo;</button>';
         echo '<div class="opentt-matches-list-round" aria-live="polite">' . esc_html($default_round_name) . '</div>';
-        echo '<a class="opentt-matches-list-nav-btn is-next' . ($next_url === '' ? ' is-disabled' : '') . '" href="' . esc_url($next_url !== '' ? $next_url : '#') . '" data-direction="1" aria-label="Sledeće kolo" onclick="if(window.openttMatchesListInlineStep){window.openttMatchesListInlineStep(\'' . esc_js($uid) . '\',1);}return false;" ' . ($next_url === '' ? 'aria-disabled="true"' : '') . '>&rsaquo;</a>';
+        echo '<button type="button" class="opentt-matches-list-nav-btn is-next' . ($next_url === '' ? ' is-disabled' : '') . '" data-direction="1" aria-label="Sledeće kolo" ' . ($next_url === '' ? 'disabled aria-disabled="true"' : '') . '>&rsaquo;</button>';
         echo '</div>';
         if ($prev_url !== '' || $next_url !== '') {
             echo '<noscript><div class="opentt-matches-list-nav op-nojs" role="group" aria-label="Kolo navigacija fallback">';
@@ -171,13 +171,6 @@ final class MatchesListShortcode
         echo '</div>';
         ?>
         <script>
-        window.openttMatchesListInlineStep = window.openttMatchesListInlineStep || function(rootId, direction){
-          var root = document.getElementById(String(rootId || ''));
-          if (!root || !root.__openttListState || typeof root.__openttListState.step !== 'function') {
-            return;
-          }
-          root.__openttListState.step(direction);
-        };
         (function(){
           var root = document.getElementById(<?php echo wp_json_encode($uid); ?>);
           if (!root || root.dataset.openttListReady === '1') { return; }
@@ -376,25 +369,18 @@ final class MatchesListShortcode
             return false;
           }
 
-          [navPrev, navNext].forEach(function(navEl){
-            if (!navEl) { return; }
-            navEl.addEventListener('click', function(e){
+          root.addEventListener('click', function(e){
+            var nav = e.target && e.target.closest ? e.target.closest('.opentt-matches-list-nav-btn[data-direction]') : null;
+            if (nav && root.contains(nav)) {
               e.preventDefault();
-              if (navEl.classList && navEl.classList.contains('is-disabled')) {
+              if (nav.classList && nav.classList.contains('is-disabled')) {
                 return;
               }
-              var dir = parseInt(navEl.getAttribute('data-direction') || '0', 10);
-              var didStep = stepRound(dir);
-              if (!didStep) {
-                var href = navEl.getAttribute('href') || '';
-                if (href && href !== '#') {
-                  window.location.href = href;
-                }
-              }
-            });
-          });
+              var navDir = parseInt(nav.getAttribute('data-direction') || '0', 10);
+              stepRound(navDir);
+              return;
+            }
 
-          root.addEventListener('click', function(e){
             var icon = e.target && e.target.closest ? e.target.closest('.opentt-matches-list-icon') : null;
             if (icon) {
               e.stopPropagation();

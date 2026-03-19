@@ -108,6 +108,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Removed server-side `disabled` lock on JS round buttons and added initial-index auto-correction to the latest round with actual content, preventing dead previous-arrow state when default index and payload buckets diverge.
 - Switched primary round arrows to `href` anchors with JS click interception: rounds now switch client-side without reload when JS is healthy, with guaranteed server URL fallback only if JS step cannot execute.
 - Added inline no-refresh guard on round arrows (`onclick ... return false`) and delegated stepping through shared global handler, preventing full-page navigation on arrow click.
+- Finalized `opentt_matches_list` round navigation as JS-only `button` controls in standard mode (with `noscript` link fallback), eliminating context-dependent page refreshes on homepage/theme wrappers.
 
 ## Releases
 
