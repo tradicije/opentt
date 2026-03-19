@@ -925,48 +925,56 @@ a.opentt-grid-cal-preview-more:focus {
   }
 
   .opentt-matches-list-row {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 14px 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 10px;
+    padding: 12px 10px;
+    align-items: center;
   }
 
-  .opentt-matches-list-col--date,
+  .opentt-matches-list-col--date {
+    grid-column: 1;
+    justify-self: start;
+    text-align: left;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
   .opentt-matches-list-col--media {
-    justify-content: center;
-    text-align: center;
+    grid-column: 2;
+    justify-self: end;
+    text-align: right;
   }
 
   .opentt-matches-list-col--match {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: 10px;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    justify-items: stretch;
+    gap: 8px;
   }
 
   .opentt-matches-list-col--match .match-side--home,
   .opentt-matches-list-col--match .match-side--away {
-    width: 100%;
-    justify-content: center;
-    gap: 10px;
+    width: auto;
+    gap: 6px;
   }
 
   .opentt-matches-list-col--match .team-name {
     max-width: 100%;
-    font-size: 0.92rem;
-    line-height: 1.25;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    text-align: center;
+    font-size: 0.84rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .opentt-matches-list-col--match .match-score {
-    min-width: 0;
+    min-width: 62px;
   }
 
   .opentt-matches-list-col--match .team-score,
   .opentt-matches-list-col--match .team-sep,
   .opentt-matches-list-col--match .match-time {
-    font-size: 1.08rem;
+    font-size: 1rem;
   }
 
   .opentt-matches-list-icon {
@@ -1008,11 +1016,12 @@ a.opentt-grid-cal-preview-more:focus {
 
 @media (max-width: 767px) {
   .opentt-matches-combined .opentt-matches-list .opentt-matches-list-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .opentt-matches-combined .opentt-matches-list .opentt-matches-list-col--match {
-    grid-template-columns: 1fr;
-    justify-items: center;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    justify-items: stretch;
   }
 }
