@@ -1,57 +1,35 @@
 .opentt-featured-match-wrap {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
-@keyframes openttLivePulse {
+@keyframes openttFeaturedLivePulse {
   0% { opacity: 1; }
   50% { opacity: 0.45; }
   100% { opacity: 1; }
 }
 
-@keyframes openttLiveCardPulse {
+@keyframes openttFeaturedCardPulse {
   0% {
     filter: brightness(1) saturate(1);
     border-color: rgba(244, 98, 117, 0.62);
-    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(214, 36, 58, 0.24);
+    box-shadow:
+      0 18px 34px rgba(0, 0, 0, 0.42),
+      0 0 0 0 rgba(214, 36, 58, 0.28);
   }
   50% {
-    filter: brightness(1.12) saturate(1.18);
-    border-color: rgba(255, 130, 146, 0.9);
-    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 4px rgba(214, 36, 58, 0.38);
+    filter: brightness(1.1) saturate(1.16);
+    border-color: rgba(255, 130, 146, 0.92);
+    box-shadow:
+      0 18px 34px rgba(0, 0, 0, 0.42),
+      0 0 0 5px rgba(214, 36, 58, 0.38);
   }
   100% {
     filter: brightness(1) saturate(1);
     border-color: rgba(244, 98, 117, 0.62);
-    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(214, 36, 58, 0.24);
+    box-shadow:
+      0 18px 34px rgba(0, 0, 0, 0.42),
+      0 0 0 0 rgba(214, 36, 58, 0.28);
   }
-}
-
-.opentt-live-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(176, 14, 30, 0.92);
-  border: 1px solid rgba(255, 130, 130, 0.75);
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  line-height: 1;
-  animation: openttLivePulse 1.2s infinite;
-}
-
-.opentt-live-badge::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.16);
-  animation: openttLivePulse 1.2s infinite;
 }
 
 .opentt-featured-match-card {
@@ -59,35 +37,34 @@
   --opentt-featured-away: #0084ff;
   position: relative;
   display: block;
-  border-radius: 14px;
-  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  padding: 20px 22px;
   color: #ffffff;
   text-decoration: none;
-  background: linear-gradient(
-    110deg,
-    var(--opentt-featured-home) 0%,
-    rgba(3, 23, 69, 0.95) 45%,
-    rgba(3, 23, 69, 0.95) 55%,
-    var(--opentt-featured-away) 100%
-  );
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.opentt-featured-match-card.opentt-featured-live {
   background:
-    linear-gradient(135deg, rgba(183, 20, 43, 0.58), rgba(74, 8, 22, 0.66)),
+    radial-gradient(130% 80% at 50% -20%, rgba(255, 255, 255, 0.2), transparent 65%),
     linear-gradient(
       110deg,
-      var(--opentt-featured-home) 0%,
-      rgba(3, 23, 69, 0.95) 45%,
-      rgba(3, 23, 69, 0.95) 55%,
-      var(--opentt-featured-away) 100%
+      color-mix(in srgb, var(--opentt-featured-home) 86%, #001334 14%) 0%,
+      rgba(4, 18, 58, 0.94) 44%,
+      rgba(4, 18, 58, 0.94) 56%,
+      color-mix(in srgb, var(--opentt-featured-away) 86%, #001334 14%) 100%
     );
-  border: 1px solid rgba(244, 98, 117, 0.62);
-  will-change: filter, box-shadow, border-color;
-  animation: openttLiveCardPulse 1.2s ease-in-out infinite;
+  box-shadow:
+    0 18px 34px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.opentt-featured-match-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(190, 222, 255, 0.58);
+  box-shadow:
+    0 22px 40px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .opentt-featured-match-card::before {
@@ -95,14 +72,43 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 8, 24, 0.25)),
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 60%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 8, 24, 0.3)),
+    radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--opentt-featured-home) 34%, transparent) 0%, transparent 58%),
+    radial-gradient(circle at 82% 20%, color-mix(in srgb, var(--opentt-featured-away) 34%, transparent) 0%, transparent 58%);
   pointer-events: none;
+  z-index: 0;
 }
 
 .opentt-featured-match-card::after {
-  content: none;
-  pointer-events: none;
+  content: "FEATURED";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(0, 9, 28, 0.42);
+  color: #eaf4ff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.opentt-featured-match-card.opentt-featured-live {
+  background:
+    linear-gradient(135deg, rgba(183, 20, 43, 0.58), rgba(74, 8, 22, 0.66)),
+    linear-gradient(
+      110deg,
+      color-mix(in srgb, var(--opentt-featured-home) 86%, #001334 14%) 0%,
+      rgba(4, 18, 58, 0.94) 44%,
+      rgba(4, 18, 58, 0.94) 56%,
+      color-mix(in srgb, var(--opentt-featured-away) 86%, #001334 14%) 100%
+    );
+  border-color: rgba(244, 98, 117, 0.62);
+  will-change: filter, box-shadow, border-color;
+  animation: openttFeaturedCardPulse 1.2s ease-in-out infinite;
 }
 
 .opentt-featured-meta-top,
@@ -112,11 +118,157 @@
   z-index: 1;
 }
 
+.opentt-featured-meta-top {
+  margin-bottom: 14px;
+  font-size: 0.8rem;
+  color: #d9e8ff;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.opentt-featured-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(168px, auto) minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.opentt-featured-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 9px;
+}
+
+.opentt-featured-team-crest {
+  width: 84px;
+  height: 84px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  background: rgba(0, 8, 24, 0.36);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+}
+
+.opentt-featured-team-crest img {
+  width: 68px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.opentt-featured-team-name {
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #ffffff;
+  text-wrap: balance;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.28);
+}
+
 .opentt-featured-center-wrap {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
+}
+
+.opentt-featured-center-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -8px -6px -8px -6px;
+  border-radius: 14px;
+  background: radial-gradient(circle at center, rgba(163, 208, 255, 0.22), transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.opentt-featured-center {
+  text-align: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background: rgba(0, 10, 38, 0.36);
+  backdrop-filter: blur(5px);
+  padding: 14px 12px;
+  min-width: 150px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.opentt-featured-countdown-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #c9ddff;
+  margin-bottom: 8px;
+}
+
+.opentt-featured-countdown {
+  font-size: 1.24rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  white-space: nowrap;
+}
+
+.opentt-featured-live-score-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 4px 12px;
+}
+
+.opentt-featured-live-score {
+  font-size: 1.74rem;
+  font-weight: 900;
+  line-height: 1;
+  min-width: 24px;
+  color: #ffffff;
+}
+
+.opentt-featured-live-sep {
+  font-size: 1.48rem;
+  font-weight: 900;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.opentt-featured-match-card .opentt-live-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(176, 14, 30, 0.92);
+  border: 1px solid rgba(255, 130, 130, 0.75);
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1;
+  animation: openttFeaturedLivePulse 1.2s infinite;
+}
+
+.opentt-featured-match-card .opentt-live-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.16);
+  animation: openttFeaturedLivePulse 1.2s infinite;
 }
 
 .opentt-featured-match-card.opentt-featured-live .opentt-live-badge {
@@ -126,134 +278,41 @@
   background: transparent;
   color: #ffffff;
   font-size: 1rem;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
-  animation: openttLivePulse 1.2s ease-in-out infinite;
-}
-
-.opentt-featured-live-score-row {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 4px 10px;
-}
-
-.opentt-featured-live-score {
-  font-size: 1.58rem;
-  font-weight: 800;
-  line-height: 1;
-  min-width: 22px;
-  color: #ffffff;
-}
-
-.opentt-featured-live-sep {
-  font-size: 1.36rem;
-  font-weight: 800;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.96);
-}
-
-.opentt-featured-meta-top {
-  margin-bottom: 14px;
-  font-size: 0.82rem;
-  color: #d9e8ff;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.opentt-featured-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(140px, auto) minmax(0, 1fr);
-  gap: 16px;
-  align-items: center;
-}
-
-.opentt-featured-team {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 8px;
-}
-
-.opentt-featured-team-crest {
-  width: 74px;
-  height: 74px;
-  border-radius: 10px;
-  border: 1px solid #ffffff52;
-  background: rgba(0, 8, 24, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.opentt-featured-team-crest img {
-  width: 62px;
-  height: 62px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.opentt-featured-team-name {
-  font-size: 0.98rem;
-  font-weight: 700;
-  line-height: 1.25;
-  color: #ffffff;
-  text-wrap: balance;
-}
-
-.opentt-featured-center {
-  text-align: center;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(0, 10, 38, 0.26);
-  padding: 12px 10px;
-}
-
-.opentt-featured-countdown-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #c9ddff;
-  margin-bottom: 6px;
-}
-
-.opentt-featured-countdown {
-  font-size: 1.2rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  color: #ffffff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
 }
 
 .opentt-featured-meta-bottom {
   margin-top: 14px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-top: 1px solid rgba(255, 255, 255, 0.26);
   text-align: center;
-  font-size: 0.82rem;
-  color: #d4e5ff;
+  font-size: 0.84rem;
+  color: #dbeaff;
+  font-weight: 600;
 }
 
 @media (max-width: 700px) {
   .opentt-featured-match-card {
     padding: 12px 10px;
-    border-radius: 12px;
+    border-radius: 14px;
+  }
+
+  .opentt-featured-match-card::after {
+    top: 8px;
+    left: 8px;
+    font-size: 0.56rem;
+    padding: 2px 7px;
   }
 
   .opentt-featured-meta-top {
     margin-bottom: 10px;
     font-size: 0.72rem;
+    letter-spacing: 0.05em;
   }
 
   .opentt-featured-main {
-    grid-template-columns: minmax(0, 1fr) minmax(92px, auto) minmax(0, 1fr);
-    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) minmax(100px, auto) minmax(0, 1fr);
+    gap: 8px;
   }
 
   .opentt-featured-team {
@@ -261,13 +320,15 @@
   }
 
   .opentt-featured-team-crest {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
   }
 
   .opentt-featured-team-crest img {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
   }
 
   .opentt-featured-team-name {
@@ -278,12 +339,13 @@
   }
 
   .opentt-featured-center {
-    padding: 8px 4px;
-    border-radius: 8px;
+    min-width: 94px;
+    padding: 8px 6px;
+    border-radius: 9px;
   }
 
   .opentt-featured-countdown-label {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     margin-bottom: 4px;
   }
 
@@ -293,11 +355,11 @@
 
   .opentt-featured-live-score-row {
     gap: 9px;
-    padding: 4px 9px;
+    padding: 3px 8px;
   }
 
   .opentt-featured-live-score {
-    font-size: 1.08rem;
+    font-size: 1.1rem;
     min-width: 16px;
   }
 
@@ -318,13 +380,6 @@
   .opentt-featured-meta-bottom {
     margin-top: 10px;
     padding-top: 8px;
-    font-size: 0.75rem;
-  }
-}
-
-@media (hover: hover) {
-  .opentt-featured-match-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 34px rgba(0, 0, 0, 0.4);
+    font-size: 0.72rem;
   }
 }
