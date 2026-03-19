@@ -70,6 +70,13 @@ final class ShowMatchTeamsShortcode
         $is_live_match = intval($row->live ?? 0) === 1;
         $is_future_match = ($match_ts !== false && intval($match_ts) > intval($now_ts));
         $is_unplayed = ($played_flag !== null ? $played_flag !== 1 : false) || $is_future_match || $is_score_zero;
+        $countdown_threshold = 24 * 60 * 60;
+        $seconds_to_match = ($match_ts !== false) ? (intval($match_ts) - intval($now_ts)) : null;
+        $show_countdown = $is_unplayed
+            && $is_future_match
+            && $seconds_to_match !== null
+            && $seconds_to_match > 0
+            && $seconds_to_match < $countdown_threshold;
         $target_date = self::matchTargetDateAttr($match_raw_date);
         $countdown_uid = 'opentt-ekipe-countdown-' . wp_unique_id();
         $match_time_label = '';
@@ -126,8 +133,12 @@ final class ShowMatchTeamsShortcode
                     </div>
                 <?php elseif ($is_unplayed && $match_time_label !== ''): ?>
                     <div class="opentt-ekipe-score opentt-ekipe-score-time">
-                        <span class="opentt-ekipe-time-label">Početak utakmice za:</span>
-                        <span id="<?php echo esc_attr($countdown_uid); ?>" class="opentt-ekipe-time" data-opentt-target="<?php echo esc_attr($target_date); ?>"><?php echo esc_html($match_time_label); ?></span>
+                        <?php if ($show_countdown): ?>
+                            <span class="opentt-ekipe-time-label">Početak utakmice za:</span>
+                            <span id="<?php echo esc_attr($countdown_uid); ?>" class="opentt-ekipe-time" data-opentt-target="<?php echo esc_attr($target_date); ?>"><?php echo esc_html($match_time_label); ?></span>
+                        <?php else: ?>
+                            <span class="opentt-ekipe-time"><?php echo esc_html($match_time_label); ?></span>
+                        <?php endif; ?>
                     </div>
                 <?php else: ?>
                     <div class="opentt-ekipe-score">
@@ -159,7 +170,7 @@ final class ShowMatchTeamsShortcode
                 </div>
             <?php endif; ?>
         </div>
-        <?php if ($is_unplayed && !$is_live_match): ?>
+        <?php if ($is_unplayed && !$is_live_match && $show_countdown): ?>
         <script>
         (function(){
             var el = document.getElementById('<?php echo esc_js($countdown_uid); ?>');
