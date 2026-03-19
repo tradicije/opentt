@@ -83,7 +83,7 @@ final class ShowMatchTeamsShortcode
         if (preg_match('/\b([01]?\d|2[0-3]):([0-5]\d)\b/', $match_raw_date, $time_parts)) {
             $hour = intval($time_parts[1]);
             $minute = (string) ($time_parts[2] ?? '00');
-            $match_time_label = ($minute === '00') ? ($hour . 'h') : (sprintf('%02d:%s h', $hour, $minute));
+            $match_time_label = sprintf('%02d:%s', $hour, $minute);
         }
         $home_state = '';
         $away_state = '';
