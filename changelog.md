@@ -118,6 +118,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Center-aligned mobile date labels in `opentt_matches_list` rows for cleaner visual balance with score and team blocks.
 - Updated `opentt_matches_grid` calendar trigger to show text label (`Kalendar`) next to the icon, and restyled `Očisti datum` action for stronger contrast/readability inside the calendar popover.
 - Reworked admin match quick editing UX: renamed action to `Quick edit`, moved editor inline below the selected match row (blue-highlighted box), opened/closed without page refresh, and expanded fields to include score, date, kickoff time, and location (refresh occurs only on save).
+- Updated `opentt_matches_list` default-round selection: when no explicit round is requested, shortcode now opens the first upcoming round (first round containing at least one unplayed match) instead of always opening the latest round.
 
 ## Releases
 

@@ -74,6 +74,9 @@ final class MatchesListShortcode
 
         $default_round = self::resolve_default_round_slug($prepared['rounds'], $query_args, $atts);
         if ($default_round === '') {
+            $default_round = self::resolve_first_upcoming_round_slug($prepared['rounds'], $prepared['matches_by_round']);
+        }
+        if ($default_round === '') {
             $default_round = (string) ($prepared['rounds'][count($prepared['rounds']) - 1]['slug'] ?? '');
         }
         $default_round_name = '';
@@ -228,6 +231,7 @@ final class MatchesListShortcode
                 'awayLogo' => $away_id > 0 ? (string) $call('club_logo_html', $away_id, 'thumbnail', ['class' => 'opentt-list-team-crest']) : '',
                 'homeScore' => $home_score,
                 'awayScore' => $away_score,
+                'isPlayed' => $is_played,
                 'homeClass' => $home_class,
                 'awayClass' => $away_class,
                 'showTime' => $show_time,
@@ -311,6 +315,31 @@ final class MatchesListShortcode
         foreach ($rounds as $round) {
             if ((string) ($round['slug'] ?? '') === $target) {
                 return $target;
+            }
+        }
+
+        return '';
+    }
+
+    private static function resolve_first_upcoming_round_slug(array $rounds, array $matches_by_round)
+    {
+        foreach ($rounds as $round) {
+            $slug = (string) ($round['slug'] ?? '');
+            if ($slug === '') {
+                continue;
+            }
+            $list = $matches_by_round[$slug] ?? [];
+            if (!is_array($list) || empty($list)) {
+                continue;
+            }
+            foreach ($list as $match) {
+                if (!is_array($match)) {
+                    continue;
+                }
+                $is_played = !empty($match['isPlayed']);
+                if (!$is_played) {
+                    return $slug;
+                }
             }
         }
 
