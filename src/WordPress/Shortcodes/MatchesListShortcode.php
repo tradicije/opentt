@@ -388,7 +388,7 @@ final class MatchesListShortcode
             $report_url = trim((string) ($match['reportUrl'] ?? ''));
             $video_url = trim((string) ($match['videoUrl'] ?? ''));
 
-            echo '<div class="opentt-matches-list-row' . esc_attr($row_class_attr) . '" data-link="' . esc_url($match_link) . '" tabindex="0" role="link" onclick="var u=this.getAttribute(\'data-link\');if(u){window.location.href=u;}" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();var u=this.getAttribute(\'data-link\');if(u){window.location.href=u;}}">';
+            echo '<div class="opentt-matches-list-row' . esc_attr($row_class_attr) . '" data-link="' . esc_url($match_link) . '" tabindex="0" role="link">';
             echo '<div class="opentt-matches-list-col opentt-matches-list-col--date">' . esc_html($date) . '</div>';
             echo '<div class="opentt-matches-list-col opentt-matches-list-col--match">';
             echo '<span class="match-side match-side--home">';
