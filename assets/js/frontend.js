@@ -136,7 +136,7 @@
       return;
     }
 
-    var rawData = dataNode.value || dataNode.textContent || "";
+    var rawData = dataNode.textContent || dataNode.value || "";
     var data = null;
     try {
       data = JSON.parse(rawData);

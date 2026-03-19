@@ -167,7 +167,11 @@ final class MatchesListShortcode
             }
             echo '</div></noscript>';
         }
-        echo '<textarea class="opentt-matches-list-data" hidden>' . esc_textarea(wp_json_encode($payload)) . '</textarea>';
+        $payload_json = wp_json_encode($payload, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        if (!is_string($payload_json) || $payload_json === '') {
+            $payload_json = '{}';
+        }
+        echo '<script type="application/json" class="opentt-matches-list-data">' . $payload_json . '</script>';
         echo '<div class="opentt-matches-list-body">' . self::render_initial_rows_html($initial_list) . '</div>';
         echo '</div>';
         return ob_get_clean();

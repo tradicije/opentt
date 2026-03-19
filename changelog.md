@@ -113,6 +113,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added stronger list-layout CSS guards for `opentt_matches_list` inside combined/homepage wrappers to prevent theme-level generic selector overrides from breaking row/nav alignment.
 - Updated `opentt_matches_list` frontend bootstrap to preserve server-rendered initial round markup and only render on arrow interaction, preventing delayed homepage style regressions caused by immediate JS re-render on load.
 - Simplified `opentt_matches_list` row HTML by removing inline keyboard/click handlers from server-rendered rows (delegated JS only), improving markup stability after round-switch re-render.
+- Switched `opentt_matches_list` client payload transport from `textarea` to `application/json` script block to prevent escaped-markup artifacts during round-switch rendering on homepage contexts.
 
 ## Releases
 
