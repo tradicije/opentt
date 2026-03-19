@@ -443,6 +443,9 @@ final class OpenTT_Unified_Admin_Match_Actions
         $home_score = max(0, (int) ($_POST['home_score'] ?? 0));
         $away_score = max(0, (int) ($_POST['away_score'] ?? 0));
         $played = ($home_score >= 4 || $away_score >= 4) ? 1 : 0;
+        $date_part = isset($_POST['match_date_date']) ? sanitize_text_field((string) wp_unslash($_POST['match_date_date'])) : '';
+        $time_part = isset($_POST['match_date_time']) ? sanitize_text_field((string) wp_unslash($_POST['match_date_time'])) : '';
+        $location = isset($_POST['location']) ? sanitize_text_field((string) wp_unslash($_POST['location'])) : '';
         $redirect_to = isset($_POST['redirect_to']) ? esc_url_raw((string) wp_unslash($_POST['redirect_to'])) : '';
 
         if ($match_id <= 0) {
@@ -453,21 +456,56 @@ final class OpenTT_Unified_Admin_Match_Actions
 
         global $wpdb;
         $table = OpenTT_Unified_Core::db_table('matches');
+        $current_match = $wpdb->get_row($wpdb->prepare("SELECT match_date, location FROM {$table} WHERE id=%d LIMIT 1", $match_id));
+        if (!$current_match || !is_object($current_match)) {
+            $fallback = admin_url('admin.php?page=stkb-unified-matches');
+            wp_safe_redirect(self::admin_notice_url($fallback, 'error', 'Utakmica nije pronađena.'));
+            exit;
+        }
+
+        $current_match_date = (string) ($current_match->match_date ?? '');
+        $current_date_part = '';
+        $current_time_part = '';
+        if ($current_match_date !== '') {
+            $current_date_part = substr($current_match_date, 0, 10);
+            $current_time_part = substr($current_match_date, 11, 5);
+            if (!preg_match('/^\d{2}:\d{2}$/', $current_time_part)) {
+                $current_time_part = '00:00';
+            }
+        }
+
+        $valid_date_part = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_part) ? $date_part : '';
+        $valid_time_part = preg_match('/^\d{2}:\d{2}$/', $time_part) ? $time_part : '';
+        if ($valid_time_part === '' && $current_time_part !== '') {
+            $valid_time_part = $current_time_part;
+        }
+        if ($valid_time_part === '') {
+            $valid_time_part = '00:00';
+        }
+
+        $date_to_save = $current_match_date;
+        if ($valid_date_part !== '') {
+            $date_to_save = $valid_date_part . ' ' . $valid_time_part . ':00';
+        } elseif ($current_date_part !== '' && $time_part !== '' && $valid_time_part !== '') {
+            $date_to_save = $current_date_part . ' ' . $valid_time_part . ':00';
+        }
+
         $ok = $wpdb->update(
             $table,
             [
                 'home_score' => $home_score,
                 'away_score' => $away_score,
                 'played' => $played,
+                'match_date' => $date_to_save,
+                'location' => $location,
                 'updated_at' => current_time('mysql'),
             ],
             ['id' => $match_id],
-            ['%d', '%d', '%d', '%s'],
+            ['%d', '%d', '%d', '%s', '%s', '%s'],
             ['%d']
         );
 
         $target = $redirect_to !== '' ? $redirect_to : admin_url('admin.php?page=stkb-unified-matches');
-        $target = remove_query_arg(['quick_edit_id'], $target);
         if ($ok === false) {
             wp_safe_redirect(self::admin_notice_url($target, 'error', 'Greška pri quick edit ažuriranju rezultata.'));
             exit;

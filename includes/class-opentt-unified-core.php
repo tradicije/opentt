@@ -1150,7 +1150,6 @@ JS;
         $sort_by = isset($_GET['sort_by']) ? sanitize_key((string) wp_unslash($_GET['sort_by'])) : 'date';
         $sort_dir = isset($_GET['sort_dir']) ? strtoupper(sanitize_key((string) wp_unslash($_GET['sort_dir']))) : 'DESC';
         $sort_dir = in_array($sort_dir, ['ASC', 'DESC'], true) ? $sort_dir : 'DESC';
-        $quick_edit_id = isset($_GET['quick_edit_id']) ? (int) $_GET['quick_edit_id'] : 0;
 
         if (self::table_exists($table)) {
             self::ensure_matches_live_column($table);
@@ -1246,34 +1245,10 @@ JS;
             $current_list_url = add_query_arg($k, (string) $v, $current_list_url);
         }
 
-        $quick_match = null;
-        if ($quick_edit_id > 0 && self::table_exists($table)) {
-            $quick_match = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id=%d LIMIT 1", $quick_edit_id));
-        }
-
         echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Utakmice</h1>';
         echo '<p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-match')) . '">+ Dodaj utakmicu</a></p>';
-
-        if ($quick_match && is_object($quick_match)) {
-            $q_home = get_the_title((int) ($quick_match->home_club_post_id ?? 0));
-            $q_away = get_the_title((int) ($quick_match->away_club_post_id ?? 0));
-            echo '<div id="opentt-quick-score" class="opentt-panel" style="padding:12px;margin-bottom:12px;">';
-            echo '<h2 style="margin-top:0;">Quick edit rezultat</h2>';
-            echo '<p class="description" style="margin-top:0;">' . esc_html((string) $q_home . ' — ' . (string) $q_away) . '</p>';
-            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">';
-            wp_nonce_field('opentt_unified_quick_update_match_score');
-            echo '<input type="hidden" name="action" value="opentt_unified_quick_update_match_score">';
-            echo '<input type="hidden" name="id" value="' . (int) ($quick_match->id ?? 0) . '">';
-            echo '<input type="hidden" name="redirect_to" value="' . esc_attr($current_list_url) . '">';
-            echo '<label style="display:flex;flex-direction:column;gap:4px;">Domaćin<input type="number" min="0" max="7" name="home_score" value="' . esc_attr((string) intval($quick_match->home_score ?? 0)) . '" style="width:90px;"></label>';
-            echo '<label style="display:flex;flex-direction:column;gap:4px;">Gost<input type="number" min="0" max="7" name="away_score" value="' . esc_attr((string) intval($quick_match->away_score ?? 0)) . '" style="width:90px;"></label>';
-            echo '<button type="submit" class="button button-primary">Sačuvaj rezultat</button>';
-            echo '<a class="button" href="' . esc_url($current_list_url) . '">Otkaži</a>';
-            echo '</form>';
-            echo '</div>';
-        }
 
         echo '<form method="get" class="opentt-panel" style="padding:12px;margin-bottom:12px;">';
         echo '<input type="hidden" name="page" value="stkb-unified-matches">';
@@ -1370,6 +1345,7 @@ JS;
         echo '<p class="opentt-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
         echo '<div class="opentt-table-scroll">';
         echo '<table id="opentt-matches-table" class="widefat striped opentt-live-search-table"><thead><tr><th style="width:32px;"><input type="checkbox" id="opentt-matches-check-all" aria-label="Izaberi sve utakmice"></th><th>Featured</th><th>LIVE</th><th>Liga</th><th>Sezona</th><th>Kolo</th><th>Utakmica</th><th>Rezultat</th><th>Partije</th><th>Datum</th><th>Akcije</th></tr></thead><tbody>';
+        $quick_forms_html = [];
         foreach ($rows as $m) {
             $home = get_the_title((int) $m->home_club_post_id);
             $away = get_the_title((int) $m->away_club_post_id);
@@ -1383,13 +1359,36 @@ JS;
                 admin_url('admin-post.php?action=opentt_unified_toggle_live_match&id=' . (int) $m->id),
                 'opentt_unified_toggle_live_match_' . (int) $m->id
             );
-            $quick_url = add_query_arg('quick_edit_id', (int) $m->id, $current_list_url);
             $del_url = wp_nonce_url(
                 admin_url('admin-post.php?action=opentt_unified_delete_match&id=' . (int) $m->id),
                 'opentt_unified_delete_match_' . (int) $m->id
             );
             $is_featured = (int) ($m->featured ?? 0) === 1;
             $is_live = (int) ($m->live ?? 0) === 1;
+            $raw_match_date = (string) ($m->match_date ?? '');
+            $quick_date_value = '';
+            $quick_time_value = '';
+            if ($raw_match_date !== '') {
+                $quick_date_value = substr($raw_match_date, 0, 10);
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $quick_date_value)) {
+                    $quick_date_value = '';
+                }
+                $quick_time_value = substr($raw_match_date, 11, 5);
+                if (!preg_match('/^\d{2}:\d{2}$/', $quick_time_value)) {
+                    $quick_time_value = '';
+                }
+            }
+            $quick_location_value = (string) ($m->location ?? '');
+            $quick_row_id = 'opentt-quick-edit-row-' . intval($m->id);
+            $quick_wrap_id = 'opentt-quick-edit-wrap-' . intval($m->id);
+            $quick_form_id = 'opentt-quick-edit-form-' . intval($m->id);
+            $quick_forms_html[] =
+                '<form id="' . esc_attr($quick_form_id) . '" method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="display:none;">'
+                . '<input type="hidden" name="_wpnonce" value="' . esc_attr(wp_create_nonce('opentt_unified_quick_update_match_score')) . '">'
+                . '<input type="hidden" name="action" value="opentt_unified_quick_update_match_score">'
+                . '<input type="hidden" name="id" value="' . intval($m->id) . '">'
+                . '<input type="hidden" name="redirect_to" value="' . esc_attr($current_list_url) . '">'
+                . '</form>';
 
             echo '<tr>';
             echo '<td><input type="checkbox" class="opentt-match-bulk-checkbox" name="match_ids[]" value="' . intval($m->id) . '" aria-label="Izaberi utakmicu ID ' . intval($m->id) . '"></td>';
@@ -1404,14 +1403,88 @@ JS;
             echo '<td><strong>' . ($games_count > 0 ? '✓' : '✗') . '</strong> <span style="opacity:.75;">(' . esc_html((string) $games_count) . ')</span></td>';
             echo '<td>' . esc_html(self::display_match_date((string) $m->match_date)) . '</td>';
             echo '<td><a class="button button-small" href="' . esc_url($edit_url) . '">Uredi</a> ';
-            echo '<a class="button button-small" href="' . esc_url($quick_url) . '#opentt-quick-score">Quick rezultat</a> ';
+            echo '<button type="button" class="button button-small opentt-quick-edit-toggle" data-target="' . esc_attr($quick_row_id) . '" aria-expanded="false">Quick edit</button> ';
             echo '<a class="button button-small" href="' . esc_url($toggle_featured_url) . '">' . esc_html($is_featured ? 'Unfeature' : 'Feature') . '</a> ';
             echo '<a class="button button-small" href="' . esc_url($toggle_live_url) . '">' . esc_html($is_live ? 'Unset LIVE' : 'Set LIVE') . '</a> ';
             echo '<a class="button button-small" href="' . esc_url($front_url) . '" target="_blank" rel="noopener">Frontend</a> ';
             echo '<a class="button button-small button-link-delete" href="' . esc_url($del_url) . '" onclick="return confirm(\'Obrisati utakmicu i partije/setove?\')">Obriši</a></td>';
             echo '</tr>';
+            echo '<tr id="' . esc_attr($quick_row_id) . '" class="opentt-quick-edit-row" style="display:none;">';
+            echo '<td colspan="11">';
+            echo '<div id="' . esc_attr($quick_wrap_id) . '" style="border:2px solid #2271b1;border-radius:8px;background:#f6fbff;padding:12px 14px;margin:4px 0 10px 0;">';
+            echo '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">';
+            echo '<strong>Quick edit: ' . esc_html((string) $home . ' — ' . (string) $away) . '</strong>';
+            echo '<button type="button" class="button button-small opentt-quick-edit-close" data-target="' . esc_attr($quick_row_id) . '">Zatvori</button>';
+            echo '</div>';
+            echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;">';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Domaćin';
+            echo '<input type="number" min="0" max="7" name="home_score" form="' . esc_attr($quick_form_id) . '" value="' . esc_attr((string) intval($m->home_score ?? 0)) . '" style="width:90px;">';
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Gost';
+            echo '<input type="number" min="0" max="7" name="away_score" form="' . esc_attr($quick_form_id) . '" value="' . esc_attr((string) intval($m->away_score ?? 0)) . '" style="width:90px;">';
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Datum';
+            echo '<input type="date" name="match_date_date" form="' . esc_attr($quick_form_id) . '" value="' . esc_attr($quick_date_value) . '" style="width:150px;">';
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Vreme';
+            echo '<input type="time" name="match_date_time" form="' . esc_attr($quick_form_id) . '" value="' . esc_attr($quick_time_value) . '" step="60" style="width:120px;">';
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1 1 260px;">Lokacija';
+            echo '<input type="text" name="location" form="' . esc_attr($quick_form_id) . '" value="' . esc_attr($quick_location_value) . '" maxlength="255">';
+            echo '</label>';
+            echo '<button type="submit" form="' . esc_attr($quick_form_id) . '" class="button button-primary">Sačuvaj izmene</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</td>';
+            echo '</tr>';
         }
-        echo '</tbody></table></div></form></div>';
+        echo '</tbody></table></div></form>';
+        if (!empty($quick_forms_html)) {
+            echo implode('', $quick_forms_html); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        }
+        ?>
+        <script>
+        (function(){
+            var table = document.getElementById('opentt-matches-table');
+            if (!table) { return; }
+            var tbody = table.querySelector('tbody');
+            if (!tbody) { return; }
+            function closeAll(exceptId) {
+                tbody.querySelectorAll('.opentt-quick-edit-row').forEach(function(row){
+                    if (exceptId && row.id === exceptId) { return; }
+                    row.style.display = 'none';
+                });
+                tbody.querySelectorAll('.opentt-quick-edit-toggle').forEach(function(btn){
+                    var target = btn.getAttribute('data-target') || '';
+                    btn.setAttribute('aria-expanded', (exceptId && target === exceptId) ? 'true' : 'false');
+                });
+            }
+            tbody.addEventListener('click', function(e){
+                var toggleBtn = e.target.closest('.opentt-quick-edit-toggle');
+                if (toggleBtn) {
+                    e.preventDefault();
+                    var targetId = toggleBtn.getAttribute('data-target') || '';
+                    if (!targetId) { return; }
+                    var row = document.getElementById(targetId);
+                    if (!row) { return; }
+                    var isOpen = row.style.display !== 'none';
+                    closeAll(isOpen ? '' : targetId);
+                    row.style.display = isOpen ? 'none' : '';
+                    toggleBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+                    return;
+                }
+                var closeBtn = e.target.closest('.opentt-quick-edit-close');
+                if (closeBtn) {
+                    e.preventDefault();
+                    var closeTarget = closeBtn.getAttribute('data-target') || '';
+                    if (!closeTarget) { return; }
+                    closeAll('');
+                }
+            });
+        })();
+        </script>
+        <?php
+        echo '</div>';
     }
 
     public static function render_live_page()
