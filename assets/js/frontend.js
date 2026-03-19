@@ -255,6 +255,17 @@
       body.innerHTML = html;
     }
 
+    function syncNavState() {
+      var current = rounds[roundIndex] || null;
+      if (current) {
+        roundLabel.textContent = current.name || current.slug || "";
+      }
+      navPrev.disabled = roundIndex <= 0;
+      navNext.disabled = roundIndex >= rounds.length - 1;
+      navPrev.classList.toggle("is-disabled", !!navPrev.disabled);
+      navNext.classList.toggle("is-disabled", !!navNext.disabled);
+    }
+
     function stepRound(direction) {
       var dir = parseInt(direction, 10);
       if (isNaN(dir) || dir === 0) {
@@ -328,7 +339,9 @@
       }
     });
 
-    render();
+    // Keep server-rendered initial HTML untouched to avoid late reflow/style
+    // regressions on themes that post-process content after load.
+    syncNavState();
   }
 
   function initAllMatchesLists() {
