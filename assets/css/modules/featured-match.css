@@ -1,34 +1,52 @@
 .opentt-featured-match-wrap {
-  margin-bottom: 24px;
+  margin: 0 0 26px;
 }
 
-@keyframes openttFeaturedLivePulse {
+@keyframes openttFeaturedBlink {
   0% { opacity: 1; }
-  50% { opacity: 0.45; }
+  50% { opacity: 0.42; }
   100% { opacity: 1; }
 }
 
-@keyframes openttFeaturedCardPulse {
+@keyframes openttFeaturedGlow {
   0% {
-    filter: brightness(1) saturate(1);
-    border-color: rgba(244, 98, 117, 0.62);
     box-shadow:
-      0 18px 34px rgba(0, 0, 0, 0.42),
-      0 0 0 0 rgba(214, 36, 58, 0.28);
+      0 18px 44px rgba(0, 0, 0, 0.56),
+      0 0 0 0 rgba(72, 151, 255, 0.3);
   }
   50% {
-    filter: brightness(1.1) saturate(1.16);
-    border-color: rgba(255, 130, 146, 0.92);
     box-shadow:
-      0 18px 34px rgba(0, 0, 0, 0.42),
-      0 0 0 5px rgba(214, 36, 58, 0.38);
+      0 18px 44px rgba(0, 0, 0, 0.56),
+      0 0 0 4px rgba(72, 151, 255, 0.36);
+  }
+  100% {
+    box-shadow:
+      0 18px 44px rgba(0, 0, 0, 0.56),
+      0 0 0 0 rgba(72, 151, 255, 0.3);
+  }
+}
+
+@keyframes openttFeaturedLiveCardPulse {
+  0% {
+    filter: brightness(1) saturate(1);
+    border-color: rgba(255, 116, 132, 0.72);
+    box-shadow:
+      0 20px 46px rgba(0, 0, 0, 0.6),
+      0 0 0 0 rgba(255, 64, 92, 0.3);
+  }
+  50% {
+    filter: brightness(1.12) saturate(1.18);
+    border-color: rgba(255, 151, 164, 0.98);
+    box-shadow:
+      0 20px 46px rgba(0, 0, 0, 0.6),
+      0 0 0 5px rgba(255, 64, 92, 0.4);
   }
   100% {
     filter: brightness(1) saturate(1);
-    border-color: rgba(244, 98, 117, 0.62);
+    border-color: rgba(255, 116, 132, 0.72);
     box-shadow:
-      0 18px 34px rgba(0, 0, 0, 0.42),
-      0 0 0 0 rgba(214, 36, 58, 0.28);
+      0 20px 46px rgba(0, 0, 0, 0.6),
+      0 0 0 0 rgba(255, 64, 92, 0.3);
   }
 }
 
@@ -37,33 +55,29 @@
   --opentt-featured-away: #0084ff;
   position: relative;
   display: block;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 18px;
-  padding: 20px 22px;
+  border-radius: 20px;
+  border: 1px solid rgba(184, 220, 255, 0.28);
+  padding: 22px 24px;
   color: #ffffff;
   text-decoration: none;
-  background:
-    radial-gradient(130% 80% at 50% -20%, rgba(255, 255, 255, 0.2), transparent 65%),
-    linear-gradient(
-      110deg,
-      color-mix(in srgb, var(--opentt-featured-home) 86%, #001334 14%) 0%,
-      rgba(4, 18, 58, 0.94) 44%,
-      rgba(4, 18, 58, 0.94) 56%,
-      color-mix(in srgb, var(--opentt-featured-away) 86%, #001334 14%) 100%
-    );
-  box-shadow:
-    0 18px 34px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
   overflow: hidden;
   isolation: isolate;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  background:
+    radial-gradient(90% 150% at -8% 110%, color-mix(in srgb, var(--opentt-featured-home) 58%, transparent), transparent 72%),
+    radial-gradient(90% 150% at 108% -8%, color-mix(in srgb, var(--opentt-featured-away) 58%, transparent), transparent 72%),
+    linear-gradient(130deg, #071633 0%, #030c22 40%, #041432 100%);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.56),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: transform 0.26s ease, border-color 0.26s ease, box-shadow 0.26s ease;
+  animation: openttFeaturedGlow 3.2s ease-in-out infinite;
 }
 
 .opentt-featured-match-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(190, 222, 255, 0.58);
+  transform: translateY(-3px) scale(1.006);
+  border-color: rgba(214, 236, 255, 0.78);
   box-shadow:
-    0 22px 40px rgba(0, 0, 0, 0.48),
+    0 24px 50px rgba(0, 0, 0, 0.62),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
@@ -71,44 +85,40 @@
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 8, 24, 0.3)),
-    radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--opentt-featured-home) 34%, transparent) 0%, transparent 58%),
-    radial-gradient(circle at 82% 20%, color-mix(in srgb, var(--opentt-featured-away) 34%, transparent) 0%, transparent 58%);
   pointer-events: none;
   z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.32)),
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.06) 0,
+      rgba(255, 255, 255, 0.06) 2px,
+      transparent 2px,
+      transparent 12px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.42;
 }
 
 .opentt-featured-match-card::after {
-  content: "FEATURED";
+  content: "";
   position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(0, 9, 28, 0.42);
-  color: #eaf4ff;
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(90deg, var(--opentt-featured-home) 0%, transparent 34%, transparent 66%, var(--opentt-featured-away) 100%);
+  opacity: 0.28;
 }
 
 .opentt-featured-match-card.opentt-featured-live {
   background:
-    linear-gradient(135deg, rgba(183, 20, 43, 0.58), rgba(74, 8, 22, 0.66)),
-    linear-gradient(
-      110deg,
-      color-mix(in srgb, var(--opentt-featured-home) 86%, #001334 14%) 0%,
-      rgba(4, 18, 58, 0.94) 44%,
-      rgba(4, 18, 58, 0.94) 56%,
-      color-mix(in srgb, var(--opentt-featured-away) 86%, #001334 14%) 100%
-    );
-  border-color: rgba(244, 98, 117, 0.62);
-  will-change: filter, box-shadow, border-color;
-  animation: openttFeaturedCardPulse 1.2s ease-in-out infinite;
+    linear-gradient(135deg, rgba(174, 14, 44, 0.62), rgba(70, 6, 24, 0.7)),
+    radial-gradient(90% 150% at -8% 110%, color-mix(in srgb, var(--opentt-featured-home) 58%, transparent), transparent 72%),
+    radial-gradient(90% 150% at 108% -8%, color-mix(in srgb, var(--opentt-featured-away) 58%, transparent), transparent 72%),
+    linear-gradient(130deg, #071633 0%, #030c22 40%, #041432 100%);
+  border-color: rgba(255, 116, 132, 0.72);
+  animation: openttFeaturedLiveCardPulse 1.2s ease-in-out infinite;
 }
 
 .opentt-featured-meta-top,
@@ -119,19 +129,20 @@
 }
 
 .opentt-featured-meta-top {
-  margin-bottom: 14px;
-  font-size: 0.8rem;
-  color: #d9e8ff;
-  font-weight: 800;
-  letter-spacing: 0.06em;
+  margin: 0 0 14px;
   text-align: center;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  color: #eff7ff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
 }
 
 .opentt-featured-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(168px, auto) minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(184px, auto) minmax(0, 1fr);
+  gap: 20px;
   align-items: center;
 }
 
@@ -139,76 +150,69 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 10px;
   text-align: center;
-  gap: 9px;
 }
 
 .opentt-featured-team-crest {
-  width: 84px;
-  height: 84px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.48);
-  background: rgba(0, 8, 24, 0.36);
-  backdrop-filter: blur(4px);
+  width: 92px;
+  height: 92px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  background: rgba(5, 19, 49, 0.56);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(4px);
   overflow: hidden;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
 }
 
 .opentt-featured-team-crest img {
-  width: 68px;
-  height: 68px;
-  object-fit: cover;
-  border-radius: 10px;
+  width: 74px;
+  height: 74px;
+  object-fit: contain;
 }
 
 .opentt-featured-team-name {
-  font-size: 1.02rem;
-  font-weight: 800;
-  line-height: 1.2;
+  font-size: 1.06rem;
+  font-weight: 900;
+  line-height: 1.15;
   color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.42);
   text-wrap: balance;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.28);
 }
 
 .opentt-featured-center-wrap {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-}
-
-.opentt-featured-center-wrap::before {
-  content: "";
-  position: absolute;
-  inset: -8px -6px -8px -6px;
-  border-radius: 14px;
-  background: radial-gradient(circle at center, rgba(163, 208, 255, 0.22), transparent 70%);
-  z-index: -1;
-  pointer-events: none;
+  gap: 8px;
 }
 
 .opentt-featured-center {
-  text-align: center;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  background: rgba(0, 10, 38, 0.36);
-  backdrop-filter: blur(5px);
+  min-width: 170px;
   padding: 14px 12px;
-  min-width: 150px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  border: 1px solid rgba(203, 231, 255, 0.45);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    rgba(2, 12, 36, 0.64);
+  text-align: center;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.44),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .opentt-featured-countdown-label {
   font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
+  font-weight: 800;
   text-transform: uppercase;
-  color: #c9ddff;
-  margin-bottom: 8px;
+  letter-spacing: 0.09em;
+  color: #d4e8ff;
+  margin: 0 0 8px;
 }
 
 .opentt-featured-countdown-label:empty {
@@ -216,20 +220,20 @@
 }
 
 .opentt-featured-countdown {
-  font-size: 1.24rem;
+  font-size: 1.34rem;
   font-weight: 900;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
 }
 
 .opentt-featured-countdown-sub {
   margin-top: 4px;
   font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #c8dcff;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  color: #c8ddff;
   text-transform: uppercase;
 }
 
@@ -237,45 +241,23 @@
   display: none;
 }
 
-.opentt-featured-live-score-row {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 4px 12px;
-}
-
-.opentt-featured-live-score {
-  font-size: 1.74rem;
-  font-weight: 900;
-  line-height: 1;
-  min-width: 24px;
-  color: #ffffff;
-}
-
-.opentt-featured-live-sep {
-  font-size: 1.48rem;
-  font-weight: 900;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.96);
-}
-
 .opentt-featured-match-card .opentt-live-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(176, 14, 30, 0.92);
-  border: 1px solid rgba(255, 130, 130, 0.75);
-  color: #fff;
-  font-size: 0.86rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1;
-  animation: openttFeaturedLivePulse 1.2s infinite;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.36);
+  animation: openttFeaturedBlink 1.2s ease-in-out infinite;
 }
 
 .opentt-featured-match-card .opentt-live-badge::before {
@@ -284,18 +266,29 @@
   height: 7px;
   border-radius: 50%;
   background: currentColor;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.16);
-  animation: openttFeaturedLivePulse 1.2s infinite;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14);
+  animation: openttFeaturedBlink 1.2s ease-in-out infinite;
 }
 
-.opentt-featured-match-card.opentt-featured-live .opentt-live-badge {
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: #ffffff;
-  font-size: 1rem;
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+.opentt-featured-live-score-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 4px 10px;
+}
+
+.opentt-featured-live-score {
+  font-size: 1.84rem;
+  font-weight: 900;
+  line-height: 1;
+  min-width: 24px;
+}
+
+.opentt-featured-live-sep {
+  font-size: 1.54rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .opentt-featured-meta-bottom {
@@ -303,32 +296,20 @@
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.26);
   text-align: center;
-  font-size: 0.84rem;
-  color: #dbeaff;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #dcecff;
 }
 
 @media (max-width: 700px) {
   .opentt-featured-match-card {
-    padding: 12px 10px;
     border-radius: 14px;
-  }
-
-  .opentt-featured-match-card::after {
-    top: 8px;
-    left: 8px;
-    font-size: 0.56rem;
-    padding: 2px 7px;
-  }
-
-  .opentt-featured-meta-top {
-    margin-bottom: 10px;
-    font-size: 0.72rem;
-    letter-spacing: 0.05em;
+    padding: 12px 10px;
   }
 
   .opentt-featured-main {
-    grid-template-columns: minmax(0, 1fr) minmax(100px, auto) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(104px, auto) minmax(0, 1fr);
     gap: 8px;
   }
 
@@ -345,34 +326,43 @@
   .opentt-featured-team-crest img {
     width: 42px;
     height: 42px;
-    border-radius: 8px;
   }
 
   .opentt-featured-team-name {
     font-size: 0.76rem;
-    line-height: 1.2;
+    line-height: 1.18;
     max-width: 11ch;
     word-break: break-word;
   }
 
   .opentt-featured-center {
-    min-width: 94px;
-    padding: 8px 6px;
+    min-width: 96px;
     border-radius: 9px;
+    padding: 8px 6px;
   }
 
   .opentt-featured-countdown-label {
-    font-size: 0.58rem;
     margin-bottom: 4px;
+    font-size: 0.58rem;
   }
 
   .opentt-featured-countdown {
-    font-size: 0.9rem;
+    font-size: 0.92rem;
   }
 
   .opentt-featured-countdown-sub {
-    font-size: 0.6rem;
     margin-top: 3px;
+    font-size: 0.58rem;
+  }
+
+  .opentt-featured-match-card .opentt-live-badge {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+
+  .opentt-featured-match-card .opentt-live-badge::before {
+    width: 5px;
+    height: 5px;
   }
 
   .opentt-featured-live-score-row {
@@ -387,16 +377,6 @@
 
   .opentt-featured-live-sep {
     font-size: 1rem;
-  }
-
-  .opentt-featured-match-card.opentt-featured-live .opentt-live-badge {
-    font-size: 0.74rem;
-    letter-spacing: 0.07em;
-  }
-
-  .opentt-featured-match-card.opentt-featured-live .opentt-live-badge::before {
-    width: 5px;
-    height: 5px;
   }
 
   .opentt-featured-meta-bottom {
