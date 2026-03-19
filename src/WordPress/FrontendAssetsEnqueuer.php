@@ -15,6 +15,18 @@ final class FrontendAssetsEnqueuer
 {
     public static function enqueue($pluginDir, $pluginFile, $version, $visualCss, $customCss, $customCssMap)
     {
+        $jsRel = 'assets/js/frontend.js';
+        $jsPath = (string) $pluginDir . $jsRel;
+        if (is_readable($jsPath)) {
+            wp_enqueue_script(
+                'opentt-unified-frontend',
+                plugins_url($jsRel, $pluginFile),
+                [],
+                filemtime($jsPath),
+                true
+            );
+        }
+
         $modules = [
             'ekipe',
             'utakmice',

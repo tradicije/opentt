@@ -109,6 +109,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Switched primary round arrows to `href` anchors with JS click interception: rounds now switch client-side without reload when JS is healthy, with guaranteed server URL fallback only if JS step cannot execute.
 - Added inline no-refresh guard on round arrows (`onclick ... return false`) and delegated stepping through shared global handler, preventing full-page navigation on arrow click.
 - Finalized `opentt_matches_list` round navigation as JS-only `button` controls in standard mode (with `noscript` link fallback), eliminating context-dependent page refreshes on homepage/theme wrappers.
+- Moved `opentt_matches_list` round-switch logic from inline shortcode script to global frontend asset (`assets/js/frontend.js`) with JSON payload bootstrap, so homepage/static-page renders keep arrow navigation functional without reload.
 
 ## Releases
 
