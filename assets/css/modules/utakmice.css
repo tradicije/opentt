@@ -975,3 +975,44 @@ a.opentt-grid-cal-preview-more:focus {
     font-size: 0.72rem;
   }
 }
+
+/* Keep matches-list layout stable inside homepage/combined wrappers
+   where some themes apply broad rules to generic div/span elements. */
+.opentt-matches-combined .opentt-matches-list .opentt-matches-list-nav {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+}
+
+.opentt-matches-combined .opentt-matches-list .opentt-matches-list-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) 70px;
+  align-items: center;
+}
+
+.opentt-matches-combined .opentt-matches-list .opentt-matches-list-col--match {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.opentt-matches-combined .opentt-matches-list .match-side {
+  display: inline-flex;
+  align-items: center;
+}
+
+.opentt-matches-combined .opentt-matches-list .match-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .opentt-matches-combined .opentt-matches-list .opentt-matches-list-row {
+    grid-template-columns: 1fr;
+  }
+
+  .opentt-matches-combined .opentt-matches-list .opentt-matches-list-col--match {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}

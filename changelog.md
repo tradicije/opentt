@@ -110,6 +110,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added inline no-refresh guard on round arrows (`onclick ... return false`) and delegated stepping through shared global handler, preventing full-page navigation on arrow click.
 - Finalized `opentt_matches_list` round navigation as JS-only `button` controls in standard mode (with `noscript` link fallback), eliminating context-dependent page refreshes on homepage/theme wrappers.
 - Moved `opentt_matches_list` round-switch logic from inline shortcode script to global frontend asset (`assets/js/frontend.js`) with JSON payload bootstrap, so homepage/static-page renders keep arrow navigation functional without reload.
+- Added stronger list-layout CSS guards for `opentt_matches_list` inside combined/homepage wrappers to prevent theme-level generic selector overrides from breaking row/nav alignment.
 
 ## Releases
 
