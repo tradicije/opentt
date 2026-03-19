@@ -115,6 +115,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Simplified `opentt_matches_list` row HTML by removing inline keyboard/click handlers from server-rendered rows (delegated JS only), improving markup stability after round-switch re-render.
 - Switched `opentt_matches_list` client payload transport from `textarea` to `application/json` script block to prevent escaped-markup artifacts during round-switch rendering on homepage contexts.
 - Refined `opentt_matches_list` mobile card layout: rows now render compactly with date/media on top and teams+score in a single aligned line (instead of stacked home/score/away three-line flow).
+- Center-aligned mobile date labels in `opentt_matches_list` rows for cleaner visual balance with score and team blocks.
 
 ## Releases
 

@@ -933,8 +933,8 @@ a.opentt-grid-cal-preview-more:focus {
 
   .opentt-matches-list-col--date {
     grid-column: 1;
-    justify-self: start;
-    text-align: left;
+    justify-self: center;
+    text-align: center;
     font-size: 0.78rem;
     white-space: nowrap;
   }
