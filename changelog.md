@@ -120,6 +120,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Reworked admin match quick editing UX: renamed action to `Quick edit`, moved editor inline below the selected match row (blue-highlighted box), opened/closed without page refresh, and expanded fields to include score, date, kickoff time, and location (refresh occurs only on save).
 - Updated `opentt_matches_list` default-round selection: when no explicit round is requested, shortcode now opens the first upcoming round (first round containing at least one unplayed match) instead of always opening the latest round.
 - Redesigned `opentt_featured_match` card visuals for stronger hero emphasis: richer layered gradient, premium glass/panel styling, stronger typography hierarchy, featured ribbon marker, and polished hover/live-state presentation across desktop and mobile.
+- Adjusted `opentt_featured_match` center timing behavior: countdown (`Početak za`) now shows only within the final 24 hours before kickoff; for matches further out it shows kickoff time with date underneath (without countdown intro text).
 
 ## Releases
 

@@ -211,6 +211,10 @@
   margin-bottom: 8px;
 }
 
+.opentt-featured-countdown-label:empty {
+  display: none;
+}
+
 .opentt-featured-countdown {
   font-size: 1.24rem;
   font-weight: 900;
@@ -218,6 +222,19 @@
   color: #ffffff;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
   white-space: nowrap;
+}
+
+.opentt-featured-countdown-sub {
+  margin-top: 4px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #c8dcff;
+  text-transform: uppercase;
+}
+
+.opentt-featured-countdown-sub:empty {
+  display: none;
 }
 
 .opentt-featured-live-score-row {
@@ -351,6 +368,11 @@
 
   .opentt-featured-countdown {
     font-size: 0.9rem;
+  }
+
+  .opentt-featured-countdown-sub {
+    font-size: 0.6rem;
+    margin-top: 3px;
   }
 
   .opentt-featured-live-score-row {

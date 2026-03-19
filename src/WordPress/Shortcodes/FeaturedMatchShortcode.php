@@ -61,9 +61,7 @@ final class FeaturedMatchShortcode
         $metaTop = trim(implode(' • ', array_values(array_filter([$ligaLabel, $sezonaLabel, $koloLabel]))));
         $location = self::matchLocationLabel($match);
         $isLive = self::isLiveMatch($match);
-        $centerLabel = self::centerLabel($match);
-        $centerIntroLabel = self::centerIntroLabel($match);
-        $targetDate = self::matchTargetDateAttr((string) ($match->match_date ?? ''));
+        $centerState = self::centerState($match);
         $uid = 'opentt-featured-' . wp_unique_id();
 
         ob_start();
@@ -90,8 +88,16 @@ final class FeaturedMatchShortcode
             echo '</div>';
         } else {
             echo '<div class="opentt-featured-center">';
-            echo '<div class="opentt-featured-countdown-label">' . esc_html($centerIntroLabel) . '</div>';
-            echo '<div class="opentt-featured-countdown" data-opentt-target="' . esc_attr($targetDate) . '">' . esc_html($centerLabel) . '</div>';
+            echo '<div class="opentt-featured-countdown-label">' . esc_html((string) ($centerState['intro'] ?? '')) . '</div>';
+            echo '<div class="opentt-featured-countdown"'
+                . ' data-opentt-target="' . esc_attr((string) ($centerState['target_iso'] ?? '')) . '"'
+                . ' data-opentt-mode="' . esc_attr((string) ($centerState['mode'] ?? '')) . '"'
+                . ' data-opentt-time="' . esc_attr((string) ($centerState['schedule_time'] ?? '')) . '"'
+                . ' data-opentt-date="' . esc_attr((string) ($centerState['schedule_date'] ?? '')) . '"'
+                . '>'
+                . esc_html((string) ($centerState['primary'] ?? ''))
+                . '</div>';
+            echo '<div class="opentt-featured-countdown-sub">' . esc_html((string) ($centerState['secondary'] ?? '')) . '</div>';
             echo '</div>';
         }
         echo '</div>';
@@ -113,7 +119,11 @@ final class FeaturedMatchShortcode
             if (!root) { return; }
             var el = root.querySelector('.opentt-featured-countdown');
             if (!el) { return; }
+            var introEl = root.querySelector('.opentt-featured-countdown-label');
+            var subEl = root.querySelector('.opentt-featured-countdown-sub');
             var target = String(el.getAttribute('data-opentt-target') || '');
+            var fallbackTime = String(el.getAttribute('data-opentt-time') || '');
+            var fallbackDate = String(el.getAttribute('data-opentt-date') || '');
             if (!target) { return; }
             var ts = Date.parse(target);
             if (isNaN(ts)) { return; }
@@ -123,8 +133,18 @@ final class FeaturedMatchShortcode
                 var diff = ts - Date.now();
                 if (diff <= 0) {
                     el.textContent = 'U toku / završena';
+                    if (introEl) { introEl.textContent = ''; }
+                    if (subEl) { subEl.textContent = ''; }
                     return;
                 }
+                if (diff >= 24 * 60 * 60 * 1000) {
+                    el.textContent = fallbackTime || 'Uskoro';
+                    if (introEl) { introEl.textContent = ''; }
+                    if (subEl) { subEl.textContent = fallbackDate || ''; }
+                    return;
+                }
+                if (introEl) { introEl.textContent = 'Početak za:'; }
+                if (subEl) { subEl.textContent = ''; }
                 var sec = Math.floor(diff / 1000);
                 var days = Math.floor(sec / 86400);
                 var hours = Math.floor((sec % 86400) / 3600);
@@ -481,27 +501,78 @@ final class FeaturedMatchShortcode
 
     private static function centerLabel($match)
     {
-        $played = self::isMatchPlayedByStatusOrScore($match);
-        if ($played) {
-            return intval($match->home_score ?? 0) . ' : ' . intval($match->away_score ?? 0);
-        }
-        $dateRaw = (string) ($match->match_date ?? '');
-        $ts = self::matchTimestamp($dateRaw);
-        if ($ts !== false) {
-            return wp_date('H:i', $ts) . 'h';
-        }
-        return 'Uskoro';
+        $state = self::centerState($match);
+        return (string) ($state['primary'] ?? '');
     }
 
-    private static function centerIntroLabel($match)
+    private static function centerState($match)
     {
-        if (self::isLiveMatch($match)) {
-            return 'Uživo';
-        }
         if (self::isMatchPlayedByStatusOrScore($match)) {
-            return 'Rezultat';
+            return [
+                'mode' => 'score',
+                'intro' => 'Rezultat',
+                'primary' => intval($match->home_score ?? 0) . ' : ' . intval($match->away_score ?? 0),
+                'secondary' => '',
+                'target_iso' => '',
+                'schedule_time' => '',
+                'schedule_date' => '',
+            ];
         }
-        return 'Početak za:';
+
+        $dateRaw = (string) ($match->match_date ?? '');
+        $ts = self::matchTimestamp($dateRaw);
+        if ($ts === false) {
+            return [
+                'mode' => 'schedule',
+                'intro' => '',
+                'primary' => 'Uskoro',
+                'secondary' => '',
+                'target_iso' => '',
+                'schedule_time' => '',
+                'schedule_date' => '',
+            ];
+        }
+
+        $targetIso = wp_date('c', $ts);
+        $scheduleTime = wp_date('H:i', $ts) . 'h';
+        $scheduleDate = wp_date('d.m.Y', $ts);
+        $diff = intval($ts - current_time('timestamp'));
+        if ($diff < 24 * 60 * 60) {
+            return [
+                'mode' => 'countdown',
+                'intro' => 'Početak za:',
+                'primary' => self::formatCountdown($diff),
+                'secondary' => '',
+                'target_iso' => $targetIso,
+                'schedule_time' => $scheduleTime,
+                'schedule_date' => $scheduleDate,
+            ];
+        }
+
+        return [
+            'mode' => 'schedule',
+            'intro' => '',
+            'primary' => $scheduleTime,
+            'secondary' => $scheduleDate,
+            'target_iso' => $targetIso,
+            'schedule_time' => $scheduleTime,
+            'schedule_date' => $scheduleDate,
+        ];
+    }
+
+    private static function formatCountdown($diffSeconds)
+    {
+        $diffSeconds = max(0, intval($diffSeconds));
+        $days = intdiv($diffSeconds, 86400);
+        $hours = intdiv($diffSeconds % 86400, 3600);
+        $minutes = intdiv($diffSeconds % 3600, 60);
+        $seconds = $diffSeconds % 60;
+        if ($days > 0) {
+            return $days . 'd ' . str_pad((string) $hours, 2, '0', STR_PAD_LEFT) . 'h ' . str_pad((string) $minutes, 2, '0', STR_PAD_LEFT) . 'm';
+        }
+        return str_pad((string) $hours, 2, '0', STR_PAD_LEFT) . 'h '
+            . str_pad((string) $minutes, 2, '0', STR_PAD_LEFT) . 'm '
+            . str_pad((string) $seconds, 2, '0', STR_PAD_LEFT) . 's';
     }
 
     private static function isLiveMatch($match)
