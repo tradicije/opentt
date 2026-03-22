@@ -126,6 +126,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Normalized `opentt_match_teams` scheduled-time format to always render as `HH:MM` (for example `12:00`) instead of compact `12h` format.
 - Added new global live-search shortcode `opentt_search` with search-icon trigger (`assets/icons/search-icon.svg`), instant AJAX suggestions while typing, grouped result categories (players, clubs, leagues/seasons, matches), and context-aware prioritization (match/competition context boosts relevant entities first).
 - Refined `opentt_search` UX: fixed icon asset URL resolution, improved result-row text clipping/overflow behavior, and added mobile fullscreen search mode (with dedicated close button) to prevent off-screen results panel on phones.
+- Further polished `opentt_search` readability: prevented mobile browser auto-zoom on input focus and adjusted desktop result row spacing/line-height/padding to eliminate clipped-looking text in category lists.
 
 ## Releases
 

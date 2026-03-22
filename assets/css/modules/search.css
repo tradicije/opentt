@@ -76,7 +76,8 @@
   background: rgba(9, 22, 56, 0.88);
   color: #fff;
   padding: 0 12px;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.35;
 }
 
 .opentt-search-input:focus {
@@ -92,7 +93,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-bottom: 2px;
+  padding-bottom: 10px;
+  box-sizing: border-box;
 }
 
 .opentt-search-empty,
@@ -122,17 +124,18 @@
 .opentt-search-group-items {
   display: flex;
   flex-direction: column;
+  overflow: visible;
 }
 
 .opentt-search-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 8px 10px;
+  gap: 4px;
+  padding: 10px 12px 11px;
   text-decoration: none;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   color: #fff;
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 .opentt-search-item:first-child {
@@ -145,16 +148,19 @@
 
 .opentt-search-item-title {
   font-size: 14px;
-  line-height: 1.35;
+  line-height: 1.4;
   font-weight: 700;
   word-break: break-word;
+  display: block;
 }
 
 .opentt-search-item-meta {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
-  line-height: 1.3;
+  line-height: 1.45;
   word-break: break-word;
+  display: block;
+  padding-bottom: 1px;
 }
 
 @media (max-width: 640px) {
