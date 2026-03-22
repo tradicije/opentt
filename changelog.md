@@ -127,6 +127,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added new global live-search shortcode `opentt_search` with search-icon trigger (`assets/icons/search-icon.svg`), instant AJAX suggestions while typing, grouped result categories (players, clubs, leagues/seasons, matches), and context-aware prioritization (match/competition context boosts relevant entities first).
 - Refined `opentt_search` UX: fixed icon asset URL resolution, improved result-row text clipping/overflow behavior, and added mobile fullscreen search mode (with dedicated close button) to prevent off-screen results panel on phones.
 - Further polished `opentt_search` readability: prevented mobile browser auto-zoom on input focus and adjusted desktop result row spacing/line-height/padding to eliminate clipped-looking text in category lists.
+- Upgraded `opentt_search` desktop interaction to centered modal search (open on icon click) with blurred page backdrop and close button, while keeping mobile fullscreen behavior; added per-result thumbnails (players/clubs/leagues) displayed to the left of result text.
 
 ## Releases
 

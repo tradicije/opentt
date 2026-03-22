@@ -70,6 +70,7 @@ final class SearchShortcode
         echo '<button type="button" class="opentt-search-toggle" aria-expanded="false" aria-controls="' . esc_attr($uid . '-panel') . '" aria-label="Open search">';
         echo '<img class="opentt-search-toggle-icon" src="' . esc_url($icon_url) . '" alt="" aria-hidden="true">';
         echo '</button>';
+        echo '<div class="opentt-search-backdrop" hidden></div>';
         echo '<div id="' . esc_attr($uid . '-panel') . '" class="opentt-search-panel" hidden>';
         echo '<button type="button" class="opentt-search-close" aria-label="Close search">&times;</button>';
         echo '<label class="opentt-search-label" for="' . esc_attr($uid . '-input') . '">' . esc_html('Search') . '</label>';

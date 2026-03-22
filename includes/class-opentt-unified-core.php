@@ -6159,6 +6159,7 @@ HTML;
                 'title' => (string) ($row['title'] ?? ''),
                 'url' => (string) ($row['url'] ?? ''),
                 'meta' => $club_name,
+                'thumb' => self::search_post_thumb_url($player_id, 'assets/img/fallback-player.png'),
             ];
         }
 
@@ -6197,6 +6198,7 @@ HTML;
                 'title' => (string) ($row['title'] ?? ''),
                 'url' => (string) ($row['url'] ?? ''),
                 'meta' => '',
+                'thumb' => self::search_post_thumb_url($club_id, 'assets/img/fallback-club.png'),
             ];
         }
 
@@ -6248,6 +6250,7 @@ HTML;
                 'title' => $title,
                 'url' => self::search_competition_archive_url($liga_slug, $sezona_slug),
                 'meta' => '',
+                'thumb' => self::search_league_thumb_url($liga_slug),
             ];
         }
 
@@ -6434,6 +6437,7 @@ HTML;
                 'title' => $title,
                 'url' => $url,
                 'meta' => trim((string) ($item['meta'] ?? '')),
+                'thumb' => trim((string) ($item['thumb'] ?? '')),
             ];
             if (count($final) >= $limit) {
                 break;
@@ -6556,6 +6560,52 @@ HTML;
         $path .= $kolo . '/' . $slug . '/';
 
         return home_url($path);
+    }
+
+    private static function search_post_thumb_url($post_id, $fallback_asset = '')
+    {
+        $post_id = intval($post_id);
+        if ($post_id > 0 && function_exists('get_the_post_thumbnail_url')) {
+            $thumb = (string) get_the_post_thumbnail_url($post_id, 'thumbnail');
+            if ($thumb !== '') {
+                return $thumb;
+            }
+        }
+
+        $fallback_asset = trim((string) $fallback_asset);
+        if ($fallback_asset !== '') {
+            return self::search_plugin_asset_url($fallback_asset);
+        }
+
+        return '';
+    }
+
+    private static function search_league_thumb_url($liga_slug)
+    {
+        $liga_slug = sanitize_title((string) $liga_slug);
+        if ($liga_slug !== '') {
+            $post = get_page_by_path($liga_slug, OBJECT, 'liga');
+            if ($post && !is_wp_error($post)) {
+                $thumb = self::search_post_thumb_url((int) $post->ID);
+                if ($thumb !== '') {
+                    return $thumb;
+                }
+            }
+        }
+
+        return self::search_plugin_asset_url('assets/icons/external-icon.svg');
+    }
+
+    private static function search_plugin_asset_url($asset_rel)
+    {
+        $asset_rel = ltrim((string) $asset_rel, '/');
+        if ($asset_rel === '') {
+            return '';
+        }
+        if (self::$plugin_file === '') {
+            return '';
+        }
+        return (string) plugins_url($asset_rel, self::$plugin_file);
     }
 
     private static function ensure_matches_live_column($table_name)

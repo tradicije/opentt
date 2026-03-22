@@ -393,11 +393,22 @@
         var title = esc(item && item.title ? item.title : "");
         var url = esc(item && item.url ? item.url : "#");
         var meta = esc(item && item.meta ? item.meta : "");
+        var thumb = esc(item && item.thumb ? item.thumb : "");
         html += '<a class="opentt-search-item" href="' + url + '">';
+        html += '<span class="opentt-search-item-main">';
+        if (thumb) {
+          html +=
+            '<span class="opentt-search-item-thumb"><img src="' +
+            thumb +
+            '" alt="" loading="lazy" decoding="async"></span>';
+        }
+        html += '<span class="opentt-search-item-text">';
         html += '<span class="opentt-search-item-title">' + title + "</span>";
         if (meta) {
           html += '<span class="opentt-search-item-meta">' + meta + "</span>";
         }
+        html += "</span>";
+        html += "</span>";
         html += "</a>";
       });
       html += "</div></section>";
@@ -411,6 +422,7 @@
     }
     var data = parseJsonNode(root.querySelector(".opentt-search-data")) || {};
     var toggle = root.querySelector(".opentt-search-toggle");
+    var backdrop = root.querySelector(".opentt-search-backdrop");
     var panel = root.querySelector(".opentt-search-panel");
     var closeBtn = root.querySelector(".opentt-search-close");
     var input = root.querySelector(".opentt-search-input");
@@ -438,6 +450,9 @@
 
     function closePanel() {
       panel.hidden = true;
+      if (backdrop) {
+        backdrop.hidden = true;
+      }
       toggle.setAttribute("aria-expanded", "false");
       if (document.body && document.body.classList) {
         document.body.classList.remove("opentt-search-open");
@@ -446,6 +461,9 @@
 
     function openPanel() {
       panel.hidden = false;
+      if (backdrop) {
+        backdrop.hidden = false;
+      }
       toggle.setAttribute("aria-expanded", "true");
       if (document.body && document.body.classList) {
         document.body.classList.add("opentt-search-open");
@@ -464,6 +482,11 @@
     });
     if (closeBtn) {
       closeBtn.addEventListener("click", function () {
+        closePanel();
+      });
+    }
+    if (backdrop) {
+      backdrop.addEventListener("click", function () {
         closePanel();
       });
     }

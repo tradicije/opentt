@@ -32,7 +32,7 @@
 }
 
 .opentt-search-close {
-  display: none;
+  display: inline-block;
   border: 0;
   background: transparent;
   color: #fff;
@@ -46,17 +46,27 @@
   z-index: 2;
 }
 
+.opentt-search-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(1, 9, 26, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 68;
+}
+
 .opentt-search-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: min(520px, calc(100vw - 24px));
+  position: fixed;
+  left: 50%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+  width: min(620px, calc(100vw - 40px));
   background: rgba(3, 13, 40, 0.98);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
   box-shadow: 0 18px 38px rgba(0, 0, 0, 0.42);
-  padding: 12px;
-  z-index: 70;
+  padding: 46px 14px 14px;
+  z-index: 69;
   box-sizing: border-box;
 }
 
@@ -138,6 +148,40 @@
   line-height: 1.45;
 }
 
+.opentt-search-item-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.opentt-search-item-thumb {
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.opentt-search-item-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.opentt-search-item-text {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
 .opentt-search-item:first-child {
   border-top: 0;
 }
@@ -168,6 +212,10 @@
     overflow: hidden;
   }
 
+  .opentt-search-backdrop {
+    display: none;
+  }
+
   .opentt-search-panel {
     position: fixed;
     left: 0;
@@ -181,14 +229,23 @@
     padding: 56px 14px 14px;
     z-index: 9999;
     overflow: auto;
+    transform: none;
   }
 
   .opentt-search-close {
-    display: inline-block;
+    right: 8px;
+    top: 10px;
   }
 
   .opentt-search-results {
     max-height: none;
     overflow: visible;
+  }
+
+  .opentt-search-item-thumb {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    border-radius: 8px;
   }
 }
