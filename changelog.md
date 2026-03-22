@@ -132,6 +132,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Hardened `opentt_search` overlay UX: desktop now uses strict body/html scroll lock while modal is open (no background page scroll bleed), and mobile fullscreen mode now has a darker backdrop treatment for stronger search box contrast.
 - Finalized `opentt_search` fullscreen overlay behavior across desktop/mobile: added stronger background-scroll guards (wheel/touch lock), switched results to single continuous full-list rendering (no inner category clipping scroll), and aligned both breakpoints to full-viewport search mode.
 - Polished `opentt_search` header/input layout: localized label to `Pretraga`, increased heading size, improved top spacing and panel padding, and fixed desktop close-button clipping.
+- Updated `opentt_search` heading treatment to stronger visual emphasis: larger all-caps `PRETRAGA` title with increased letter spacing (desktop + mobile scale).
 
 ## Releases
 
