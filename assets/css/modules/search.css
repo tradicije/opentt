@@ -48,13 +48,13 @@ html.opentt-search-open {
   border: 0;
   background: transparent;
   color: #fff;
-  font-size: 28px;
+  font-size: 32px;
   line-height: 1;
   cursor: pointer;
   position: absolute;
-  top: 10px;
-  right: 12px;
-  padding: 2px 8px;
+  top: 12px;
+  right: 16px;
+  padding: 4px 10px;
   z-index: 2;
 }
 
@@ -79,7 +79,7 @@ html.opentt-search-open {
   box-shadow:
     0 22px 48px rgba(0, 0, 0, 0.48),
     0 0 0 1px rgba(45, 119, 245, 0.18) inset;
-  padding: 58px 20px 20px;
+  padding: 72px 24px 24px;
   z-index: 69;
   box-sizing: border-box;
   overscroll-behavior: contain;
@@ -88,20 +88,22 @@ html.opentt-search-open {
 
 .opentt-search-label {
   display: block;
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.82);
-  margin-bottom: 6px;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 12px;
+  letter-spacing: 0.01em;
 }
 
 .opentt-search-input {
   width: 100%;
-  min-height: 42px;
+  min-height: 48px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 10px;
   background: rgba(9, 22, 56, 0.88);
   color: #fff;
-  padding: 0 12px;
+  padding: 0 14px;
   font-size: 16px;
   line-height: 1.35;
 }
@@ -113,7 +115,7 @@ html.opentt-search-open {
 }
 
 .opentt-search-results {
-  margin-top: 10px;
+  margin-top: 14px;
   max-height: none;
   overflow: visible;
   display: flex;
@@ -230,14 +232,20 @@ html.opentt-search-open {
   }
 
   .opentt-search-panel {
-    padding: 56px 14px 14px;
+    padding: 62px 14px 16px;
     z-index: 9999;
     background: linear-gradient(165deg, rgba(8, 26, 70, 0.96) 0%, rgba(4, 14, 40, 0.985) 44%, rgba(1, 8, 24, 0.995) 100%);
   }
 
   .opentt-search-close {
     right: 8px;
-    top: 10px;
+    top: 8px;
+    font-size: 30px;
+  }
+
+  .opentt-search-label {
+    font-size: 18px;
+    margin-bottom: 10px;
   }
 
   .opentt-search-results {

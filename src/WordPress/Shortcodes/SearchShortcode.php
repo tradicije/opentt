@@ -72,8 +72,8 @@ final class SearchShortcode
         echo '</button>';
         echo '<div class="opentt-search-backdrop" hidden></div>';
         echo '<div id="' . esc_attr($uid . '-panel') . '" class="opentt-search-panel" hidden>';
-        echo '<button type="button" class="opentt-search-close" aria-label="Close search">&times;</button>';
-        echo '<label class="opentt-search-label" for="' . esc_attr($uid . '-input') . '">' . esc_html('Search') . '</label>';
+        echo '<button type="button" class="opentt-search-close" aria-label="Zatvori pretragu">&times;</button>';
+        echo '<label class="opentt-search-label" for="' . esc_attr($uid . '-input') . '">' . esc_html('Pretraga') . '</label>';
         echo '<input id="' . esc_attr($uid . '-input') . '" class="opentt-search-input" type="search" autocomplete="off" placeholder="' . esc_attr($placeholder) . '" />';
         echo '<div class="opentt-search-results" data-opentt-search-results><p class="opentt-search-empty">' . esc_html(sprintf('Unesi najmanje %d karakter(a).', $min_chars)) . '</p></div>';
         echo '</div>';
