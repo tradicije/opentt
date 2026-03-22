@@ -4,6 +4,12 @@ body.opentt-search-open {
   overscroll-behavior: none;
 }
 
+html.opentt-search-open {
+  overflow: hidden;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
 .opentt-search {
   position: relative;
   display: inline-flex;
@@ -237,6 +243,7 @@ body.opentt-search-open {
     z-index: 9999;
     overflow: auto;
     transform: none;
+    background: linear-gradient(165deg, rgba(8, 26, 70, 0.96) 0%, rgba(4, 14, 40, 0.985) 44%, rgba(1, 8, 24, 0.995) 100%);
   }
 
   .opentt-search-close {

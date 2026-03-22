@@ -1,4 +1,46 @@
 (function () {
+  var openttScrollLockCount = 0;
+  var openttSavedScrollY = 0;
+
+  function lockPageScroll() {
+    if (openttScrollLockCount === 0) {
+      openttSavedScrollY = window.scrollY || window.pageYOffset || 0;
+      if (document.documentElement && document.documentElement.classList) {
+        document.documentElement.classList.add("opentt-search-open");
+      }
+      if (document.body && document.body.classList) {
+        document.body.classList.add("opentt-search-open");
+        document.body.style.position = "fixed";
+        document.body.style.top = "-" + String(openttSavedScrollY) + "px";
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.width = "100%";
+      }
+    }
+    openttScrollLockCount += 1;
+  }
+
+  function unlockPageScroll() {
+    if (openttScrollLockCount > 0) {
+      openttScrollLockCount -= 1;
+    }
+    if (openttScrollLockCount > 0) {
+      return;
+    }
+    if (document.documentElement && document.documentElement.classList) {
+      document.documentElement.classList.remove("opentt-search-open");
+    }
+    if (document.body && document.body.classList) {
+      document.body.classList.remove("opentt-search-open");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+    }
+    window.scrollTo(0, openttSavedScrollY || 0);
+  }
+
   function normalizeSlug(value) {
     return String(value || "").toLowerCase().trim();
   }
@@ -454,9 +496,7 @@
         backdrop.hidden = true;
       }
       toggle.setAttribute("aria-expanded", "false");
-      if (document.body && document.body.classList) {
-        document.body.classList.remove("opentt-search-open");
-      }
+      unlockPageScroll();
     }
 
     function openPanel() {
@@ -465,9 +505,7 @@
         backdrop.hidden = false;
       }
       toggle.setAttribute("aria-expanded", "true");
-      if (document.body && document.body.classList) {
-        document.body.classList.add("opentt-search-open");
-      }
+      lockPageScroll();
       setTimeout(function () {
         input.focus();
       }, 0);
