@@ -1,8 +1,47 @@
 (function () {
   var openttScrollLockCount = 0;
   var openttSavedScrollY = 0;
+  var openttActiveSearchPanel = null;
+  var openttScrollGuardsAttached = false;
 
-  function lockPageScroll() {
+  function preventBackgroundScroll(event) {
+    if (!openttActiveSearchPanel) {
+      return;
+    }
+    var target = event && event.target ? event.target : null;
+    if (target && openttActiveSearchPanel.contains(target)) {
+      return;
+    }
+    if (event && typeof event.preventDefault === "function") {
+      event.preventDefault();
+    }
+  }
+
+  function attachScrollGuards() {
+    if (openttScrollGuardsAttached) {
+      return;
+    }
+    openttScrollGuardsAttached = true;
+    document.addEventListener("wheel", preventBackgroundScroll, {
+      passive: false,
+      capture: true,
+    });
+    document.addEventListener("touchmove", preventBackgroundScroll, {
+      passive: false,
+      capture: true,
+    });
+  }
+
+  function detachScrollGuards() {
+    if (!openttScrollGuardsAttached) {
+      return;
+    }
+    openttScrollGuardsAttached = false;
+    document.removeEventListener("wheel", preventBackgroundScroll, true);
+    document.removeEventListener("touchmove", preventBackgroundScroll, true);
+  }
+
+  function lockPageScroll(panel) {
     if (openttScrollLockCount === 0) {
       openttSavedScrollY = window.scrollY || window.pageYOffset || 0;
       if (document.documentElement && document.documentElement.classList) {
@@ -16,6 +55,10 @@
         document.body.style.right = "0";
         document.body.style.width = "100%";
       }
+      attachScrollGuards();
+    }
+    if (panel) {
+      openttActiveSearchPanel = panel;
     }
     openttScrollLockCount += 1;
   }
@@ -27,6 +70,8 @@
     if (openttScrollLockCount > 0) {
       return;
     }
+    openttActiveSearchPanel = null;
+    detachScrollGuards();
     if (document.documentElement && document.documentElement.classList) {
       document.documentElement.classList.remove("opentt-search-open");
     }
@@ -505,7 +550,7 @@
         backdrop.hidden = false;
       }
       toggle.setAttribute("aria-expanded", "true");
-      lockPageScroll();
+      lockPageScroll(panel);
       setTimeout(function () {
         input.focus();
       }, 0);
