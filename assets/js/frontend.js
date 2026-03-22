@@ -344,6 +344,191 @@
     syncNavState();
   }
 
+  function parseJsonNode(node) {
+    if (!node) {
+      return null;
+    }
+    var raw = node.textContent || node.value || "";
+    if (!raw) {
+      return null;
+    }
+    try {
+      return JSON.parse(raw);
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function debounce(fn, wait) {
+    var timer = null;
+    return function () {
+      var args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn.apply(null, args);
+      }, wait);
+    };
+  }
+
+  function renderSearchGroups(container, groups) {
+    if (!container) {
+      return;
+    }
+    if (!Array.isArray(groups) || !groups.length) {
+      container.innerHTML = '<p class="opentt-search-empty">Nema rezultata.</p>';
+      return;
+    }
+
+    var html = "";
+    groups.forEach(function (group) {
+      var label = esc(group && group.label ? group.label : "");
+      var items = Array.isArray(group && group.items) ? group.items : [];
+      if (!items.length) {
+        return;
+      }
+      html += '<section class="opentt-search-group">';
+      html += '<h4 class="opentt-search-group-title">' + label + "</h4>";
+      html += '<div class="opentt-search-group-items">';
+      items.forEach(function (item) {
+        var title = esc(item && item.title ? item.title : "");
+        var url = esc(item && item.url ? item.url : "#");
+        var meta = esc(item && item.meta ? item.meta : "");
+        html += '<a class="opentt-search-item" href="' + url + '">';
+        html += '<span class="opentt-search-item-title">' + title + "</span>";
+        if (meta) {
+          html += '<span class="opentt-search-item-meta">' + meta + "</span>";
+        }
+        html += "</a>";
+      });
+      html += "</div></section>";
+    });
+    container.innerHTML = html || '<p class="opentt-search-empty">Nema rezultata.</p>';
+  }
+
+  function initSearch(root) {
+    if (!root || root.dataset.openttSearchReady === "1") {
+      return;
+    }
+    var data = parseJsonNode(root.querySelector(".opentt-search-data")) || {};
+    var toggle = root.querySelector(".opentt-search-toggle");
+    var panel = root.querySelector(".opentt-search-panel");
+    var input = root.querySelector(".opentt-search-input");
+    var results = root.querySelector("[data-opentt-search-results]");
+    if (!toggle || !panel || !input || !results) {
+      return;
+    }
+
+    root.dataset.openttSearchReady = "1";
+    var minChars = parseInt(data.minChars || 1, 10);
+    if (isNaN(minChars) || minChars < 1) {
+      minChars = 1;
+    }
+    var limit = parseInt(data.limit || 6, 10);
+    if (isNaN(limit) || limit < 1) {
+      limit = 6;
+    }
+    var context = data.context && typeof data.context === "object" ? data.context : {};
+    var i18n = data.i18n && typeof data.i18n === "object" ? data.i18n : {};
+    var promptText =
+      i18n.prompt || ("Unesi najmanje " + String(minChars) + " karakter(a).");
+    var loadingText = i18n.loading || "Pretraga...";
+    var emptyText = i18n.empty || "Nema rezultata.";
+    var currentController = null;
+
+    function closePanel() {
+      panel.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+    }
+
+    function openPanel() {
+      panel.hidden = false;
+      toggle.setAttribute("aria-expanded", "true");
+      setTimeout(function () {
+        input.focus();
+      }, 0);
+    }
+
+    toggle.addEventListener("click", function () {
+      if (panel.hidden) {
+        openPanel();
+      } else {
+        closePanel();
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!root.contains(e.target)) {
+        closePanel();
+      }
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !panel.hidden) {
+        closePanel();
+      }
+    });
+
+    var runSearch = debounce(function (value) {
+      var query = String(value || "").trim();
+      if (query.length < minChars) {
+        results.innerHTML = '<p class="opentt-search-empty">' + esc(promptText) + "</p>";
+        return;
+      }
+
+      var ajaxUrl =
+        window.openttFrontend && window.openttFrontend.ajaxUrl
+          ? String(window.openttFrontend.ajaxUrl)
+          : "";
+      if (!ajaxUrl) {
+        results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
+        return;
+      }
+
+      if (currentController && typeof currentController.abort === "function") {
+        currentController.abort();
+      }
+      currentController =
+        typeof AbortController !== "undefined" ? new AbortController() : null;
+
+      results.innerHTML = '<p class="opentt-search-loading">' + esc(loadingText) + "</p>";
+
+      var body = new URLSearchParams();
+      body.set("action", "opentt_frontend_search");
+      body.set("nonce", String(window.openttFrontend.searchNonce || ""));
+      body.set("q", query);
+      body.set("limit", String(limit));
+      body.set("context", JSON.stringify(context));
+
+      fetch(ajaxUrl, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        },
+        body: body.toString(),
+        signal: currentController ? currentController.signal : undefined,
+      })
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (payload) {
+          if (!payload || payload.success !== true) {
+            results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
+            return;
+          }
+          var data = payload.data && typeof payload.data === "object" ? payload.data : {};
+          renderSearchGroups(results, data.groups || []);
+        })
+        .catch(function () {
+          results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
+        });
+    }, 170);
+
+    input.addEventListener("input", function () {
+      runSearch(input.value || "");
+    });
+  }
+
   function initAllMatchesLists() {
     var roots = document.querySelectorAll('[data-opentt-matches-list="1"]');
     for (var i = 0; i < roots.length; i++) {
@@ -351,9 +536,20 @@
     }
   }
 
+  function initAllSearches() {
+    var roots = document.querySelectorAll('[data-opentt-search="1"]');
+    for (var i = 0; i < roots.length; i++) {
+      initSearch(roots[i]);
+    }
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initAllMatchesLists);
+    document.addEventListener("DOMContentLoaded", function () {
+      initAllMatchesLists();
+      initAllSearches();
+    });
   } else {
     initAllMatchesLists();
+    initAllSearches();
   }
 })();

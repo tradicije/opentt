@@ -16,6 +16,7 @@ final class ShortcodeRegistrar
     public static function register($handlerClass)
     {
         $map = [
+            'opentt_search' => 'shortcode_search',
             'opentt_matches' => 'shortcode_matches',
             'opentt_matches_grid' => 'shortcode_matches_grid',
             'opentt_matches_list' => 'shortcode_matches_list',

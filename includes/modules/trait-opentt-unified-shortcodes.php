@@ -64,6 +64,21 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_search($atts = [])
+    {
+        return \OpenTT\Unified\WordPress\Shortcodes\SearchShortcode::render($atts, [
+            'current_match_context' => static function () {
+                return self::current_match_context();
+            },
+            'current_archive_context' => static function () {
+                return self::current_archive_context();
+            },
+            'parse_legacy_liga_sezona' => static function ($liga_slug, $sezona_slug = '') {
+                return self::parse_legacy_liga_sezona($liga_slug, $sezona_slug);
+            },
+        ]);
+    }
+
     public static function shortcode_matches_list($atts)
     {
         return \OpenTT\Unified\WordPress\Shortcodes\MatchesListShortcode::render($atts, [

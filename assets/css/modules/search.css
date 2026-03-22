@@ -1,0 +1,145 @@
+.opentt-search {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.opentt-search-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(3, 23, 69, 0.92);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.opentt-search-toggle:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(8, 30, 82, 0.95);
+}
+
+.opentt-search-toggle-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+.opentt-search-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(520px, calc(100vw - 24px));
+  background: rgba(3, 13, 40, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.42);
+  padding: 12px;
+  z-index: 70;
+}
+
+.opentt-search-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.82);
+  margin-bottom: 6px;
+}
+
+.opentt-search-input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(9, 22, 56, 0.88);
+  color: #fff;
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+.opentt-search-input:focus {
+  outline: none;
+  border-color: rgba(56, 145, 255, 0.9);
+  box-shadow: 0 0 0 2px rgba(56, 145, 255, 0.2);
+}
+
+.opentt-search-results {
+  margin-top: 10px;
+  max-height: 360px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opentt-search-empty,
+.opentt-search-loading {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.opentt-search-group {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(8, 20, 52, 0.6);
+}
+
+.opentt-search-group-title {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.opentt-search-group-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.opentt-search-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  text-decoration: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.opentt-search-item:first-child {
+  border-top: 0;
+}
+
+.opentt-search-item:hover {
+  background: rgba(48, 122, 238, 0.2);
+}
+
+.opentt-search-item-title {
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.opentt-search-item-meta {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 640px) {
+  .opentt-search-panel {
+    right: auto;
+    left: 0;
+    width: min(420px, calc(100vw - 16px));
+    padding: 10px;
+  }
+}

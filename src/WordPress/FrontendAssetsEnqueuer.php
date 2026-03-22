@@ -25,6 +25,10 @@ final class FrontendAssetsEnqueuer
                 filemtime($jsPath),
                 true
             );
+            wp_localize_script('opentt-unified-frontend', 'openttFrontend', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'searchNonce' => wp_create_nonce('opentt_frontend_search'),
+            ]);
         }
 
         $modules = [
@@ -50,6 +54,7 @@ final class FrontendAssetsEnqueuer
             'info-igraca',
             'prikaz-klubova',
             'featured-match',
+            'search',
         ];
 
         foreach ($modules as $mod) {
