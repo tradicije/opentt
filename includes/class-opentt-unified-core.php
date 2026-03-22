@@ -159,9 +159,6 @@ final class OpenTT_Unified_Core
 
         $query = isset($_POST['q']) ? sanitize_text_field((string) wp_unslash($_POST['q'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $query = trim($query);
-        if ($query === '') {
-            wp_send_json_success(['query' => '', 'groups' => []]);
-        }
 
         $limit = isset($_POST['limit']) ? intval($_POST['limit']) : 6; // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $limit = max(3, min(12, $limit));
@@ -179,6 +176,14 @@ final class OpenTT_Unified_Core
             }
         }
         $context = self::normalize_search_context($context);
+
+        if ($query === '') {
+            $groups = self::build_search_discovery_groups($limit, $context);
+            wp_send_json_success([
+                'query' => '',
+                'groups' => $groups,
+            ]);
+        }
 
         $groups = self::build_search_groups($query, $limit, $context);
         wp_send_json_success([
@@ -6120,6 +6125,23 @@ HTML;
         return $groups;
     }
 
+    private static function build_search_discovery_groups($limit, array $context)
+    {
+        $groups = [];
+
+        $players = self::search_popular_players_group($limit, $context);
+        if (!empty($players)) {
+            $groups[] = ['key' => 'players', 'label' => 'Popularni igrači', 'items' => $players];
+        }
+
+        $clubs = self::search_popular_clubs_group($limit, $context);
+        if (!empty($clubs)) {
+            $groups[] = ['key' => 'clubs', 'label' => 'Popularni klubovi', 'items' => $clubs];
+        }
+
+        return $groups;
+    }
+
     private static function search_players_group($query, $limit, array $context, array $competition_club_ids, array $match_player_ids)
     {
         $rows = self::search_posts_by_title('igrac', $query, max(800, $limit * 20));
@@ -6166,6 +6188,80 @@ HTML;
         return self::finalize_search_items($items, $limit);
     }
 
+    private static function search_popular_players_group($limit, array $context)
+    {
+        global $wpdb;
+        $games = self::db_table('games');
+        $matches = self::db_table('matches');
+        if (!self::table_exists($games) || !self::table_exists($matches)) {
+            return [];
+        }
+
+        $where = ['1=1'];
+        $params = [];
+        $liga = (string) ($context['liga_slug'] ?? '');
+        $sezona = (string) ($context['sezona_slug'] ?? '');
+        if ($liga !== '') {
+            $where[] = 'm.liga_slug=%s';
+            $params[] = $liga;
+        }
+        if ($sezona !== '') {
+            $where[] = 'm.sezona_slug=%s';
+            $params[] = $sezona;
+        }
+        $where_sql = implode(' AND ', $where);
+
+        $sql = "
+            SELECT player_id, SUM(win) AS wins, COUNT(*) AS games_total
+            FROM (
+                SELECT g.home_player_post_id AS player_id, CASE WHEN g.home_sets > g.away_sets THEN 1 ELSE 0 END AS win
+                FROM {$games} g
+                INNER JOIN {$matches} m ON m.id = g.match_id
+                WHERE g.home_player_post_id > 0 AND {$where_sql}
+                UNION ALL
+                SELECT g.away_player_post_id AS player_id, CASE WHEN g.away_sets > g.home_sets THEN 1 ELSE 0 END AS win
+                FROM {$games} g
+                INNER JOIN {$matches} m ON m.id = g.match_id
+                WHERE g.away_player_post_id > 0 AND {$where_sql}
+            ) ranked
+            GROUP BY player_id
+            ORDER BY wins DESC, games_total DESC, player_id ASC
+            LIMIT " . intval(max(6, $limit * 4));
+        if (!empty($params)) {
+            $sql = $wpdb->prepare($sql, array_merge($params, $params));
+        }
+        $rows = $wpdb->get_results($sql);
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+
+        $items = [];
+        foreach ($rows as $row) {
+            $player_id = intval($row->player_id ?? 0);
+            if ($player_id <= 0) {
+                continue;
+            }
+            $title = (string) get_the_title($player_id);
+            $url = (string) get_permalink($player_id);
+            if ($title === '' || $url === '') {
+                continue;
+            }
+            $club_id = self::get_player_club_id($player_id);
+            $club = $club_id > 0 ? (string) get_the_title($club_id) : '';
+            $wins = intval($row->wins ?? 0);
+
+            $items[] = [
+                'score' => max(1, $wins),
+                'title' => $title,
+                'url' => $url,
+                'meta' => trim($club !== '' ? ($club . ' • ' . $wins . ' pobeda') : ($wins . ' pobeda')),
+                'thumb' => self::search_post_thumb_url($player_id, 'assets/img/fallback-player.png'),
+            ];
+        }
+
+        return self::finalize_search_items($items, $limit);
+    }
+
     private static function search_clubs_group($query, $limit, array $context, array $competition_club_ids)
     {
         $rows = self::search_posts_by_title('klub', $query, max(600, $limit * 18));
@@ -6198,6 +6294,75 @@ HTML;
                 'title' => (string) ($row['title'] ?? ''),
                 'url' => (string) ($row['url'] ?? ''),
                 'meta' => '',
+                'thumb' => self::search_post_thumb_url($club_id, 'assets/img/fallback-club.png'),
+            ];
+        }
+
+        return self::finalize_search_items($items, $limit);
+    }
+
+    private static function search_popular_clubs_group($limit, array $context)
+    {
+        global $wpdb;
+        $matches = self::db_table('matches');
+        if (!self::table_exists($matches)) {
+            return [];
+        }
+
+        $where = ['1=1'];
+        $params = [];
+        $liga = (string) ($context['liga_slug'] ?? '');
+        $sezona = (string) ($context['sezona_slug'] ?? '');
+        if ($liga !== '') {
+            $where[] = 'liga_slug=%s';
+            $params[] = $liga;
+        }
+        if ($sezona !== '') {
+            $where[] = 'sezona_slug=%s';
+            $params[] = $sezona;
+        }
+        $where_sql = implode(' AND ', $where);
+
+        $sql = "
+            SELECT club_id, SUM(win) AS wins, COUNT(*) AS matches_total
+            FROM (
+                SELECT home_club_post_id AS club_id, CASE WHEN home_score > away_score THEN 1 ELSE 0 END AS win
+                FROM {$matches}
+                WHERE home_club_post_id > 0 AND {$where_sql}
+                UNION ALL
+                SELECT away_club_post_id AS club_id, CASE WHEN away_score > home_score THEN 1 ELSE 0 END AS win
+                FROM {$matches}
+                WHERE away_club_post_id > 0 AND {$where_sql}
+            ) ranked
+            GROUP BY club_id
+            ORDER BY wins DESC, matches_total DESC, club_id ASC
+            LIMIT " . intval(max(6, $limit * 4));
+        if (!empty($params)) {
+            $sql = $wpdb->prepare($sql, array_merge($params, $params));
+        }
+        $rows = $wpdb->get_results($sql);
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+
+        $items = [];
+        foreach ($rows as $row) {
+            $club_id = intval($row->club_id ?? 0);
+            if ($club_id <= 0) {
+                continue;
+            }
+            $title = (string) get_the_title($club_id);
+            $url = (string) get_permalink($club_id);
+            if ($title === '' || $url === '') {
+                continue;
+            }
+            $wins = intval($row->wins ?? 0);
+            $matches_total = intval($row->matches_total ?? 0);
+            $items[] = [
+                'score' => max(1, $wins),
+                'title' => $title,
+                'url' => $url,
+                'meta' => $wins . ' pobeda • ' . $matches_total . ' mečeva',
                 'thumb' => self::search_post_thumb_url($club_id, 'assets/img/fallback-club.png'),
             ];
         }

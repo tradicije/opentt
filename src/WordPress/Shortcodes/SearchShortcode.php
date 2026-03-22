@@ -58,6 +58,7 @@ final class SearchShortcode
                     'leagues' => 'Lige i sezone',
                     'matches' => 'Utakmice',
                 ],
+                'historyLabel' => 'Istorija pretrage',
             ],
         ]);
 

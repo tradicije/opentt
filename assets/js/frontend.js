@@ -481,7 +481,12 @@
         var url = esc(item && item.url ? item.url : "#");
         var meta = esc(item && item.meta ? item.meta : "");
         var thumb = esc(item && item.thumb ? item.thumb : "");
-        html += '<a class="opentt-search-item" href="' + url + '">';
+        var queryItem = String(item && item.query ? item.query : "");
+        var queryAttr = queryItem
+          ? ' data-opentt-search-query="' + esc(queryItem) + '"'
+          : "";
+        var href = queryItem ? "#" : url;
+        html += '<a class="opentt-search-item" href="' + href + '"' + queryAttr + ">";
         html += '<span class="opentt-search-item-main">';
         if (thumb) {
           html +=
@@ -533,7 +538,151 @@
       i18n.prompt || ("Unesi najmanje " + String(minChars) + " karakter(a).");
     var loadingText = i18n.loading || "Pretraga...";
     var emptyText = i18n.empty || "Nema rezultata.";
+    var historyLabel = i18n.historyLabel || "Istorija pretrage";
     var currentController = null;
+    var discoveryCache = null;
+    var historyCookieName = "opentt_search_history";
+
+    function readCookie(name) {
+      var target = String(name || "") + "=";
+      var parts = String(document.cookie || "").split(";");
+      for (var i = 0; i < parts.length; i++) {
+        var part = String(parts[i] || "").trim();
+        if (part.indexOf(target) === 0) {
+          return decodeURIComponent(part.substring(target.length));
+        }
+      }
+      return "";
+    }
+
+    function writeCookie(name, value, days) {
+      var expires = "";
+      var ttl = parseInt(days || 30, 10);
+      if (!isNaN(ttl) && ttl > 0) {
+        var date = new Date();
+        date.setTime(date.getTime() + ttl * 24 * 60 * 60 * 1000);
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie =
+        String(name || "") +
+        "=" +
+        encodeURIComponent(String(value || "")) +
+        expires +
+        "; path=/; SameSite=Lax";
+    }
+
+    function getHistoryTerms() {
+      var raw = readCookie(historyCookieName);
+      if (!raw) {
+        return [];
+      }
+      try {
+        var parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+        return parsed
+          .map(function (entry) {
+            return String(entry || "").trim();
+          })
+          .filter(Boolean)
+          .slice(0, 8);
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function pushHistoryTerm(term) {
+      var value = String(term || "").trim();
+      if (!value) {
+        return;
+      }
+      var normalized = value.toLowerCase();
+      var next = getHistoryTerms().filter(function (entry) {
+        return String(entry || "").trim().toLowerCase() !== normalized;
+      });
+      next.unshift(value);
+      next = next.slice(0, 8);
+      writeCookie(historyCookieName, JSON.stringify(next), 60);
+    }
+
+    function buildHistoryGroup() {
+      var terms = getHistoryTerms();
+      if (!terms.length) {
+        return null;
+      }
+      return {
+        key: "history",
+        label: historyLabel,
+        items: terms.map(function (term) {
+          return {
+            title: term,
+            meta: "Ponovo pretraži",
+            query: term,
+            url: "#",
+          };
+        }),
+      };
+    }
+
+    function mergeDiscoveryGroups(serverGroups) {
+      var groups = [];
+      var historyGroup = buildHistoryGroup();
+      if (historyGroup) {
+        groups.push(historyGroup);
+      }
+      if (Array.isArray(serverGroups) && serverGroups.length) {
+        groups = groups.concat(serverGroups);
+      }
+      return groups;
+    }
+
+    function renderDiscovery() {
+      if (discoveryCache) {
+        renderSearchGroups(results, mergeDiscoveryGroups(discoveryCache));
+        return;
+      }
+
+      var ajaxUrl =
+        window.openttFrontend && window.openttFrontend.ajaxUrl
+          ? String(window.openttFrontend.ajaxUrl)
+          : "";
+      if (!ajaxUrl) {
+        renderSearchGroups(results, mergeDiscoveryGroups([]));
+        return;
+      }
+
+      results.innerHTML = '<p class="opentt-search-loading">' + esc(loadingText) + "</p>";
+      var body = new URLSearchParams();
+      body.set("action", "opentt_frontend_search");
+      body.set("nonce", String(window.openttFrontend.searchNonce || ""));
+      body.set("q", "");
+      body.set("limit", String(limit));
+      body.set("context", JSON.stringify(context));
+
+      fetch(ajaxUrl, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        },
+        body: body.toString(),
+      })
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (payload) {
+          var serverGroups = [];
+          if (payload && payload.success === true && payload.data) {
+            serverGroups = Array.isArray(payload.data.groups) ? payload.data.groups : [];
+          }
+          discoveryCache = serverGroups;
+          renderSearchGroups(results, mergeDiscoveryGroups(serverGroups));
+        })
+        .catch(function () {
+          renderSearchGroups(results, mergeDiscoveryGroups([]));
+        });
+    }
 
     function closePanel() {
       panel.hidden = true;
@@ -554,6 +703,9 @@
       setTimeout(function () {
         input.focus();
       }, 0);
+      if (!String(input.value || "").trim()) {
+        renderDiscovery();
+      }
     }
 
     toggle.addEventListener("click", function () {
@@ -586,8 +738,38 @@
       }
     });
 
+    results.addEventListener("click", function (e) {
+      var qItem =
+        e.target && e.target.closest
+          ? e.target.closest("[data-opentt-search-query]")
+          : null;
+      if (qItem) {
+        e.preventDefault();
+        var q = String(qItem.getAttribute("data-opentt-search-query") || "").trim();
+        if (!q) {
+          return;
+        }
+        input.value = q;
+        runSearch(q);
+        return;
+      }
+
+      var link =
+        e.target && e.target.closest ? e.target.closest(".opentt-search-item") : null;
+      if (link) {
+        var term = String(input.value || "").trim();
+        if (term.length >= minChars) {
+          pushHistoryTerm(term);
+        }
+      }
+    });
+
     var runSearch = debounce(function (value) {
       var query = String(value || "").trim();
+      if (query.length === 0) {
+        renderDiscovery();
+        return;
+      }
       if (query.length < minChars) {
         results.innerHTML = '<p class="opentt-search-empty">' + esc(promptText) + "</p>";
         return;
@@ -636,6 +818,7 @@
           }
           var data = payload.data && typeof payload.data === "object" ? payload.data : {};
           renderSearchGroups(results, data.groups || []);
+          pushHistoryTerm(query);
         })
         .catch(function () {
           results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
