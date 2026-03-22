@@ -6122,7 +6122,7 @@ HTML;
 
     private static function search_players_group($query, $limit, array $context, array $competition_club_ids, array $match_player_ids)
     {
-        $rows = self::search_posts_by_title('igrac', $query, max(40, $limit * 8));
+        $rows = self::search_posts_by_title('igrac', $query, max(800, $limit * 20));
         if (empty($rows)) {
             return [];
         }
@@ -6168,7 +6168,7 @@ HTML;
 
     private static function search_clubs_group($query, $limit, array $context, array $competition_club_ids)
     {
-        $rows = self::search_posts_by_title('klub', $query, max(30, $limit * 6));
+        $rows = self::search_posts_by_title('klub', $query, max(600, $limit * 18));
         if (empty($rows)) {
             return [];
         }
@@ -6338,12 +6338,10 @@ HTML;
         global $wpdb;
         $post_type = sanitize_key((string) $post_type);
         $query = trim((string) $query);
-        $limit = max(1, min(250, intval($limit)));
+        $limit = max(1, min(2000, intval($limit)));
         if ($post_type === '' || $query === '') {
             return [];
         }
-
-        $like = '%' . $wpdb->esc_like($query) . '%';
         $posts_table = $wpdb->posts;
 
         $sql = $wpdb->prepare(
@@ -6351,11 +6349,9 @@ HTML;
              FROM {$posts_table}
              WHERE post_type=%s
                AND post_status='publish'
-               AND post_title LIKE %s
              ORDER BY post_title ASC
              LIMIT {$limit}",
-            $post_type,
-            $like
+            $post_type
         );
         $rows = $wpdb->get_results($sql);
         if (!is_array($rows) || empty($rows)) {
@@ -6389,8 +6385,16 @@ HTML;
         $text_l = function_exists('mb_strtolower') ? mb_strtolower($text, 'UTF-8') : strtolower($text);
         $query_l = function_exists('mb_strtolower') ? mb_strtolower($query, 'UTF-8') : strtolower($query);
         $pos = function_exists('mb_strpos') ? mb_strpos($text_l, $query_l, 0, 'UTF-8') : strpos($text_l, $query_l);
+        $used_folded = false;
+
         if ($pos === false) {
-            return 0;
+            $text_folded = self::search_fold_text($text_l);
+            $query_folded = self::search_fold_text($query_l);
+            $pos = function_exists('mb_strpos') ? mb_strpos($text_folded, $query_folded, 0, 'UTF-8') : strpos($text_folded, $query_folded);
+            if ($pos === false) {
+                return 0;
+            }
+            $used_folded = true;
         }
 
         $score = 45;
@@ -6402,8 +6406,53 @@ HTML;
         if ($len_q > 0 && $len_t > 0) {
             $score += min(20, intval(($len_q / $len_t) * 100));
         }
+        if ($used_folded) {
+            $score -= 5;
+        }
 
         return $score;
+    }
+
+    private static function search_fold_text($value)
+    {
+        $value = (string) $value;
+        if ($value === '') {
+            return '';
+        }
+
+        $map = [
+            'č' => 'c',
+            'ć' => 'c',
+            'š' => 's',
+            'ž' => 'z',
+            'đ' => 'dj',
+            'Č' => 'c',
+            'Ć' => 'c',
+            'Š' => 's',
+            'Ž' => 'z',
+            'Đ' => 'dj',
+            'љ' => 'lj',
+            'њ' => 'nj',
+            'џ' => 'dz',
+            'ђ' => 'dj',
+            'ћ' => 'c',
+            'ч' => 'c',
+            'ш' => 's',
+            'ж' => 'z',
+            'Л' => 'l',
+            'Љ' => 'lj',
+            'Њ' => 'nj',
+            'Џ' => 'dz',
+            'Ђ' => 'dj',
+            'Ћ' => 'c',
+            'Ч' => 'c',
+            'Ш' => 's',
+            'Ж' => 'z',
+        ];
+
+        $folded = strtr($value, $map);
+        $folded = preg_replace('/\s+/u', ' ', $folded);
+        return trim((string) $folded);
     }
 
     private static function finalize_search_items(array $items, $limit)

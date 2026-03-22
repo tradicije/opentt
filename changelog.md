@@ -128,6 +128,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Refined `opentt_search` UX: fixed icon asset URL resolution, improved result-row text clipping/overflow behavior, and added mobile fullscreen search mode (with dedicated close button) to prevent off-screen results panel on phones.
 - Further polished `opentt_search` readability: prevented mobile browser auto-zoom on input focus and adjusted desktop result row spacing/line-height/padding to eliminate clipped-looking text in category lists.
 - Upgraded `opentt_search` desktop interaction to centered modal search (open on icon click) with blurred page backdrop and close button, while keeping mobile fullscreen behavior; added per-result thumbnails (players/clubs/leagues) displayed to the left of result text.
+- Improved `opentt_search` behavior and relevance: disabled background page scrolling while overlay is open, added Serbian diacritic-tolerant matching (for example `bubusinac` now matches `bubušinac`), and refined modal/list visual styling for cleaner readability.
 
 ## Releases
 
