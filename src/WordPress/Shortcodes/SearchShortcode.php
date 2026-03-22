@@ -41,7 +41,7 @@ final class SearchShortcode
 
         $context = self::resolveContext($atts, $call);
         $uid = 'opentt-search-' . wp_unique_id();
-        $icon_url = plugins_url('assets/icons/search-icon.svg', dirname(__DIR__, 4) . '/opentt-unified-core.php');
+        $icon_url = plugins_url('assets/icons/search-icon.svg', dirname(__DIR__, 3) . '/opentt-unified-core.php');
 
         $payload_json = wp_json_encode([
             'context' => $context,
@@ -71,6 +71,7 @@ final class SearchShortcode
         echo '<img class="opentt-search-toggle-icon" src="' . esc_url($icon_url) . '" alt="" aria-hidden="true">';
         echo '</button>';
         echo '<div id="' . esc_attr($uid . '-panel') . '" class="opentt-search-panel" hidden>';
+        echo '<button type="button" class="opentt-search-close" aria-label="Close search">&times;</button>';
         echo '<label class="opentt-search-label" for="' . esc_attr($uid . '-input') . '">' . esc_html('Search') . '</label>';
         echo '<input id="' . esc_attr($uid . '-input') . '" class="opentt-search-input" type="search" autocomplete="off" placeholder="' . esc_attr($placeholder) . '" />';
         echo '<div class="opentt-search-results" data-opentt-search-results><p class="opentt-search-empty">' . esc_html(sprintf('Unesi najmanje %d karakter(a).', $min_chars)) . '</p></div>';

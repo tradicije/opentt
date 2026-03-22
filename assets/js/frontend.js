@@ -412,6 +412,7 @@
     var data = parseJsonNode(root.querySelector(".opentt-search-data")) || {};
     var toggle = root.querySelector(".opentt-search-toggle");
     var panel = root.querySelector(".opentt-search-panel");
+    var closeBtn = root.querySelector(".opentt-search-close");
     var input = root.querySelector(".opentt-search-input");
     var results = root.querySelector("[data-opentt-search-results]");
     if (!toggle || !panel || !input || !results) {
@@ -438,11 +439,17 @@
     function closePanel() {
       panel.hidden = true;
       toggle.setAttribute("aria-expanded", "false");
+      if (document.body && document.body.classList) {
+        document.body.classList.remove("opentt-search-open");
+      }
     }
 
     function openPanel() {
       panel.hidden = false;
       toggle.setAttribute("aria-expanded", "true");
+      if (document.body && document.body.classList) {
+        document.body.classList.add("opentt-search-open");
+      }
       setTimeout(function () {
         input.focus();
       }, 0);
@@ -455,6 +462,11 @@
         closePanel();
       }
     });
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function () {
+        closePanel();
+      });
+    }
 
     document.addEventListener("click", function (e) {
       if (!root.contains(e.target)) {

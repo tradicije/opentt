@@ -125,6 +125,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Applied the same 24h timing rule to `opentt_match_teams`: countdown (`Početak utakmice za`) is now shown only in the final 24h before kickoff; for earlier matches it shows only kickoff time (date remains in footer).
 - Normalized `opentt_match_teams` scheduled-time format to always render as `HH:MM` (for example `12:00`) instead of compact `12h` format.
 - Added new global live-search shortcode `opentt_search` with search-icon trigger (`assets/icons/search-icon.svg`), instant AJAX suggestions while typing, grouped result categories (players, clubs, leagues/seasons, matches), and context-aware prioritization (match/competition context boosts relevant entities first).
+- Refined `opentt_search` UX: fixed icon asset URL resolution, improved result-row text clipping/overflow behavior, and added mobile fullscreen search mode (with dedicated close button) to prevent off-screen results panel on phones.
 
 ## Releases
 
