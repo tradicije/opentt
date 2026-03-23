@@ -1408,23 +1408,7 @@ final class OpenTT_AI
                     var thinkingNode = null;
                     var lastToggleAt = 0;
 
-                    function ensureOverlayInBody() {
-                        if (!document.body) {
-                            return false;
-                        }
-                        if (panel.parentNode !== document.body) {
-                            document.body.appendChild(panel);
-                        }
-                        if (backdrop && backdrop.parentNode !== document.body) {
-                            document.body.appendChild(backdrop);
-                        }
-                        return true;
-                    }
-
                     function openPanel() {
-                        if (!ensureOverlayInBody()) {
-                            return;
-                        }
                         panel.hidden = false;
                         if (backdrop) {
                             backdrop.hidden = false;
@@ -1543,6 +1527,9 @@ final class OpenTT_AI
                         lastToggleAt = now;
                         if (e && typeof e.preventDefault === 'function') {
                             e.preventDefault();
+                        }
+                        if (e && typeof e.stopPropagation === 'function') {
+                            e.stopPropagation();
                         }
                         if (panel.hidden) {
                             openPanel();
