@@ -43,7 +43,7 @@ final class OpenTT_AI
     const AJAX_ACTION = 'opentt_ai_chat';
     const MODELS_TRANSIENT_KEY = 'opentt_ai_groq_models_cache';
     const DEFAULT_MODEL = 'llama-3.1-8b-instant';
-    const SYSTEM_PROMPT = 'You are an assistant for a Serbian table tennis platform. ALWAYS use tools when user asks about matches, rankings, clubs, players, squads, or schedules. Never guess. Use prior conversation context to resolve references like "oni", "njihov", or "taj klub". IMPORTANT: You may call ONLY these tools: get_club_position, get_last_match, get_next_match, get_club_squad, get_player_info, search_entities. Never call any other tool names.';
+    const SYSTEM_PROMPT = 'You are an assistant for a Serbian table tennis platform. ALWAYS use tools when user asks about matches, rankings, clubs, players, squads, or schedules. Never guess. Use prior conversation context to resolve references like "oni", "njihov", or "taj klub". IMPORTANT: You may call ONLY these tools: get_club_position, get_last_match, get_next_match, get_club_squad, get_player_info, search_entities. Never call any other tool names. Do NOT use external web facts; OpenTT tool data is the source of truth.';
 
     public static function register()
     {
@@ -320,6 +320,11 @@ final class OpenTT_AI
 
     private static function generate_context_aware_reply($api_key, $model, $user_message, array $history = [])
     {
+        $local_first_reply = self::generate_local_first_reply($user_message, $history);
+        if ($local_first_reply !== '') {
+            return ['ok' => true, 'reply' => $local_first_reply];
+        }
+
         $messages = [
             [
                 'role' => 'system',
@@ -433,6 +438,207 @@ final class OpenTT_AI
             return ['ok' => true, 'reply' => $fallback];
         }
         return ['ok' => false, 'message' => 'AI nije uspeo da generiše odgovor posle obrade alata.'];
+    }
+
+    private static function generate_local_first_reply($user_message, array $history = [])
+    {
+        $question = trim((string) $user_message);
+        if ($question === '') {
+            return '';
+        }
+        $faq = self::match_faq_by_embedding($question);
+        if (!empty($faq['ok']) && !empty($faq['answer'])) {
+            return (string) $faq['answer'];
+        }
+        if (!self::is_domain_question($question)) {
+            return '';
+        }
+        return self::generate_local_tool_fallback_reply($question, $history);
+    }
+
+    private static function is_domain_question($text)
+    {
+        $q = self::fold_text_for_match((string) $text);
+        if ($q === '') {
+            return false;
+        }
+        $keywords = [
+            'klub', 'igrac', 'sastav', 'postava', 'liga', 'sezon',
+            'tabel', 'pozic', 'mesto', 'rang', 'utakmic', 'mec',
+            'rezultat', 'kolo', 'slede', 'naredn', 'posled', 'termin',
+            'stk', 'ping', 'stoni', 'tt'
+        ];
+        foreach ($keywords as $keyword) {
+            if (strpos($q, $keyword) !== false) {
+                return true;
+            }
+        }
+        if (self::resolve_club_name_from_conversation($q, []) !== '') {
+            return true;
+        }
+        return false;
+    }
+
+    private static function get_safe_faq_items()
+    {
+        return [
+            [
+                'q' => 'Kako da dodam utakmicu u OpenTT?',
+                'a' => 'U admin meniju otvori OpenTT > Utakmice > Dodaj utakmicu. Unesi domaćina, gosta, datum/vreme i sačuvaj.',
+            ],
+            [
+                'q' => 'Kako da uključim AI chat?',
+                'a' => 'U OpenTT > AI Asistent unesi Groq API ključ i izaberi model. Zatim na stranici koristi shortcode [opentt_ai].',
+            ],
+            [
+                'q' => 'Kako da prikažem tabelu lige shortcode-om?',
+                'a' => 'Koristi [opentt_standings_table]. Po potrebi dodaj atribute liga i season, na primer: [opentt_standings_table liga="kvalitetna-liga" season="2025-26"].',
+            ],
+            [
+                'q' => 'Zašto ne vidim sve utakmice?',
+                'a' => 'Proveri filtere (liga, sezona, kolo, played) i limit atribut u shortcode-u. Ako je filter uključen, može da suzi prikaz.',
+            ],
+            [
+                'q' => 'Kako da osvežim listu Groq modela?',
+                'a' => 'Idi na OpenTT > AI Asistent i klikni dugme Osveži dostupne modele.',
+            ],
+            [
+                'q' => 'Kako radi played filter?',
+                'a' => 'Za match shortcodes koristi played="true" ili played="false". Atribut odigrana je zadržan samo radi kompatibilnosti.',
+            ],
+            [
+                'q' => 'Kako da uključim ili isključim ELO?',
+                'a' => 'U OpenTT podešavanjima pronađi ELO opciju i uključi/isključi po potrebi.',
+            ],
+            [
+                'q' => 'Da li OpenTT ima veze sa opentt.pl?',
+                'a' => 'Ne. Projekat OpenTT nema veze sa opentt.pl.',
+            ],
+        ];
+    }
+
+    private static function match_faq_by_embedding($question)
+    {
+        $question = trim((string) $question);
+        if ($question === '') {
+            return ['ok' => false];
+        }
+
+        $q_vec = self::build_local_embedding_vector($question, 128);
+        if (empty($q_vec)) {
+            return ['ok' => false];
+        }
+
+        $best = null;
+        $best_score = 0.0;
+        $items = self::get_safe_faq_items();
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $q = (string) ($item['q'] ?? '');
+            $a = (string) ($item['a'] ?? '');
+            if ($q === '' || $a === '') {
+                continue;
+            }
+            $item_vec = self::build_local_embedding_vector($q, 128);
+            if (empty($item_vec)) {
+                continue;
+            }
+            $score = self::cosine_similarity_sparse($q_vec, $item_vec);
+            if ($score > $best_score) {
+                $best_score = $score;
+                $best = [
+                    'question' => $q,
+                    'answer' => $a,
+                    'score' => $score,
+                ];
+            }
+        }
+
+        if (!is_array($best)) {
+            return ['ok' => false];
+        }
+
+        // Conservative threshold so FAQ doesn't override real DB questions.
+        if (floatval($best['score']) < 0.82) {
+            return ['ok' => false];
+        }
+
+        return [
+            'ok' => true,
+            'question' => (string) $best['question'],
+            'answer' => (string) $best['answer'],
+            'score' => floatval($best['score']),
+        ];
+    }
+
+    private static function build_local_embedding_vector($text, $dims = 128)
+    {
+        $dims = max(32, intval($dims));
+        $tokens = self::tokenize_for_embedding($text);
+        if (empty($tokens)) {
+            return [];
+        }
+        $vec = [];
+        foreach ($tokens as $token) {
+            $idx = abs(crc32((string) $token)) % $dims;
+            if (!isset($vec[$idx])) {
+                $vec[$idx] = 0.0;
+            }
+            $vec[$idx] += 1.0;
+        }
+
+        $norm = 0.0;
+        foreach ($vec as $v) {
+            $norm += $v * $v;
+        }
+        $norm = sqrt($norm);
+        if ($norm <= 0.0) {
+            return [];
+        }
+        foreach ($vec as $k => $v) {
+            $vec[$k] = $v / $norm;
+        }
+        return $vec;
+    }
+
+    private static function tokenize_for_embedding($text)
+    {
+        $fold = self::fold_text_for_match((string) $text);
+        if ($fold === '') {
+            return [];
+        }
+        $parts = preg_split('/[^a-z0-9]+/i', $fold) ?: [];
+        $out = [];
+        foreach ($parts as $p) {
+            $p = trim((string) $p);
+            if ($p === '' || strlen($p) < 2) {
+                continue;
+            }
+            $out[] = $p;
+        }
+        return array_values($out);
+    }
+
+    private static function cosine_similarity_sparse(array $a, array $b)
+    {
+        if (empty($a) || empty($b)) {
+            return 0.0;
+        }
+        if (count($a) > count($b)) {
+            $tmp = $a;
+            $a = $b;
+            $b = $tmp;
+        }
+        $dot = 0.0;
+        foreach ($a as $idx => $val) {
+            if (!isset($b[$idx])) {
+                continue;
+            }
+            $dot += floatval($val) * floatval($b[$idx]);
+        }
+        return $dot;
     }
 
     private static function is_tool_call_error_message($message)

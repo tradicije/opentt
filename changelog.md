@@ -164,6 +164,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Improved `opentt_ai` mobile UX by forcing 16px chat-input font size (prevents browser auto-zoom on focus) and refined loading microcopy (`STKB.AI razmišlja...`).
 - Hardened `opentt_ai` answer reliability: context-aware tool-calling now supports multi-step tool rounds with graceful fallback to tool summaries, and backend now returns concrete AI error reasons instead of generic empty-response failures.
 - Added `opentt_ai` defensive fallback for Groq function-call validation errors (for example unsupported tool attempts like `brave_search`): plugin now resolves club context from conversation and serves deterministic DB-backed replies from local OpenTT tools instead of failing with empty/400 responses.
+- Added local FAQ embeddings layer for `opentt_ai` (safe/common questions): semantic matching via cosine similarity over lightweight in-plugin vectors now serves immediate stable answers for frequent setup/help intents before model invocation.
 
 ## Releases
 
