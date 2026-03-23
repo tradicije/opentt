@@ -158,6 +158,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Updated `opentt_ai` model handling to use `llama-3.1-8b-instant` as default (replacing deprecated model usage), with admin-selectable model option.
 - Added dynamic Groq model catalog in AI settings (`/models` fetch + manual refresh button) so site owners can choose from currently available models tied to their API key.
 - Upgraded `opentt_ai` to context-aware tool-calling flow: Groq now receives tools (`get_club_position`, `get_last_match`, `get_next_match`), plugin executes secure backend data functions against OpenTT DB, returns tool results to AI, and only then produces final user answer (no guessing for club/ranking/match questions).
+- Extended `opentt_ai` conversational intelligence and coverage: added persistent chat-history context between turns (follow-up references like `njihov sastav` now resolve correctly), expanded tools for players/squads/global entity search, added visible `STKB.AI razmišlja...` loading state, and redesigned chat bubbles to clear left/right conversation layout (AI left with icon, user right).
+- Fixed `opentt_ai` mobile overlay reliability by rendering panel/backdrop at document `body` level with stronger z-index layering, preventing theme/container clipping on phones.
 
 ## Releases
 

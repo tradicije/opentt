@@ -43,7 +43,7 @@ final class OpenTT_AI
     const AJAX_ACTION = 'opentt_ai_chat';
     const MODELS_TRANSIENT_KEY = 'opentt_ai_groq_models_cache';
     const DEFAULT_MODEL = 'llama-3.1-8b-instant';
-    const SYSTEM_PROMPT = 'You are an assistant for a Serbian table tennis platform. ALWAYS use tools when user asks about matches, rankings, or clubs. Never guess.';
+    const SYSTEM_PROMPT = 'You are an assistant for a Serbian table tennis platform. ALWAYS use tools when user asks about matches, rankings, clubs, players, squads, or schedules. Never guess. Use prior conversation context to resolve references like "oni", "njihov", or "taj klub".';
 
     public static function register()
     {
@@ -232,7 +232,7 @@ final class OpenTT_AI
 
         ob_start();
         ?>
-        <div id="<?php echo esc_attr($uid); ?>" class="opentt-ai" data-opentt-ai="1" data-ajax-url="<?php echo esc_url($ajax_url); ?>" data-nonce="<?php echo esc_attr($nonce); ?>">
+        <div id="<?php echo esc_attr($uid); ?>" class="opentt-ai" data-opentt-ai="1" data-ajax-url="<?php echo esc_url($ajax_url); ?>" data-nonce="<?php echo esc_attr($nonce); ?>" data-ai-icon="<?php echo esc_url($icon_url); ?>">
             <button type="button" class="opentt-ai-toggle" aria-expanded="false" aria-controls="<?php echo esc_attr($uid . '-panel'); ?>" aria-label="Otvori AI asistenta">
                 <img class="opentt-ai-toggle-icon" src="<?php echo esc_url($icon_url); ?>" alt="" aria-hidden="true">
             </button>
@@ -267,13 +267,44 @@ final class OpenTT_AI
         if ($message === '') {
             wp_send_json_error(['message' => 'Poruka je obavezna.'], 400);
         }
+        $history = [];
+        if (isset($_POST['history'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $raw_history = (string) wp_unslash($_POST['history']); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $decoded_history = json_decode($raw_history, true);
+            if (is_array($decoded_history)) {
+                foreach ($decoded_history as $item) {
+                    if (!is_array($item)) {
+                        continue;
+                    }
+                    $role = sanitize_key((string) ($item['role'] ?? ''));
+                    if ($role !== 'user' && $role !== 'assistant') {
+                        continue;
+                    }
+                    $content = sanitize_textarea_field((string) ($item['content'] ?? ''));
+                    $content = trim($content);
+                    if ($content === '') {
+                        continue;
+                    }
+                    if (strlen($content) > 1200) {
+                        $content = substr($content, 0, 1200);
+                    }
+                    $history[] = [
+                        'role' => $role,
+                        'content' => $content,
+                    ];
+                    if (count($history) >= 20) {
+                        break;
+                    }
+                }
+            }
+        }
 
         $api_key = trim((string) get_option(self::OPTION_API_KEY, ''));
         if ($api_key === '') {
             wp_send_json_error(['message' => 'Groq API ključ nije podešen u administraciji.'], 500);
         }
         $model = self::get_selected_model();
-        $assistant = self::generate_context_aware_reply($api_key, $model, $message);
+        $assistant = self::generate_context_aware_reply($api_key, $model, $message, $history);
         if ($assistant === '') {
             wp_send_json_error(['message' => 'AI odgovor je prazan.'], 502);
         }
@@ -283,17 +314,34 @@ final class OpenTT_AI
         ]);
     }
 
-    private static function generate_context_aware_reply($api_key, $model, $user_message)
+    private static function generate_context_aware_reply($api_key, $model, $user_message, array $history = [])
     {
         $messages = [
             [
                 'role' => 'system',
                 'content' => self::SYSTEM_PROMPT,
             ],
-            [
-                'role' => 'user',
-                'content' => (string) $user_message,
-            ],
+        ];
+        foreach ($history as $h) {
+            if (!is_array($h)) {
+                continue;
+            }
+            $role = sanitize_key((string) ($h['role'] ?? ''));
+            if ($role !== 'user' && $role !== 'assistant') {
+                continue;
+            }
+            $content = trim((string) ($h['content'] ?? ''));
+            if ($content === '') {
+                continue;
+            }
+            $messages[] = [
+                'role' => $role,
+                'content' => $content,
+            ];
+        }
+        $messages[] = [
+            'role' => 'user',
+            'content' => (string) $user_message,
         ];
         $tools = self::build_tools_schema();
 
@@ -403,14 +451,66 @@ final class OpenTT_AI
                     ],
                 ],
             ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_club_squad',
+                    'description' => 'Get current player squad for a club',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'club_name' => ['type' => 'string'],
+                        ],
+                        'required' => ['club_name'],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_player_info',
+                    'description' => 'Get player profile details and current club',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'player_name' => ['type' => 'string'],
+                        ],
+                        'required' => ['player_name'],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'search_entities',
+                    'description' => 'Search players, clubs, competitions, and matches by keyword',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'query' => ['type' => 'string'],
+                        ],
+                        'required' => ['query'],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ],
         ];
     }
 
     private static function execute_tool_call($name, array $args)
     {
         $club_name = isset($args['club_name']) ? sanitize_text_field((string) $args['club_name']) : '';
+        $player_name = isset($args['player_name']) ? sanitize_text_field((string) $args['player_name']) : '';
+        $query = isset($args['query']) ? sanitize_text_field((string) $args['query']) : '';
         if ($club_name === '') {
-            return ['ok' => false, 'error' => 'Nedostaje club_name argument.'];
+            if ($name === 'get_player_info' && $player_name === '') {
+                return ['ok' => false, 'error' => 'Nedostaje player_name argument.'];
+            }
+            if ($name === 'search_entities' && $query === '') {
+                return ['ok' => false, 'error' => 'Nedostaje query argument.'];
+            }
         }
 
         if ($name === 'get_club_position') {
@@ -421,6 +521,15 @@ final class OpenTT_AI
         }
         if ($name === 'get_next_match') {
             return opentt_get_next_match($club_name);
+        }
+        if ($name === 'get_club_squad') {
+            return self::tool_get_club_squad($club_name);
+        }
+        if ($name === 'get_player_info') {
+            return self::tool_get_player_info($player_name);
+        }
+        if ($name === 'search_entities') {
+            return self::tool_search_entities($query);
         }
 
         return ['ok' => false, 'error' => 'Nepoznat tool: ' . $name];
@@ -824,6 +933,183 @@ final class OpenTT_AI
         ];
     }
 
+    public static function tool_get_club_squad($club_name)
+    {
+        $club = self::find_club_by_name($club_name);
+        if (empty($club)) {
+            return ['ok' => false, 'error' => 'Klub nije pronađen.'];
+        }
+        $club_id = intval($club['id']);
+        if ($club_id <= 0) {
+            return ['ok' => false, 'error' => 'Neispravan klub.'];
+        }
+
+        $players = get_posts([
+            'post_type' => 'igrac',
+            'post_status' => 'publish',
+            'numberposts' => 300,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'fields' => 'ids',
+        ]);
+        $names = [];
+        if (is_array($players)) {
+            foreach ($players as $player_id) {
+                $player_id = intval($player_id);
+                if ($player_id <= 0) {
+                    continue;
+                }
+                $pid_club = intval(OpenTT_Unified_Admin_Readonly_Helpers::get_player_club_id($player_id));
+                if ($pid_club !== $club_id) {
+                    continue;
+                }
+                $title = trim((string) get_the_title($player_id));
+                if ($title !== '') {
+                    $names[] = $title;
+                }
+            }
+        }
+        $names = array_values(array_unique($names));
+        if (empty($names)) {
+            return ['ok' => false, 'error' => 'Nema dostupnog sastava za ovaj klub.'];
+        }
+
+        return [
+            'ok' => true,
+            'club_name' => (string) $club['title'],
+            'players' => $names,
+            'count' => count($names),
+            'summary' => sprintf('Sastav kluba %s: %s.', (string) $club['title'], implode(', ', array_slice($names, 0, 20))),
+        ];
+    }
+
+    public static function tool_get_player_info($player_name)
+    {
+        $player = self::find_player_by_name($player_name);
+        if (empty($player)) {
+            return ['ok' => false, 'error' => 'Igrač nije pronađen.'];
+        }
+
+        $player_id = intval($player['id']);
+        $club_id = intval(OpenTT_Unified_Admin_Readonly_Helpers::get_player_club_id($player_id));
+        $club_name = $club_id > 0 ? (string) get_the_title($club_id) : '';
+        $country = trim((string) get_post_meta($player_id, 'opentt_player_country', true));
+        $birth_year = trim((string) get_post_meta($player_id, 'opentt_player_year', true));
+
+        return [
+            'ok' => true,
+            'player_name' => (string) $player['title'],
+            'club_name' => $club_name,
+            'country' => $country,
+            'birth_year' => $birth_year,
+            'profile_url' => (string) get_permalink($player_id),
+            'summary' => sprintf(
+                '%s trenutno igra za %s.',
+                (string) $player['title'],
+                $club_name !== '' ? $club_name : 'nepoznat klub'
+            ),
+        ];
+    }
+
+    public static function tool_search_entities($query)
+    {
+        global $wpdb;
+        $query = trim((string) $query);
+        $query = sanitize_text_field($query);
+        if ($query === '') {
+            return ['ok' => false, 'error' => 'Prazan upit.'];
+        }
+
+        $out = [
+            'players' => [],
+            'clubs' => [],
+            'competitions' => [],
+            'matches' => [],
+        ];
+
+        $posts_table = $wpdb->posts;
+        $like = '%' . $wpdb->esc_like($query) . '%';
+        $player_rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT ID, post_title FROM {$posts_table}
+             WHERE post_type='igrac' AND post_status='publish' AND post_title LIKE %s
+             ORDER BY post_title ASC LIMIT 8",
+            $like
+        ));
+        if (is_array($player_rows)) {
+            foreach ($player_rows as $r) {
+                $out['players'][] = (string) ($r->post_title ?? '');
+            }
+        }
+        $club_rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT ID, post_title FROM {$posts_table}
+             WHERE post_type='klub' AND post_status='publish' AND post_title LIKE %s
+             ORDER BY post_title ASC LIMIT 8",
+            $like
+        ));
+        if (is_array($club_rows)) {
+            foreach ($club_rows as $r) {
+                $out['clubs'][] = (string) ($r->post_title ?? '');
+            }
+        }
+
+        $matches_table = OpenTT_Unified_Core::db_table('matches');
+        if (self::table_exists($matches_table)) {
+            $comp_rows = $wpdb->get_results(
+                "SELECT DISTINCT liga_slug, sezona_slug FROM {$matches_table}
+                 WHERE liga_slug<>'' ORDER BY id DESC LIMIT 200"
+            );
+            if (is_array($comp_rows)) {
+                foreach ($comp_rows as $r) {
+                    $comp = trim(OpenTT_Unified_Readonly_Helpers::slug_to_title((string) ($r->liga_slug ?? '')) . ' - ' . OpenTT_Unified_Readonly_Helpers::slug_to_title((string) ($r->sezona_slug ?? '')));
+                    if ($comp !== '' && stripos(self::fold_text_for_match($comp), self::fold_text_for_match($query)) !== false) {
+                        $out['competitions'][] = $comp;
+                    }
+                    if (count($out['competitions']) >= 8) {
+                        break;
+                    }
+                }
+            }
+
+            $match_rows = $wpdb->get_results(
+                "SELECT id, home_club_post_id, away_club_post_id, home_score, away_score, match_date
+                 FROM {$matches_table}
+                 ORDER BY match_date DESC, id DESC LIMIT 300"
+            );
+            if (is_array($match_rows)) {
+                $needle = self::fold_text_for_match($query);
+                foreach ($match_rows as $r) {
+                    $home = trim((string) get_the_title(intval($r->home_club_post_id ?? 0)));
+                    $away = trim((string) get_the_title(intval($r->away_club_post_id ?? 0)));
+                    $blob = self::fold_text_for_match($home . ' ' . $away);
+                    if ($home === '' && $away === '') {
+                        continue;
+                    }
+                    if ($needle !== '' && strpos($blob, $needle) === false) {
+                        continue;
+                    }
+                    $out['matches'][] = sprintf(
+                        '%s %d:%d %s (%s)',
+                        $home,
+                        intval($r->home_score ?? 0),
+                        intval($r->away_score ?? 0),
+                        $away,
+                        OpenTT_Unified_Readonly_Helpers::display_match_date((string) ($r->match_date ?? ''))
+                    );
+                    if (count($out['matches']) >= 8) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return [
+            'ok' => true,
+            'query' => $query,
+            'results' => $out,
+            'summary' => 'Pronađeni su rezultati kroz igrače, klubove, takmičenja i utakmice.',
+        ];
+    }
+
     private static function find_club_by_name($club_name)
     {
         global $wpdb;
@@ -860,6 +1146,68 @@ final class OpenTT_AI
         }
 
         $needle = self::fold_text_for_match($club_name);
+        $best = null;
+        $best_score = -PHP_INT_MAX;
+        foreach ($rows as $row) {
+            $title = trim((string) ($row->post_title ?? ''));
+            if ($title === '') {
+                continue;
+            }
+            $title_fold = self::fold_text_for_match($title);
+            $score = 0;
+            if ($title_fold === $needle) {
+                $score += 300;
+            } elseif (strpos($title_fold, $needle) !== false) {
+                $score += 120;
+            }
+            $dist = function_exists('levenshtein') ? levenshtein($needle, $title_fold) : 99;
+            $score -= min(100, intval($dist * 5));
+            if ($score > $best_score) {
+                $best_score = $score;
+                $best = [
+                    'id' => intval($row->ID ?? 0),
+                    'title' => $title,
+                ];
+            }
+        }
+        return is_array($best) ? $best : [];
+    }
+
+    private static function find_player_by_name($player_name)
+    {
+        global $wpdb;
+        $player_name = trim((string) $player_name);
+        $player_name = sanitize_text_field($player_name);
+        if ($player_name === '') {
+            return [];
+        }
+
+        $exact = get_page_by_title($player_name, OBJECT, 'igrac');
+        if ($exact && intval($exact->ID) > 0) {
+            return [
+                'id' => intval($exact->ID),
+                'title' => (string) $exact->post_title,
+            ];
+        }
+
+        $posts_table = $wpdb->posts;
+        $like = '%' . $wpdb->esc_like($player_name) . '%';
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT ID, post_title
+                 FROM {$posts_table}
+                 WHERE post_type='igrac'
+                   AND post_status='publish'
+                   AND post_title LIKE %s
+                 ORDER BY post_title ASC
+                 LIMIT 25",
+                $like
+            )
+        );
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+        $needle = self::fold_text_for_match($player_name);
         $best = null;
         $best_score = -PHP_INT_MAX;
         foreach ($rows as $row) {
@@ -957,28 +1305,38 @@ final class OpenTT_AI
         ?>
         <style>
             .opentt-ai { position: relative; display: inline-flex; align-items: center; max-width: 100%; }
-            .opentt-ai-toggle { width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(255,255,255,.18); background: rgba(3,23,69,.92); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+            .opentt-ai-toggle { width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(255,255,255,.18); background: rgba(3,23,69,.92); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease; touch-action: manipulation; }
             .opentt-ai-toggle:hover { transform: translateY(-1px); border-color: rgba(255,255,255,.34); background: rgba(8,30,82,.95); }
             .opentt-ai-toggle-icon { width: 18px; height: 18px; display: block; filter: brightness(0) invert(1); }
-            .opentt-ai-backdrop { position: fixed; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(61,124,255,.22), rgba(2,10,28,.72) 55%, rgba(1,5,16,.84) 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 78; }
-            .opentt-ai-panel { position: fixed; inset: 0; width: 100vw; height: 100dvh; background: linear-gradient(140deg, rgba(12,39,102,.52) 0%, rgba(5,20,58,.86) 32%, rgba(3,13,40,.97) 100%); border: 0; border-radius: 0; box-shadow: 0 22px 48px rgba(0,0,0,.48), 0 0 0 1px rgba(45,119,245,.18) inset; padding: 72px 24px 24px; z-index: 79; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; }
+            .opentt-ai-backdrop { position: fixed; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(61,124,255,.22), rgba(2,10,28,.72) 55%, rgba(1,5,16,.84) 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9998; }
+            .opentt-ai-panel { position: fixed; inset: 0; width: 100vw; height: 100dvh; background: linear-gradient(140deg, rgba(12,39,102,.52) 0%, rgba(5,20,58,.86) 32%, rgba(3,13,40,.97) 100%); border: 0; border-radius: 0; box-shadow: 0 22px 48px rgba(0,0,0,.48), 0 0 0 1px rgba(45,119,245,.18) inset; padding: 72px 24px 24px; z-index: 9999; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; }
             .opentt-ai-close { display: inline-block; border: 0; background: transparent; color: #fff; font-size: 32px; line-height: 1; cursor: pointer; position: absolute; top: 12px; right: 16px; padding: 4px 10px; z-index: 2; }
             .opentt-ai-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
             .opentt-ai-brand { display: inline-flex; align-items: center; font-size: 13px; letter-spacing: .12em; font-weight: 800; text-transform: uppercase; color: #9ec8ff; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(130, 176, 255, .45); background: linear-gradient(90deg, rgba(64,118,255,.18), rgba(37,196,255,.16)); box-shadow: 0 0 20px rgba(54,128,255,.16); }
             .opentt-ai-label { display: block; font-size: 28px; font-weight: 700; line-height: 1.2; color: rgba(255,255,255,.92); letter-spacing: .06em; text-transform: uppercase; }
-            .opentt-ai-messages { min-height: 220px; max-height: 52dvh; overflow-y: auto; border: 1px solid rgba(255,255,255,.08); background: #04102b; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
-            .opentt-ai-msg { margin: 0 0 10px 0; padding: 8px 10px; border-radius: 8px; line-height: 1.45; font-size: 14px; }
-            .opentt-ai-msg-user { background: rgba(61,124,255,.18); border: 1px solid rgba(61,124,255,.35); }
-            .opentt-ai-msg-bot { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
-            .opentt-ai-msg-error { background: rgba(255,75,75,.16); border: 1px solid rgba(255,75,75,.4); }
+            .opentt-ai-messages { min-height: 220px; max-height: 52dvh; overflow-y: auto; border: 1px solid rgba(255,255,255,.08); background: #04102b; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
+            .opentt-ai-row { display: flex; align-items: flex-end; gap: 8px; width: 100%; }
+            .opentt-ai-row.is-user { justify-content: flex-end; }
+            .opentt-ai-row.is-assistant,
+            .opentt-ai-row.is-error { justify-content: flex-start; }
+            .opentt-ai-avatar { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; overflow: hidden; }
+            .opentt-ai-avatar img { width: 14px; height: 14px; display: block; filter: brightness(0) invert(1); }
+            .opentt-ai-msg { margin: 0; padding: 9px 11px; border-radius: 12px; line-height: 1.45; font-size: 14px; max-width: min(78%, 760px); word-break: break-word; }
+            .opentt-ai-row.is-user .opentt-ai-msg { background: rgba(61,124,255,.2); border: 1px solid rgba(61,124,255,.35); border-bottom-right-radius: 4px; }
+            .opentt-ai-row.is-assistant .opentt-ai-msg { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-bottom-left-radius: 4px; }
+            .opentt-ai-row.is-error .opentt-ai-msg { background: rgba(255,75,75,.16); border: 1px solid rgba(255,75,75,.4); border-bottom-left-radius: 4px; }
+            .opentt-ai-msg.is-thinking { opacity: .86; font-style: italic; }
             .opentt-ai-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
             .opentt-ai-input { min-height: 42px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: #0a1d4a; color: #fff; padding: 0 12px; }
             .opentt-ai-send { min-height: 42px; border-radius: 8px; border: 1px solid rgba(61,124,255,.55); background: #2c63d6; color: #fff; padding: 0 14px; cursor: pointer; font-weight: 600; }
             .opentt-ai-send[disabled] { opacity: .7; cursor: not-allowed; }
             body.opentt-ai-open, html.opentt-ai-open { overflow: hidden; height: 100%; overscroll-behavior: none; }
             @media (max-width: 767px) {
+                .opentt-ai-panel { padding: 64px 14px 14px; }
                 .opentt-ai-form { grid-template-columns: 1fr; }
                 .opentt-ai-label { font-size: 24px; }
+                .opentt-ai-messages { max-height: 58dvh; padding: 10px; }
+                .opentt-ai-msg { max-width: 88%; font-size: 13px; }
             }
         </style>
         <script>
@@ -987,16 +1345,43 @@ final class OpenTT_AI
                     return String(value == null ? '' : value);
                 }
 
-                function appendMessage(root, type, text) {
+                function appendMessage(root, role, text, opts) {
                     var list = root.querySelector('.opentt-ai-messages');
                     if (!list) {
-                        return;
+                        return null;
                     }
-                    var item = document.createElement('div');
-                    item.className = 'opentt-ai-msg ' + (type || 'opentt-ai-msg-bot');
-                    item.textContent = escText(text);
-                    list.appendChild(item);
+                    var options = opts && typeof opts === 'object' ? opts : {};
+                    var row = document.createElement('div');
+                    var safeRole = String(role || 'assistant');
+                    if (safeRole !== 'user' && safeRole !== 'assistant' && safeRole !== 'error') {
+                        safeRole = 'assistant';
+                    }
+                    row.className = 'opentt-ai-row is-' + safeRole;
+                    if (safeRole !== 'user') {
+                        var avatar = document.createElement('span');
+                        avatar.className = 'opentt-ai-avatar';
+                        var iconUrl = String(root.getAttribute('data-ai-icon') || '');
+                        if (iconUrl) {
+                            var img = document.createElement('img');
+                            img.src = iconUrl;
+                            img.alt = '';
+                            img.setAttribute('aria-hidden', 'true');
+                            avatar.appendChild(img);
+                        } else {
+                            avatar.textContent = 'AI';
+                        }
+                        row.appendChild(avatar);
+                    }
+                    var bubble = document.createElement('div');
+                    bubble.className = 'opentt-ai-msg';
+                    if (options.thinking) {
+                        bubble.className += ' is-thinking';
+                    }
+                    bubble.textContent = escText(text);
+                    row.appendChild(bubble);
+                    list.appendChild(row);
                     list.scrollTop = list.scrollHeight;
+                    return row;
                 }
 
                 function init(root) {
@@ -1019,6 +1404,15 @@ final class OpenTT_AI
                     var nonce = String(root.getAttribute('data-nonce') || '');
                     var bodyEl = document.body;
                     var htmlEl = document.documentElement;
+                    var conversation = [];
+                    var thinkingNode = null;
+
+                    if (panel.parentNode !== document.body) {
+                        document.body.appendChild(panel);
+                    }
+                    if (backdrop && backdrop.parentNode !== document.body) {
+                        document.body.appendChild(backdrop);
+                    }
 
                     function openPanel() {
                         panel.hidden = false;
@@ -1038,7 +1432,7 @@ final class OpenTT_AI
                         var list = root.querySelector('.opentt-ai-messages');
                         if (list && !list.dataset.openttAiGreetingShown) {
                             list.dataset.openttAiGreetingShown = '1';
-                            appendMessage(root, 'opentt-ai-msg-bot', 'Ćao! Ja sam STKB.AI asistent. Pitaj me o ligama, klubovima, igračima i rezultatima.');
+                            appendMessage(root, 'assistant', 'Ćao! Ja sam STKB.AI asistent. Pitaj me o ligama, klubovima, igračima i rezultatima.');
                         }
                     }
 
@@ -1061,25 +1455,41 @@ final class OpenTT_AI
                         send.textContent = state ? 'Šaljem...' : 'Pošalji';
                     }
 
+                    function showThinking() {
+                        if (thinkingNode) {
+                            return;
+                        }
+                        thinkingNode = appendMessage(root, 'assistant', 'STKB.AI razmišlja...', { thinking: true });
+                    }
+
+                    function hideThinking() {
+                        if (thinkingNode && thinkingNode.parentNode) {
+                            thinkingNode.parentNode.removeChild(thinkingNode);
+                        }
+                        thinkingNode = null;
+                    }
+
                     function submit() {
-                        var msg = String(input.value || '').trim();
-                        if (!msg) {
-                            appendMessage(root, 'opentt-ai-msg-error', 'Unesi poruku.');
+                        var question = String(input.value || '').trim();
+                        if (!question) {
+                            appendMessage(root, 'error', 'Unesi poruku.');
                             return;
                         }
                         if (!ajaxUrl || !nonce) {
-                            appendMessage(root, 'opentt-ai-msg-error', 'AI chat nije pravilno podešen.');
+                            appendMessage(root, 'error', 'AI chat nije pravilno podešen.');
                             return;
                         }
 
-                        appendMessage(root, 'opentt-ai-msg-user', msg);
+                        appendMessage(root, 'user', question);
                         input.value = '';
                         setLoading(true);
+                        showThinking();
 
                         var body = new URLSearchParams();
                         body.set('action', 'opentt_ai_chat');
                         body.set('nonce', nonce);
-                        body.set('message', msg);
+                        body.set('message', question);
+                        body.set('history', JSON.stringify(conversation.slice(-20)));
 
                         fetch(ajaxUrl, {
                             method: 'POST',
@@ -1090,20 +1500,28 @@ final class OpenTT_AI
                         .then(function (res) { return res.json(); })
                         .then(function (payload) {
                             setLoading(false);
+                            hideThinking();
                             if (!payload || payload.success !== true) {
-                                var msg = payload && payload.data && payload.data.message ? payload.data.message : 'AI trenutno nije dostupan.';
-                                appendMessage(root, 'opentt-ai-msg-error', msg);
+                                var errorText = payload && payload.data && payload.data.message ? payload.data.message : 'AI trenutno nije dostupan.';
+                                appendMessage(root, 'error', errorText);
+                                conversation.push({ role: 'user', content: String(question) });
                                 return;
                             }
                             if (!payload.data || !payload.data.reply) {
-                                appendMessage(root, 'opentt-ai-msg-error', 'AI nije poslao odgovor.');
+                                appendMessage(root, 'error', 'AI nije poslao odgovor.');
                                 return;
                             }
-                            appendMessage(root, 'opentt-ai-msg-bot', payload.data.reply);
+                            appendMessage(root, 'assistant', payload.data.reply);
+                            conversation.push({ role: 'user', content: String(question) });
+                            conversation.push({ role: 'assistant', content: String(payload.data.reply) });
+                            if (conversation.length > 40) {
+                                conversation = conversation.slice(-40);
+                            }
                         })
                         .catch(function () {
                             setLoading(false);
-                            appendMessage(root, 'opentt-ai-msg-error', 'Došlo je do greške pri slanju.');
+                            hideThinking();
+                            appendMessage(root, 'error', 'Došlo je do greške pri slanju.');
                         });
                     }
 
