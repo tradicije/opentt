@@ -6254,7 +6254,7 @@ HTML;
         }
         $min_ts = $now - (14 * DAY_IN_SECONDS);
         $today_key = wp_date('Y-m-d', $now, wp_timezone());
-        $daily_cap = 35;
+        $daily_cap = 10;
         $today_hits_for_entity = 0;
         $pruned = [];
 

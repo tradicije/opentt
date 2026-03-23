@@ -138,6 +138,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added anti-spam guard for `opentt_search` trending analytics: identical entity clicks (same player/club) now have a per-day counting cap, preventing automated repeated queries/clicks from unfairly pushing one result to the top.
 - Improved desktop `opentt_search` discovery layout: when both popular groups are present, `Popularni klubovi` and `Popularni igrači` now render side-by-side in two equal columns (50/50), while mobile keeps a single-column flow.
 - Fixed desktop popular-groups grid placement so `Popularni klubovi` (left) and `Popularni igrači` (right) consistently align in the same row, regardless of render order.
+- Tuned anti-manipulation threshold for `opentt_search` trending clicks: per-entity daily cap reduced from `35` to `10` to better fit low-traffic environments.
 
 ## Releases
 
