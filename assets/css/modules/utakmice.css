@@ -1133,7 +1133,13 @@ a.opentt-grid-cal-preview-more:focus {
 
 .opentt-data-updated--center .opentt-data-updated-row--label,
 .opentt-data-updated--center .opentt-data-updated-row--user {
+  width: 100%;
   justify-content: center;
+}
+
+.opentt-data-updated--center .opentt-data-updated-user {
+  justify-content: center;
+  text-align: center;
 }
 
 .opentt-data-updated-label {
