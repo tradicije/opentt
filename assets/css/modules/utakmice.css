@@ -709,15 +709,28 @@ a.opentt-grid-cal-preview-more:focus {
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid {
   grid-template-columns: 1fr !important;
-  gap: 8px;
+  gap: 12px;
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group {
-  gap: 4px;
+  gap: 8px;
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group-items {
   gap: 0;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-heading-compact {
+  margin: 8px 0 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(3, 18, 52, 0.9);
+  border: 1px solid rgba(142, 197, 255, 0.26);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-heading-compact:first-child {
+  margin-top: 2px;
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-item {
@@ -773,6 +786,20 @@ a.opentt-grid-cal-preview-more:focus {
   font-size: 1rem;
   min-width: 20px;
   text-align: right;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .team.pobednik span,
+.opentt-grid-filter-block.opentt-grid-density-compact .team.pobednik strong {
+  color: #ffffff;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .team.gubitnik span,
+.opentt-grid-filter-block.opentt-grid-density-compact .team.gubitnik strong {
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 500;
+  opacity: 0.84;
 }
 
 /* === POBEDNIK / GUBITNIK === */
