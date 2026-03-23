@@ -905,8 +905,22 @@ final class OpenTT_Unified_Admin_Match_Actions
     private static function touch_matches_last_update()
     {
         $user_id = get_current_user_id();
+        if ($user_id <= 0) {
+            $user = wp_get_current_user();
+            if ($user && !empty($user->ID)) {
+                $user_id = intval($user->ID);
+            }
+        }
         if ($user_id > 0) {
             update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_ID, $user_id, false);
+            $display_name = trim((string) get_the_author_meta('display_name', $user_id));
+            if ($display_name !== '') {
+                update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_NAME, $display_name, false);
+            }
+            $avatar_url = esc_url_raw((string) get_avatar_url($user_id, ['size' => 44]));
+            if ($avatar_url !== '') {
+                update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_AVATAR_URL, $avatar_url, false);
+            }
         }
         update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_UPDATED_AT, current_time('mysql'), false);
     }

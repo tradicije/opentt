@@ -375,14 +375,23 @@ final class MatchesListShortcode
         }
 
         $user_id = intval(get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_ID, 0));
+        $stored_name = trim((string) get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_NAME, ''));
+        $stored_avatar_url = esc_url((string) get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_AVATAR_URL, ''));
         $name = $user_id > 0 ? trim((string) get_the_author_meta('display_name', $user_id)) : '';
+        if ($name === '' && $stored_name !== '') {
+            $name = $stored_name;
+        }
         if ($name === '') {
             $name = 'Administrator';
         }
 
-        $avatar_html = $user_id > 0
-            ? get_avatar($user_id, 44, '', $name, ['class' => 'opentt-data-updated-avatar-img'])
-            : '<span class="opentt-data-updated-avatar-fallback"></span>';
+        if ($user_id > 0) {
+            $avatar_html = get_avatar($user_id, 44, '', $name, ['class' => 'opentt-data-updated-avatar-img']);
+        } elseif ($stored_avatar_url !== '') {
+            $avatar_html = '<img class="opentt-data-updated-avatar-img" src="' . esc_url($stored_avatar_url) . '" alt="' . esc_attr($name) . '" />';
+        } else {
+            $avatar_html = '<span class="opentt-data-updated-avatar-fallback"></span>';
+        }
 
         $badge_url = self::discover_icon_url([
             'assets/icons/admin-badge.svg',
