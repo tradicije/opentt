@@ -47,7 +47,48 @@
 
 @media (max-width: 640px) {
   .opentt-takmicenje-info {
-    flex-direction: column;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .opentt-takmicenje-info-logo {
+    align-self: start;
+  }
+
+  .opentt-takmicenje-info-logo-img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .opentt-takmicenje-info-title {
+    margin: 0 0 6px;
+    font-size: 1.06rem;
+    line-height: 1.25;
+  }
+
+  .opentt-takmicenje-info-meta {
+    margin: 2px 0;
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+}
+
+@media (max-width: 420px) {
+  .opentt-takmicenje-info {
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 9px;
+    padding: 11px;
+  }
+
+  .opentt-takmicenje-info-logo-img {
+    width: 56px;
+    height: 56px;
+  }
+
+  .opentt-takmicenje-info-title {
+    font-size: 1rem;
   }
 }
