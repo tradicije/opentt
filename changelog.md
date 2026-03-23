@@ -153,6 +153,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Center-aligned league/date metadata under match rows in both discovery and regular search results, and added fuzzy typo-tolerant matching for near-miss queries (for example small misspellings like `bubudinac` can still surface `bubušinac`).
 - Added inline typo helper under search input: when query looks misspelled, search now shows `Da li ste mislili "..."?` with clickable suggestion that reruns results instantly.
 - Added new `opentt_ai` shortcode with minimal dark chat UI (messages, input, send button), AJAX loading/error states, and secure server-side Groq chat-completions proxy (`llama3-8b-8192`).
+- Updated `opentt_ai` UX to icon-trigger + fullscreen overlay (search-like), with auto icon discovery from `assets/icons` (`ai-icon.svg`/`chat-icon.svg` fallback), Serbian UI labels/messages, and improved frontend error surfacing from real API responses.
+- Added strict Groq API key validation on save (`gsk_` format + live `/models` connectivity check), with admin success/error notices and safe fallback to previous key on failed verification.
 
 ## Releases
 
