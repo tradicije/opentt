@@ -119,8 +119,8 @@ html.opentt-search-open {
   margin-top: 14px;
   max-height: none;
   overflow: visible;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   padding-bottom: 10px;
   box-sizing: border-box;
@@ -139,6 +139,26 @@ html.opentt-search-open {
   border-radius: 12px;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(9, 23, 58, 0.78) 0%, rgba(7, 18, 46, 0.74) 100%);
+}
+
+@media (min-width: 900px) {
+  .opentt-search-results.opentt-search-has-side-popular {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 10px;
+  }
+
+  .opentt-search-results.opentt-search-has-side-popular .opentt-search-group {
+    grid-column: 1 / -1;
+  }
+
+  .opentt-search-results.opentt-search-has-side-popular .opentt-search-group[data-group-key="clubs"] {
+    grid-column: 1 / 2;
+  }
+
+  .opentt-search-results.opentt-search-has-side-popular .opentt-search-group[data-group-key="players"] {
+    grid-column: 2 / 3;
+  }
 }
 
 .opentt-search-group-title {

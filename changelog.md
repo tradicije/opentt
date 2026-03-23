@@ -136,6 +136,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added empty-input discovery mode in `opentt_search`: now shows popular players and clubs (ranked by current match/game performance) plus cookie-based search history (`Istorija pretrage`) for returning visitors without user profiles.
 - Extended `opentt_search` discovery UX: search history now appears contextually on input focus (YouTube-style) with `Očisti istoriju pretrage` action, and `Trending` now ranks recently clicked search results (player/club entities) from the last 5 days instead of raw typed terms.
 - Added anti-spam guard for `opentt_search` trending analytics: identical entity clicks (same player/club) now have a per-day counting cap, preventing automated repeated queries/clicks from unfairly pushing one result to the top.
+- Improved desktop `opentt_search` discovery layout: when both popular groups are present, `Popularni klubovi` and `Popularni igrači` now render side-by-side in two equal columns (50/50), while mobile keeps a single-column flow.
 
 ## Releases
 

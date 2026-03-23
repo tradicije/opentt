@@ -462,21 +462,50 @@
       return;
     }
     if (!Array.isArray(groups) || !groups.length) {
+      if (container.classList) {
+        container.classList.remove("opentt-search-has-side-popular");
+      }
       container.innerHTML = '<p class="opentt-search-empty">Nema rezultata.</p>';
       return;
     }
 
+    var hasPopularPlayers = false;
+    var hasPopularClubs = false;
+    groups.forEach(function (group) {
+      var key = String(group && group.key ? group.key : "");
+      var items = Array.isArray(group && group.items) ? group.items : [];
+      if (!items.length) {
+        return;
+      }
+      if (key === "players") {
+        hasPopularPlayers = true;
+      }
+      if (key === "clubs") {
+        hasPopularClubs = true;
+      }
+    });
+    if (container.classList) {
+      container.classList.toggle(
+        "opentt-search-has-side-popular",
+        hasPopularPlayers && hasPopularClubs
+      );
+    }
+
     var html = "";
     groups.forEach(function (group) {
+      var groupKey = String(group && group.key ? group.key : "");
       var label = esc(group && group.label ? group.label : "");
       var items = Array.isArray(group && group.items) ? group.items : [];
       if (!items.length) {
         return;
       }
-      html += '<section class="opentt-search-group">';
+      html +=
+        '<section class="opentt-search-group" data-group-key="' +
+        esc(groupKey) +
+        '">';
       html += '<div class="opentt-search-group-head">';
       html += '<h4 class="opentt-search-group-title">' + label + "</h4>";
-      if (String(group && group.key ? group.key : "") === "history") {
+      if (groupKey === "history") {
         html +=
           '<button type="button" class="opentt-search-clear-history" data-opentt-clear-history>' +
           esc(group && group.clearLabel ? group.clearLabel : "Očisti istoriju pretrage") +
