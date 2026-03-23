@@ -148,6 +148,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Fixed `Najnoviji rezultati` discovery feed to include only actually played matches (excluding `0:0` unplayed fixtures), and unified match-row presentation so both discovery latest-results and regular searched `Utakmice` use the same compact logo/score/league/date layout sizing.
 - Refined search match-row details: corrected away-team content order to `name + logo`, normalized encoded dash entities in match club names (for example `&#8211;` -> `-`), and added query highlight emphasis for matched club names inside match rows.
 - Fixed frontend search rendering regression where discovery blocks could disappear due missing highlight helper functions in `frontend.js` (restored stable highlight pipeline).
+- Styled `Trending` discovery block with the same fire gradient palette as the trending icon and added subtle pulse animation to increase visual prominence.
 
 ## Releases
 

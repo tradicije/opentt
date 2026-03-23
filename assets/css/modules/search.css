@@ -141,6 +141,35 @@ html.opentt-search-open {
   background: linear-gradient(180deg, rgba(9, 23, 58, 0.78) 0%, rgba(7, 18, 46, 0.74) 100%);
 }
 
+.opentt-search-group[data-group-key="trending"] {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, rgba(9, 23, 58, 0.9) 0%, rgba(7, 18, 46, 0.86) 100%) padding-box,
+    linear-gradient(145deg, #ff3b30 0%, #ff7a18 28%, #ffd335 52%, #ff5f6d 76%, #ff2d95 100%) border-box;
+  box-shadow:
+    0 0 0 1px rgba(255, 108, 54, 0.3),
+    0 0 18px rgba(255, 92, 48, 0.22);
+  animation: opentt-trending-pulse 1.9s ease-in-out infinite;
+}
+
+@keyframes opentt-trending-pulse {
+  0% {
+    box-shadow:
+      0 0 0 1px rgba(255, 108, 54, 0.3),
+      0 0 12px rgba(255, 92, 48, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(255, 196, 74, 0.55),
+      0 0 26px rgba(255, 102, 66, 0.36);
+  }
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(255, 108, 54, 0.3),
+      0 0 12px rgba(255, 92, 48, 0.18);
+  }
+}
+
 @media (min-width: 900px) {
   .opentt-search-results.opentt-search-has-side-popular {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
