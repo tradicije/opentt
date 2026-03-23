@@ -757,8 +757,8 @@ a.opentt-grid-cal-preview-more:focus {
   background: rgba(255, 255, 255, 0.18);
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item:last-child::after {
-  background: rgba(255, 255, 255, 0.12);
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group-items .opentt-item:last-child::after {
+  display: none;
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-item:hover {
