@@ -1108,7 +1108,8 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-data-updated--center {
-  display: inline-flex;
+  display: flex;
+  width: -moz-fit-content;
   width: fit-content;
   max-width: 100%;
   align-items: center;
