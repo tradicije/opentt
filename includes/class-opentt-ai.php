@@ -1345,8 +1345,8 @@ final class OpenTT_AI
                     return String(value == null ? '' : value);
                 }
 
-                function appendMessage(root, role, text, opts) {
-                    var list = root.querySelector('.opentt-ai-messages');
+                function appendMessage(root, panelNode, role, text, opts) {
+                    var list = panelNode && panelNode.querySelector ? panelNode.querySelector('.opentt-ai-messages') : null;
                     if (!list) {
                         return null;
                     }
@@ -1406,6 +1406,7 @@ final class OpenTT_AI
                     var htmlEl = document.documentElement;
                     var conversation = [];
                     var thinkingNode = null;
+                    var lastToggleAt = 0;
 
                     if (panel.parentNode !== document.body) {
                         document.body.appendChild(panel);
@@ -1429,10 +1430,10 @@ final class OpenTT_AI
                         setTimeout(function () {
                             input.focus();
                         }, 0);
-                        var list = root.querySelector('.opentt-ai-messages');
+                        var list = panel.querySelector('.opentt-ai-messages');
                         if (list && !list.dataset.openttAiGreetingShown) {
                             list.dataset.openttAiGreetingShown = '1';
-                            appendMessage(root, 'assistant', 'Ćao! Ja sam STKB.AI asistent. Pitaj me o ligama, klubovima, igračima i rezultatima.');
+                            appendMessage(root, panel, 'assistant', 'Ćao! Ja sam STKB.AI asistent. Pitaj me o ligama, klubovima, igračima i rezultatima.');
                         }
                     }
 
@@ -1459,7 +1460,7 @@ final class OpenTT_AI
                         if (thinkingNode) {
                             return;
                         }
-                        thinkingNode = appendMessage(root, 'assistant', 'STKB.AI razmišlja...', { thinking: true });
+                        thinkingNode = appendMessage(root, panel, 'assistant', 'STKB.AI razmišlja...', { thinking: true });
                     }
 
                     function hideThinking() {
@@ -1472,15 +1473,15 @@ final class OpenTT_AI
                     function submit() {
                         var question = String(input.value || '').trim();
                         if (!question) {
-                            appendMessage(root, 'error', 'Unesi poruku.');
+                            appendMessage(root, panel, 'error', 'Unesi poruku.');
                             return;
                         }
                         if (!ajaxUrl || !nonce) {
-                            appendMessage(root, 'error', 'AI chat nije pravilno podešen.');
+                            appendMessage(root, panel, 'error', 'AI chat nije pravilno podešen.');
                             return;
                         }
 
-                        appendMessage(root, 'user', question);
+                        appendMessage(root, panel, 'user', question);
                         input.value = '';
                         setLoading(true);
                         showThinking();
@@ -1503,15 +1504,15 @@ final class OpenTT_AI
                             hideThinking();
                             if (!payload || payload.success !== true) {
                                 var errorText = payload && payload.data && payload.data.message ? payload.data.message : 'AI trenutno nije dostupan.';
-                                appendMessage(root, 'error', errorText);
+                                appendMessage(root, panel, 'error', errorText);
                                 conversation.push({ role: 'user', content: String(question) });
                                 return;
                             }
                             if (!payload.data || !payload.data.reply) {
-                                appendMessage(root, 'error', 'AI nije poslao odgovor.');
+                                appendMessage(root, panel, 'error', 'AI nije poslao odgovor.');
                                 return;
                             }
-                            appendMessage(root, 'assistant', payload.data.reply);
+                            appendMessage(root, panel, 'assistant', payload.data.reply);
                             conversation.push({ role: 'user', content: String(question) });
                             conversation.push({ role: 'assistant', content: String(payload.data.reply) });
                             if (conversation.length > 40) {
@@ -1521,17 +1522,29 @@ final class OpenTT_AI
                         .catch(function () {
                             setLoading(false);
                             hideThinking();
-                            appendMessage(root, 'error', 'Došlo je do greške pri slanju.');
+                            appendMessage(root, panel, 'error', 'Došlo je do greške pri slanju.');
                         });
                     }
 
-                    toggle.addEventListener('click', function () {
+                    function handleToggle(e) {
+                        var now = Date.now();
+                        if (now - lastToggleAt < 320) {
+                            return;
+                        }
+                        lastToggleAt = now;
+                        if (e && typeof e.preventDefault === 'function') {
+                            e.preventDefault();
+                        }
                         if (panel.hidden) {
                             openPanel();
                         } else {
                             closePanel();
                         }
-                    });
+                    }
+
+                    toggle.addEventListener('click', handleToggle);
+                    toggle.addEventListener('touchend', handleToggle);
+                    toggle.addEventListener('pointerup', handleToggle);
                     if (close) {
                         close.addEventListener('click', closePanel);
                     }

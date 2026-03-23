@@ -160,6 +160,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Upgraded `opentt_ai` to context-aware tool-calling flow: Groq now receives tools (`get_club_position`, `get_last_match`, `get_next_match`), plugin executes secure backend data functions against OpenTT DB, returns tool results to AI, and only then produces final user answer (no guessing for club/ranking/match questions).
 - Extended `opentt_ai` conversational intelligence and coverage: added persistent chat-history context between turns (follow-up references like `njihov sastav` now resolve correctly), expanded tools for players/squads/global entity search, added visible `STKB.AI razmišlja...` loading state, and redesigned chat bubbles to clear left/right conversation layout (AI left with icon, user right).
 - Fixed `opentt_ai` mobile overlay reliability by rendering panel/backdrop at document `body` level with stronger z-index layering, preventing theme/container clipping on phones.
+- Fixed `opentt_ai` post-refactor regressions: message bubbles now render correctly after body-level overlay mount (panel-scoped message renderer), and mobile toggle handling now avoids touch/click double-fire race that could instantly close overlay.
 
 ## Releases
 
