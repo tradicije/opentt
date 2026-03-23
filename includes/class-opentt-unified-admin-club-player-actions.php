@@ -171,6 +171,50 @@ final class OpenTT_Unified_Admin_Club_Player_Actions
         }
         update_post_meta($player_id, 'drzavljanstvo', $country_code);
 
+        $linked_wp_user_id = isset($_POST['linked_wp_user_id']) ? intval($_POST['linked_wp_user_id']) : 0;
+        if ($linked_wp_user_id > 0 && !get_userdata($linked_wp_user_id)) {
+            $linked_wp_user_id = 0;
+        }
+        if ($linked_wp_user_id > 0) {
+            // Keep WP user mapping unique across players.
+            $already_linked = get_posts([
+                'post_type' => 'igrac',
+                'numberposts' => -1,
+                'fields' => 'ids',
+                'post__not_in' => [$player_id],
+                'post_status' => ['publish', 'draft', 'pending', 'private'],
+                'meta_query' => [
+                    'relation' => 'OR',
+                    [
+                        'key' => 'opentt_wp_user_id',
+                        'value' => $linked_wp_user_id,
+                        'compare' => '=',
+                        'type' => 'NUMERIC',
+                    ],
+                    [
+                        'key' => 'wp_user_id',
+                        'value' => $linked_wp_user_id,
+                        'compare' => '=',
+                        'type' => 'NUMERIC',
+                    ],
+                ],
+            ]) ?: [];
+            foreach ($already_linked as $other_player_id) {
+                $other_player_id = intval($other_player_id);
+                if ($other_player_id <= 0) {
+                    continue;
+                }
+                delete_post_meta($other_player_id, 'opentt_wp_user_id');
+                delete_post_meta($other_player_id, 'wp_user_id');
+            }
+            update_post_meta($player_id, 'opentt_wp_user_id', $linked_wp_user_id);
+            // Keep legacy key for compatibility with old integrations.
+            update_post_meta($player_id, 'wp_user_id', $linked_wp_user_id);
+        } else {
+            delete_post_meta($player_id, 'opentt_wp_user_id');
+            delete_post_meta($player_id, 'wp_user_id');
+        }
+
         $thumb_id = isset($_POST['featured_image_id']) ? (int) $_POST['featured_image_id'] : 0;
         if ($thumb_id > 0) {
             set_post_thumbnail($player_id, $thumb_id);

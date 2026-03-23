@@ -63,6 +63,7 @@ final class OpenTT_Unified_Core
     const LEGACY_TABLE_GAMES = 'stkb_games';
     const LEGACY_TABLE_SETS = 'stkb_sets';
     const MATCH_BLOCK_TEMPLATE_SLUG = 'stkb-match';
+    const AUTHOR_BLOCK_TEMPLATE_SLUG = 'stkb-author-page';
 
     private static $plugin_file = '';
     private static $plugin_dir = '';
@@ -431,6 +432,36 @@ final class OpenTT_Unified_Core
                 nocache_headers();
             }
         }
+
+        if ($first === sanitize_title((string) self::AUTHOR_BLOCK_TEMPLATE_SLUG)) {
+            $author_id = isset($_GET['opentt_author']) ? intval($_GET['opentt_author']) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            if ($author_id <= 0 && $count > 1) {
+                $author_slug = sanitize_title((string) $segments[1]);
+                if ($author_slug !== '') {
+                    $user = get_user_by('slug', $author_slug);
+                    if (!$user) {
+                        $user = get_user_by('login', $author_slug);
+                    }
+                    if ($user && !empty($user->ID)) {
+                        $author_id = intval($user->ID);
+                    }
+                }
+            }
+            if ($author_id > 0 && get_userdata($author_id)) {
+                self::$virtual_archive_context = [
+                    'type' => 'author_page',
+                    'author_user_id' => $author_id,
+                ];
+                global $wp_query;
+                if ($wp_query) {
+                    $wp_query->is_404 = false;
+                    $wp_query->is_archive = true;
+                }
+                status_header(200);
+                nocache_headers();
+                return;
+            }
+        }
     }
 
     private static function current_archive_context()
@@ -483,6 +514,17 @@ final class OpenTT_Unified_Core
                 'liga_slug' => '',
                 'sezona_slug' => '',
                 'kolo_slug' => $kolo,
+            ];
+        }
+
+        $author_user_id = isset($_GET['opentt_author']) ? intval($_GET['opentt_author']) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ($author_user_id > 0 && get_userdata($author_user_id)) {
+            return [
+                'type' => 'author_page',
+                'author_user_id' => $author_user_id,
+                'liga_slug' => '',
+                'sezona_slug' => '',
+                'kolo_slug' => '',
             ];
         }
 
@@ -574,6 +616,22 @@ final class OpenTT_Unified_Core
                     return $php_tpl;
                 }
                 if (self::has_user_template_for_context('taxonomy-liga_sezona')) {
+                    return $template;
+                }
+                return self::plugin_fallback_template_path();
+            }
+            if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'author_page') {
+                if (function_exists('wp_is_block_theme') && wp_is_block_theme() && self::has_any_archive_block_template_for_type('author_page')) {
+                    $bridge = self::$plugin_dir . 'templates/block-archive-template.php';
+                    if (is_readable($bridge)) {
+                        return $bridge;
+                    }
+                }
+                $php_tpl = self::find_php_template_for_context(self::AUTHOR_BLOCK_TEMPLATE_SLUG);
+                if ($php_tpl !== '') {
+                    return $php_tpl;
+                }
+                if (self::has_user_template_for_context(self::AUTHOR_BLOCK_TEMPLATE_SLUG)) {
                     return $template;
                 }
                 return self::plugin_fallback_template_path();
@@ -673,6 +731,9 @@ final class OpenTT_Unified_Core
         }
         if ($type === 'kolo') {
             return ['stkb-kolo', 'taxonomy-kolo'];
+        }
+        if ($type === 'author_page') {
+            return [self::AUTHOR_BLOCK_TEMPLATE_SLUG];
         }
         return [];
     }
@@ -907,8 +968,51 @@ final class OpenTT_Unified_Core
                 . do_shortcode('[opentt_top_players' . $kolo_arg . ']')
                 . '</main>';
         }
+        if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'author_page') {
+            $author_user_id = intval($archive_ctx['author_user_id'] ?? 0);
+            return self::render_author_page_fallback_content($author_user_id);
+        }
 
         return '';
+    }
+
+    private static function render_author_page_fallback_content($author_user_id)
+    {
+        $author_user_id = intval($author_user_id);
+        if ($author_user_id <= 0) {
+            return '';
+        }
+
+        $user = get_userdata($author_user_id);
+        if (!$user) {
+            return '<main class="opentt-auto-page opentt-auto-author" style="max-width:920px;margin:0 auto;padding:20px 16px;"><p>Autor nije pronađen.</p></main>';
+        }
+
+        $display_name = trim((string) $user->display_name);
+        if ($display_name === '') {
+            $display_name = trim((string) $user->user_login);
+        }
+        $description = trim((string) get_the_author_meta('description', $author_user_id));
+        $player_id = self::get_player_id_by_wp_user_id($author_user_id);
+        $player_url = $player_id > 0 ? (string) get_permalink($player_id) : '';
+        $avatar = get_avatar($author_user_id, 84, '', $display_name, ['class' => 'opentt-author-avatar']);
+
+        $html = '<main class="opentt-auto-page opentt-auto-author" style="max-width:920px;margin:0 auto;padding:20px 16px;">';
+        $html .= '<section class="opentt-author-card" style="display:flex;align-items:center;gap:16px;padding:16px;border:1px solid rgba(142,197,255,.3);border-radius:12px;background:rgba(3,20,58,.45);">';
+        $html .= '<div class="opentt-author-avatar-wrap">' . $avatar . '</div>';
+        $html .= '<div class="opentt-author-meta">';
+        $html .= '<h1 style="margin:0 0 6px 0;font-size:1.35rem;line-height:1.2;">' . esc_html($display_name) . '</h1>';
+        if ($description !== '') {
+            $html .= '<p style="margin:0;color:#c4d8f8;">' . esc_html($description) . '</p>';
+        } else {
+            $html .= '<p style="margin:0;color:#c4d8f8;">Autor OpenTT podataka.</p>';
+        }
+        if ($player_url !== '') {
+            $html .= '<p style="margin:10px 0 0;"><a href="' . esc_url($player_url) . '">Prikaži profil igrača</a></p>';
+        }
+        $html .= '</div></section></main>';
+
+        return $html;
     }
 
     private static function render_blocks_with_shortcode_support($content)
@@ -2470,6 +2574,11 @@ JS;
         echo '<tr data-opentt-step="1"><th>Biografija</th><td><textarea name="post_content" rows="6" class="large-text">' . esc_textarea($player_content) . '</textarea></td></tr>';
         echo '<tr data-opentt-step="2"><th>Slika</th><td><div id="opentt_player_thumb_preview">' . $thumb_html . '</div><input type="hidden" id="opentt_player_thumb_id" name="featured_image_id" value="' . esc_attr((string) $thumb_id) . '"><p><button type="button" class="button" id="opentt_player_thumb_btn">Izaberi sliku</button> <button type="button" class="button" id="opentt_player_thumb_remove">Ukloni</button></p></td></tr>';
         echo '<tr data-opentt-step="2"><th>Povezani klub</th><td>' . self::clubs_dropdown_admin('povezani_klub', self::get_player_club_id($player_id), false) . '</td></tr>';
+        $linked_wp_user_id = intval(get_post_meta($player_id, 'opentt_wp_user_id', true));
+        if ($linked_wp_user_id <= 0) {
+            $linked_wp_user_id = intval(get_post_meta($player_id, 'wp_user_id', true));
+        }
+        echo '<tr data-opentt-step="2"><th>WP profil</th><td>' . self::wp_users_dropdown_admin('linked_wp_user_id', $linked_wp_user_id, false) . '<p class="description">Opcionalno: poveži igrača sa WordPress korisničkim nalogom.</p></td></tr>';
         echo '<tr data-opentt-step="3"><th>Datum rođenja</th><td><input name="datum_rodjenja" type="date" value="' . esc_attr((string) get_post_meta($player_id, 'datum_rodjenja', true)) . '"></td></tr>';
         echo '<tr data-opentt-step="3"><th>Mesto rođenja</th><td><input name="mesto_rodjenja" type="text" class="regular-text" value="' . esc_attr((string) get_post_meta($player_id, 'mesto_rodjenja', true)) . '"></td></tr>';
         $player_country = (string) get_post_meta($player_id, 'drzavljanstvo', true);
@@ -3704,7 +3813,7 @@ HTML;
             'numberposts' => -1,
             'post_status' => ['publish', 'draft', 'pending', 'private'],
         ]) ?: [];
-        $meta_keys = ['datum_rodjenja', 'mesto_rodjenja', 'drzavljanstvo', 'povezani_klub', 'klub_igraca'];
+        $meta_keys = ['datum_rodjenja', 'mesto_rodjenja', 'drzavljanstvo', 'povezani_klub', 'klub_igraca', 'opentt_wp_user_id'];
         $out = [];
         foreach ($rows as $r) {
             $id = (int) $r->ID;
@@ -4263,7 +4372,7 @@ HTML;
                     }
                 }
 
-                $post_id = self::upsert_post_from_import('igrac', $row_for_import, ['datum_rodjenja', 'mesto_rodjenja', 'drzavljanstvo'], '', $forced_post_id);
+                $post_id = self::upsert_post_from_import('igrac', $row_for_import, ['datum_rodjenja', 'mesto_rodjenja', 'drzavljanstvo', 'opentt_wp_user_id'], '', $forced_post_id);
                 if ($post_id <= 0) {
                     continue;
                 }
@@ -6016,9 +6125,116 @@ HTML;
         return OpenTT_Unified_Admin_Readonly_Helpers::all_players_admin_index();
     }
 
+    private static function wp_users_dropdown_admin($name, $selected, $required)
+    {
+        $name = sanitize_key((string) $name);
+        if ($name === '') {
+            $name = 'linked_wp_user_id';
+        }
+        $selected = intval($selected);
+        $required_attr = $required ? ' required' : '';
+
+        $users = get_users([
+            'number' => 500,
+            'orderby' => 'display_name',
+            'order' => 'ASC',
+            'fields' => ['ID', 'display_name', 'user_login'],
+        ]);
+
+        $html = '<select name="' . esc_attr($name) . '"' . $required_attr . '>';
+        if (!$required) {
+            $html .= '<option value="">- Nije povezano -</option>';
+        }
+        if (!empty($users)) {
+            foreach ($users as $user) {
+                if (!is_object($user) || empty($user->ID)) {
+                    continue;
+                }
+                $uid = intval($user->ID);
+                $label = trim((string) $user->display_name);
+                if ($label === '') {
+                    $label = trim((string) $user->user_login);
+                }
+                $login = trim((string) $user->user_login);
+                if ($login !== '' && strtolower($login) !== strtolower($label)) {
+                    $label .= ' (' . $login . ')';
+                }
+                $html .= '<option value="' . esc_attr((string) $uid) . '"' . selected($selected, $uid, false) . '>' . esc_html($label) . '</option>';
+            }
+        }
+        $html .= '</select>';
+
+        return $html;
+    }
+
     private static function get_player_club_id($player_id)
     {
         return OpenTT_Unified_Admin_Readonly_Helpers::get_player_club_id($player_id);
+    }
+
+    public static function get_player_id_by_wp_user_id($user_id)
+    {
+        $user_id = intval($user_id);
+        if ($user_id <= 0) {
+            return 0;
+        }
+
+        $rows = get_posts([
+            'post_type' => 'igrac',
+            'numberposts' => 1,
+            'fields' => 'ids',
+            'post_status' => ['publish', 'draft', 'pending', 'private'],
+            'meta_query' => [
+                'relation' => 'OR',
+                [
+                    'key' => 'opentt_wp_user_id',
+                    'value' => $user_id,
+                    'compare' => '=',
+                    'type' => 'NUMERIC',
+                ],
+                [
+                    'key' => 'wp_user_id',
+                    'value' => $user_id,
+                    'compare' => '=',
+                    'type' => 'NUMERIC',
+                ],
+            ],
+        ]);
+
+        if (!empty($rows[0])) {
+            return intval($rows[0]);
+        }
+        return 0;
+    }
+
+    public static function get_author_fallback_url($user_id)
+    {
+        $user_id = intval($user_id);
+        if ($user_id <= 0) {
+            return '';
+        }
+        $user = get_userdata($user_id);
+        if (!$user) {
+            return '';
+        }
+        $base = home_url('/' . self::AUTHOR_BLOCK_TEMPLATE_SLUG . '/' . $user->user_nicename . '/');
+        return (string) add_query_arg('opentt_author', $user_id, $base);
+    }
+
+    public static function resolve_updater_profile_url($user_id)
+    {
+        $user_id = intval($user_id);
+        if ($user_id <= 0) {
+            return '';
+        }
+        $player_id = self::get_player_id_by_wp_user_id($user_id);
+        if ($player_id > 0) {
+            $player_url = (string) get_permalink($player_id);
+            if ($player_url !== '') {
+                return $player_url;
+            }
+        }
+        return self::get_author_fallback_url($user_id);
     }
 
     private static function require_cap()

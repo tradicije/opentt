@@ -384,6 +384,10 @@ final class MatchesListShortcode
         if ($name === '') {
             $name = 'Administrator';
         }
+        $author_url = '';
+        if ($user_id > 0 && class_exists('\\OpenTT_Unified_Core')) {
+            $author_url = (string) \OpenTT_Unified_Core::resolve_updater_profile_url($user_id);
+        }
 
         if ($user_id > 0) {
             $avatar_html = get_avatar($user_id, 44, '', $name, ['class' => 'opentt-data-updated-avatar-img']);
@@ -401,9 +405,14 @@ final class MatchesListShortcode
         ]);
         $datetime_label = wp_date('d.m.Y H:i', $timestamp, wp_timezone());
 
-        $html = '<div class="opentt-data-updated">';
-        $html .= '<span class="opentt-data-updated-label">Podatke uneo:</span>';
-        $html .= '<span class="opentt-data-updated-user">';
+        $html = '<div class="opentt-data-updated opentt-data-updated--center">';
+        $html .= '<span class="opentt-data-updated-row opentt-data-updated-row--label"><span class="opentt-data-updated-label">Podatke uneo:</span></span>';
+        $html .= '<span class="opentt-data-updated-row opentt-data-updated-row--user">';
+        if ($author_url !== '') {
+            $html .= '<a class="opentt-data-updated-user" href="' . esc_url($author_url) . '">';
+        } else {
+            $html .= '<span class="opentt-data-updated-user">';
+        }
         $html .= '<span class="opentt-data-updated-avatar-wrap">';
         $html .= '<span class="opentt-data-updated-avatar">' . $avatar_html . '</span>';
         if ($badge_url !== '') {
@@ -411,6 +420,11 @@ final class MatchesListShortcode
         }
         $html .= '</span>';
         $html .= '<span class="opentt-data-updated-meta"><strong>' . esc_html($name) . '</strong><span>' . esc_html($datetime_label) . '</span></span>';
+        if ($author_url !== '') {
+            $html .= '</a>';
+        } else {
+            $html .= '</span>';
+        }
         $html .= '</span>';
         $html .= '</div>';
 
