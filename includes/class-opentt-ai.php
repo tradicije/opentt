@@ -233,12 +233,12 @@ final class OpenTT_AI
         ob_start();
         ?>
         <div id="<?php echo esc_attr($uid); ?>" class="opentt-ai" data-opentt-ai="1" data-ajax-url="<?php echo esc_url($ajax_url); ?>" data-nonce="<?php echo esc_attr($nonce); ?>" data-ai-icon="<?php echo esc_url($icon_url); ?>">
-            <button type="button" class="opentt-ai-toggle" aria-expanded="false" aria-controls="<?php echo esc_attr($uid . '-panel'); ?>" aria-label="Otvori AI asistenta">
+            <button type="button" class="opentt-ai-toggle" aria-expanded="false" aria-controls="<?php echo esc_attr($uid . '-panel'); ?>" aria-label="Otvori AI asistenta" onclick="return window.openttAiFallbackToggle('<?php echo esc_js($uid); ?>');">
                 <img class="opentt-ai-toggle-icon" src="<?php echo esc_url($icon_url); ?>" alt="" aria-hidden="true">
             </button>
-            <div class="opentt-ai-backdrop" hidden></div>
+            <div class="opentt-ai-backdrop" hidden onclick="return window.openttAiFallbackToggle('<?php echo esc_js($uid); ?>', true);"></div>
             <div id="<?php echo esc_attr($uid . '-panel'); ?>" class="opentt-ai-panel" hidden>
-                <button type="button" class="opentt-ai-close" aria-label="Zatvori AI asistenta">&times;</button>
+                <button type="button" class="opentt-ai-close" aria-label="Zatvori AI asistenta" onclick="return window.openttAiFallbackToggle('<?php echo esc_js($uid); ?>', true);">&times;</button>
                 <div class="opentt-ai-head">
                     <span class="opentt-ai-brand">STKB.AI</span>
                     <label class="opentt-ai-label" for="<?php echo esc_attr($uid . '-input'); ?>">AI Asistent</label>
@@ -1341,6 +1341,63 @@ final class OpenTT_AI
         </style>
         <script>
             (function () {
+                if (typeof window.openttAiFallbackToggle !== 'function') {
+                    window.openttAiFallbackToggle = function (rootId, forceClose) {
+                        var id = String(rootId || '');
+                        if (!id) {
+                            return false;
+                        }
+                        var root = document.getElementById(id);
+                        if (!root) {
+                            return false;
+                        }
+                        var panel = root.querySelector('.opentt-ai-panel');
+                        var backdrop = root.querySelector('.opentt-ai-backdrop');
+                        var toggle = root.querySelector('.opentt-ai-toggle');
+                        if (!panel) {
+                            return false;
+                        }
+                        var shouldClose = !!forceClose;
+                        if (!shouldClose) {
+                            shouldClose = !panel.hidden ? true : false;
+                        }
+                        if (shouldClose) {
+                            panel.hidden = true;
+                            if (backdrop) {
+                                backdrop.hidden = true;
+                            }
+                            if (toggle) {
+                                toggle.setAttribute('aria-expanded', 'false');
+                            }
+                            if (document.body && document.body.classList) {
+                                document.body.classList.remove('opentt-ai-open');
+                            }
+                            if (document.documentElement && document.documentElement.classList) {
+                                document.documentElement.classList.remove('opentt-ai-open');
+                            }
+                        } else {
+                            panel.hidden = false;
+                            if (backdrop) {
+                                backdrop.hidden = false;
+                            }
+                            if (toggle) {
+                                toggle.setAttribute('aria-expanded', 'true');
+                            }
+                            if (document.body && document.body.classList) {
+                                document.body.classList.add('opentt-ai-open');
+                            }
+                            if (document.documentElement && document.documentElement.classList) {
+                                document.documentElement.classList.add('opentt-ai-open');
+                            }
+                            var input = root.querySelector('.opentt-ai-input');
+                            if (input && typeof input.focus === 'function') {
+                                setTimeout(function () { input.focus(); }, 0);
+                            }
+                        }
+                        return false;
+                    };
+                }
+
                 function escText(value) {
                     return String(value == null ? '' : value);
                 }
