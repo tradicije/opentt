@@ -160,8 +160,9 @@ final class OpenTT_Unified_Core
 
         $track_click_type = isset($_POST['track_click_type']) ? sanitize_key((string) wp_unslash($_POST['track_click_type'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $track_click_id = isset($_POST['track_click_id']) ? intval($_POST['track_click_id']) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        $track_click_client = isset($_POST['track_click_client']) ? sanitize_key((string) wp_unslash($_POST['track_click_client'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
         if ($track_click_type !== '' && $track_click_id > 0) {
-            self::record_search_trending_click($track_click_type, $track_click_id);
+            self::record_search_trending_click($track_click_type, $track_click_id, $track_click_client);
             wp_send_json_success(['tracked' => true]);
         }
 
@@ -6139,7 +6140,7 @@ HTML;
 
         $trending = self::search_recent_trending_group($limit);
         if (!empty($trending)) {
-            $groups[] = ['key' => 'trending', 'label' => 'Trending (poslednjih 5 dana)', 'items' => $trending];
+            $groups[] = ['key' => 'trending', 'label' => 'Trending', 'items' => $trending];
         }
 
         $players = self::search_popular_players_group($limit, $context);
@@ -6176,6 +6177,7 @@ HTML;
             }
             $type = sanitize_key((string) ($event['type'] ?? ''));
             $entity_id = intval($event['id'] ?? 0);
+            $client = sanitize_key((string) ($event['client'] ?? ''));
             $ts = intval($event['ts'] ?? 0);
             if (($type !== 'player' && $type !== 'club') || $entity_id <= 0 || $ts <= 0) {
                 continue;
@@ -6183,7 +6185,7 @@ HTML;
             if ($ts < $min_ts) {
                 continue;
             }
-            $pruned[] = ['type' => $type, 'id' => $entity_id, 'ts' => $ts];
+            $pruned[] = ['type' => $type, 'id' => $entity_id, 'client' => $client, 'ts' => $ts];
             if ($ts < $window_ts) {
                 continue;
             }
@@ -6214,7 +6216,7 @@ HTML;
             return intval($b['last_ts'] ?? 0) <=> intval($a['last_ts'] ?? 0);
         });
 
-        $rows = array_slice($rows, 0, max(3, min(20, intval($limit))));
+        $rows = array_slice($rows, 0, 5);
         $out = [];
         foreach ($rows as $row) {
             $type = sanitize_key((string) ($row['type'] ?? ''));
@@ -6230,12 +6232,17 @@ HTML;
         return $out;
     }
 
-    private static function record_search_trending_click($type, $entity_id)
+    private static function record_search_trending_click($type, $entity_id, $client_token = '')
     {
         $type = sanitize_key((string) $type);
         $entity_id = intval($entity_id);
         if (($type !== 'player' && $type !== 'club') || $entity_id <= 0) {
             return;
+        }
+
+        $client_token = sanitize_key((string) $client_token);
+        if ($client_token !== '' && strlen($client_token) > 64) {
+            $client_token = substr($client_token, 0, 64);
         }
 
         $post_type = get_post_type($entity_id);
@@ -6254,8 +6261,10 @@ HTML;
         }
         $min_ts = $now - (14 * DAY_IN_SECONDS);
         $today_key = wp_date('Y-m-d', $now, wp_timezone());
-        $daily_cap = 10;
+        $daily_cap_global = 20;
+        $daily_cap_client = 3;
         $today_hits_for_entity = 0;
+        $today_hits_for_entity_client = 0;
         $pruned = [];
 
         foreach ($events as $event) {
@@ -6264,6 +6273,7 @@ HTML;
             }
             $event_type = sanitize_key((string) ($event['type'] ?? ''));
             $event_id = intval($event['id'] ?? 0);
+            $event_client = sanitize_key((string) ($event['client'] ?? ''));
             $event_ts = intval($event['ts'] ?? 0);
             if (($event_type !== 'player' && $event_type !== 'club') || $event_id <= 0 || $event_ts <= 0) {
                 continue;
@@ -6279,10 +6289,13 @@ HTML;
             }
             if ($event_type === $type && $event_id === $entity_id) {
                 $today_hits_for_entity++;
+                if ($client_token !== '' && $event_client !== '' && $event_client === $client_token) {
+                    $today_hits_for_entity_client++;
+                }
             }
         }
 
-        if ($today_hits_for_entity >= $daily_cap) {
+        if ($today_hits_for_entity >= $daily_cap_global || ($client_token !== '' && $today_hits_for_entity_client >= $daily_cap_client)) {
             if (count($pruned) !== count($events)) {
                 update_option(self::OPTION_SEARCH_TRENDING_CLICKS, array_slice($pruned, -2000), false);
             }
@@ -6292,6 +6305,7 @@ HTML;
         $pruned[] = [
             'type' => $type,
             'id' => $entity_id,
+            'client' => $client_token,
             'ts' => $now,
         ];
 

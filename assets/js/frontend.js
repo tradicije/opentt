@@ -3,6 +3,7 @@
   var openttSavedScrollY = 0;
   var openttActiveSearchPanel = null;
   var openttScrollGuardsAttached = false;
+  var openttSearchAssets = {};
 
   function preventBackgroundScroll(event) {
     if (!openttActiveSearchPanel) {
@@ -491,6 +492,48 @@
       );
     }
 
+    function trendingRankHtml(rank) {
+      var r = parseInt(rank, 10);
+      if (isNaN(r) || r <= 0) {
+        return "";
+      }
+      if (r >= 4) {
+        return (
+          '<span class="opentt-search-rank-badge opentt-search-rank-badge--num">' +
+          esc(String(r)) +
+          "</span>"
+        );
+      }
+
+      var icon = "";
+      if (r === 1) {
+        icon = String(openttSearchAssets.trendingOneIcon || "");
+      } else if (r === 2) {
+        icon = String(openttSearchAssets.trendingTwoIcon || "");
+      } else if (r === 3) {
+        icon = String(openttSearchAssets.trendingThreeIcon || "");
+      }
+      if (!icon) {
+        return (
+          '<span class="opentt-search-rank-badge opentt-search-rank-badge--num">' +
+          esc(String(r)) +
+          "</span>"
+        );
+      }
+
+      return (
+        '<span class="opentt-search-rank-badge opentt-search-rank-badge--' +
+        esc(String(r)) +
+        '">' +
+        '<img src="' +
+        esc(icon) +
+        '" alt="' +
+        esc("Top " + String(r)) +
+        '" loading="lazy" decoding="async">' +
+        "</span>"
+      );
+    }
+
     var html = "";
     groups.forEach(function (group) {
       var groupKey = String(group && group.key ? group.key : "");
@@ -504,6 +547,12 @@
         esc(groupKey) +
         '">';
       html += '<div class="opentt-search-group-head">';
+      if (groupKey === "trending" && openttSearchAssets.trendingIcon) {
+        html +=
+          '<span class="opentt-search-group-icon"><img src="' +
+          esc(String(openttSearchAssets.trendingIcon || "")) +
+          '" alt="" loading="lazy" decoding="async"></span>';
+      }
       html += '<h4 class="opentt-search-group-title">' + label + "</h4>";
       if (groupKey === "history") {
         html +=
@@ -513,7 +562,7 @@
       }
       html += "</div>";
       html += '<div class="opentt-search-group-items">';
-      items.forEach(function (item) {
+      items.forEach(function (item, index) {
         var title = esc(item && item.title ? item.title : "");
         var url = esc(item && item.url ? item.url : "#");
         var meta = esc(item && item.meta ? item.meta : "");
@@ -541,6 +590,9 @@
           entityIdAttr +
           ">";
         html += '<span class="opentt-search-item-main">';
+        if (groupKey === "trending") {
+          html += trendingRankHtml(index + 1);
+        }
         if (thumb) {
           html +=
             '<span class="opentt-search-item-thumb"><img src="' +
@@ -587,6 +639,7 @@
     }
     var context = data.context && typeof data.context === "object" ? data.context : {};
     var i18n = data.i18n && typeof data.i18n === "object" ? data.i18n : {};
+    openttSearchAssets = data.assets && typeof data.assets === "object" ? data.assets : {};
     var promptText =
       i18n.prompt || ("Unesi najmanje " + String(minChars) + " karakter(a).");
     var loadingText = i18n.loading || "Pretraga...";
@@ -596,6 +649,7 @@
     var currentController = null;
     var discoveryCache = null;
     var historyCookieName = "opentt_search_history";
+    var clientCookieName = "opentt_search_client";
 
     function readCookie(name) {
       var target = String(name || "") + "=";
@@ -623,6 +677,19 @@
         encodeURIComponent(String(value || "")) +
         expires +
         "; path=/; SameSite=Lax";
+    }
+
+    function ensureClientToken() {
+      var existing = String(readCookie(clientCookieName) || "").trim();
+      if (existing) {
+        return existing;
+      }
+      var token =
+        "c" +
+        Math.random().toString(36).slice(2, 10) +
+        String(Date.now()).slice(-6);
+      writeCookie(clientCookieName, token, 365);
+      return token;
     }
 
     function getHistoryTerms() {
@@ -759,6 +826,7 @@
       body.set("nonce", String(window.openttFrontend.searchNonce || ""));
       body.set("track_click_type", type);
       body.set("track_click_id", String(id));
+      body.set("track_click_client", ensureClientToken());
 
       var payload = body.toString();
       if (navigator && typeof navigator.sendBeacon === "function") {

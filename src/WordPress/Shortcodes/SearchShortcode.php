@@ -42,6 +42,10 @@ final class SearchShortcode
         $context = self::resolveContext($atts, $call);
         $uid = 'opentt-search-' . wp_unique_id();
         $icon_url = plugins_url('assets/icons/search-icon.svg', dirname(__DIR__, 3) . '/opentt-unified-core.php');
+        $trending_icon_url = plugins_url('assets/icons/trending-icon.svg', dirname(__DIR__, 3) . '/opentt-unified-core.php');
+        $trending_one_icon_url = plugins_url('assets/icons/trending-one-icon.svg', dirname(__DIR__, 3) . '/opentt-unified-core.php');
+        $trending_two_icon_url = plugins_url('assets/icons/trending-two-icon.svg', dirname(__DIR__, 3) . '/opentt-unified-core.php');
+        $trending_three_icon_url = plugins_url('assets/icons/trending-three-icon.svg', dirname(__DIR__, 3) . '/opentt-unified-core.php');
 
         $payload_json = wp_json_encode([
             'context' => $context,
@@ -60,6 +64,12 @@ final class SearchShortcode
                 ],
                 'historyLabel' => 'Istorija pretrage',
                 'clearHistory' => 'Očisti istoriju pretrage',
+            ],
+            'assets' => [
+                'trendingIcon' => $trending_icon_url,
+                'trendingOneIcon' => $trending_one_icon_url,
+                'trendingTwoIcon' => $trending_two_icon_url,
+                'trendingThreeIcon' => $trending_three_icon_url,
             ],
         ]);
 

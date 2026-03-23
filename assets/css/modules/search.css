@@ -175,7 +175,7 @@ html.opentt-search-open {
 .opentt-search-group-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
   padding-right: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -183,6 +183,22 @@ html.opentt-search-open {
 
 .opentt-search-group-head .opentt-search-group-title {
   border-bottom: 0;
+}
+
+.opentt-search-group-icon {
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+}
+
+.opentt-search-group-icon img {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .opentt-search-clear-history {
@@ -195,6 +211,7 @@ html.opentt-search-open {
   padding: 6px 8px;
   cursor: pointer;
   white-space: nowrap;
+  margin-left: auto;
 }
 
 .opentt-search-clear-history:hover {
@@ -222,6 +239,48 @@ html.opentt-search-open {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+}
+
+.opentt-search-rank-badge {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1;
+  color: #fff;
+}
+
+.opentt-search-rank-badge img {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.opentt-search-rank-badge--1 {
+  background: linear-gradient(145deg, #f8d568 0%, #d09d19 100%);
+  border-color: rgba(255, 232, 153, 0.88);
+}
+
+.opentt-search-rank-badge--2 {
+  background: linear-gradient(145deg, #d8e0ea 0%, #9da7b3 100%);
+  border-color: rgba(235, 242, 250, 0.86);
+}
+
+.opentt-search-rank-badge--3 {
+  background: linear-gradient(145deg, #d69a6a 0%, #975c2f 100%);
+  border-color: rgba(233, 182, 141, 0.9);
+}
+
+.opentt-search-rank-badge--num {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
 .opentt-search-item-thumb {
@@ -308,5 +367,17 @@ html.opentt-search-open {
     min-width: 34px;
     height: 34px;
     border-radius: 8px;
+  }
+
+  .opentt-search-rank-badge {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+
+  .opentt-search-rank-badge img {
+    width: 16px;
+    height: 16px;
   }
 }
