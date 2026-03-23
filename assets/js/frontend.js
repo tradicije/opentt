@@ -65,6 +65,9 @@
   }
 
   function unlockPageScroll() {
+    if (openttScrollLockCount <= 0) {
+      return;
+    }
     if (openttScrollLockCount > 0) {
       openttScrollLockCount -= 1;
     }
@@ -967,6 +970,9 @@
     }
 
     function closePanel() {
+      if (panel.hidden) {
+        return;
+      }
       panel.hidden = true;
       if (backdrop) {
         backdrop.hidden = true;
