@@ -115,6 +115,32 @@ html.opentt-search-open {
   box-shadow: 0 0 0 2px rgba(56, 145, 255, 0.2);
 }
 
+.opentt-search-suggestion {
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgba(232, 243, 255, 0.88);
+}
+
+.opentt-search-suggestion-label {
+  color: rgba(232, 243, 255, 0.82);
+}
+
+.opentt-search-suggestion-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #8ec5ff;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.opentt-search-suggestion-btn:hover {
+  color: #b8dbff;
+}
+
 .opentt-search-results {
   margin-top: 14px;
   max-height: none;

@@ -150,6 +150,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Fixed frontend search rendering regression where discovery blocks could disappear due missing highlight helper functions in `frontend.js` (restored stable highlight pipeline).
 - Styled `Trending` discovery block with the same fire gradient palette as the trending icon and added subtle pulse animation to increase visual prominence.
 - Center-aligned league/date metadata under match rows in both discovery and regular search results, and added fuzzy typo-tolerant matching for near-miss queries (for example small misspellings like `bubudinac` can still surface `bubušinac`).
+- Added inline typo helper under search input: when query looks misspelled, search now shows `Da li ste mislili "..."?` with clickable suggestion that reruns results instantly.
 
 ## Releases
 

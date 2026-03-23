@@ -195,9 +195,11 @@ final class OpenTT_Unified_Core
         }
 
         $groups = self::build_search_groups($query, $limit, $context);
+        $suggestion = self::search_build_query_suggestion($query, $groups);
         wp_send_json_success([
             'query' => $query,
             'groups' => $groups,
+            'suggestion' => $suggestion,
         ]);
     }
 
@@ -6134,6 +6136,166 @@ HTML;
         return $groups;
     }
 
+    private static function search_build_query_suggestion($query, array $groups)
+    {
+        $query = trim((string) $query);
+        if ($query === '' || !function_exists('levenshtein')) {
+            return '';
+        }
+
+        $query_tokens = self::search_tokenize_text_unicode($query);
+        if (empty($query_tokens)) {
+            return '';
+        }
+
+        $candidate_tokens = self::search_collect_suggestion_candidates($groups);
+        if (empty($candidate_tokens)) {
+            return '';
+        }
+
+        $replacement_map = [];
+        foreach ($query_tokens as $query_token) {
+            $query_token = trim((string) $query_token);
+            $query_fold = self::search_fold_text(
+                function_exists('mb_strtolower') ? mb_strtolower($query_token, 'UTF-8') : strtolower($query_token)
+            );
+            $query_len = function_exists('mb_strlen') ? mb_strlen($query_fold, 'UTF-8') : strlen($query_fold);
+            if ($query_fold === '' || $query_len < 3 || $query_len > 64) {
+                continue;
+            }
+
+            $threshold = 2;
+            if ($query_len <= 6) {
+                $threshold = 1;
+            } elseif ($query_len >= 11) {
+                $threshold = 3;
+            }
+
+            $best = null;
+            $best_dist = PHP_INT_MAX;
+            foreach ($candidate_tokens as $candidate) {
+                $candidate_fold = (string) ($candidate['fold'] ?? '');
+                $candidate_raw = (string) ($candidate['raw'] ?? '');
+                $candidate_len = function_exists('mb_strlen') ? mb_strlen($candidate_fold, 'UTF-8') : strlen($candidate_fold);
+                if ($candidate_fold === '' || $candidate_raw === '' || $candidate_len < 3 || $candidate_len > 64) {
+                    continue;
+                }
+                if ($candidate_fold === $query_fold) {
+                    $best_dist = 0;
+                    $best = '';
+                    break;
+                }
+                if (abs($candidate_len - $query_len) > $threshold) {
+                    continue;
+                }
+
+                $dist = levenshtein($query_fold, $candidate_fold);
+                if ($dist > $threshold) {
+                    continue;
+                }
+                if ($dist < $best_dist) {
+                    $best_dist = $dist;
+                    $best = $candidate_raw;
+                    if ($best_dist === 1) {
+                        break;
+                    }
+                }
+            }
+
+            if (is_string($best) && $best !== '' && $best_dist > 0 && $best_dist <= $threshold) {
+                $replacement_map[$query_fold] = $best;
+            }
+        }
+
+        if (empty($replacement_map)) {
+            return '';
+        }
+
+        $parts = preg_split('/(\s+)/u', $query, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [$query];
+        $rebuilt = '';
+        foreach ($parts as $part) {
+            if (trim((string) $part) === '') {
+                $rebuilt .= $part;
+                continue;
+            }
+            $fold = self::search_fold_text(
+                function_exists('mb_strtolower') ? mb_strtolower((string) $part, 'UTF-8') : strtolower((string) $part)
+            );
+            if (isset($replacement_map[$fold])) {
+                $rebuilt .= (string) $replacement_map[$fold];
+            } else {
+                $rebuilt .= (string) $part;
+            }
+        }
+
+        $suggestion = trim((string) $rebuilt);
+        if ($suggestion === '') {
+            return '';
+        }
+        $query_folded_full = self::search_fold_text(
+            function_exists('mb_strtolower') ? mb_strtolower($query, 'UTF-8') : strtolower($query)
+        );
+        $suggestion_folded_full = self::search_fold_text(
+            function_exists('mb_strtolower') ? mb_strtolower($suggestion, 'UTF-8') : strtolower($suggestion)
+        );
+        if ($query_folded_full === $suggestion_folded_full) {
+            return '';
+        }
+
+        return $suggestion;
+    }
+
+    private static function search_collect_suggestion_candidates(array $groups)
+    {
+        $texts = [];
+        foreach ($groups as $group) {
+            if (!is_array($group)) {
+                continue;
+            }
+            $items = isset($group['items']) && is_array($group['items']) ? $group['items'] : [];
+            foreach ($items as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                foreach (['title', 'homeName', 'awayName', 'meta'] as $field) {
+                    $value = trim((string) ($item[$field] ?? ''));
+                    if ($value !== '') {
+                        $texts[] = $value;
+                    }
+                }
+            }
+        }
+
+        if (empty($texts)) {
+            return [];
+        }
+
+        $out = [];
+        $seen = [];
+        foreach ($texts as $text) {
+            $tokens = self::search_tokenize_text_unicode($text);
+            foreach ($tokens as $token) {
+                $raw = trim((string) $token);
+                if ($raw === '') {
+                    continue;
+                }
+                $fold = self::search_fold_text(
+                    function_exists('mb_strtolower') ? mb_strtolower($raw, 'UTF-8') : strtolower($raw)
+                );
+                if ($fold === '' || isset($seen[$fold])) {
+                    continue;
+                }
+                $seen[$fold] = true;
+                $out[] = [
+                    'raw' => $raw,
+                    'fold' => $fold,
+                ];
+            }
+        }
+
+        return $out;
+    }
+
     private static function build_search_discovery_groups($limit, array $context)
     {
         $groups = [];
@@ -6955,6 +7117,23 @@ HTML;
             return [];
         }
         $parts = preg_split('/[^a-z0-9]+/i', $text) ?: [];
+        $out = [];
+        foreach ($parts as $part) {
+            $part = trim((string) $part);
+            if ($part !== '') {
+                $out[] = $part;
+            }
+        }
+        return array_values(array_unique($out));
+    }
+
+    private static function search_tokenize_text_unicode($text)
+    {
+        $text = trim((string) $text);
+        if ($text === '') {
+            return [];
+        }
+        $parts = preg_split('/[^\p{L}\p{N}]+/u', $text) ?: [];
         $out = [];
         foreach ($parts as $part) {
             $part = trim((string) $part);

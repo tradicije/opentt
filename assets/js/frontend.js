@@ -706,6 +706,7 @@
     var panel = root.querySelector(".opentt-search-panel");
     var closeBtn = root.querySelector(".opentt-search-close");
     var input = root.querySelector(".opentt-search-input");
+    var suggestionBox = root.querySelector("[data-opentt-search-suggestion]");
     var results = root.querySelector("[data-opentt-search-results]");
     if (!toggle || !panel || !input || !results) {
       return;
@@ -729,6 +730,7 @@
     var emptyText = i18n.empty || "Nema rezultata.";
     var historyLabel = i18n.historyLabel || "Istorija pretrage";
     var clearHistoryText = i18n.clearHistory || "Očisti istoriju pretrage";
+    var didYouMeanText = i18n.didYouMean || "Da li ste mislili";
     var currentController = null;
     var discoveryCache = null;
     var historyCookieName = "opentt_search_history";
@@ -844,8 +846,36 @@
       return groups;
     }
 
+    function renderSuggestion(queryValue, suggestionValue) {
+      if (!suggestionBox) {
+        return;
+      }
+      var query = String(queryValue || "").trim();
+      var suggestion = String(suggestionValue || "").trim();
+      if (
+        !query ||
+        !suggestion ||
+        query.toLowerCase() === suggestion.toLowerCase()
+      ) {
+        suggestionBox.hidden = true;
+        suggestionBox.innerHTML = "";
+        return;
+      }
+
+      suggestionBox.hidden = false;
+      suggestionBox.innerHTML =
+        '<span class="opentt-search-suggestion-label">' +
+        esc(didYouMeanText) +
+        '</span> <button type="button" class="opentt-search-suggestion-btn" data-opentt-suggest-query="' +
+        esc(suggestion) +
+        '">"' +
+        esc(suggestion) +
+        '"</button>?';
+    }
+
     function renderDiscovery(includeHistory) {
       if (discoveryCache) {
+        renderSuggestion("", "");
         renderSearchGroups(results, mergeDiscoveryGroups(discoveryCache, !!includeHistory), "");
         return;
       }
@@ -855,6 +885,7 @@
           ? String(window.openttFrontend.ajaxUrl)
           : "";
       if (!ajaxUrl) {
+        renderSuggestion("", "");
         renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory), "");
         return;
       }
@@ -884,9 +915,11 @@
             serverGroups = Array.isArray(payload.data.groups) ? payload.data.groups : [];
           }
           discoveryCache = serverGroups;
+          renderSuggestion("", "");
           renderSearchGroups(results, mergeDiscoveryGroups(serverGroups, !!includeHistory), "");
         })
         .catch(function () {
+          renderSuggestion("", "");
           renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory), "");
         });
     }
@@ -997,6 +1030,21 @@
         return;
       }
 
+      var suggestBtn =
+        e.target && e.target.closest
+          ? e.target.closest("[data-opentt-suggest-query]")
+          : null;
+      if (suggestBtn) {
+        e.preventDefault();
+        var suggested = String(suggestBtn.getAttribute("data-opentt-suggest-query") || "").trim();
+        if (!suggested) {
+          return;
+        }
+        input.value = suggested;
+        runSearch(suggested);
+        return;
+      }
+
       var qItem =
         e.target && e.target.closest
           ? e.target.closest("[data-opentt-search-query]")
@@ -1056,10 +1104,12 @@
     var runSearch = debounce(function (value) {
       var query = String(value || "").trim();
       if (query.length === 0) {
+        renderSuggestion("", "");
         renderDiscovery(document.activeElement === input);
         return;
       }
       if (query.length < minChars) {
+        renderSuggestion("", "");
         results.innerHTML = '<p class="opentt-search-empty">' + esc(promptText) + "</p>";
         return;
       }
@@ -1069,6 +1119,7 @@
           ? String(window.openttFrontend.ajaxUrl)
           : "";
       if (!ajaxUrl) {
+        renderSuggestion("", "");
         results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
         return;
       }
@@ -1102,13 +1153,16 @@
         })
         .then(function (payload) {
           if (!payload || payload.success !== true) {
+            renderSuggestion("", "");
             results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
             return;
           }
           var data = payload.data && typeof payload.data === "object" ? payload.data : {};
+          renderSuggestion(query, data.suggestion || "");
           renderSearchGroups(results, data.groups || [], query);
         })
         .catch(function () {
+          renderSuggestion("", "");
           results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
         });
     }, 170);

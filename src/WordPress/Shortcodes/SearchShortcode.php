@@ -64,6 +64,7 @@ final class SearchShortcode
                 ],
                 'historyLabel' => 'Istorija pretrage',
                 'clearHistory' => 'Očisti istoriju pretrage',
+                'didYouMean' => 'Da li ste mislili',
             ],
             'assets' => [
                 'trendingIcon' => $trending_icon_url,
@@ -87,6 +88,7 @@ final class SearchShortcode
         echo '<button type="button" class="opentt-search-close" aria-label="Zatvori pretragu">&times;</button>';
         echo '<label class="opentt-search-label" for="' . esc_attr($uid . '-input') . '">' . esc_html('Pretraga') . '</label>';
         echo '<input id="' . esc_attr($uid . '-input') . '" class="opentt-search-input" type="search" autocomplete="off" placeholder="' . esc_attr($placeholder) . '" />';
+        echo '<div class="opentt-search-suggestion" data-opentt-search-suggestion hidden></div>';
         echo '<div class="opentt-search-results" data-opentt-search-results><p class="opentt-search-empty">' . esc_html(sprintf('Unesi najmanje %d karakter(a).', $min_chars)) . '</p></div>';
         echo '</div>';
         echo '<script type="application/json" class="opentt-search-data">' . $payload_json . '</script>';
