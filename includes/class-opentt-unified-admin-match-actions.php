@@ -142,6 +142,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             }
             $id = (int) $wpdb->insert_id;
         }
+        self::touch_matches_last_update();
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $id), 'success', 'Utakmica je sačuvana.'));
         exit;
@@ -167,6 +168,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         }
         $wpdb->delete($games, ['match_id' => $id]);
         $wpdb->delete($matches, ['id' => $id]);
+        self::touch_matches_last_update();
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'success', 'Utakmica je obrisana.'));
         exit;
@@ -200,6 +202,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'error', 'Greška pri promeni featured statusa.'));
             exit;
         }
+        self::touch_matches_last_update();
 
         $message = $next === 1 ? 'Utakmica je postavljena kao featured.' : 'Utakmica više nije featured.';
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'success', $message));
@@ -234,6 +237,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'error', 'Greška pri promeni LIVE statusa.'));
             exit;
         }
+        self::touch_matches_last_update();
 
         $message = $next === 1 ? 'Utakmica je uključena u LIVE.' : 'Utakmica je uklonjena iz LIVE.';
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'success', $message));
@@ -261,6 +265,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-live'), 'error', 'Greška pri završavanju LIVE utakmice.'));
             exit;
         }
+        self::touch_matches_last_update();
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-live'), 'success', 'LIVE utakmica je završena.'));
         exit;
     }
@@ -429,6 +434,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             wp_safe_redirect(self::admin_notice_url($base_url, 'error', 'Nijedna izabrana utakmica nije obrisana.'));
             exit;
         }
+        self::touch_matches_last_update();
 
         wp_safe_redirect(self::admin_notice_url($base_url, 'success', 'Obrisano utakmica: ' . $deleted . '.'));
         exit;
@@ -510,6 +516,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             wp_safe_redirect(self::admin_notice_url($target, 'error', 'Greška pri quick edit ažuriranju rezultata.'));
             exit;
         }
+        self::touch_matches_last_update();
 
         wp_safe_redirect(self::admin_notice_url($target, 'success', 'Rezultat je ažuriran (quick edit).'));
         exit;
@@ -635,6 +642,7 @@ final class OpenTT_Unified_Admin_Match_Actions
                 }
             }
         }
+        self::touch_matches_last_update();
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Partija je sačuvana.'));
         exit;
@@ -808,6 +816,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             $wpdb->delete($sets_table, ['game_id' => (int) $gid]);
         }
         $wpdb->query($wpdb->prepare("DELETE FROM {$games_table} WHERE match_id=%d AND order_no > %d", $match_id, $max_games));
+        self::touch_matches_last_update();
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Sve partije su sačuvane.'));
         exit;
     }
@@ -827,6 +836,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         $sets = OpenTT_Unified_Core::db_table('sets');
         $wpdb->delete($sets, ['game_id' => $id]);
         $wpdb->delete($games, ['id' => $id]);
+        self::touch_matches_last_update();
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Partija je obrisana.'));
         exit;
@@ -854,6 +864,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         } else {
             $wpdb->insert($table, ['game_id' => $game_id, 'set_no' => $set_no, 'home_points' => $hp, 'away_points' => $ap, 'created_at' => current_time('mysql'), 'updated_at' => current_time('mysql')]);
         }
+        self::touch_matches_last_update();
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Set je sačuvan.'));
         exit;
@@ -871,6 +882,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         global $wpdb;
         $table = OpenTT_Unified_Core::db_table('sets');
         $wpdb->delete($table, ['id' => $id]);
+        self::touch_matches_last_update();
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Set je obrisan.'));
         exit;
     }
@@ -888,6 +900,15 @@ final class OpenTT_Unified_Admin_Match_Actions
             'opentt_notice' => sanitize_key((string) $type),
             'opentt_msg' => (string) $message,
         ], $url);
+    }
+
+    private static function touch_matches_last_update()
+    {
+        $user_id = get_current_user_id();
+        if ($user_id > 0) {
+            update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_ID, $user_id, false);
+        }
+        update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_UPDATED_AT, current_time('mysql'), false);
     }
 
     private static function has_any_competition_rules()

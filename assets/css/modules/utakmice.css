@@ -1092,6 +1092,101 @@ a.opentt-grid-cal-preview-more:focus {
   outline: none;
 }
 
+.opentt-data-updated {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(142, 197, 255, 0.24);
+  border-radius: 10px;
+  background: rgba(3, 20, 58, 0.45);
+  color: #dbe9ff;
+}
+
+.opentt-data-updated-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #9fbbeb;
+}
+
+.opentt-data-updated-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.opentt-data-updated-avatar-wrap {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+}
+
+.opentt-data-updated-avatar {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+}
+
+.opentt-data-updated-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.opentt-data-updated-avatar-fallback {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #a6ccff 0%, #4d8ef3 65%, #1a4da6 100%);
+}
+
+.opentt-data-updated-admin-badge {
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7fd5ff 0%, #2f7fff 52%, #5cb8ff 100%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 6px rgba(0, 35, 95, 0.5);
+}
+
+.opentt-data-updated-admin-badge::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background-color: #ffffff;
+  -webkit-mask: var(--opentt-admin-badge-icon) no-repeat center / contain;
+  mask: var(--opentt-admin-badge-icon) no-repeat center / contain;
+}
+
+.opentt-data-updated-meta {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.15;
+}
+
+.opentt-data-updated-meta strong {
+  font-size: 0.9rem;
+  color: #ffffff;
+}
+
+.opentt-data-updated-meta span {
+  font-size: 0.76rem;
+  color: #a9c0e6;
+}
+
 .opentt-klub {
   text-align: center;
 }
@@ -1249,6 +1344,11 @@ a.opentt-grid-cal-preview-more:focus {
     width: 28px;
     height: 28px;
     font-size: 0.72rem;
+  }
+
+  .opentt-data-updated {
+    width: 100%;
+    margin-top: 10px;
   }
 }
 

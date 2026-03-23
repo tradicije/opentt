@@ -126,6 +126,7 @@ final class MatchesGridShortcode
             echo '</div>';
             echo (string) $call('render_matches_grid_html', $rows, $columns, true);
             echo '</div>';
+            echo self::render_last_update_footer($rows);
             ?>
             <script>
             var openttLegacyGridRoot = document.getElementById('<?php echo esc_js($uid); ?>');
@@ -399,6 +400,7 @@ final class MatchesGridShortcode
                 }
             }
             echo '</div>';
+            echo self::render_last_update_footer($rows);
             ?>
             <script>
             (function(){
@@ -1026,6 +1028,7 @@ final class MatchesGridShortcode
                 echo '<div class="opentt-grid-sentinel" aria-hidden="true"></div>';
             }
             echo '</div>';
+            echo self::render_last_update_footer($rows);
             ?>
             <script>
             (function(){
@@ -1109,7 +1112,9 @@ final class MatchesGridShortcode
             return ob_get_clean();
         }
 
-        return (string) $call('shortcode_title_html', 'Utakmice') . (string) $call('render_matches_grid_html', $rows, $columns, false);
+        return (string) $call('shortcode_title_html', 'Utakmice')
+            . (string) $call('render_matches_grid_html', $rows, $columns, false)
+            . self::render_last_update_footer($rows);
     }
 
     private static function normalize_played_value($played, $odigrana)
@@ -1156,5 +1161,74 @@ final class MatchesGridShortcode
         }
 
         return '';
+    }
+
+    private static function render_last_update_footer(array $rows)
+    {
+        $timestamp = self::resolve_last_update_timestamp($rows);
+        if ($timestamp <= 0) {
+            return '';
+        }
+
+        $user_id = intval(get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_ID, 0));
+        $name = $user_id > 0 ? trim((string) get_the_author_meta('display_name', $user_id)) : '';
+        if ($name === '') {
+            $name = 'Administrator';
+        }
+
+        $avatar_html = $user_id > 0
+            ? get_avatar($user_id, 44, '', $name, ['class' => 'opentt-data-updated-avatar-img'])
+            : '<span class="opentt-data-updated-avatar-fallback"></span>';
+
+        $badge_url = self::discover_icon_url([
+            'assets/icons/admin-badge.svg',
+            'assets/icons/admin-badge-icon.svg',
+            'assets/icons/admin-icon.svg',
+            'assets/icons/badge-admin.svg',
+        ]);
+        $datetime_label = wp_date('d.m.Y H:i', $timestamp, wp_timezone());
+
+        $html = '<div class="opentt-data-updated">';
+        $html .= '<span class="opentt-data-updated-label">Podatke uneo:</span>';
+        $html .= '<span class="opentt-data-updated-user">';
+        $html .= '<span class="opentt-data-updated-avatar-wrap">';
+        $html .= '<span class="opentt-data-updated-avatar">' . $avatar_html . '</span>';
+        if ($badge_url !== '') {
+            $html .= '<span class="opentt-data-updated-admin-badge" aria-hidden="true" style="--opentt-admin-badge-icon:url(\'' . esc_url($badge_url) . '\')"></span>';
+        }
+        $html .= '</span>';
+        $html .= '<span class="opentt-data-updated-meta"><strong>' . esc_html($name) . '</strong><span>' . esc_html($datetime_label) . '</span></span>';
+        $html .= '</span>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    private static function resolve_last_update_timestamp(array $rows)
+    {
+        $latest = 0;
+        foreach ($rows as $row) {
+            if (!is_object($row)) {
+                continue;
+            }
+            $raw = trim((string) ($row->updated_at ?? ''));
+            if ($raw === '') {
+                continue;
+            }
+            $ts = strtotime($raw);
+            if ($ts !== false) {
+                $latest = max($latest, intval($ts));
+            }
+        }
+
+        $opt = trim((string) get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_UPDATED_AT, ''));
+        if ($opt !== '') {
+            $opt_ts = strtotime($opt);
+            if ($opt_ts !== false) {
+                $latest = max($latest, intval($opt_ts));
+            }
+        }
+
+        return $latest;
     }
 }

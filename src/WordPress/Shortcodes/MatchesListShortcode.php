@@ -177,6 +177,7 @@ final class MatchesListShortcode
         echo '<script type="application/json" class="opentt-matches-list-data">' . $payload_json . '</script>';
         echo '<div class="opentt-matches-list-body">' . self::render_initial_rows_html($initial_list) . '</div>';
         echo '</div>';
+        echo self::render_last_update_footer($rows);
         return ob_get_clean();
     }
 
@@ -364,6 +365,103 @@ final class MatchesListShortcode
         }
 
         return $value;
+    }
+
+    private static function render_last_update_footer(array $rows)
+    {
+        $timestamp = self::resolve_last_update_timestamp($rows);
+        if ($timestamp <= 0) {
+            return '';
+        }
+
+        $user_id = intval(get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_ID, 0));
+        $name = $user_id > 0 ? trim((string) get_the_author_meta('display_name', $user_id)) : '';
+        if ($name === '') {
+            $name = 'Administrator';
+        }
+
+        $avatar_html = $user_id > 0
+            ? get_avatar($user_id, 44, '', $name, ['class' => 'opentt-data-updated-avatar-img'])
+            : '<span class="opentt-data-updated-avatar-fallback"></span>';
+
+        $badge_url = self::discover_icon_url([
+            'assets/icons/admin-badge.svg',
+            'assets/icons/admin-badge-icon.svg',
+            'assets/icons/admin-icon.svg',
+            'assets/icons/badge-admin.svg',
+        ]);
+        $datetime_label = wp_date('d.m.Y H:i', $timestamp, wp_timezone());
+
+        $html = '<div class="opentt-data-updated">';
+        $html .= '<span class="opentt-data-updated-label">Podatke uneo:</span>';
+        $html .= '<span class="opentt-data-updated-user">';
+        $html .= '<span class="opentt-data-updated-avatar-wrap">';
+        $html .= '<span class="opentt-data-updated-avatar">' . $avatar_html . '</span>';
+        if ($badge_url !== '') {
+            $html .= '<span class="opentt-data-updated-admin-badge" aria-hidden="true" style="--opentt-admin-badge-icon:url(\'' . esc_url($badge_url) . '\')"></span>';
+        }
+        $html .= '</span>';
+        $html .= '<span class="opentt-data-updated-meta"><strong>' . esc_html($name) . '</strong><span>' . esc_html($datetime_label) . '</span></span>';
+        $html .= '</span>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    private static function resolve_last_update_timestamp(array $rows)
+    {
+        $latest = 0;
+        foreach ($rows as $row) {
+            if (!is_object($row)) {
+                continue;
+            }
+            $raw = trim((string) ($row->updated_at ?? ''));
+            if ($raw === '') {
+                continue;
+            }
+            $ts = strtotime($raw);
+            if ($ts !== false) {
+                $latest = max($latest, intval($ts));
+            }
+        }
+
+        $opt = trim((string) get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_UPDATED_AT, ''));
+        if ($opt !== '') {
+            $opt_ts = strtotime($opt);
+            if ($opt_ts !== false) {
+                $latest = max($latest, intval($opt_ts));
+            }
+        }
+
+        return $latest;
+    }
+
+    private static function discover_icon_url(array $relative_candidates)
+    {
+        $plugin_root = dirname(__DIR__, 3);
+        $plugin_root_norm = wp_normalize_path($plugin_root);
+        $plugins_root_norm = wp_normalize_path((string) WP_PLUGIN_DIR);
+        if ($plugin_root_norm === '' || $plugins_root_norm === '' || strpos($plugin_root_norm, $plugins_root_norm) !== 0) {
+            return '';
+        }
+        $relative_root = ltrim(substr($plugin_root_norm, strlen($plugins_root_norm)), '/');
+        if ($relative_root === '') {
+            return '';
+        }
+        $plugin_base_url = trailingslashit((string) WP_PLUGIN_URL) . str_replace('\\', '/', $relative_root);
+
+        foreach ($relative_candidates as $relative_path) {
+            $relative_path = ltrim((string) $relative_path, '/');
+            if ($relative_path === '') {
+                continue;
+            }
+            $absolute_path = $plugin_root . '/' . $relative_path;
+            if (is_readable($absolute_path)) {
+                return trailingslashit($plugin_base_url) . str_replace('\\', '/', $relative_path);
+            }
+        }
+
+        return '';
     }
 
     private static function resolve_highlight_ids($raw)

@@ -52,6 +52,8 @@ final class OpenTT_Unified_Core
     const OPTION_COMPETITION_DIAGNOSTICS = 'opentt_unified_competition_diagnostics';
     const OPTION_ADMIN_UI_LANGUAGE = 'opentt_unified_admin_ui_language';
     const OPTION_SEARCH_TRENDING_CLICKS = 'opentt_unified_search_trending_clicks';
+    const OPTION_MATCHES_LAST_EDITOR_ID = 'opentt_unified_matches_last_editor_id';
+    const OPTION_MATCHES_LAST_UPDATED_AT = 'opentt_unified_matches_last_updated_at';
     const TABLE_MATCHES = 'opentt_matches';
     const TABLE_GAMES = 'opentt_games';
     const TABLE_SETS = 'opentt_sets';
