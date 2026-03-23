@@ -84,7 +84,6 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Adjusted ELO visibility to player profile context only (`opentt_player_info`), removing ELO badges from ranking/list cards.
 - Improved player-profile ELO fallback resolution: when page context has no explicit league/season, profile now uses the player’s latest available competition scope instead of defaulting to `1500`.
 - Added admin Settings toggle for ELO system (enable/disable): when disabled, ELO updates/backfill are skipped and player-profile ELO display is hidden.
-- Added OpenTT admin submenu `AI Chat` with WordPress Settings API (`register_setting` + `settings_fields`) for storing `Groq API Key`, with key used only server-side.
 - Added quick score edit workflow in admin `Utakmice` list (`Quick rezultat`) so home/away score can be updated directly from the list page without opening full match edit.
 - Changed default ELO setting to disabled (`OFF`) for fresh installs unless explicitly enabled in Settings.
 - Added new global personalization color `Boja zaglavlja tabela` and wired all frontend table-header surfaces (`thead` tint previously hardcoded as `rgba(8, 30, 82, 0.32)`) to this setting.
@@ -152,20 +151,6 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Styled `Trending` discovery block with the same fire gradient palette as the trending icon and added subtle pulse animation to increase visual prominence.
 - Center-aligned league/date metadata under match rows in both discovery and regular search results, and added fuzzy typo-tolerant matching for near-miss queries (for example small misspellings like `bubudinac` can still surface `bubušinac`).
 - Added inline typo helper under search input: when query looks misspelled, search now shows `Da li ste mislili "..."?` with clickable suggestion that reruns results instantly.
-- Added new `opentt_ai` shortcode with minimal dark chat UI (messages, input, send button), AJAX loading/error states, and secure server-side Groq chat-completions proxy (`llama3-8b-8192`).
-- Updated `opentt_ai` UX to icon-trigger + fullscreen overlay (search-like), with auto icon discovery from `assets/icons` (`ai-icon.svg`/`chat-icon.svg` fallback), Serbian UI labels/messages, and improved frontend error surfacing from real API responses.
-- Added strict Groq API key validation on save (`gsk_` format + live `/models` connectivity check), with admin success/error notices and safe fallback to previous key on failed verification.
-- Updated `opentt_ai` model handling to use `llama-3.1-8b-instant` as default (replacing deprecated model usage), with admin-selectable model option.
-- Added dynamic Groq model catalog in AI settings (`/models` fetch + manual refresh button) so site owners can choose from currently available models tied to their API key.
-- Upgraded `opentt_ai` to context-aware tool-calling flow: Groq now receives tools (`get_club_position`, `get_last_match`, `get_next_match`), plugin executes secure backend data functions against OpenTT DB, returns tool results to AI, and only then produces final user answer (no guessing for club/ranking/match questions).
-- Extended `opentt_ai` conversational intelligence and coverage: added persistent chat-history context between turns (follow-up references like `njihov sastav` now resolve correctly), expanded tools for players/squads/global entity search, added visible `STKB.AI razmišlja...` loading state, and redesigned chat bubbles to clear left/right conversation layout (AI left with icon, user right).
-- Fixed `opentt_ai` mobile overlay reliability by rendering panel/backdrop at document `body` level with stronger z-index layering, preventing theme/container clipping on phones.
-- Fixed `opentt_ai` post-refactor regressions: message bubbles now render correctly after body-level overlay mount (panel-scoped message renderer), and mobile toggle handling now avoids touch/click double-fire race that could instantly close overlay.
-- Improved `opentt_ai` mobile UX by forcing 16px chat-input font size (prevents browser auto-zoom on focus) and refined loading microcopy (`STKB.AI razmišlja...`).
-- Hardened `opentt_ai` answer reliability: context-aware tool-calling now supports multi-step tool rounds with graceful fallback to tool summaries, and backend now returns concrete AI error reasons instead of generic empty-response failures.
-- Added `opentt_ai` defensive fallback for Groq function-call validation errors (for example unsupported tool attempts like `brave_search`): plugin now resolves club context from conversation and serves deterministic DB-backed replies from local OpenTT tools instead of failing with empty/400 responses.
-- Added local FAQ embeddings layer for `opentt_ai` (safe/common questions): semantic matching via cosine similarity over lightweight in-plugin vectors now serves immediate stable answers for frequent setup/help intents before model invocation.
-- Expanded `opentt_ai` domain coverage with local-first backend tools for full OpenTT context (`get_club_team_count`, `get_site_overview`) and improved intent routing for multi-team club questions (for example `da li imaju više ekipa`) before any model response.
 
 ## Releases
 
