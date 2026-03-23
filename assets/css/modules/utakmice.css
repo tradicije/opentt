@@ -714,6 +714,10 @@ a.opentt-grid-cal-preview-more:focus {
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group {
   gap: 8px;
+  padding: 8px 10px 4px;
+  border: 1px solid rgba(142, 197, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(2, 16, 46, 0.62);
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group-items {
@@ -721,8 +725,8 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-heading-compact {
-  margin: 8px 0 2px;
-  padding: 8px 10px;
+  margin: 0 0 2px;
+  padding: 7px 9px;
   border-radius: 8px;
   background: rgba(3, 18, 52, 0.9);
   border: 1px solid rgba(142, 197, 255, 0.26);
@@ -737,7 +741,7 @@ a.opentt-grid-cal-preview-more:focus {
   border: 0;
   border-radius: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 7px 2px;
+  padding: 4px 1px;
   background: transparent;
   box-shadow: none;
 }
@@ -762,7 +766,7 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-item-teams {
-  gap: 4px;
+  gap: 2px;
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team {
