@@ -1400,8 +1400,18 @@ a.opentt-data-updated-user:focus {
   }
 
   .opentt-data-updated--center {
-    width: auto;
+    width: 100%;
     max-width: calc(100vw - 24px);
+    margin-left: 0;
+    margin-right: 0;
+    align-items: flex-start;
+  }
+
+  .opentt-data-updated--center .opentt-data-updated-row--label,
+  .opentt-data-updated--center .opentt-data-updated-row--user,
+  .opentt-data-updated--center .opentt-data-updated-user {
+    justify-content: flex-start;
+    text-align: left;
   }
 }
 
