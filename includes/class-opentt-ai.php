@@ -43,7 +43,7 @@ final class OpenTT_AI
     const AJAX_ACTION = 'opentt_ai_chat';
     const MODELS_TRANSIENT_KEY = 'opentt_ai_groq_models_cache';
     const DEFAULT_MODEL = 'llama-3.1-8b-instant';
-    const SYSTEM_PROMPT = 'You are an assistant for a Serbian table tennis platform. ALWAYS use tools when user asks about matches, rankings, clubs, players, squads, or schedules. Never guess. Use prior conversation context to resolve references like "oni", "njihov", or "taj klub".';
+    const SYSTEM_PROMPT = 'You are an assistant for a Serbian table tennis platform. ALWAYS use tools when user asks about matches, rankings, clubs, players, squads, or schedules. Never guess. Use prior conversation context to resolve references like "oni", "njihov", or "taj klub". IMPORTANT: You may call ONLY these tools: get_club_position, get_last_match, get_next_match, get_club_squad, get_player_info, search_entities. Never call any other tool names.';
 
     public static function register()
     {
@@ -353,10 +353,20 @@ final class OpenTT_AI
         for ($round = 0; $round < 3; $round++) {
             $response = self::call_groq_chat_completion($api_key, $model, $messages, $tools, 'auto', 20);
             if (!is_array($response)) {
+                $fallback = self::generate_local_tool_fallback_reply($user_message, $history);
+                if ($fallback !== '') {
+                    return ['ok' => true, 'reply' => $fallback];
+                }
                 return ['ok' => false, 'message' => 'AI servis trenutno nije dostupan.'];
             }
             if (!empty($response['error']) && is_array($response['error'])) {
                 $message = trim((string) ($response['error']['message'] ?? 'Greška AI servisa.'));
+                if (self::is_tool_call_error_message($message)) {
+                    $fallback = self::generate_local_tool_fallback_reply($user_message, $history);
+                    if ($fallback !== '') {
+                        return ['ok' => true, 'reply' => $fallback];
+                    }
+                }
                 return ['ok' => false, 'message' => $message];
             }
 
@@ -418,7 +428,152 @@ final class OpenTT_AI
         if (!empty($tool_summaries)) {
             return ['ok' => true, 'reply' => implode(' ', array_values(array_unique($tool_summaries)))];
         }
+        $fallback = self::generate_local_tool_fallback_reply($user_message, $history);
+        if ($fallback !== '') {
+            return ['ok' => true, 'reply' => $fallback];
+        }
         return ['ok' => false, 'message' => 'AI nije uspeo da generiše odgovor posle obrade alata.'];
+    }
+
+    private static function is_tool_call_error_message($message)
+    {
+        $message = self::fold_text_for_match((string) $message);
+        if ($message === '') {
+            return false;
+        }
+        return (
+            strpos($message, 'tool call validation failed') !== false ||
+            strpos($message, 'failed to call a function') !== false ||
+            strpos($message, 'not in request.tools') !== false
+        );
+    }
+
+    private static function generate_local_tool_fallback_reply($user_message, array $history = [])
+    {
+        $question = trim((string) $user_message);
+        if ($question === '') {
+            return '';
+        }
+        $club_name = self::resolve_club_name_from_conversation($question, $history);
+        $q = self::fold_text_for_match($question);
+
+        $asks_position = (strpos($q, 'tabel') !== false || strpos($q, 'pozic') !== false || strpos($q, 'mesto') !== false || strpos($q, 'rang') !== false);
+        $asks_last = (strpos($q, 'posled') !== false || strpos($q, 'zadnj') !== false || strpos($q, 'rezultat') !== false);
+        $asks_next = (strpos($q, 'sledec') !== false || strpos($q, 'slede') !== false || strpos($q, 'naredn') !== false || strpos($q, 'kada') !== false || strpos($q, 'termin') !== false);
+        $asks_squad = (strpos($q, 'sastav') !== false || strpos($q, 'igrac') !== false || strpos($q, 'postava') !== false);
+        $asks_about = (strpos($q, 'sta znas') !== false || strpos($q, 'info') !== false || strpos($q, 'o ') !== false);
+
+        if ($club_name === '') {
+            return 'Nisam uspeo da prepoznam klub. Napiši tačan naziv kluba (na primer: STK Bubušinac).';
+        }
+
+        $parts = [];
+        if ($asks_position) {
+            $r = self::tool_get_club_position($club_name);
+            if (!empty($r['ok'])) {
+                $parts[] = (string) ($r['summary'] ?? '');
+            }
+        }
+        if ($asks_last) {
+            $r = self::tool_get_last_match($club_name);
+            if (!empty($r['ok'])) {
+                $parts[] = (string) ($r['summary'] ?? '');
+            }
+        }
+        if ($asks_next) {
+            $r = self::tool_get_next_match($club_name);
+            if (!empty($r['ok'])) {
+                $parts[] = (string) ($r['summary'] ?? '');
+            }
+        }
+        if ($asks_squad) {
+            $r = self::tool_get_club_squad($club_name);
+            if (!empty($r['ok'])) {
+                $players = isset($r['players']) && is_array($r['players']) ? $r['players'] : [];
+                $parts[] = 'Sastav: ' . implode(', ', array_slice($players, 0, 12)) . (count($players) > 12 ? '...' : '.');
+            }
+        }
+
+        if (empty($parts) && $asks_about) {
+            $r1 = self::tool_get_club_position($club_name);
+            if (!empty($r1['ok'])) {
+                $parts[] = (string) ($r1['summary'] ?? '');
+            }
+            $r2 = self::tool_get_last_match($club_name);
+            if (!empty($r2['ok'])) {
+                $parts[] = (string) ($r2['summary'] ?? '');
+            }
+            $r3 = self::tool_get_next_match($club_name);
+            if (!empty($r3['ok'])) {
+                $parts[] = (string) ($r3['summary'] ?? '');
+            }
+        }
+
+        $parts = array_values(array_filter(array_map('trim', $parts)));
+        if (!empty($parts)) {
+            return implode(' ', $parts);
+        }
+
+        $default = self::tool_get_last_match($club_name);
+        if (!empty($default['ok'])) {
+            return (string) ($default['summary'] ?? '');
+        }
+        return 'Trenutno nemam dovoljno podataka za taj upit.';
+    }
+
+    private static function resolve_club_name_from_conversation($question, array $history = [])
+    {
+        $candidate = self::extract_club_name_candidate($question);
+        if ($candidate !== '') {
+            return $candidate;
+        }
+
+        for ($i = count($history) - 1; $i >= 0; $i--) {
+            $h = isset($history[$i]) && is_array($history[$i]) ? $history[$i] : [];
+            $content = trim((string) ($h['content'] ?? ''));
+            if ($content === '') {
+                continue;
+            }
+            $candidate = self::extract_club_name_candidate($content);
+            if ($candidate !== '') {
+                return $candidate;
+            }
+        }
+        return '';
+    }
+
+    private static function extract_club_name_candidate($text)
+    {
+        $text = trim((string) $text);
+        if ($text === '') {
+            return '';
+        }
+        $direct = self::find_club_by_name($text);
+        if (!empty($direct['title'])) {
+            return (string) $direct['title'];
+        }
+
+        $tokens = preg_split('/[\s,.;:!?()]+/u', $text) ?: [];
+        $tokens = array_values(array_filter(array_map('trim', $tokens), 'strlen'));
+        $n = count($tokens);
+        if ($n === 0) {
+            return '';
+        }
+        $max_len = min(5, $n);
+        for ($len = $max_len; $len >= 1; $len--) {
+            for ($start = 0; $start <= ($n - $len); $start++) {
+                $slice = array_slice($tokens, $start, $len);
+                $phrase = trim(implode(' ', $slice));
+                if ($phrase === '') {
+                    continue;
+                }
+                $row = self::find_club_by_name($phrase);
+                if (!empty($row['title'])) {
+                    return (string) $row['title'];
+                }
+            }
+        }
+        return '';
     }
 
     private static function build_tools_schema()
