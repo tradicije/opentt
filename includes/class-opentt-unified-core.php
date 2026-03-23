@@ -6584,10 +6584,10 @@ HTML;
         if ($type === 'player') {
             $club_id = self::get_player_club_id($entity_id);
             $club_name = $club_id > 0 ? (string) get_the_title($club_id) : '';
-            $meta = trim(($club_name !== '' ? $club_name . ' • ' : '') . $count . ' klikova');
+            $meta = trim(($club_name !== '' ? $club_name . ' • ' : '') . self::search_click_count_label($count));
             $thumb = self::search_post_thumb_url($entity_id, 'assets/img/fallback-player.png');
         } else {
-            $meta = $count . ' klikova';
+            $meta = self::search_click_count_label($count);
             $thumb = self::search_post_thumb_url($entity_id, 'assets/img/fallback-club.png');
         }
 
@@ -6599,6 +6599,20 @@ HTML;
             'entityType' => $type,
             'entityId' => $entity_id,
         ];
+    }
+
+    private static function search_click_count_label($count)
+    {
+        $count = max(0, intval($count));
+        $mod10 = $count % 10;
+        $mod100 = $count % 100;
+        if ($mod10 === 1 && $mod100 !== 11) {
+            return $count . ' klik';
+        }
+        if (in_array($mod10, [2, 3, 4], true) && !in_array($mod100, [12, 13, 14], true)) {
+            return $count . ' klika';
+        }
+        return $count . ' klikova';
     }
 
     private static function search_players_group($query, $limit, array $context, array $competition_club_ids, array $match_player_ids)
