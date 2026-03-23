@@ -304,13 +304,17 @@ final class OpenTT_AI
             wp_send_json_error(['message' => 'Groq API ključ nije podešen u administraciji.'], 500);
         }
         $model = self::get_selected_model();
-        $assistant = self::generate_context_aware_reply($api_key, $model, $message, $history);
-        if ($assistant === '') {
-            wp_send_json_error(['message' => 'AI odgovor je prazan.'], 502);
+        $assistant_result = self::generate_context_aware_reply($api_key, $model, $message, $history);
+        if (!is_array($assistant_result) || empty($assistant_result['ok'])) {
+            $error_message = is_array($assistant_result) ? trim((string) ($assistant_result['message'] ?? '')) : '';
+            if ($error_message === '') {
+                $error_message = 'AI odgovor je prazan.';
+            }
+            wp_send_json_error(['message' => $error_message], 502);
         }
 
         wp_send_json_success([
-            'reply' => $assistant,
+            'reply' => trim((string) ($assistant_result['reply'] ?? '')),
         ]);
     }
 
@@ -345,62 +349,76 @@ final class OpenTT_AI
         ];
         $tools = self::build_tools_schema();
 
-        $first = self::call_groq_chat_completion($api_key, $model, $messages, $tools, 'auto', 20);
-        if (!is_array($first) || !empty($first['error'])) {
-            return '';
-        }
-
-        $assistant_message = isset($first['choices'][0]['message']) && is_array($first['choices'][0]['message'])
-            ? $first['choices'][0]['message']
-            : [];
-        $tool_calls = isset($assistant_message['tool_calls']) && is_array($assistant_message['tool_calls'])
-            ? $assistant_message['tool_calls']
-            : [];
-
-        if (empty($tool_calls)) {
-            return trim((string) ($assistant_message['content'] ?? ''));
-        }
-
-        $messages[] = [
-            'role' => 'assistant',
-            'content' => isset($assistant_message['content']) ? (string) $assistant_message['content'] : '',
-            'tool_calls' => $tool_calls,
-        ];
-
-        foreach ($tool_calls as $tool_call) {
-            if (!is_array($tool_call)) {
-                continue;
+        $tool_summaries = [];
+        for ($round = 0; $round < 3; $round++) {
+            $response = self::call_groq_chat_completion($api_key, $model, $messages, $tools, 'auto', 20);
+            if (!is_array($response)) {
+                return ['ok' => false, 'message' => 'AI servis trenutno nije dostupan.'];
             }
-            $call_id = trim((string) ($tool_call['id'] ?? ''));
-            $fn = isset($tool_call['function']) && is_array($tool_call['function']) ? $tool_call['function'] : [];
-            $name = sanitize_key((string) ($fn['name'] ?? ''));
-            $args_raw = (string) ($fn['arguments'] ?? '');
-            $args = json_decode($args_raw, true);
-            if (!is_array($args)) {
-                $args = [];
+            if (!empty($response['error']) && is_array($response['error'])) {
+                $message = trim((string) ($response['error']['message'] ?? 'Greška AI servisa.'));
+                return ['ok' => false, 'message' => $message];
             }
-            $result = self::execute_tool_call($name, $args);
 
-            $tool_message = [
-                'role' => 'tool',
-                'name' => $name,
-                'content' => wp_json_encode($result),
+            $assistant_message = isset($response['choices'][0]['message']) && is_array($response['choices'][0]['message'])
+                ? $response['choices'][0]['message']
+                : [];
+            $content = trim((string) ($assistant_message['content'] ?? ''));
+            $tool_calls = isset($assistant_message['tool_calls']) && is_array($assistant_message['tool_calls'])
+                ? $assistant_message['tool_calls']
+                : [];
+
+            if (empty($tool_calls)) {
+                if ($content !== '') {
+                    return ['ok' => true, 'reply' => $content];
+                }
+                if (!empty($tool_summaries)) {
+                    return ['ok' => true, 'reply' => implode(' ', array_values(array_unique($tool_summaries)))];
+                }
+                return ['ok' => false, 'message' => 'AI odgovor je prazan.'];
+            }
+
+            $messages[] = [
+                'role' => 'assistant',
+                'content' => isset($assistant_message['content']) ? (string) $assistant_message['content'] : '',
+                'tool_calls' => $tool_calls,
             ];
-            if ($call_id !== '') {
-                $tool_message['tool_call_id'] = $call_id;
+
+            foreach ($tool_calls as $tool_call) {
+                if (!is_array($tool_call)) {
+                    continue;
+                }
+                $call_id = trim((string) ($tool_call['id'] ?? ''));
+                $fn = isset($tool_call['function']) && is_array($tool_call['function']) ? $tool_call['function'] : [];
+                $name = sanitize_key((string) ($fn['name'] ?? ''));
+                $args_raw = (string) ($fn['arguments'] ?? '');
+                $args = json_decode($args_raw, true);
+                if (!is_array($args)) {
+                    $args = [];
+                }
+                $result = self::execute_tool_call($name, $args);
+                if (is_array($result)) {
+                    $summary = trim((string) ($result['summary'] ?? ''));
+                    if ($summary !== '') {
+                        $tool_summaries[] = $summary;
+                    }
+                }
+
+                $tool_message = [
+                    'role' => 'tool',
+                    'content' => wp_json_encode($result),
+                ];
+                if ($call_id !== '') {
+                    $tool_message['tool_call_id'] = $call_id;
+                }
+                $messages[] = $tool_message;
             }
-            $messages[] = $tool_message;
         }
 
-        $second = self::call_groq_chat_completion($api_key, $model, $messages, $tools, 'auto', 20);
-        if (!is_array($second) || !empty($second['error'])) {
-            return '';
+        if (!empty($tool_summaries)) {
+            return ['ok' => true, 'reply' => implode(' ', array_values(array_unique($tool_summaries)))];
         }
-
-        $final_message = isset($second['choices'][0]['message']) && is_array($second['choices'][0]['message'])
-            ? $second['choices'][0]['message']
-            : [];
-        return trim((string) ($final_message['content'] ?? ''));
+        return ['ok' => false, 'message' => 'AI nije uspeo da generiše odgovor posle obrade alata.'];
     }
 
     private static function build_tools_schema()
@@ -1327,7 +1345,7 @@ final class OpenTT_AI
             .opentt-ai-row.is-error .opentt-ai-msg { background: rgba(255,75,75,.16); border: 1px solid rgba(255,75,75,.4); border-bottom-left-radius: 4px; }
             .opentt-ai-msg.is-thinking { opacity: .86; font-style: italic; }
             .opentt-ai-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-            .opentt-ai-input { min-height: 42px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: #0a1d4a; color: #fff; padding: 0 12px; }
+            .opentt-ai-input { min-height: 42px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: #0a1d4a; color: #fff; padding: 0 12px; font-size: 16px; }
             .opentt-ai-send { min-height: 42px; border-radius: 8px; border: 1px solid rgba(61,124,255,.55); background: #2c63d6; color: #fff; padding: 0 14px; cursor: pointer; font-weight: 600; }
             .opentt-ai-send[disabled] { opacity: .7; cursor: not-allowed; }
             body.opentt-ai-open, html.opentt-ai-open { overflow: hidden; height: 100%; overscroll-behavior: none; }
@@ -1337,6 +1355,7 @@ final class OpenTT_AI
                 .opentt-ai-label { font-size: 24px; }
                 .opentt-ai-messages { max-height: 58dvh; padding: 10px; }
                 .opentt-ai-msg { max-width: 88%; font-size: 13px; }
+                .opentt-ai-input { font-size: 16px; }
             }
         </style>
         <script>

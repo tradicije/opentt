@@ -1225,7 +1225,7 @@
       if (thinkingNode) {
         return;
       }
-      thinkingNode = appendMessage("assistant", "STKB.AI razmislja...", true);
+      thinkingNode = appendMessage("assistant", "STKB.AI razmišlja...", true);
     }
 
     function hideThinking() {

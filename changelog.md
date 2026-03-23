@@ -161,6 +161,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Extended `opentt_ai` conversational intelligence and coverage: added persistent chat-history context between turns (follow-up references like `njihov sastav` now resolve correctly), expanded tools for players/squads/global entity search, added visible `STKB.AI razmišlja...` loading state, and redesigned chat bubbles to clear left/right conversation layout (AI left with icon, user right).
 - Fixed `opentt_ai` mobile overlay reliability by rendering panel/backdrop at document `body` level with stronger z-index layering, preventing theme/container clipping on phones.
 - Fixed `opentt_ai` post-refactor regressions: message bubbles now render correctly after body-level overlay mount (panel-scoped message renderer), and mobile toggle handling now avoids touch/click double-fire race that could instantly close overlay.
+- Improved `opentt_ai` mobile UX by forcing 16px chat-input font size (prevents browser auto-zoom on focus) and refined loading microcopy (`STKB.AI razmišlja...`).
+- Hardened `opentt_ai` answer reliability: context-aware tool-calling now supports multi-step tool rounds with graceful fallback to tool summaries, and backend now returns concrete AI error reasons instead of generic empty-response failures.
 
 ## Releases
 
