@@ -157,6 +157,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added strict Groq API key validation on save (`gsk_` format + live `/models` connectivity check), with admin success/error notices and safe fallback to previous key on failed verification.
 - Updated `opentt_ai` model handling to use `llama-3.1-8b-instant` as default (replacing deprecated model usage), with admin-selectable model option.
 - Added dynamic Groq model catalog in AI settings (`/models` fetch + manual refresh button) so site owners can choose from currently available models tied to their API key.
+- Upgraded `opentt_ai` to context-aware tool-calling flow: Groq now receives tools (`get_club_position`, `get_last_match`, `get_next_match`), plugin executes secure backend data functions against OpenTT DB, returns tool results to AI, and only then produces final user answer (no guessing for club/ranking/match questions).
 
 ## Releases
 

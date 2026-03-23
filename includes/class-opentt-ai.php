@@ -13,6 +13,27 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!function_exists('opentt_get_club_position')) {
+    function opentt_get_club_position($club_name)
+    {
+        return OpenTT_AI::tool_get_club_position($club_name);
+    }
+}
+
+if (!function_exists('opentt_get_last_match')) {
+    function opentt_get_last_match($club_name)
+    {
+        return OpenTT_AI::tool_get_last_match($club_name);
+    }
+}
+
+if (!function_exists('opentt_get_next_match')) {
+    function opentt_get_next_match($club_name)
+    {
+        return OpenTT_AI::tool_get_next_match($club_name);
+    }
+}
+
 final class OpenTT_AI
 {
     const OPTION_API_KEY = 'opentt_ai_groq_api_key';
@@ -22,6 +43,7 @@ final class OpenTT_AI
     const AJAX_ACTION = 'opentt_ai_chat';
     const MODELS_TRANSIENT_KEY = 'opentt_ai_groq_models_cache';
     const DEFAULT_MODEL = 'llama-3.1-8b-instant';
+    const SYSTEM_PROMPT = 'You are an assistant for a Serbian table tennis platform. ALWAYS use tools when user asks about matches, rankings, or clubs. Never guess.';
 
     public static function register()
     {
@@ -251,19 +273,7 @@ final class OpenTT_AI
             wp_send_json_error(['message' => 'Groq API ključ nije podešen u administraciji.'], 500);
         }
         $model = self::get_selected_model();
-        $json = self::call_groq_chat_completion($api_key, $model, $message, 20);
-        if (!is_array($json)) {
-            wp_send_json_error(['message' => 'AI servis trenutno nije dostupan.'], 502);
-        }
-        if (!empty($json['error']) && is_array($json['error'])) {
-            $err = trim((string) ($json['error']['message'] ?? 'Greška AI servisa.'));
-            wp_send_json_error(['message' => $err], 502);
-        }
-
-        $assistant = '';
-        if (isset($json['choices'][0]['message']['content'])) {
-            $assistant = trim((string) $json['choices'][0]['message']['content']);
-        }
+        $assistant = self::generate_context_aware_reply($api_key, $model, $message);
         if ($assistant === '') {
             wp_send_json_error(['message' => 'AI odgovor je prazan.'], 502);
         }
@@ -271,6 +281,149 @@ final class OpenTT_AI
         wp_send_json_success([
             'reply' => $assistant,
         ]);
+    }
+
+    private static function generate_context_aware_reply($api_key, $model, $user_message)
+    {
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => self::SYSTEM_PROMPT,
+            ],
+            [
+                'role' => 'user',
+                'content' => (string) $user_message,
+            ],
+        ];
+        $tools = self::build_tools_schema();
+
+        $first = self::call_groq_chat_completion($api_key, $model, $messages, $tools, 'auto', 20);
+        if (!is_array($first) || !empty($first['error'])) {
+            return '';
+        }
+
+        $assistant_message = isset($first['choices'][0]['message']) && is_array($first['choices'][0]['message'])
+            ? $first['choices'][0]['message']
+            : [];
+        $tool_calls = isset($assistant_message['tool_calls']) && is_array($assistant_message['tool_calls'])
+            ? $assistant_message['tool_calls']
+            : [];
+
+        if (empty($tool_calls)) {
+            return trim((string) ($assistant_message['content'] ?? ''));
+        }
+
+        $messages[] = [
+            'role' => 'assistant',
+            'content' => isset($assistant_message['content']) ? (string) $assistant_message['content'] : '',
+            'tool_calls' => $tool_calls,
+        ];
+
+        foreach ($tool_calls as $tool_call) {
+            if (!is_array($tool_call)) {
+                continue;
+            }
+            $call_id = trim((string) ($tool_call['id'] ?? ''));
+            $fn = isset($tool_call['function']) && is_array($tool_call['function']) ? $tool_call['function'] : [];
+            $name = sanitize_key((string) ($fn['name'] ?? ''));
+            $args_raw = (string) ($fn['arguments'] ?? '');
+            $args = json_decode($args_raw, true);
+            if (!is_array($args)) {
+                $args = [];
+            }
+            $result = self::execute_tool_call($name, $args);
+
+            $tool_message = [
+                'role' => 'tool',
+                'name' => $name,
+                'content' => wp_json_encode($result),
+            ];
+            if ($call_id !== '') {
+                $tool_message['tool_call_id'] = $call_id;
+            }
+            $messages[] = $tool_message;
+        }
+
+        $second = self::call_groq_chat_completion($api_key, $model, $messages, $tools, 'auto', 20);
+        if (!is_array($second) || !empty($second['error'])) {
+            return '';
+        }
+
+        $final_message = isset($second['choices'][0]['message']) && is_array($second['choices'][0]['message'])
+            ? $second['choices'][0]['message']
+            : [];
+        return trim((string) ($final_message['content'] ?? ''));
+    }
+
+    private static function build_tools_schema()
+    {
+        return [
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_club_position',
+                    'description' => 'Get current league table position of a club',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'club_name' => ['type' => 'string'],
+                        ],
+                        'required' => ['club_name'],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_last_match',
+                    'description' => 'Get last match result for a club',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'club_name' => ['type' => 'string'],
+                        ],
+                        'required' => ['club_name'],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_next_match',
+                    'description' => 'Get next scheduled match',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'club_name' => ['type' => 'string'],
+                        ],
+                        'required' => ['club_name'],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    private static function execute_tool_call($name, array $args)
+    {
+        $club_name = isset($args['club_name']) ? sanitize_text_field((string) $args['club_name']) : '';
+        if ($club_name === '') {
+            return ['ok' => false, 'error' => 'Nedostaje club_name argument.'];
+        }
+
+        if ($name === 'get_club_position') {
+            return opentt_get_club_position($club_name);
+        }
+        if ($name === 'get_last_match') {
+            return opentt_get_last_match($club_name);
+        }
+        if ($name === 'get_next_match') {
+            return opentt_get_next_match($club_name);
+        }
+
+        return ['ok' => false, 'error' => 'Nepoznat tool: ' . $name];
     }
 
     private static function resolve_icon_url()
@@ -393,11 +546,19 @@ final class OpenTT_AI
         return ['ok' => true, 'models' => $models, 'message' => 'ok'];
     }
 
-    private static function call_groq_chat_completion($api_key, $model, $message, $timeout = 20)
+    private static function call_groq_chat_completion($api_key, $model, array $messages, array $tools = [], $tool_choice = 'auto', $timeout = 20)
     {
         $model = trim((string) $model);
         if ($model === '') {
             $model = self::DEFAULT_MODEL;
+        }
+        $body = [
+            'model' => $model,
+            'messages' => $messages,
+        ];
+        if (!empty($tools)) {
+            $body['tools'] = $tools;
+            $body['tool_choice'] = $tool_choice;
         }
         $response = wp_remote_post(
             'https://api.groq.com/openai/v1/chat/completions',
@@ -407,19 +568,7 @@ final class OpenTT_AI
                     'Authorization' => 'Bearer ' . $api_key,
                     'Content-Type' => 'application/json',
                 ],
-                'body' => wp_json_encode([
-                    'model' => $model,
-                    'messages' => [
-                        [
-                            'role' => 'system',
-                            'content' => 'You are a helpful assistant for a table tennis website. Answer briefly and clearly.',
-                        ],
-                        [
-                            'role' => 'user',
-                            'content' => (string) $message,
-                        ],
-                    ],
-                ]),
+                'body' => wp_json_encode($body),
             ]
         );
 
@@ -445,6 +594,332 @@ final class OpenTT_AI
             return ['error' => ['message' => $message]];
         }
         return $json;
+    }
+
+    public static function tool_get_club_position($club_name)
+    {
+        global $wpdb;
+        $club = self::find_club_by_name($club_name);
+        if (empty($club)) {
+            return ['ok' => false, 'error' => 'Klub nije pronađen.'];
+        }
+        $club_id = intval($club['id']);
+        $competition = OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_latest_competition_for_club($club_id);
+        if (!is_array($competition) || empty($competition['liga_slug'])) {
+            return ['ok' => false, 'error' => 'Nema dostupnih podataka o ligi za klub.'];
+        }
+
+        $liga_slug = sanitize_title((string) ($competition['liga_slug'] ?? ''));
+        $sezona_slug = sanitize_title((string) ($competition['sezona_slug'] ?? ''));
+        $table = OpenTT_Unified_Core::db_table('matches');
+        if (!self::table_exists($table)) {
+            return ['ok' => false, 'error' => 'Tabela utakmica nije dostupna.'];
+        }
+
+        $where = ['liga_slug=%s', 'home_club_post_id > 0', 'away_club_post_id > 0', '(played=1 OR home_score<>0 OR away_score<>0)'];
+        $params = [$liga_slug];
+        if ($sezona_slug !== '') {
+            $where[] = 'sezona_slug=%s';
+            $params[] = $sezona_slug;
+        }
+        $sql = "SELECT home_club_post_id, away_club_post_id, home_score, away_score
+                FROM {$table}
+                WHERE " . implode(' AND ', $where);
+        $rows = $wpdb->get_results($wpdb->prepare($sql, $params));
+        if (!is_array($rows) || empty($rows)) {
+            return ['ok' => false, 'error' => 'Nema odigranih mečeva za tabelu.'];
+        }
+
+        $stat = [];
+        foreach ($rows as $r) {
+            $home = intval($r->home_club_post_id ?? 0);
+            $away = intval($r->away_club_post_id ?? 0);
+            if ($home <= 0 || $away <= 0) {
+                continue;
+            }
+            if (!isset($stat[$home])) {
+                $stat[$home] = ['club_id' => $home, 'played' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'for' => 0, 'against' => 0, 'points' => 0];
+            }
+            if (!isset($stat[$away])) {
+                $stat[$away] = ['club_id' => $away, 'played' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'for' => 0, 'against' => 0, 'points' => 0];
+            }
+
+            $hs = intval($r->home_score ?? 0);
+            $as = intval($r->away_score ?? 0);
+            $stat[$home]['played']++;
+            $stat[$away]['played']++;
+            $stat[$home]['for'] += $hs;
+            $stat[$home]['against'] += $as;
+            $stat[$away]['for'] += $as;
+            $stat[$away]['against'] += $hs;
+            if ($hs > $as) {
+                $stat[$home]['wins']++;
+                $stat[$home]['points'] += 2;
+                $stat[$away]['losses']++;
+            } elseif ($hs < $as) {
+                $stat[$away]['wins']++;
+                $stat[$away]['points'] += 2;
+                $stat[$home]['losses']++;
+            } else {
+                $stat[$home]['draws']++;
+                $stat[$away]['draws']++;
+                $stat[$home]['points']++;
+                $stat[$away]['points']++;
+            }
+        }
+
+        $standings = array_values($stat);
+        usort($standings, static function ($a, $b) {
+            $cmp = intval($b['points']) <=> intval($a['points']);
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+            $cmp = intval($b['wins']) <=> intval($a['wins']);
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+            $a_diff = intval($a['for']) - intval($a['against']);
+            $b_diff = intval($b['for']) - intval($b['against']);
+            $cmp = $b_diff <=> $a_diff;
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+            $cmp = intval($b['for']) <=> intval($a['for']);
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+            return strnatcasecmp((string) get_the_title(intval($a['club_id'])), (string) get_the_title(intval($b['club_id'])));
+        });
+
+        $position = 0;
+        $row = null;
+        foreach ($standings as $i => $item) {
+            if (intval($item['club_id']) === $club_id) {
+                $position = $i + 1;
+                $row = $item;
+                break;
+            }
+        }
+        if ($position <= 0 || !is_array($row)) {
+            return ['ok' => false, 'error' => 'Klub nije pronađen u aktuelnoj tabeli.'];
+        }
+
+        return [
+            'ok' => true,
+            'club_name' => (string) $club['title'],
+            'liga_slug' => $liga_slug,
+            'sezona_slug' => $sezona_slug,
+            'position' => $position,
+            'played' => intval($row['played']),
+            'wins' => intval($row['wins']),
+            'draws' => intval($row['draws']),
+            'losses' => intval($row['losses']),
+            'points' => intval($row['points']),
+            'summary' => sprintf('%s se trenutno nalazi na %d. mestu.', (string) $club['title'], $position),
+        ];
+    }
+
+    public static function tool_get_last_match($club_name)
+    {
+        global $wpdb;
+        $club = self::find_club_by_name($club_name);
+        if (empty($club)) {
+            return ['ok' => false, 'error' => 'Klub nije pronađen.'];
+        }
+        $club_id = intval($club['id']);
+        $table = OpenTT_Unified_Core::db_table('matches');
+        if (!self::table_exists($table)) {
+            return ['ok' => false, 'error' => 'Tabela utakmica nije dostupna.'];
+        }
+
+        $sql = $wpdb->prepare(
+            "SELECT *
+             FROM {$table}
+             WHERE (home_club_post_id=%d OR away_club_post_id=%d)
+               AND (played=1 OR home_score<>0 OR away_score<>0)
+             ORDER BY match_date DESC, id DESC
+             LIMIT 1",
+            $club_id,
+            $club_id
+        );
+        $row = $wpdb->get_row($sql);
+        if (!$row) {
+            return ['ok' => false, 'error' => 'Nema odigranih mečeva za ovaj klub.'];
+        }
+
+        $home_id = intval($row->home_club_post_id ?? 0);
+        $away_id = intval($row->away_club_post_id ?? 0);
+        $home_name = (string) get_the_title($home_id);
+        $away_name = (string) get_the_title($away_id);
+        $date = OpenTT_Unified_Readonly_Helpers::display_match_date((string) ($row->match_date ?? ''));
+        $result = intval($row->home_score ?? 0) . ':' . intval($row->away_score ?? 0);
+
+        return [
+            'ok' => true,
+            'club_name' => (string) $club['title'],
+            'match' => [
+                'home' => $home_name,
+                'away' => $away_name,
+                'result' => $result,
+                'date' => $date,
+                'liga_slug' => sanitize_title((string) ($row->liga_slug ?? '')),
+                'sezona_slug' => sanitize_title((string) ($row->sezona_slug ?? '')),
+            ],
+            'summary' => sprintf('Poslednja utakmica: %s %s %s (%s).', $home_name, $result, $away_name, $date),
+        ];
+    }
+
+    public static function tool_get_next_match($club_name)
+    {
+        global $wpdb;
+        $club = self::find_club_by_name($club_name);
+        if (empty($club)) {
+            return ['ok' => false, 'error' => 'Klub nije pronađen.'];
+        }
+        $club_id = intval($club['id']);
+        $table = OpenTT_Unified_Core::db_table('matches');
+        if (!self::table_exists($table)) {
+            return ['ok' => false, 'error' => 'Tabela utakmica nije dostupna.'];
+        }
+
+        $now = (string) current_time('mysql');
+        $sql = $wpdb->prepare(
+            "SELECT *
+             FROM {$table}
+             WHERE (home_club_post_id=%d OR away_club_post_id=%d)
+               AND (played=0 OR (home_score=0 AND away_score=0))
+               AND match_date >= %s
+             ORDER BY match_date ASC, id ASC
+             LIMIT 1",
+            $club_id,
+            $club_id,
+            $now
+        );
+        $row = $wpdb->get_row($sql);
+        if (!$row) {
+            return ['ok' => false, 'error' => 'Nema zakazanih narednih mečeva za ovaj klub.'];
+        }
+
+        $home_id = intval($row->home_club_post_id ?? 0);
+        $away_id = intval($row->away_club_post_id ?? 0);
+        $home_name = (string) get_the_title($home_id);
+        $away_name = (string) get_the_title($away_id);
+        $date = OpenTT_Unified_Readonly_Helpers::display_match_date((string) ($row->match_date ?? ''));
+        $time = self::format_match_time((string) ($row->match_date ?? ''));
+        $location = trim((string) ($row->location ?? ''));
+
+        return [
+            'ok' => true,
+            'club_name' => (string) $club['title'],
+            'match' => [
+                'home' => $home_name,
+                'away' => $away_name,
+                'date' => $date,
+                'time' => $time,
+                'location' => $location,
+                'liga_slug' => sanitize_title((string) ($row->liga_slug ?? '')),
+                'sezona_slug' => sanitize_title((string) ($row->sezona_slug ?? '')),
+            ],
+            'summary' => sprintf('Sledeća utakmica: %s - %s, %s %s%s.', $home_name, $away_name, $date, $time !== '' ? $time : '', $location !== '' ? (' @ ' . $location) : ''),
+        ];
+    }
+
+    private static function find_club_by_name($club_name)
+    {
+        global $wpdb;
+        $club_name = trim((string) $club_name);
+        $club_name = sanitize_text_field($club_name);
+        if ($club_name === '') {
+            return [];
+        }
+
+        $exact = get_page_by_title($club_name, OBJECT, 'klub');
+        if ($exact && intval($exact->ID) > 0) {
+            return [
+                'id' => intval($exact->ID),
+                'title' => (string) $exact->post_title,
+            ];
+        }
+
+        $posts_table = $wpdb->posts;
+        $like = '%' . $wpdb->esc_like($club_name) . '%';
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT ID, post_title
+                 FROM {$posts_table}
+                 WHERE post_type='klub'
+                   AND post_status='publish'
+                   AND post_title LIKE %s
+                 ORDER BY post_title ASC
+                 LIMIT 25",
+                $like
+            )
+        );
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+
+        $needle = self::fold_text_for_match($club_name);
+        $best = null;
+        $best_score = -PHP_INT_MAX;
+        foreach ($rows as $row) {
+            $title = trim((string) ($row->post_title ?? ''));
+            if ($title === '') {
+                continue;
+            }
+            $title_fold = self::fold_text_for_match($title);
+            $score = 0;
+            if ($title_fold === $needle) {
+                $score += 300;
+            } elseif (strpos($title_fold, $needle) !== false) {
+                $score += 120;
+            }
+            $dist = function_exists('levenshtein') ? levenshtein($needle, $title_fold) : 99;
+            $score -= min(100, intval($dist * 5));
+            if ($score > $best_score) {
+                $best_score = $score;
+                $best = [
+                    'id' => intval($row->ID ?? 0),
+                    'title' => $title,
+                ];
+            }
+        }
+        return is_array($best) ? $best : [];
+    }
+
+    private static function fold_text_for_match($value)
+    {
+        $value = (string) $value;
+        $map = [
+            'č' => 'c', 'ć' => 'c', 'š' => 's', 'ž' => 'z', 'đ' => 'dj',
+            'Č' => 'c', 'Ć' => 'c', 'Š' => 's', 'Ž' => 'z', 'Đ' => 'dj',
+        ];
+        $out = strtr($value, $map);
+        $out = function_exists('mb_strtolower') ? mb_strtolower($out, 'UTF-8') : strtolower($out);
+        $out = preg_replace('/\s+/u', ' ', $out);
+        return trim((string) $out);
+    }
+
+    private static function format_match_time($match_date)
+    {
+        $match_date = trim((string) $match_date);
+        if ($match_date === '' || !preg_match('/\s(\d{1,2}):(\d{2})(?::\d{2})?$/', $match_date, $m)) {
+            return '';
+        }
+        $hour = str_pad((string) intval($m[1]), 2, '0', STR_PAD_LEFT);
+        $minute = str_pad((string) intval($m[2]), 2, '0', STR_PAD_LEFT);
+        return $hour . ':' . $minute;
+    }
+
+    private static function table_exists($table_name)
+    {
+        global $wpdb;
+        $table_name = (string) $table_name;
+        if ($table_name === '') {
+            return false;
+        }
+        $found = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
+        return $found === $table_name;
     }
 
     private static function extract_api_error_message($raw_body, $status_code = 0)
