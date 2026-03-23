@@ -725,8 +725,8 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-heading-compact {
-  padding: 0px 8px;
-  background:#000a26;
+  padding: 4px 8px;
+  background-color: #000a26;
   border-radius: 8px 8px 0px 0px;
   background: transparent;
   border: 1px solid rgba(142, 197, 255, 0.22);
