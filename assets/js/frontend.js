@@ -489,12 +489,28 @@
         var url = esc(item && item.url ? item.url : "#");
         var meta = esc(item && item.meta ? item.meta : "");
         var thumb = esc(item && item.thumb ? item.thumb : "");
+        var entityType = String(item && item.entityType ? item.entityType : "");
+        var entityId = parseInt(item && item.entityId ? item.entityId : 0, 10);
         var queryItem = String(item && item.query ? item.query : "");
         var queryAttr = queryItem
           ? ' data-opentt-search-query="' + esc(queryItem) + '"'
           : "";
+        var entityTypeAttr = entityType
+          ? ' data-opentt-entity-type="' + esc(entityType) + '"'
+          : "";
+        var entityIdAttr =
+          !isNaN(entityId) && entityId > 0
+            ? ' data-opentt-entity-id="' + String(entityId) + '"'
+            : "";
         var href = queryItem ? "#" : url;
-        html += '<a class="opentt-search-item" href="' + href + '"' + queryAttr + ">";
+        html +=
+          '<a class="opentt-search-item" href="' +
+          href +
+          '"' +
+          queryAttr +
+          entityTypeAttr +
+          entityIdAttr +
+          ">";
         html += '<span class="opentt-search-item-main">';
         if (thumb) {
           html +=
@@ -696,9 +712,10 @@
         });
     }
 
-    function trackSearchTerm(term) {
-      var value = String(term || "").trim();
-      if (!value) {
+    function trackSearchClick(entityType, entityId) {
+      var type = String(entityType || "").trim().toLowerCase();
+      var id = parseInt(entityId || 0, 10);
+      if (!type || isNaN(id) || id <= 0) {
         return;
       }
       var ajaxUrl =
@@ -711,14 +728,28 @@
       var body = new URLSearchParams();
       body.set("action", "opentt_frontend_search");
       body.set("nonce", String(window.openttFrontend.searchNonce || ""));
-      body.set("track_term", value);
+      body.set("track_click_type", type);
+      body.set("track_click_id", String(id));
+
+      var payload = body.toString();
+      if (navigator && typeof navigator.sendBeacon === "function") {
+        try {
+          var blob = new Blob([payload], {
+            type: "application/x-www-form-urlencoded; charset=UTF-8",
+          });
+          navigator.sendBeacon(ajaxUrl, blob);
+          return;
+        } catch (e) {}
+      }
+
       fetch(ajaxUrl, {
         method: "POST",
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
-        body: body.toString(),
+        body: payload,
+        keepalive: true,
       }).catch(function () {});
     }
 
@@ -798,7 +829,6 @@
         }
         input.value = q;
         pushHistoryTerm(q);
-        trackSearchTerm(q);
         runSearch(q);
         return;
       }
@@ -806,10 +836,14 @@
       var link =
         e.target && e.target.closest ? e.target.closest(".opentt-search-item") : null;
       if (link) {
+        var entityType = String(link.getAttribute("data-opentt-entity-type") || "").trim();
+        var entityId = parseInt(link.getAttribute("data-opentt-entity-id") || "0", 10);
+        if (entityType && !isNaN(entityId) && entityId > 0) {
+          trackSearchClick(entityType, entityId);
+        }
         var term = String(input.value || "").trim();
         if (term.length >= minChars) {
           pushHistoryTerm(term);
-          trackSearchTerm(term);
         }
       }
     });
@@ -837,7 +871,6 @@
         return;
       }
       pushHistoryTerm(term);
-      trackSearchTerm(term);
     });
 
     var runSearch = debounce(function (value) {
