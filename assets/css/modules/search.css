@@ -144,6 +144,7 @@ html.opentt-search-open {
 @media (min-width: 900px) {
   .opentt-search-results.opentt-search-has-side-popular {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-auto-flow: row dense;
     column-gap: 12px;
     row-gap: 10px;
   }
