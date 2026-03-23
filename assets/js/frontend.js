@@ -472,6 +472,8 @@
 
     var hasPopularPlayers = false;
     var hasPopularClubs = false;
+    var hasTrending = false;
+    var hasLatestResults = false;
     groups.forEach(function (group) {
       var key = String(group && group.key ? group.key : "");
       var items = Array.isArray(group && group.items) ? group.items : [];
@@ -484,11 +486,21 @@
       if (key === "clubs") {
         hasPopularClubs = true;
       }
+      if (key === "trending") {
+        hasTrending = true;
+      }
+      if (key === "latest_results") {
+        hasLatestResults = true;
+      }
     });
     if (container.classList) {
       container.classList.toggle(
         "opentt-search-has-side-popular",
         hasPopularPlayers && hasPopularClubs
+      );
+      container.classList.toggle(
+        "opentt-search-has-side-discovery",
+        hasTrending && hasLatestResults && hasPopularPlayers && hasPopularClubs
       );
     }
 
@@ -579,6 +591,7 @@
             ? ' data-opentt-entity-id="' + String(entityId) + '"'
             : "";
         var href = queryItem ? "#" : url;
+        var isMatchRow = !!(item && item.matchRow);
         html +=
           '<a class="opentt-search-item" href="' +
           href +
@@ -586,23 +599,56 @@
           queryAttr +
           entityTypeAttr +
           entityIdAttr +
+          (isMatchRow ? ' data-opentt-item-type="match"' : "") +
           ">";
         html += '<span class="opentt-search-item-main">';
         if (groupKey === "trending") {
           html += trendingRankHtml(index + 1);
         }
-        if (thumb) {
-          html +=
-            '<span class="opentt-search-item-thumb"><img src="' +
-            thumb +
-            '" alt="" loading="lazy" decoding="async"></span>';
+        if (isMatchRow && groupKey === "latest_results") {
+          var homeName = esc(item && item.homeName ? item.homeName : "");
+          var awayName = esc(item && item.awayName ? item.awayName : "");
+          var homeThumb = esc(item && item.homeThumb ? item.homeThumb : "");
+          var awayThumb = esc(item && item.awayThumb ? item.awayThumb : "");
+          var scoreLabel = esc(item && item.scoreLabel ? item.scoreLabel : "");
+          var leagueLabel = esc(item && item.leagueLabel ? item.leagueLabel : "");
+          var dateLabel = esc(item && item.dateLabel ? item.dateLabel : "");
+          html += '<span class="opentt-search-match-row">';
+          html += '<span class="opentt-search-match-main">';
+          html += '<span class="opentt-search-match-team is-home">';
+          if (homeThumb) {
+            html += '<span class="opentt-search-item-thumb is-mini"><img src="' + homeThumb + '" alt="" loading="lazy" decoding="async"></span>';
+          }
+          html += '<span class="opentt-search-match-team-name">' + homeName + "</span>";
+          html += "</span>";
+          html += '<span class="opentt-search-match-score">' + scoreLabel + "</span>";
+          html += '<span class="opentt-search-match-team is-away">';
+          if (awayThumb) {
+            html += '<span class="opentt-search-item-thumb is-mini"><img src="' + awayThumb + '" alt="" loading="lazy" decoding="async"></span>';
+          }
+          html += '<span class="opentt-search-match-team-name">' + awayName + "</span>";
+          html += "</span>";
+          html += "</span>";
+          html += '<span class="opentt-search-match-meta">' + leagueLabel;
+          if (dateLabel) {
+            html += " • " + dateLabel;
+          }
+          html += "</span>";
+          html += "</span>";
+        } else {
+          if (thumb) {
+            html +=
+              '<span class="opentt-search-item-thumb"><img src="' +
+              thumb +
+              '" alt="" loading="lazy" decoding="async"></span>';
+          }
+          html += '<span class="opentt-search-item-text">';
+          html += '<span class="opentt-search-item-title">' + title + "</span>";
+          if (meta) {
+            html += '<span class="opentt-search-item-meta">' + meta + "</span>";
+          }
+          html += "</span>";
         }
-        html += '<span class="opentt-search-item-text">';
-        html += '<span class="opentt-search-item-title">' + title + "</span>";
-        if (meta) {
-          html += '<span class="opentt-search-item-meta">' + meta + "</span>";
-        }
-        html += "</span>";
         html += "</span>";
         html += "</a>";
       });

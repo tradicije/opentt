@@ -6143,6 +6143,11 @@ HTML;
             $groups[] = ['key' => 'trending', 'label' => 'Trending', 'items' => $trending];
         }
 
+        $latest_results = self::search_latest_results_group($limit, $context);
+        if (!empty($latest_results)) {
+            $groups[] = ['key' => 'latest_results', 'label' => 'Najnoviji rezultati', 'items' => $latest_results];
+        }
+
         $players = self::search_popular_players_group($limit, $context);
         if (!empty($players)) {
             $groups[] = ['key' => 'players', 'label' => 'Popularni igrači', 'items' => $players];
@@ -6154,6 +6159,78 @@ HTML;
         }
 
         return $groups;
+    }
+
+    private static function search_latest_results_group($limit, array $context)
+    {
+        global $wpdb;
+        $table = self::db_table('matches');
+        if (!self::table_exists($table)) {
+            return [];
+        }
+
+        $where = ['home_club_post_id > 0', 'away_club_post_id > 0'];
+        $params = [];
+        $liga = (string) ($context['liga_slug'] ?? '');
+        $sezona = (string) ($context['sezona_slug'] ?? '');
+        if ($liga !== '') {
+            $where[] = 'liga_slug=%s';
+            $params[] = $liga;
+        }
+        if ($sezona !== '') {
+            $where[] = 'sezona_slug=%s';
+            $params[] = $sezona;
+        }
+
+        $sql = "SELECT id, legacy_post_id, liga_slug, sezona_slug, kolo_slug, slug, home_club_post_id, away_club_post_id, home_score, away_score, match_date
+                FROM {$table}
+                WHERE " . implode(' AND ', $where) . "
+                ORDER BY match_date DESC, id DESC
+                LIMIT 5";
+        if (!empty($params)) {
+            $sql = $wpdb->prepare($sql, $params);
+        }
+
+        $rows = $wpdb->get_results($sql);
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+
+        $items = [];
+        foreach ($rows as $row) {
+            $home_id = intval($row->home_club_post_id ?? 0);
+            $away_id = intval($row->away_club_post_id ?? 0);
+            if ($home_id <= 0 || $away_id <= 0) {
+                continue;
+            }
+
+            $home_name = (string) get_the_title($home_id);
+            $away_name = (string) get_the_title($away_id);
+            if ($home_name === '' || $away_name === '') {
+                continue;
+            }
+
+            $liga_label = self::slug_to_title((string) ($row->liga_slug ?? ''));
+            $date_label = OpenTT_Unified_Readonly_Helpers::display_match_date((string) ($row->match_date ?? ''));
+            $score_label = intval($row->home_score ?? 0) . ' : ' . intval($row->away_score ?? 0);
+
+            $items[] = [
+                'score' => intval(strtotime((string) ($row->match_date ?? ''))) ?: 0,
+                'title' => trim($home_name . ' vs ' . $away_name),
+                'url' => self::search_match_permalink($row),
+                'meta' => trim($liga_label . ($date_label !== '' ? ' • ' . $date_label : '')),
+                'matchRow' => true,
+                'homeName' => $home_name,
+                'awayName' => $away_name,
+                'homeThumb' => self::search_post_thumb_url($home_id, 'assets/img/fallback-club.png'),
+                'awayThumb' => self::search_post_thumb_url($away_id, 'assets/img/fallback-club.png'),
+                'scoreLabel' => $score_label,
+                'leagueLabel' => $liga_label,
+                'dateLabel' => $date_label,
+            ];
+        }
+
+        return self::finalize_search_items($items, 5);
     }
 
     private static function search_recent_trending_group($limit)
@@ -6637,7 +6714,7 @@ HTML;
                 'title' => $title,
                 'url' => self::search_competition_archive_url($liga_slug, $sezona_slug),
                 'meta' => '',
-                'thumb' => self::search_league_thumb_url($liga_slug),
+                'thumb' => self::search_league_thumb_url($liga_slug, $sezona_slug),
             ];
         }
 
@@ -6877,6 +6954,14 @@ HTML;
                 'entityType' => sanitize_key((string) ($item['entityType'] ?? '')),
                 'entityId' => max(0, intval($item['entityId'] ?? 0)),
                 'query' => trim((string) ($item['query'] ?? '')),
+                'matchRow' => !empty($item['matchRow']),
+                'homeName' => trim((string) ($item['homeName'] ?? '')),
+                'awayName' => trim((string) ($item['awayName'] ?? '')),
+                'homeThumb' => trim((string) ($item['homeThumb'] ?? '')),
+                'awayThumb' => trim((string) ($item['awayThumb'] ?? '')),
+                'scoreLabel' => trim((string) ($item['scoreLabel'] ?? '')),
+                'leagueLabel' => trim((string) ($item['leagueLabel'] ?? '')),
+                'dateLabel' => trim((string) ($item['dateLabel'] ?? '')),
             ];
             if (count($final) >= $limit) {
                 break;
@@ -7019,9 +7104,21 @@ HTML;
         return '';
     }
 
-    private static function search_league_thumb_url($liga_slug)
+    private static function search_league_thumb_url($liga_slug, $sezona_slug = '')
     {
         $liga_slug = sanitize_title((string) $liga_slug);
+        $sezona_slug = sanitize_title((string) $sezona_slug);
+
+        if ($liga_slug !== '' && $sezona_slug !== '') {
+            $rule_id = intval(self::competition_rule_id_by_slugs($liga_slug, $sezona_slug));
+            if ($rule_id > 0) {
+                $thumb = self::search_post_thumb_url($rule_id);
+                if ($thumb !== '') {
+                    return $thumb;
+                }
+            }
+        }
+
         if ($liga_slug !== '') {
             $post = get_page_by_path($liga_slug, OBJECT, 'liga');
             if ($post && !is_wp_error($post)) {
@@ -7032,7 +7129,7 @@ HTML;
             }
         }
 
-        return self::search_plugin_asset_url('assets/icons/external-icon.svg');
+        return self::search_plugin_asset_url('assets/img/fallback-club.png');
     }
 
     private static function search_plugin_asset_url($asset_rel)

@@ -160,6 +160,33 @@ html.opentt-search-open {
   .opentt-search-results.opentt-search-has-side-popular .opentt-search-group[data-group-key="players"] {
     grid-column: 2 / 3;
   }
+
+  .opentt-search-results.opentt-search-has-side-discovery {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-auto-flow: row dense;
+    column-gap: 12px;
+    row-gap: 10px;
+  }
+
+  .opentt-search-results.opentt-search-has-side-discovery .opentt-search-group {
+    grid-column: 1 / -1;
+  }
+
+  .opentt-search-results.opentt-search-has-side-discovery .opentt-search-group[data-group-key="trending"] {
+    grid-column: 1 / 2;
+  }
+
+  .opentt-search-results.opentt-search-has-side-discovery .opentt-search-group[data-group-key="latest_results"] {
+    grid-column: 2 / 3;
+  }
+
+  .opentt-search-results.opentt-search-has-side-discovery .opentt-search-group[data-group-key="clubs"] {
+    grid-column: 1 / 2;
+  }
+
+  .opentt-search-results.opentt-search-has-side-discovery .opentt-search-group[data-group-key="players"] {
+    grid-column: 2 / 3;
+  }
 }
 
 .opentt-search-group-title {
@@ -246,6 +273,66 @@ html.opentt-search-open {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.opentt-search-item[data-opentt-item-type="match"] .opentt-search-item-main {
+  width: 100%;
+}
+
+.opentt-search-match-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.opentt-search-match-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.opentt-search-match-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+.opentt-search-match-team.is-away {
+  justify-content: flex-end;
+}
+
+.opentt-search-match-team-name {
+  font-size: 13px;
+  line-height: 1.3;
+  color: rgba(243, 248, 255, 0.94);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opentt-search-match-score {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  min-width: 52px;
+  text-align: center;
+}
+
+.opentt-search-item-thumb.is-mini {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.opentt-search-match-meta {
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(194, 206, 224, 0.9);
 }
 
 .opentt-search-rank-badge {
