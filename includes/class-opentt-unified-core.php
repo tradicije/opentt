@@ -6210,8 +6210,8 @@ HTML;
                 continue;
             }
 
-            $home_name = (string) get_the_title($home_id);
-            $away_name = (string) get_the_title($away_id);
+            $home_name = self::search_normalize_club_name((string) get_the_title($home_id));
+            $away_name = self::search_normalize_club_name((string) get_the_title($away_id));
             if ($home_name === '' || $away_name === '') {
                 continue;
             }
@@ -6767,8 +6767,8 @@ HTML;
         foreach ($rows as $row) {
             $home_id = intval($row->home_club_post_id ?? 0);
             $away_id = intval($row->away_club_post_id ?? 0);
-            $home = $home_id > 0 ? (string) get_the_title($home_id) : '';
-            $away = $away_id > 0 ? (string) get_the_title($away_id) : '';
+            $home = $home_id > 0 ? self::search_normalize_club_name((string) get_the_title($home_id)) : '';
+            $away = $away_id > 0 ? self::search_normalize_club_name((string) get_the_title($away_id)) : '';
             if ($home === '' && $away === '') {
                 continue;
             }
@@ -7098,6 +7098,21 @@ HTML;
         $path .= $kolo . '/' . $slug . '/';
 
         return home_url($path);
+    }
+
+    private static function search_normalize_club_name($value)
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $decoded = html_entity_decode($decoded, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $decoded = str_replace(['–', '—'], '-', $decoded);
+        $decoded = preg_replace('/\s+/u', ' ', $decoded);
+
+        return trim((string) $decoded);
     }
 
     private static function search_post_thumb_url($post_id, $fallback_asset = '')

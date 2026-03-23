@@ -458,7 +458,7 @@
     };
   }
 
-  function renderSearchGroups(container, groups) {
+  function renderSearchGroups(container, groups, highlightQuery) {
     if (!container) {
       return;
     }
@@ -606,13 +606,15 @@
           html += trendingRankHtml(index + 1);
         }
         if (isMatchRow) {
-          var homeName = esc(item && item.homeName ? item.homeName : "");
-          var awayName = esc(item && item.awayName ? item.awayName : "");
+          var homeNameRaw = String(item && item.homeName ? item.homeName : "");
+          var awayNameRaw = String(item && item.awayName ? item.awayName : "");
           var homeThumb = esc(item && item.homeThumb ? item.homeThumb : "");
           var awayThumb = esc(item && item.awayThumb ? item.awayThumb : "");
           var scoreLabel = esc(item && item.scoreLabel ? item.scoreLabel : "");
           var leagueLabel = esc(item && item.leagueLabel ? item.leagueLabel : "");
           var dateLabel = esc(item && item.dateLabel ? item.dateLabel : "");
+          var homeName = highlightText(homeNameRaw, highlightQuery);
+          var awayName = highlightText(awayNameRaw, highlightQuery);
           html += '<span class="opentt-search-match-row">';
           html += '<span class="opentt-search-match-main">';
           html += '<span class="opentt-search-match-team is-home">';
@@ -623,10 +625,10 @@
           html += "</span>";
           html += '<span class="opentt-search-match-score">' + scoreLabel + "</span>";
           html += '<span class="opentt-search-match-team is-away">';
+          html += '<span class="opentt-search-match-team-name">' + awayName + "</span>";
           if (awayThumb) {
             html += '<span class="opentt-search-item-thumb is-mini"><img src="' + awayThumb + '" alt="" loading="lazy" decoding="async"></span>';
           }
-          html += '<span class="opentt-search-match-team-name">' + awayName + "</span>";
           html += "</span>";
           html += "</span>";
           html += '<span class="opentt-search-match-meta">' + leagueLabel;
@@ -807,7 +809,7 @@
 
     function renderDiscovery(includeHistory) {
       if (discoveryCache) {
-        renderSearchGroups(results, mergeDiscoveryGroups(discoveryCache, !!includeHistory));
+        renderSearchGroups(results, mergeDiscoveryGroups(discoveryCache, !!includeHistory), "");
         return;
       }
 
@@ -816,7 +818,7 @@
           ? String(window.openttFrontend.ajaxUrl)
           : "";
       if (!ajaxUrl) {
-        renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory));
+        renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory), "");
         return;
       }
 
@@ -845,10 +847,10 @@
             serverGroups = Array.isArray(payload.data.groups) ? payload.data.groups : [];
           }
           discoveryCache = serverGroups;
-          renderSearchGroups(results, mergeDiscoveryGroups(serverGroups, !!includeHistory));
+          renderSearchGroups(results, mergeDiscoveryGroups(serverGroups, !!includeHistory), "");
         })
         .catch(function () {
-          renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory));
+          renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory), "");
         });
     }
 
@@ -1067,7 +1069,7 @@
             return;
           }
           var data = payload.data && typeof payload.data === "object" ? payload.data : {};
-          renderSearchGroups(results, data.groups || []);
+          renderSearchGroups(results, data.groups || [], query);
         })
         .catch(function () {
           results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
@@ -1103,3 +1105,37 @@
     initAllSearches();
   }
 })();
+    function escapeRegex(value) {
+      return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function highlightText(value, query) {
+      var raw = String(value || "");
+      var q = String(query || "").trim();
+      if (!q) {
+        return esc(raw);
+      }
+      var re = null;
+      try {
+        re = new RegExp("(" + escapeRegex(q) + ")", "gi");
+      } catch (err) {
+        return esc(raw);
+      }
+      var parts = raw.split(re);
+      if (!parts || parts.length <= 1) {
+        return esc(raw);
+      }
+      var html = "";
+      for (var i = 0; i < parts.length; i++) {
+        var part = String(parts[i] || "");
+        if (!part) {
+          continue;
+        }
+        if (part.toLowerCase() === q.toLowerCase()) {
+          html += '<strong class="opentt-search-hit">' + esc(part) + "</strong>";
+        } else {
+          html += esc(part);
+        }
+      }
+      return html || esc(raw);
+    }
