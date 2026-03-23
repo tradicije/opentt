@@ -172,9 +172,12 @@ final class MatchesGridShortcode
         }
 
         if ($enable_filters) {
+            $played_sort_default = (self::normalize_played_value((string) $atts['played'], (string) $atts['odigrana']) === '0')
+                ? 'kolo_asc'
+                : 'kolo_desc';
             $selected_kolo = isset($_GET['opentt_kolo']) ? sanitize_title((string) wp_unslash($_GET['opentt_kolo'])) : '';
             $selected_club = isset($_GET['opentt_club']) ? intval($_GET['opentt_club']) : 0;
-            $selected_sort = isset($_GET['opentt_sort']) ? sanitize_key((string) wp_unslash($_GET['opentt_sort'])) : 'kolo_desc';
+            $selected_sort = isset($_GET['opentt_sort']) ? sanitize_key((string) wp_unslash($_GET['opentt_sort'])) : $played_sort_default;
             $selected_match_date = isset($_GET['opentt_match_date'])
                 ? sanitize_text_field((string) wp_unslash($_GET['opentt_match_date']))
                 : sanitize_text_field((string) $atts['opentt_match_date']);
@@ -1107,6 +1110,24 @@ final class MatchesGridShortcode
         }
 
         return (string) $call('shortcode_title_html', 'Utakmice') . (string) $call('render_matches_grid_html', $rows, $columns, false);
+    }
+
+    private static function normalize_played_value($played, $odigrana)
+    {
+        $candidates = [$played, $odigrana];
+        foreach ($candidates as $candidate) {
+            $value = strtolower(trim((string) $candidate));
+            if ($value === '') {
+                continue;
+            }
+            if (in_array($value, ['0', 'false', 'no', 'off', 'ne'], true)) {
+                return '0';
+            }
+            if (in_array($value, ['1', 'true', 'yes', 'on', 'da'], true)) {
+                return '1';
+            }
+        }
+        return '';
     }
 
     private static function discover_icon_url(array $relative_candidates)
