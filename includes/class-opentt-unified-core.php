@@ -6299,6 +6299,10 @@ HTML;
     private static function build_search_discovery_groups($limit, array $context)
     {
         $groups = [];
+        $has_competition_context = (
+            trim((string) ($context['liga_slug'] ?? '')) !== ''
+            || trim((string) ($context['sezona_slug'] ?? '')) !== ''
+        );
 
         $trending = self::search_recent_trending_group($limit);
         if (!empty($trending)) {
@@ -6306,16 +6310,25 @@ HTML;
         }
 
         $latest_results = self::search_latest_results_group($limit, $context);
+        if (empty($latest_results) && $has_competition_context) {
+            $latest_results = self::search_latest_results_group($limit, []);
+        }
         if (!empty($latest_results)) {
             $groups[] = ['key' => 'latest_results', 'label' => 'Najnoviji rezultati', 'items' => $latest_results];
         }
 
         $players = self::search_popular_players_group($limit, $context);
+        if (empty($players) && $has_competition_context) {
+            $players = self::search_popular_players_group($limit, []);
+        }
         if (!empty($players)) {
             $groups[] = ['key' => 'players', 'label' => 'Popularni igrači', 'items' => $players];
         }
 
         $clubs = self::search_popular_clubs_group($limit, $context);
+        if (empty($clubs) && $has_competition_context) {
+            $clubs = self::search_popular_clubs_group($limit, []);
+        }
         if (!empty($clubs)) {
             $groups[] = ['key' => 'clubs', 'label' => 'Popularni klubovi', 'items' => $clubs];
         }
