@@ -726,11 +726,11 @@ a.opentt-grid-cal-preview-more:focus {
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-heading-compact {
   margin: 0 0 2px;
-  padding: 7px 9px;
+  padding: 6px 2px 5px;
   border-radius: 8px;
-  background: rgba(3, 18, 52, 0.9);
-  border: 1px solid rgba(142, 197, 255, 0.26);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-heading-compact:first-child {
@@ -742,7 +742,7 @@ a.opentt-grid-cal-preview-more:focus {
   border: 0;
   border-radius: 0;
   border-bottom: 0;
-  padding: 3px 1px 4px;
+  padding: 5px 1px 6px;
   background: transparent;
   box-shadow: none;
 }
