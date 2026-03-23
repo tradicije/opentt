@@ -6255,16 +6255,58 @@ HTML;
             $events = [];
         }
 
-        $events[] = [
-            'term' => $term,
-            'ts' => time(),
-        ];
+        $now = intval(current_time('timestamp'));
+        if ($now <= 0) {
+            $now = time();
+        }
+        $min_ts = $now - (14 * DAY_IN_SECONDS);
+        $today_key = wp_date('Y-m-d', $now, wp_timezone());
+        $norm_target = self::search_fold_text(function_exists('mb_strtolower') ? mb_strtolower($term, 'UTF-8') : strtolower($term));
+        $daily_cap = 40;
+        $today_hits_for_term = 0;
+        $pruned = [];
 
-        if (count($events) > 2000) {
-            $events = array_slice($events, -2000);
+        foreach ($events as $event) {
+            if (!is_array($event)) {
+                continue;
+            }
+            $event_term = trim((string) ($event['term'] ?? ''));
+            $event_ts = intval($event['ts'] ?? 0);
+            if ($event_term === '' || $event_ts <= 0) {
+                continue;
+            }
+            if ($event_ts < $min_ts) {
+                continue;
+            }
+            $pruned[] = ['term' => $event_term, 'ts' => $event_ts];
+
+            $event_day = wp_date('Y-m-d', $event_ts, wp_timezone());
+            if ($event_day !== $today_key) {
+                continue;
+            }
+            $event_norm = self::search_fold_text(function_exists('mb_strtolower') ? mb_strtolower($event_term, 'UTF-8') : strtolower($event_term));
+            if ($event_norm === $norm_target) {
+                $today_hits_for_term++;
+            }
         }
 
-        update_option(self::OPTION_SEARCH_TRENDING_EVENTS, $events, false);
+        if ($today_hits_for_term >= $daily_cap) {
+            if (count($pruned) !== count($events)) {
+                update_option(self::OPTION_SEARCH_TRENDING_EVENTS, array_slice($pruned, -2000), false);
+            }
+            return;
+        }
+
+        $pruned[] = [
+            'term' => $term,
+            'ts' => $now,
+        ];
+
+        if (count($pruned) > 2000) {
+            $pruned = array_slice($pruned, -2000);
+        }
+
+        update_option(self::OPTION_SEARCH_TRENDING_EVENTS, $pruned, false);
     }
 
     private static function search_players_group($query, $limit, array $context, array $competition_club_ids, array $match_player_ids)
