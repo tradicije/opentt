@@ -369,14 +369,25 @@ final class MatchesListShortcode
 
     private static function render_last_update_footer(array $rows)
     {
-        $timestamp = self::resolve_last_update_timestamp($rows);
+        $scope = self::resolve_scope_from_rows($rows);
+        $scope_liga = (string) ($scope['liga_slug'] ?? '');
+        $scope_sezona = (string) ($scope['sezona_slug'] ?? '');
+        $is_scoped = ($scope_liga !== '');
+
+        $meta = null;
+        if (class_exists('\\OpenTT_Unified_Core')) {
+            $meta = \OpenTT_Unified_Core::get_matches_last_update_meta($scope_liga, $scope_sezona, !$is_scoped);
+        }
+        $meta = is_array($meta) ? $meta : [];
+
+        $timestamp = self::resolve_last_update_timestamp($rows, trim((string) ($meta['updated_at'] ?? '')));
         if ($timestamp <= 0) {
             return '';
         }
 
-        $user_id = intval(get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_ID, 0));
-        $stored_name = trim((string) get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_NAME, ''));
-        $stored_avatar_url = esc_url((string) get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_AVATAR_URL, ''));
+        $user_id = intval($meta['editor_id'] ?? 0);
+        $stored_name = trim((string) ($meta['editor_name'] ?? ''));
+        $stored_avatar_url = esc_url((string) ($meta['editor_avatar_url'] ?? ''));
         $name = $user_id > 0 ? trim((string) get_the_author_meta('display_name', $user_id)) : '';
         if ($name === '' && $stored_name !== '') {
             $name = $stored_name;
@@ -431,7 +442,7 @@ final class MatchesListShortcode
         return $html;
     }
 
-    private static function resolve_last_update_timestamp(array $rows)
+    private static function resolve_last_update_timestamp(array $rows, $meta_updated_at = '')
     {
         $latest = 0;
         foreach ($rows as $row) {
@@ -448,15 +459,45 @@ final class MatchesListShortcode
             }
         }
 
-        $opt = trim((string) get_option(\OpenTT_Unified_Core::OPTION_MATCHES_LAST_UPDATED_AT, ''));
-        if ($opt !== '') {
-            $opt_ts = strtotime($opt);
+        $meta_updated_at = trim((string) $meta_updated_at);
+        if ($meta_updated_at !== '') {
+            $opt_ts = strtotime($meta_updated_at);
             if ($opt_ts !== false) {
                 $latest = max($latest, intval($opt_ts));
             }
         }
 
         return $latest;
+    }
+
+    private static function resolve_scope_from_rows(array $rows)
+    {
+        $counts = [];
+        foreach ($rows as $row) {
+            if (!is_object($row)) {
+                continue;
+            }
+            $liga = sanitize_title((string) ($row->liga_slug ?? ''));
+            $sezona = sanitize_title((string) ($row->sezona_slug ?? ''));
+            if ($liga === '') {
+                continue;
+            }
+            $key = $liga . '||' . $sezona;
+            if (!isset($counts[$key])) {
+                $counts[$key] = 0;
+            }
+            $counts[$key]++;
+        }
+        if (empty($counts)) {
+            return ['liga_slug' => '', 'sezona_slug' => ''];
+        }
+        arsort($counts);
+        $top_key = (string) array_key_first($counts);
+        $parts = explode('||', $top_key, 2);
+        return [
+            'liga_slug' => sanitize_title((string) ($parts[0] ?? '')),
+            'sezona_slug' => sanitize_title((string) ($parts[1] ?? '')),
+        ];
     }
 
     private static function discover_icon_url(array $relative_candidates)

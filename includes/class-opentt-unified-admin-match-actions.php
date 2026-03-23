@@ -142,7 +142,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             }
             $id = (int) $wpdb->insert_id;
         }
-        self::touch_matches_last_update();
+        self::touch_matches_last_update($liga, $sezona);
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $id), 'success', 'Utakmica je sačuvana.'));
         exit;
@@ -162,13 +162,14 @@ final class OpenTT_Unified_Admin_Match_Actions
         $games = OpenTT_Unified_Core::db_table('games');
         $sets = OpenTT_Unified_Core::db_table('sets');
 
+        $scope = self::get_match_scope($id);
         $game_ids = $wpdb->get_col($wpdb->prepare("SELECT id FROM {$games} WHERE match_id=%d", $id)) ?: [];
         foreach ($game_ids as $gid) {
             $wpdb->delete($sets, ['game_id' => (int) $gid]);
         }
         $wpdb->delete($games, ['match_id' => $id]);
         $wpdb->delete($matches, ['id' => $id]);
-        self::touch_matches_last_update();
+        self::touch_matches_last_update((string) ($scope['liga_slug'] ?? ''), (string) ($scope['sezona_slug'] ?? ''));
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'success', 'Utakmica je obrisana.'));
         exit;
@@ -195,14 +196,19 @@ final class OpenTT_Unified_Admin_Match_Actions
             exit;
         }
 
-        $current = (int) $wpdb->get_var($wpdb->prepare("SELECT featured FROM {$matches} WHERE id=%d LIMIT 1", $id));
+        $row = $wpdb->get_row($wpdb->prepare("SELECT featured, liga_slug, sezona_slug FROM {$matches} WHERE id=%d LIMIT 1", $id));
+        if (!$row || !is_object($row)) {
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'error', 'Utakmica nije pronađena.'));
+            exit;
+        }
+        $current = (int) ($row->featured ?? 0);
         $next = $current === 1 ? 0 : 1;
         $ok = $wpdb->update($matches, ['featured' => $next], ['id' => $id], ['%d'], ['%d']);
         if ($ok === false) {
             wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'error', 'Greška pri promeni featured statusa.'));
             exit;
         }
-        self::touch_matches_last_update();
+        self::touch_matches_last_update((string) ($row->liga_slug ?? ''), (string) ($row->sezona_slug ?? ''));
 
         $message = $next === 1 ? 'Utakmica je postavljena kao featured.' : 'Utakmica više nije featured.';
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'success', $message));
@@ -230,14 +236,19 @@ final class OpenTT_Unified_Admin_Match_Actions
             exit;
         }
 
-        $current = (int) $wpdb->get_var($wpdb->prepare("SELECT live FROM {$matches} WHERE id=%d LIMIT 1", $id));
+        $row = $wpdb->get_row($wpdb->prepare("SELECT live, liga_slug, sezona_slug FROM {$matches} WHERE id=%d LIMIT 1", $id));
+        if (!$row || !is_object($row)) {
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'error', 'Utakmica nije pronađena.'));
+            exit;
+        }
+        $current = (int) ($row->live ?? 0);
         $next = $current === 1 ? 0 : 1;
         $ok = $wpdb->update($matches, ['live' => $next], ['id' => $id], ['%d'], ['%d']);
         if ($ok === false) {
             wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'error', 'Greška pri promeni LIVE statusa.'));
             exit;
         }
-        self::touch_matches_last_update();
+        self::touch_matches_last_update((string) ($row->liga_slug ?? ''), (string) ($row->sezona_slug ?? ''));
 
         $message = $next === 1 ? 'Utakmica je uključena u LIVE.' : 'Utakmica je uklonjena iz LIVE.';
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-matches'), 'success', $message));
@@ -260,12 +271,17 @@ final class OpenTT_Unified_Admin_Match_Actions
             exit;
         }
 
+        $row = $wpdb->get_row($wpdb->prepare("SELECT liga_slug, sezona_slug FROM {$matches} WHERE id=%d LIMIT 1", $id));
+        if (!$row || !is_object($row)) {
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-live'), 'error', 'Utakmica nije pronađena.'));
+            exit;
+        }
         $ok = $wpdb->update($matches, ['live' => 0], ['id' => $id], ['%d'], ['%d']);
         if ($ok === false) {
             wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-live'), 'error', 'Greška pri završavanju LIVE utakmice.'));
             exit;
         }
-        self::touch_matches_last_update();
+        self::touch_matches_last_update((string) ($row->liga_slug ?? ''), (string) ($row->sezona_slug ?? ''));
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-live'), 'success', 'LIVE utakmica je završena.'));
         exit;
     }
@@ -416,10 +432,16 @@ final class OpenTT_Unified_Admin_Match_Actions
         $sets = OpenTT_Unified_Core::db_table('sets');
         $deleted = 0;
 
+        $scopes = [];
         foreach ($ids as $id) {
             $exists = (int) $wpdb->get_var($wpdb->prepare("SELECT id FROM {$matches} WHERE id=%d LIMIT 1", $id));
             if ($exists <= 0) {
                 continue;
+            }
+            $scope = self::get_match_scope($id);
+            $scope_key = sanitize_title((string) ($scope['liga_slug'] ?? '')) . '||' . sanitize_title((string) ($scope['sezona_slug'] ?? ''));
+            if ($scope_key !== '||') {
+                $scopes[$scope_key] = $scope;
             }
             $game_ids = $wpdb->get_col($wpdb->prepare("SELECT id FROM {$games} WHERE match_id=%d", $id)) ?: [];
             foreach ($game_ids as $gid) {
@@ -434,7 +456,13 @@ final class OpenTT_Unified_Admin_Match_Actions
             wp_safe_redirect(self::admin_notice_url($base_url, 'error', 'Nijedna izabrana utakmica nije obrisana.'));
             exit;
         }
-        self::touch_matches_last_update();
+        if (!empty($scopes)) {
+            foreach ($scopes as $scope) {
+                self::touch_matches_last_update((string) ($scope['liga_slug'] ?? ''), (string) ($scope['sezona_slug'] ?? ''));
+            }
+        } else {
+            self::touch_matches_last_update();
+        }
 
         wp_safe_redirect(self::admin_notice_url($base_url, 'success', 'Obrisano utakmica: ' . $deleted . '.'));
         exit;
@@ -462,7 +490,7 @@ final class OpenTT_Unified_Admin_Match_Actions
 
         global $wpdb;
         $table = OpenTT_Unified_Core::db_table('matches');
-        $current_match = $wpdb->get_row($wpdb->prepare("SELECT match_date, location FROM {$table} WHERE id=%d LIMIT 1", $match_id));
+        $current_match = $wpdb->get_row($wpdb->prepare("SELECT match_date, location, liga_slug, sezona_slug FROM {$table} WHERE id=%d LIMIT 1", $match_id));
         if (!$current_match || !is_object($current_match)) {
             $fallback = admin_url('admin.php?page=stkb-unified-matches');
             wp_safe_redirect(self::admin_notice_url($fallback, 'error', 'Utakmica nije pronađena.'));
@@ -516,7 +544,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             wp_safe_redirect(self::admin_notice_url($target, 'error', 'Greška pri quick edit ažuriranju rezultata.'));
             exit;
         }
-        self::touch_matches_last_update();
+        self::touch_matches_last_update((string) ($current_match->liga_slug ?? ''), (string) ($current_match->sezona_slug ?? ''));
 
         wp_safe_redirect(self::admin_notice_url($target, 'success', 'Rezultat je ažuriran (quick edit).'));
         exit;
@@ -642,7 +670,7 @@ final class OpenTT_Unified_Admin_Match_Actions
                 }
             }
         }
-        self::touch_matches_last_update();
+        self::touch_matches_last_update((string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''));
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Partija je sačuvana.'));
         exit;
@@ -816,7 +844,7 @@ final class OpenTT_Unified_Admin_Match_Actions
             $wpdb->delete($sets_table, ['game_id' => (int) $gid]);
         }
         $wpdb->query($wpdb->prepare("DELETE FROM {$games_table} WHERE match_id=%d AND order_no > %d", $match_id, $max_games));
-        self::touch_matches_last_update();
+        self::touch_matches_last_update((string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''));
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Sve partije su sačuvane.'));
         exit;
     }
@@ -834,9 +862,10 @@ final class OpenTT_Unified_Admin_Match_Actions
         global $wpdb;
         $games = OpenTT_Unified_Core::db_table('games');
         $sets = OpenTT_Unified_Core::db_table('sets');
+        $scope = self::get_match_scope($match_id);
         $wpdb->delete($sets, ['game_id' => $id]);
         $wpdb->delete($games, ['id' => $id]);
-        self::touch_matches_last_update();
+        self::touch_matches_last_update((string) ($scope['liga_slug'] ?? ''), (string) ($scope['sezona_slug'] ?? ''));
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Partija je obrisana.'));
         exit;
@@ -864,7 +893,8 @@ final class OpenTT_Unified_Admin_Match_Actions
         } else {
             $wpdb->insert($table, ['game_id' => $game_id, 'set_no' => $set_no, 'home_points' => $hp, 'away_points' => $ap, 'created_at' => current_time('mysql'), 'updated_at' => current_time('mysql')]);
         }
-        self::touch_matches_last_update();
+        $scope = self::get_match_scope($match_id);
+        self::touch_matches_last_update((string) ($scope['liga_slug'] ?? ''), (string) ($scope['sezona_slug'] ?? ''));
 
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Set je sačuvan.'));
         exit;
@@ -882,7 +912,8 @@ final class OpenTT_Unified_Admin_Match_Actions
         global $wpdb;
         $table = OpenTT_Unified_Core::db_table('sets');
         $wpdb->delete($table, ['id' => $id]);
-        self::touch_matches_last_update();
+        $scope = self::get_match_scope($match_id);
+        self::touch_matches_last_update((string) ($scope['liga_slug'] ?? ''), (string) ($scope['sezona_slug'] ?? ''));
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Set je obrisan.'));
         exit;
     }
@@ -902,27 +933,27 @@ final class OpenTT_Unified_Admin_Match_Actions
         ], $url);
     }
 
-    private static function touch_matches_last_update()
+    private static function touch_matches_last_update($liga_slug = '', $sezona_slug = '')
     {
-        $user_id = get_current_user_id();
-        if ($user_id <= 0) {
-            $user = wp_get_current_user();
-            if ($user && !empty($user->ID)) {
-                $user_id = intval($user->ID);
-            }
+        OpenTT_Unified_Core::record_matches_last_update($liga_slug, $sezona_slug);
+    }
+
+    private static function get_match_scope($match_id)
+    {
+        $match_id = intval($match_id);
+        if ($match_id <= 0) {
+            return ['liga_slug' => '', 'sezona_slug' => ''];
         }
-        if ($user_id > 0) {
-            update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_ID, $user_id, false);
-            $display_name = trim((string) get_the_author_meta('display_name', $user_id));
-            if ($display_name !== '') {
-                update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_NAME, $display_name, false);
-            }
-            $avatar_url = esc_url_raw((string) get_avatar_url($user_id, ['size' => 44]));
-            if ($avatar_url !== '') {
-                update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_EDITOR_AVATAR_URL, $avatar_url, false);
-            }
+        global $wpdb;
+        $matches = OpenTT_Unified_Core::db_table('matches');
+        $row = $wpdb->get_row($wpdb->prepare("SELECT liga_slug, sezona_slug FROM {$matches} WHERE id=%d LIMIT 1", $match_id));
+        if (!$row || !is_object($row)) {
+            return ['liga_slug' => '', 'sezona_slug' => ''];
         }
-        update_option(OpenTT_Unified_Core::OPTION_MATCHES_LAST_UPDATED_AT, current_time('mysql'), false);
+        return [
+            'liga_slug' => sanitize_title((string) ($row->liga_slug ?? '')),
+            'sezona_slug' => sanitize_title((string) ($row->sezona_slug ?? '')),
+        ];
     }
 
     private static function has_any_competition_rules()

@@ -56,6 +56,7 @@ final class OpenTT_Unified_Core
     const OPTION_MATCHES_LAST_EDITOR_NAME = 'opentt_unified_matches_last_editor_name';
     const OPTION_MATCHES_LAST_EDITOR_AVATAR_URL = 'opentt_unified_matches_last_editor_avatar_url';
     const OPTION_MATCHES_LAST_UPDATED_AT = 'opentt_unified_matches_last_updated_at';
+    const OPTION_MATCHES_LAST_UPDATE_BY_SCOPE = 'opentt_unified_matches_last_update_by_scope';
     const TABLE_MATCHES = 'opentt_matches';
     const TABLE_GAMES = 'opentt_games';
     const TABLE_SETS = 'opentt_sets';
@@ -6235,6 +6236,122 @@ HTML;
             }
         }
         return self::get_author_fallback_url($user_id);
+    }
+
+    private static function read_global_matches_last_update_meta()
+    {
+        return [
+            'editor_id' => intval(get_option(self::OPTION_MATCHES_LAST_EDITOR_ID, 0)),
+            'editor_name' => trim((string) get_option(self::OPTION_MATCHES_LAST_EDITOR_NAME, '')),
+            'editor_avatar_url' => esc_url((string) get_option(self::OPTION_MATCHES_LAST_EDITOR_AVATAR_URL, '')),
+            'updated_at' => trim((string) get_option(self::OPTION_MATCHES_LAST_UPDATED_AT, '')),
+            'scope_found' => false,
+        ];
+    }
+
+    private static function matches_scope_key($liga_slug, $sezona_slug)
+    {
+        $liga_slug = sanitize_title((string) $liga_slug);
+        $sezona_slug = sanitize_title((string) $sezona_slug);
+        if ($liga_slug === '') {
+            return '';
+        }
+        return $liga_slug . '||' . $sezona_slug;
+    }
+
+    public static function get_matches_last_update_meta($liga_slug = '', $sezona_slug = '', $allow_global_fallback = true)
+    {
+        $key = self::matches_scope_key($liga_slug, $sezona_slug);
+        if ($key !== '') {
+            $by_scope = get_option(self::OPTION_MATCHES_LAST_UPDATE_BY_SCOPE, []);
+            if (is_array($by_scope) && !empty($by_scope[$key]) && is_array($by_scope[$key])) {
+                $entry = $by_scope[$key];
+                return [
+                    'editor_id' => intval($entry['editor_id'] ?? 0),
+                    'editor_name' => trim((string) ($entry['editor_name'] ?? '')),
+                    'editor_avatar_url' => esc_url((string) ($entry['editor_avatar_url'] ?? '')),
+                    'updated_at' => trim((string) ($entry['updated_at'] ?? '')),
+                    'scope_found' => true,
+                ];
+            }
+            if (!$allow_global_fallback) {
+                return [
+                    'editor_id' => 0,
+                    'editor_name' => '',
+                    'editor_avatar_url' => '',
+                    'updated_at' => '',
+                    'scope_found' => false,
+                ];
+            }
+        }
+
+        return self::read_global_matches_last_update_meta();
+    }
+
+    public static function record_matches_last_update($liga_slug = '', $sezona_slug = '')
+    {
+        $user_id = get_current_user_id();
+        if ($user_id <= 0) {
+            $user = wp_get_current_user();
+            if ($user && !empty($user->ID)) {
+                $user_id = intval($user->ID);
+            }
+        }
+
+        $display_name = '';
+        $avatar_url = '';
+        if ($user_id > 0) {
+            $display_name = trim((string) get_the_author_meta('display_name', $user_id));
+            $avatar_url = esc_url_raw((string) get_avatar_url($user_id, ['size' => 44]));
+            update_option(self::OPTION_MATCHES_LAST_EDITOR_ID, $user_id, false);
+            if ($display_name !== '') {
+                update_option(self::OPTION_MATCHES_LAST_EDITOR_NAME, $display_name, false);
+            }
+            if ($avatar_url !== '') {
+                update_option(self::OPTION_MATCHES_LAST_EDITOR_AVATAR_URL, $avatar_url, false);
+            }
+        }
+
+        $updated_at = current_time('mysql');
+        update_option(self::OPTION_MATCHES_LAST_UPDATED_AT, $updated_at, false);
+
+        $key = self::matches_scope_key($liga_slug, $sezona_slug);
+        if ($key === '') {
+            return;
+        }
+
+        $by_scope = get_option(self::OPTION_MATCHES_LAST_UPDATE_BY_SCOPE, []);
+        if (!is_array($by_scope)) {
+            $by_scope = [];
+        }
+
+        $entry = [
+            'editor_id' => $user_id,
+            'editor_name' => $display_name,
+            'editor_avatar_url' => $avatar_url,
+            'updated_at' => $updated_at,
+        ];
+        $by_scope[$key] = $entry;
+
+        if (count($by_scope) > 600) {
+            $trimmed = [];
+            uasort($by_scope, static function ($a, $b) {
+                $a_ts = strtotime((string) ($a['updated_at'] ?? '')) ?: 0;
+                $b_ts = strtotime((string) ($b['updated_at'] ?? '')) ?: 0;
+                return $b_ts <=> $a_ts;
+            });
+            $i = 0;
+            foreach ($by_scope as $scope_key => $scope_entry) {
+                $trimmed[$scope_key] = $scope_entry;
+                $i++;
+                if ($i >= 500) {
+                    break;
+                }
+            }
+            $by_scope = $trimmed;
+        }
+
+        update_option(self::OPTION_MATCHES_LAST_UPDATE_BY_SCOPE, $by_scope, false);
     }
 
     private static function require_cap()
