@@ -677,6 +677,10 @@ a.opentt-grid-cal-preview-more:focus {
   text-align: right;
 }
 
+.opentt-item .team .team-time {
+  display: none;
+}
+
 .opentt-item-side {
   min-width: 86px;
   border-left: 2px solid #ffffff2e;
@@ -797,6 +801,10 @@ a.opentt-grid-cal-preview-more:focus {
   font-size: 1rem;
   min-width: 20px;
   text-align: right;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team .team-time {
+  display: inline-block;
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .team.pobednik span,

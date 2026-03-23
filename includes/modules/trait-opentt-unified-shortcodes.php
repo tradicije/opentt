@@ -1464,7 +1464,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '<div class="opentt-item-teams">';
             $fallback_score_label = $is_upcoming_no_score ? $time_label : '';
             echo self::render_team_html($home_id, $rd, $home_win, !$is_upcoming_no_score, $fallback_score_label);
-            echo self::render_team_html($away_id, $rg, $away_win, !$is_upcoming_no_score, $fallback_score_label);
+            echo self::render_team_html($away_id, $rg, $away_win, !$is_upcoming_no_score, '');
             echo '</div>';
             echo '<div class="opentt-item-side" aria-label="Vreme utakmice">';
             if ($is_live) {
