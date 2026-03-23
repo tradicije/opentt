@@ -140,6 +140,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Fixed desktop popular-groups grid placement so `Popularni klubovi` (left) and `Popularni igrači` (right) consistently align in the same row, regardless of render order.
 - Tuned `opentt_search` trending anti-abuse thresholds for low-traffic usage by adopting hybrid daily caps: per-client (cookie token) cap is `3` clicks per entity/day, with a global cap of `20` clicks per entity/day.
 - Enhanced `opentt_search` trending presentation: added `trending-icon.svg` next to section title, limited list to Top 5, and added rank badges before item thumbnails (`trending-one/two/three` medal icons for #1-#3, numeric badges for #4-#5) with high-contrast medal styling for dark theme readability.
+- Refined trending iconography styling: medal colors are now applied directly to `one/two/three` rank icons (without colored outer frames), and section `trending-icon.svg` now uses a vivid fire-like gradient blend (red/yellow/pink/orange) for stronger visual emphasis on dark overlays.
 
 ## Releases
 

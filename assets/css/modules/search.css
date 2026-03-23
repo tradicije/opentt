@@ -195,10 +195,17 @@ html.opentt-search-open {
   margin-left: 8px;
 }
 
-.opentt-search-group-icon img {
-  width: 18px;
-  height: 18px;
-  display: block;
+.opentt-search-group-icon--fire {
+  background: linear-gradient(145deg, #ff3b30 0%, #ff7a18 30%, #ffd335 52%, #ff5f6d 76%, #ff2d95 100%);
+  -webkit-mask-image: var(--opentt-trending-icon);
+  mask-image: var(--opentt-trending-icon);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter: drop-shadow(0 1px 5px rgba(255, 96, 30, 0.5));
 }
 
 .opentt-search-clear-history {
@@ -257,25 +264,50 @@ html.opentt-search-open {
   color: #fff;
 }
 
-.opentt-search-rank-badge img {
-  width: 18px;
-  height: 18px;
+.opentt-search-rank-badge--icon {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.opentt-search-rank-badge--icon::before {
+  content: "";
+  width: 24px;
+  height: 24px;
   display: block;
+  -webkit-mask-image: var(--opentt-rank-icon);
+  mask-image: var(--opentt-rank-icon);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.45));
 }
 
 .opentt-search-rank-badge--1 {
-  background: linear-gradient(145deg, #f8d568 0%, #d09d19 100%);
-  border-color: rgba(255, 232, 153, 0.88);
+  color: #f8c630;
+}
+
+.opentt-search-rank-badge--1::before {
+  background: linear-gradient(150deg, #ffe48a 0%, #f6c341 40%, #d7910f 100%);
 }
 
 .opentt-search-rank-badge--2 {
-  background: linear-gradient(145deg, #d8e0ea 0%, #9da7b3 100%);
-  border-color: rgba(235, 242, 250, 0.86);
+  color: #c5ced9;
+}
+
+.opentt-search-rank-badge--2::before {
+  background: linear-gradient(150deg, #f0f4fa 0%, #c8d0dc 45%, #909aa8 100%);
 }
 
 .opentt-search-rank-badge--3 {
-  background: linear-gradient(145deg, #d69a6a 0%, #975c2f 100%);
-  border-color: rgba(233, 182, 141, 0.9);
+  color: #cb7f4a;
+}
+
+.opentt-search-rank-badge--3::before {
+  background: linear-gradient(150deg, #edb283 0%, #c97a44 48%, #8a4d26 100%);
 }
 
 .opentt-search-rank-badge--num {
@@ -376,8 +408,8 @@ html.opentt-search-open {
     font-size: 13px;
   }
 
-  .opentt-search-rank-badge img {
-    width: 16px;
-    height: 16px;
+  .opentt-search-rank-badge--icon::before {
+    width: 22px;
+    height: 22px;
   }
 }

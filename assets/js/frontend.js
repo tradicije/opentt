@@ -522,15 +522,13 @@
       }
 
       return (
-        '<span class="opentt-search-rank-badge opentt-search-rank-badge--' +
+        '<span class="opentt-search-rank-badge opentt-search-rank-badge--icon opentt-search-rank-badge--' +
         esc(String(r)) +
-        '">' +
-        '<img src="' +
+        '" style="--opentt-rank-icon:url(\'' +
         esc(icon) +
-        '" alt="' +
+        '\')" aria-label="' +
         esc("Top " + String(r)) +
-        '" loading="lazy" decoding="async">' +
-        "</span>"
+        '"></span>'
       );
     }
 
@@ -549,9 +547,9 @@
       html += '<div class="opentt-search-group-head">';
       if (groupKey === "trending" && openttSearchAssets.trendingIcon) {
         html +=
-          '<span class="opentt-search-group-icon"><img src="' +
+          '<span class="opentt-search-group-icon opentt-search-group-icon--fire" style="--opentt-trending-icon:url(\'' +
           esc(String(openttSearchAssets.trendingIcon || "")) +
-          '" alt="" loading="lazy" decoding="async"></span>';
+          "')\"></span>";
       }
       html += '<h4 class="opentt-search-group-title">' + label + "</h4>";
       if (groupKey === "history") {
