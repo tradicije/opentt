@@ -544,6 +544,43 @@
       );
     }
 
+    function escapeRegex(value) {
+      return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function highlightText(value, query) {
+      var raw = String(value || "");
+      var q = String(query || "").trim();
+      if (!q) {
+        return esc(raw);
+      }
+      var re = null;
+      try {
+        re = new RegExp("(" + escapeRegex(q) + ")", "gi");
+      } catch (err) {
+        return esc(raw);
+      }
+
+      var parts = raw.split(re);
+      if (!parts || parts.length <= 1) {
+        return esc(raw);
+      }
+
+      var htmlParts = "";
+      for (var i = 0; i < parts.length; i++) {
+        var part = String(parts[i] || "");
+        if (!part) {
+          continue;
+        }
+        if (part.toLowerCase() === q.toLowerCase()) {
+          htmlParts += '<strong class="opentt-search-hit">' + esc(part) + "</strong>";
+        } else {
+          htmlParts += esc(part);
+        }
+      }
+      return htmlParts || esc(raw);
+    }
+
     var html = "";
     groups.forEach(function (group) {
       var groupKey = String(group && group.key ? group.key : "");
