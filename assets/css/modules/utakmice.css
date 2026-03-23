@@ -1099,6 +1099,8 @@ a.opentt-grid-cal-preview-more:focus {
   align-items: flex-start;
   gap: 6px;
   padding: 8px 10px;
+  box-sizing: border-box;
+  max-width: 100%;
   border: 1px solid rgba(142, 197, 255, 0.24);
   border-radius: 10px;
   background: rgba(3, 20, 58, 0.45);
@@ -1106,14 +1108,17 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-data-updated--center {
-  display: flex;
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
   align-items: center;
   margin-left: auto;
   margin-right: auto;
 }
 
 .opentt-data-updated-row {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   display: inline-flex;
   align-items: center;
 }
@@ -1143,6 +1148,7 @@ a.opentt-grid-cal-preview-more:focus {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
   color: inherit;
   text-decoration: none !important;
 }
@@ -1209,6 +1215,7 @@ a.opentt-data-updated-user:focus {
   flex-direction: column;
   gap: 2px;
   line-height: 1.15;
+  min-width: 0;
 }
 
 .opentt-data-updated-meta strong {
@@ -1383,6 +1390,11 @@ a.opentt-data-updated-user:focus {
   .opentt-data-updated {
     width: 100%;
     margin-top: 10px;
+  }
+
+  .opentt-data-updated--center {
+    width: auto;
+    max-width: calc(100vw - 24px);
   }
 }
 
