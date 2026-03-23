@@ -16,9 +16,12 @@ if (!defined('ABSPATH')) {
 final class OpenTT_AI
 {
     const OPTION_API_KEY = 'opentt_ai_groq_api_key';
+    const OPTION_MODEL = 'opentt_ai_groq_model';
     const SETTINGS_GROUP = 'opentt_ai_settings_group';
     const NONCE_ACTION = 'opentt_ai_chat';
     const AJAX_ACTION = 'opentt_ai_chat';
+    const MODELS_TRANSIENT_KEY = 'opentt_ai_groq_models_cache';
+    const DEFAULT_MODEL = 'llama-3.1-8b-instant';
 
     public static function register()
     {
@@ -58,6 +61,15 @@ final class OpenTT_AI
                 'default' => '',
             ]
         );
+        register_setting(
+            self::SETTINGS_GROUP,
+            self::OPTION_MODEL,
+            [
+                'type' => 'string',
+                'sanitize_callback' => [__CLASS__, 'sanitize_model'],
+                'default' => self::DEFAULT_MODEL,
+            ]
+        );
     }
 
     public static function sanitize_api_key($value)
@@ -77,6 +89,7 @@ final class OpenTT_AI
 
         $check = self::validate_api_key_connection($value);
         if (!empty($check['ok'])) {
+            self::clear_models_cache();
             add_settings_error(self::OPTION_API_KEY, 'opentt_ai_key_ok', 'Groq API ključ je uspešno validiran.', 'updated');
             return $value;
         }
@@ -86,6 +99,16 @@ final class OpenTT_AI
         return (string) get_option(self::OPTION_API_KEY, '');
     }
 
+    public static function sanitize_model($value)
+    {
+        $value = trim((string) $value);
+        $value = sanitize_text_field($value);
+        if ($value === '') {
+            return self::DEFAULT_MODEL;
+        }
+        return $value;
+    }
+
     public static function render_settings_page()
     {
         $capability = defined('OpenTT_Unified_Core::CAP') ? OpenTT_Unified_Core::CAP : 'manage_options';
@@ -93,19 +116,69 @@ final class OpenTT_AI
             wp_die(esc_html__('You do not have permission to access this page.', 'opentt'));
         }
 
+        if (isset($_GET['refresh_models']) && isset($_GET['_wpnonce'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $nonce_ok = wp_verify_nonce((string) wp_unslash($_GET['_wpnonce']), 'opentt_ai_refresh_models'); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            if ($nonce_ok) {
+                self::clear_models_cache();
+                $probe_key = trim((string) get_option(self::OPTION_API_KEY, ''));
+                if ($probe_key !== '') {
+                    $probe = self::fetch_available_models($probe_key, true);
+                    if (!empty($probe['ok'])) {
+                        add_settings_error(self::OPTION_MODEL, 'opentt_ai_models_refresh_ok', 'Lista modela je uspešno osvežena.', 'updated');
+                    } else {
+                        add_settings_error(self::OPTION_MODEL, 'opentt_ai_models_refresh_fail', 'Neuspešno osvežavanje modela: ' . (string) ($probe['message'] ?? 'Nepoznata greška.'));
+                    }
+                }
+            }
+        }
+
         echo '<div class="wrap">';
         echo '<h1>OpenTT AI Podešavanja</h1>';
         echo '<form method="post" action="options.php">';
         settings_fields(self::SETTINGS_GROUP);
         settings_errors(self::OPTION_API_KEY);
+        settings_errors(self::OPTION_MODEL);
 
         $api_key = (string) get_option(self::OPTION_API_KEY, '');
+        $selected_model = self::get_selected_model();
+        $models_data = self::fetch_available_models($api_key, false);
+        $models = !empty($models_data['models']) && is_array($models_data['models']) ? $models_data['models'] : [];
+        $refresh_url = wp_nonce_url(
+            admin_url('admin.php?page=stkb-unified-ai-chat&refresh_models=1'),
+            'opentt_ai_refresh_models'
+        );
         echo '<table class="form-table" role="presentation"><tbody>';
         echo '<tr>';
         echo '<th scope="row"><label for="opentt-ai-groq-api-key">Groq API Key</label></th>';
         echo '<td>';
         echo '<input id="opentt-ai-groq-api-key" name="' . esc_attr(self::OPTION_API_KEY) . '" type="text" class="regular-text" value="' . esc_attr($api_key) . '" autocomplete="off" />';
         echo '<p class="description">Ključ se čuva kroz WordPress Options API i nikada se ne izlaže na frontendu.</p>';
+        echo '</td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<th scope="row"><label for="opentt-ai-groq-model">Groq Model</label></th>';
+        echo '<td>';
+        echo '<select id="opentt-ai-groq-model" name="' . esc_attr(self::OPTION_MODEL) . '" class="regular-text">';
+        if (!empty($models)) {
+            foreach ($models as $model_id) {
+                $model_id = (string) $model_id;
+                if ($model_id === '') {
+                    continue;
+                }
+                echo '<option value="' . esc_attr($model_id) . '" ' . selected($selected_model, $model_id, false) . '>' . esc_html($model_id) . '</option>';
+            }
+            if (!in_array($selected_model, $models, true)) {
+                echo '<option value="' . esc_attr($selected_model) . '" selected="selected">' . esc_html($selected_model . ' (trenutni)') . '</option>';
+            }
+        } else {
+            echo '<option value="' . esc_attr($selected_model) . '">' . esc_html($selected_model) . '</option>';
+        }
+        echo '</select>';
+        echo '<p class="description">Podrazumevano: <code>' . esc_html(self::DEFAULT_MODEL) . '</code>. Možeš osvežiti listu modela direktno sa Groq API-ja.</p>';
+        echo '<p><a class="button" href="' . esc_url($refresh_url) . '">Osveži dostupne modele</a></p>';
+        if (empty($models) && $api_key !== '') {
+            echo '<p class="description">Napomena: lista modela trenutno nije dostupna. Sačuvani model će se i dalje koristiti.</p>';
+        }
         echo '</td>';
         echo '</tr>';
         echo '</tbody></table>';
@@ -144,7 +217,10 @@ final class OpenTT_AI
             <div class="opentt-ai-backdrop" hidden></div>
             <div id="<?php echo esc_attr($uid . '-panel'); ?>" class="opentt-ai-panel" hidden>
                 <button type="button" class="opentt-ai-close" aria-label="Zatvori AI asistenta">&times;</button>
-                <label class="opentt-ai-label" for="<?php echo esc_attr($uid . '-input'); ?>">AI Asistent</label>
+                <div class="opentt-ai-head">
+                    <span class="opentt-ai-brand">STKB.AI</span>
+                    <label class="opentt-ai-label" for="<?php echo esc_attr($uid . '-input'); ?>">AI Asistent</label>
+                </div>
                 <div class="opentt-ai-messages" aria-live="polite"></div>
                 <div class="opentt-ai-form">
                     <input id="<?php echo esc_attr($uid . '-input'); ?>" type="text" class="opentt-ai-input" placeholder="<?php echo esc_attr($placeholder); ?>" />
@@ -174,7 +250,8 @@ final class OpenTT_AI
         if ($api_key === '') {
             wp_send_json_error(['message' => 'Groq API ključ nije podešen u administraciji.'], 500);
         }
-        $json = self::call_groq_chat_completion($api_key, $message, 20);
+        $model = self::get_selected_model();
+        $json = self::call_groq_chat_completion($api_key, $model, $message, 20);
         if (!is_array($json)) {
             wp_send_json_error(['message' => 'AI servis trenutno nije dostupan.'], 502);
         }
@@ -245,8 +322,83 @@ final class OpenTT_AI
         return ['ok' => false, 'message' => self::extract_api_error_message($body, $status)];
     }
 
-    private static function call_groq_chat_completion($api_key, $message, $timeout = 20)
+    private static function get_selected_model()
     {
+        $model = trim((string) get_option(self::OPTION_MODEL, self::DEFAULT_MODEL));
+        if ($model === '') {
+            $model = self::DEFAULT_MODEL;
+        }
+        return sanitize_text_field($model);
+    }
+
+    private static function clear_models_cache()
+    {
+        delete_transient(self::MODELS_TRANSIENT_KEY);
+    }
+
+    private static function fetch_available_models($api_key, $force = false)
+    {
+        $api_key = trim((string) $api_key);
+        if ($api_key === '') {
+            return ['ok' => false, 'models' => [], 'message' => 'API ključ nije unet.'];
+        }
+
+        if (!$force) {
+            $cached = get_transient(self::MODELS_TRANSIENT_KEY);
+            if (is_array($cached) && !empty($cached['models']) && is_array($cached['models'])) {
+                return ['ok' => true, 'models' => array_values($cached['models']), 'message' => 'cache'];
+            }
+        }
+
+        $response = wp_remote_get(
+            'https://api.groq.com/openai/v1/models',
+            [
+                'timeout' => 14,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $api_key,
+                ],
+            ]
+        );
+
+        if (is_wp_error($response)) {
+            return ['ok' => false, 'models' => [], 'message' => (string) $response->get_error_message()];
+        }
+        $status = intval(wp_remote_retrieve_response_code($response));
+        $body = (string) wp_remote_retrieve_body($response);
+        if ($status < 200 || $status >= 300) {
+            return ['ok' => false, 'models' => [], 'message' => self::extract_api_error_message($body, $status)];
+        }
+        $json = json_decode($body, true);
+        if (!is_array($json)) {
+            return ['ok' => false, 'models' => [], 'message' => 'Nevalidan odgovor za listu modela.'];
+        }
+        $data = isset($json['data']) && is_array($json['data']) ? $json['data'] : [];
+        $models = [];
+        foreach ($data as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $id = trim((string) ($row['id'] ?? ''));
+            if ($id === '') {
+                continue;
+            }
+            $models[] = $id;
+        }
+        $models = array_values(array_unique($models));
+        sort($models, SORT_NATURAL | SORT_FLAG_CASE);
+        if (empty($models)) {
+            return ['ok' => false, 'models' => [], 'message' => 'Nema dostupnih modela za ovaj API ključ.'];
+        }
+        set_transient(self::MODELS_TRANSIENT_KEY, ['models' => $models], 10 * MINUTE_IN_SECONDS);
+        return ['ok' => true, 'models' => $models, 'message' => 'ok'];
+    }
+
+    private static function call_groq_chat_completion($api_key, $model, $message, $timeout = 20)
+    {
+        $model = trim((string) $model);
+        if ($model === '') {
+            $model = self::DEFAULT_MODEL;
+        }
         $response = wp_remote_post(
             'https://api.groq.com/openai/v1/chat/completions',
             [
@@ -256,7 +408,7 @@ final class OpenTT_AI
                     'Content-Type' => 'application/json',
                 ],
                 'body' => wp_json_encode([
-                    'model' => 'llama3-8b-8192',
+                    'model' => $model,
                     'messages' => [
                         [
                             'role' => 'system',
@@ -334,9 +486,11 @@ final class OpenTT_AI
             .opentt-ai-toggle:hover { transform: translateY(-1px); border-color: rgba(255,255,255,.34); background: rgba(8,30,82,.95); }
             .opentt-ai-toggle-icon { width: 18px; height: 18px; display: block; filter: brightness(0) invert(1); }
             .opentt-ai-backdrop { position: fixed; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(61,124,255,.22), rgba(2,10,28,.72) 55%, rgba(1,5,16,.84) 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 78; }
-            .opentt-ai-panel { position: fixed; inset: 0; width: 100vw; height: 100dvh; background: linear-gradient(140deg, rgba(12,39,102,.48) 0%, rgba(5,20,58,.85) 32%, rgba(3,13,40,.96) 100%); border: 0; border-radius: 0; box-shadow: 0 22px 48px rgba(0,0,0,.48), 0 0 0 1px rgba(45,119,245,.18) inset; padding: 72px 24px 24px; z-index: 79; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; }
+            .opentt-ai-panel { position: fixed; inset: 0; width: 100vw; height: 100dvh; background: linear-gradient(140deg, rgba(12,39,102,.52) 0%, rgba(5,20,58,.86) 32%, rgba(3,13,40,.97) 100%); border: 0; border-radius: 0; box-shadow: 0 22px 48px rgba(0,0,0,.48), 0 0 0 1px rgba(45,119,245,.18) inset; padding: 72px 24px 24px; z-index: 79; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; }
             .opentt-ai-close { display: inline-block; border: 0; background: transparent; color: #fff; font-size: 32px; line-height: 1; cursor: pointer; position: absolute; top: 12px; right: 16px; padding: 4px 10px; z-index: 2; }
-            .opentt-ai-label { display: block; font-size: 28px; font-weight: 700; line-height: 1.2; color: rgba(255,255,255,.92); margin-bottom: 12px; letter-spacing: .06em; text-transform: uppercase; }
+            .opentt-ai-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+            .opentt-ai-brand { display: inline-flex; align-items: center; font-size: 13px; letter-spacing: .12em; font-weight: 800; text-transform: uppercase; color: #9ec8ff; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(130, 176, 255, .45); background: linear-gradient(90deg, rgba(64,118,255,.18), rgba(37,196,255,.16)); box-shadow: 0 0 20px rgba(54,128,255,.16); }
+            .opentt-ai-label { display: block; font-size: 28px; font-weight: 700; line-height: 1.2; color: rgba(255,255,255,.92); letter-spacing: .06em; text-transform: uppercase; }
             .opentt-ai-messages { min-height: 220px; max-height: 52dvh; overflow-y: auto; border: 1px solid rgba(255,255,255,.08); background: #04102b; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
             .opentt-ai-msg { margin: 0 0 10px 0; padding: 8px 10px; border-radius: 8px; line-height: 1.45; font-size: 14px; }
             .opentt-ai-msg-user { background: rgba(61,124,255,.18); border: 1px solid rgba(61,124,255,.35); }
@@ -406,6 +560,11 @@ final class OpenTT_AI
                         setTimeout(function () {
                             input.focus();
                         }, 0);
+                        var list = root.querySelector('.opentt-ai-messages');
+                        if (list && !list.dataset.openttAiGreetingShown) {
+                            list.dataset.openttAiGreetingShown = '1';
+                            appendMessage(root, 'opentt-ai-msg-bot', 'Ćao! Ja sam STKB.AI asistent. Pitaj me o ligama, klubovima, igračima i rezultatima.');
+                        }
                     }
 
                     function closePanel() {

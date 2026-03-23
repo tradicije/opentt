@@ -155,6 +155,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added new `opentt_ai` shortcode with minimal dark chat UI (messages, input, send button), AJAX loading/error states, and secure server-side Groq chat-completions proxy (`llama3-8b-8192`).
 - Updated `opentt_ai` UX to icon-trigger + fullscreen overlay (search-like), with auto icon discovery from `assets/icons` (`ai-icon.svg`/`chat-icon.svg` fallback), Serbian UI labels/messages, and improved frontend error surfacing from real API responses.
 - Added strict Groq API key validation on save (`gsk_` format + live `/models` connectivity check), with admin success/error notices and safe fallback to previous key on failed verification.
+- Updated `opentt_ai` model handling to use `llama-3.1-8b-instant` as default (replacing deprecated model usage), with admin-selectable model option.
+- Added dynamic Groq model catalog in AI settings (`/models` fetch + manual refresh button) so site owners can choose from currently available models tied to their API key.
 
 ## Releases
 
