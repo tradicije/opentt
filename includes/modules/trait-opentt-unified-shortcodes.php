@@ -1462,8 +1462,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             echo '<a href="' . esc_url($link) . '">';
             echo '<div class="opentt-item-main">';
             echo '<div class="opentt-item-teams">';
-            echo self::render_team_html($home_id, $rd, $home_win, !$is_upcoming_no_score);
-            echo self::render_team_html($away_id, $rg, $away_win, !$is_upcoming_no_score);
+            $fallback_score_label = $is_upcoming_no_score ? $time_label : '';
+            echo self::render_team_html($home_id, $rd, $home_win, !$is_upcoming_no_score, $fallback_score_label);
+            echo self::render_team_html($away_id, $rg, $away_win, !$is_upcoming_no_score, $fallback_score_label);
             echo '</div>';
             echo '<div class="opentt-item-side" aria-label="Vreme utakmice">';
             if ($is_live) {
@@ -1633,7 +1634,7 @@ trait OpenTT_Unified_Shortcodes_Trait
         return '<img ' . implode(' ', $parts) . ' />';
     }
 
-    private static function render_team_html($club_id, $score, $is_winner, $show_score = true)
+    private static function render_team_html($club_id, $score, $is_winner, $show_score = true, $fallback_score_label = '')
     {
         $class = $is_winner ? 'pobednik' : 'gubitnik';
         $name = $club_id ? get_the_title($club_id) : '';
@@ -1647,6 +1648,8 @@ trait OpenTT_Unified_Shortcodes_Trait
         echo '<span>' . esc_html($name) . '</span>';
         if ($show_score) {
             echo '<strong>' . esc_html((string) intval($score)) . '</strong>';
+        } elseif ($fallback_score_label !== '') {
+            echo '<strong class="team-time">' . esc_html((string) $fallback_score_label) . '</strong>';
         }
         echo '</div>';
         return ob_get_clean();
