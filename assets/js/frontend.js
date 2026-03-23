@@ -1172,6 +1172,196 @@
     });
   }
 
+  function initAi(root) {
+    if (!root || root.dataset.openttAiReady === "1") {
+      return;
+    }
+    var toggle = root.querySelector(".opentt-ai-toggle");
+    var panel = root.querySelector(".opentt-ai-panel");
+    var backdrop = root.querySelector(".opentt-ai-backdrop");
+    var closeBtn = root.querySelector(".opentt-ai-close");
+    var input = root.querySelector(".opentt-ai-input");
+    var send = root.querySelector(".opentt-ai-send");
+    var list = root.querySelector(".opentt-ai-messages");
+    if (!toggle || !panel || !input || !send || !list) {
+      return;
+    }
+    root.dataset.openttAiReady = "1";
+
+    var ajaxUrl = String(root.getAttribute("data-ajax-url") || "");
+    var nonce = String(root.getAttribute("data-nonce") || "");
+    var iconUrl = String(root.getAttribute("data-ai-icon") || "");
+    var history = [];
+    var thinkingNode = null;
+
+    function appendMessage(role, text, thinking) {
+      var row = document.createElement("div");
+      var safeRole = role === "user" || role === "assistant" || role === "error" ? role : "assistant";
+      row.className = "opentt-ai-row is-" + safeRole;
+      if (safeRole !== "user") {
+        var avatar = document.createElement("span");
+        avatar.className = "opentt-ai-avatar";
+        if (iconUrl) {
+          var img = document.createElement("img");
+          img.src = iconUrl;
+          img.alt = "";
+          img.setAttribute("aria-hidden", "true");
+          avatar.appendChild(img);
+        } else {
+          avatar.textContent = "AI";
+        }
+        row.appendChild(avatar);
+      }
+      var bubble = document.createElement("div");
+      bubble.className = "opentt-ai-msg" + (thinking ? " is-thinking" : "");
+      bubble.textContent = String(text || "");
+      row.appendChild(bubble);
+      list.appendChild(row);
+      list.scrollTop = list.scrollHeight;
+      return row;
+    }
+
+    function showThinking() {
+      if (thinkingNode) {
+        return;
+      }
+      thinkingNode = appendMessage("assistant", "STKB.AI razmislja...", true);
+    }
+
+    function hideThinking() {
+      if (thinkingNode && thinkingNode.parentNode) {
+        thinkingNode.parentNode.removeChild(thinkingNode);
+      }
+      thinkingNode = null;
+    }
+
+    function openPanel() {
+      panel.hidden = false;
+      if (backdrop) {
+        backdrop.hidden = false;
+      }
+      toggle.setAttribute("aria-expanded", "true");
+      lockPageScroll(panel);
+      if (!list.dataset.openttAiGreetingShown) {
+        list.dataset.openttAiGreetingShown = "1";
+        appendMessage("assistant", "Ćao! Ja sam STKB.AI asistent. Pitaj me o ligama, klubovima, igračima i rezultatima.");
+      }
+      setTimeout(function () {
+        input.focus();
+      }, 0);
+    }
+
+    function closePanel() {
+      panel.hidden = true;
+      if (backdrop) {
+        backdrop.hidden = true;
+      }
+      toggle.setAttribute("aria-expanded", "false");
+      unlockPageScroll();
+    }
+
+    function submit() {
+      var question = String(input.value || "").trim();
+      if (!question) {
+        appendMessage("error", "Unesi poruku.");
+        return;
+      }
+      if (!ajaxUrl || !nonce) {
+        appendMessage("error", "AI chat nije pravilno podešen.");
+        return;
+      }
+
+      appendMessage("user", question);
+      input.value = "";
+      send.disabled = true;
+      send.textContent = "Šaljem...";
+      showThinking();
+
+      var body = new URLSearchParams();
+      body.set("action", "opentt_ai_chat");
+      body.set("nonce", nonce);
+      body.set("message", question);
+      body.set("history", JSON.stringify(history.slice(-20)));
+
+      fetch(ajaxUrl, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        },
+        body: body.toString(),
+      })
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (payload) {
+          hideThinking();
+          send.disabled = false;
+          send.textContent = "Pošalji";
+          if (!payload || payload.success !== true) {
+            var errorText = payload && payload.data && payload.data.message ? payload.data.message : "AI trenutno nije dostupan.";
+            appendMessage("error", errorText);
+            history.push({ role: "user", content: question });
+            return;
+          }
+          var reply = payload.data && payload.data.reply ? String(payload.data.reply) : "";
+          if (!reply) {
+            appendMessage("error", "AI nije poslao odgovor.");
+            return;
+          }
+          appendMessage("assistant", reply);
+          history.push({ role: "user", content: question });
+          history.push({ role: "assistant", content: reply });
+          if (history.length > 40) {
+            history = history.slice(-40);
+          }
+        })
+        .catch(function () {
+          hideThinking();
+          send.disabled = false;
+          send.textContent = "Pošalji";
+          appendMessage("error", "Došlo je do greške pri slanju.");
+        });
+    }
+
+    toggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (panel.hidden) {
+        openPanel();
+      } else {
+        closePanel();
+      }
+    });
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        closePanel();
+      });
+    }
+    if (backdrop) {
+      backdrop.addEventListener("click", function (e) {
+        e.preventDefault();
+        closePanel();
+      });
+    }
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !panel.hidden) {
+        closePanel();
+      }
+    });
+    send.addEventListener("click", function (e) {
+      e.preventDefault();
+      submit();
+    });
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submit();
+      }
+    });
+  }
+
   function initAllMatchesLists() {
     var roots = document.querySelectorAll('[data-opentt-matches-list="1"]');
     for (var i = 0; i < roots.length; i++) {
@@ -1186,14 +1376,23 @@
     }
   }
 
+  function initAllAis() {
+    var roots = document.querySelectorAll('[data-opentt-ai="1"]');
+    for (var i = 0; i < roots.length; i++) {
+      initAi(roots[i]);
+    }
+  }
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       initAllMatchesLists();
       initAllSearches();
+      initAllAis();
     });
   } else {
     initAllMatchesLists();
     initAllSearches();
+    initAllAis();
   }
 })();
     function escapeRegex(value) {

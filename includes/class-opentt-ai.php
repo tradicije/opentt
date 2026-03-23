@@ -233,12 +233,12 @@ final class OpenTT_AI
         ob_start();
         ?>
         <div id="<?php echo esc_attr($uid); ?>" class="opentt-ai" data-opentt-ai="1" data-ajax-url="<?php echo esc_url($ajax_url); ?>" data-nonce="<?php echo esc_attr($nonce); ?>" data-ai-icon="<?php echo esc_url($icon_url); ?>">
-            <button type="button" class="opentt-ai-toggle" aria-expanded="false" aria-controls="<?php echo esc_attr($uid . '-panel'); ?>" aria-label="Otvori AI asistenta" onclick="return window.openttAiFallbackToggle('<?php echo esc_js($uid); ?>');">
+            <button type="button" class="opentt-ai-toggle" aria-expanded="false" aria-controls="<?php echo esc_attr($uid . '-panel'); ?>" aria-label="Otvori AI asistenta">
                 <img class="opentt-ai-toggle-icon" src="<?php echo esc_url($icon_url); ?>" alt="" aria-hidden="true">
             </button>
-            <div class="opentt-ai-backdrop" hidden onclick="return window.openttAiFallbackToggle('<?php echo esc_js($uid); ?>', true);"></div>
+            <div class="opentt-ai-backdrop" hidden></div>
             <div id="<?php echo esc_attr($uid . '-panel'); ?>" class="opentt-ai-panel" hidden>
-                <button type="button" class="opentt-ai-close" aria-label="Zatvori AI asistenta" onclick="return window.openttAiFallbackToggle('<?php echo esc_js($uid); ?>', true);">&times;</button>
+                <button type="button" class="opentt-ai-close" aria-label="Zatvori AI asistenta">&times;</button>
                 <div class="opentt-ai-head">
                     <span class="opentt-ai-brand">STKB.AI</span>
                     <label class="opentt-ai-label" for="<?php echo esc_attr($uid . '-input'); ?>">AI Asistent</label>
