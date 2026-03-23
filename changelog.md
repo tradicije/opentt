@@ -84,6 +84,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Adjusted ELO visibility to player profile context only (`opentt_player_info`), removing ELO badges from ranking/list cards.
 - Improved player-profile ELO fallback resolution: when page context has no explicit league/season, profile now uses the player’s latest available competition scope instead of defaulting to `1500`.
 - Added admin Settings toggle for ELO system (enable/disable): when disabled, ELO updates/backfill are skipped and player-profile ELO display is hidden.
+- Added OpenTT admin submenu `AI Chat` with WordPress Settings API (`register_setting` + `settings_fields`) for storing `Groq API Key`, with key used only server-side.
 - Added quick score edit workflow in admin `Utakmice` list (`Quick rezultat`) so home/away score can be updated directly from the list page without opening full match edit.
 - Changed default ELO setting to disabled (`OFF`) for fresh installs unless explicitly enabled in Settings.
 - Added new global personalization color `Boja zaglavlja tabela` and wired all frontend table-header surfaces (`thead` tint previously hardcoded as `rgba(8, 30, 82, 0.32)`) to this setting.
@@ -151,6 +152,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Styled `Trending` discovery block with the same fire gradient palette as the trending icon and added subtle pulse animation to increase visual prominence.
 - Center-aligned league/date metadata under match rows in both discovery and regular search results, and added fuzzy typo-tolerant matching for near-miss queries (for example small misspellings like `bubudinac` can still surface `bubušinac`).
 - Added inline typo helper under search input: when query looks misspelled, search now shows `Da li ste mislili "..."?` with clickable suggestion that reruns results instantly.
+- Added new `opentt_ai` shortcode with minimal dark chat UI (messages, input, send button), AJAX loading/error states, and secure server-side Groq chat-completions proxy (`llama3-8b-8192`).
 
 ## Releases
 

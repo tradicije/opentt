@@ -26,6 +26,7 @@ require_once __DIR__ . '/class-opentt-unified-admin-match-actions.php';
 require_once __DIR__ . '/class-opentt-unified-admin-club-player-actions.php';
 require_once __DIR__ . '/class-opentt-unified-shortcode-match-query-service.php';
 require_once __DIR__ . '/class-opentt-unified-shortcode-stats-query-service.php';
+require_once __DIR__ . '/class-opentt-ai.php';
 
 final class OpenTT_Unified_Core
 {
@@ -75,6 +76,7 @@ final class OpenTT_Unified_Core
         OpenTT_Unified_Routing_Module::register();
         OpenTT_Unified_Shortcodes_Module::register();
         OpenTT_Unified_Legacy_Module::register();
+        OpenTT_AI::register();
         add_action('init', [__CLASS__, 'maybe_flush_rewrite_rules_once'], 99);
         add_action('init', [__CLASS__, 'maybe_setup_default_pages'], 30);
         add_action('admin_init', [__CLASS__, 'maybe_redirect_to_onboarding']);
