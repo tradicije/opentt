@@ -43,7 +43,7 @@ final class OpenTT_AI
     const AJAX_ACTION = 'opentt_ai_chat';
     const MODELS_TRANSIENT_KEY = 'opentt_ai_groq_models_cache';
     const DEFAULT_MODEL = 'llama-3.1-8b-instant';
-    const SYSTEM_PROMPT = 'You are an assistant for a Serbian table tennis platform. ALWAYS use tools when user asks about matches, rankings, clubs, players, squads, or schedules. Never guess. Use prior conversation context to resolve references like "oni", "njihov", or "taj klub". IMPORTANT: You may call ONLY these tools: get_club_position, get_last_match, get_next_match, get_club_squad, get_player_info, search_entities. Never call any other tool names. Do NOT use external web facts; OpenTT tool data is the source of truth.';
+    const SYSTEM_PROMPT = 'You are an assistant for a Serbian table tennis platform. ALWAYS use tools when user asks about matches, rankings, clubs, players, squads, schedules, team count, or backend data. Never guess. Use prior conversation context to resolve references like "oni", "njihov", or "taj klub". IMPORTANT: You may call ONLY these tools: get_club_position, get_last_match, get_next_match, get_club_squad, get_player_info, search_entities, get_club_team_count, get_site_overview. Never call any other tool names. Do NOT use external web facts; OpenTT tool data is the source of truth.';
 
     public static function register()
     {
@@ -466,6 +466,7 @@ final class OpenTT_AI
             'klub', 'igrac', 'sastav', 'postava', 'liga', 'sezon',
             'tabel', 'pozic', 'mesto', 'rang', 'utakmic', 'mec',
             'rezultat', 'kolo', 'slede', 'naredn', 'posled', 'termin',
+            'ekipa', 'tim', 'backend', 'sajt', 'podaci', 'sistem',
             'stk', 'ping', 'stoni', 'tt'
         ];
         foreach ($keywords as $keyword) {
@@ -667,7 +668,27 @@ final class OpenTT_AI
         $asks_last = (strpos($q, 'posled') !== false || strpos($q, 'zadnj') !== false || strpos($q, 'rezultat') !== false);
         $asks_next = (strpos($q, 'sledec') !== false || strpos($q, 'slede') !== false || strpos($q, 'naredn') !== false || strpos($q, 'kada') !== false || strpos($q, 'termin') !== false);
         $asks_squad = (strpos($q, 'sastav') !== false || strpos($q, 'igrac') !== false || strpos($q, 'postava') !== false);
+        $asks_team_count = (
+            strpos($q, 'vise ekipa') !== false ||
+            strpos($q, 'koliko ekipa') !== false ||
+            strpos($q, 'broj ekipa') !== false ||
+            strpos($q, 'jednu') !== false ||
+            strpos($q, 'jedna ekipa') !== false
+        );
+        $asks_site_overview = (
+            strpos($q, 'ceo sajt') !== false ||
+            strpos($q, 'backend') !== false ||
+            strpos($q, 'sve podatke') !== false ||
+            strpos($q, 'pregled sistema') !== false
+        );
         $asks_about = (strpos($q, 'sta znas') !== false || strpos($q, 'info') !== false || strpos($q, 'o ') !== false);
+
+        if ($asks_site_overview) {
+            $overview = self::tool_get_site_overview();
+            if (!empty($overview['ok'])) {
+                return (string) ($overview['summary'] ?? '');
+            }
+        }
 
         if ($club_name === '') {
             return 'Nisam uspeo da prepoznam klub. Napiši tačan naziv kluba (na primer: STK Bubušinac).';
@@ -697,6 +718,12 @@ final class OpenTT_AI
             if (!empty($r['ok'])) {
                 $players = isset($r['players']) && is_array($r['players']) ? $r['players'] : [];
                 $parts[] = 'Sastav: ' . implode(', ', array_slice($players, 0, 12)) . (count($players) > 12 ? '...' : '.');
+            }
+        }
+        if ($asks_team_count) {
+            $r = self::tool_get_club_team_count($club_name);
+            if (!empty($r['ok'])) {
+                $parts[] = (string) ($r['summary'] ?? '');
             }
         }
 
@@ -875,6 +902,33 @@ final class OpenTT_AI
                     ],
                 ],
             ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_club_team_count',
+                    'description' => 'Get how many teams/league entries a club has in the latest season',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'club_name' => ['type' => 'string'],
+                        ],
+                        'required' => ['club_name'],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_site_overview',
+                    'description' => 'Get global backend overview of OpenTT data (clubs, players, matches, competitions)',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -909,6 +963,12 @@ final class OpenTT_AI
         }
         if ($name === 'search_entities') {
             return self::tool_search_entities($query);
+        }
+        if ($name === 'get_club_team_count') {
+            return self::tool_get_club_team_count($club_name);
+        }
+        if ($name === 'get_site_overview') {
+            return self::tool_get_site_overview();
         }
 
         return ['ok' => false, 'error' => 'Nepoznat tool: ' . $name];
@@ -1486,6 +1546,123 @@ final class OpenTT_AI
             'query' => $query,
             'results' => $out,
             'summary' => 'Pronađeni su rezultati kroz igrače, klubove, takmičenja i utakmice.',
+        ];
+    }
+
+    public static function tool_get_club_team_count($club_name)
+    {
+        global $wpdb;
+        $club = self::find_club_by_name($club_name);
+        if (empty($club)) {
+            return ['ok' => false, 'error' => 'Klub nije pronađen.'];
+        }
+        $club_id = intval($club['id']);
+        $matches = OpenTT_Unified_Core::db_table('matches');
+        if ($club_id <= 0 || !self::table_exists($matches)) {
+            return ['ok' => false, 'error' => 'Podaci nisu dostupni.'];
+        }
+
+        $latest = OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_latest_competition_for_club($club_id);
+        $season = is_array($latest) ? sanitize_title((string) ($latest['sezona_slug'] ?? '')) : '';
+        if ($season === '') {
+            $season_rows = $wpdb->get_col($wpdb->prepare(
+                "SELECT DISTINCT sezona_slug
+                 FROM {$matches}
+                 WHERE (home_club_post_id=%d OR away_club_post_id=%d) AND sezona_slug<>''
+                 ORDER BY match_date DESC, id DESC
+                 LIMIT 1",
+                $club_id,
+                $club_id
+            ));
+            if (is_array($season_rows) && !empty($season_rows[0])) {
+                $season = sanitize_title((string) $season_rows[0]);
+            }
+        }
+
+        $where = ['(home_club_post_id=%d OR away_club_post_id=%d)'];
+        $params = [$club_id, $club_id];
+        if ($season !== '') {
+            $where[] = 'sezona_slug=%s';
+            $params[] = $season;
+        }
+
+        $sql = "SELECT DISTINCT liga_slug
+                FROM {$matches}
+                WHERE " . implode(' AND ', $where) . "
+                  AND liga_slug <> ''";
+        $liga_rows = $wpdb->get_col($wpdb->prepare($sql, $params));
+        $liga_rows = is_array($liga_rows) ? array_values(array_filter(array_map('sanitize_title', $liga_rows))) : [];
+        $liga_rows = array_values(array_unique($liga_rows));
+        $count = count($liga_rows);
+        $league_names = [];
+        foreach ($liga_rows as $slug) {
+            $league_names[] = OpenTT_Unified_Readonly_Helpers::slug_to_title((string) $slug);
+        }
+
+        if ($count <= 0) {
+            return ['ok' => false, 'error' => 'Nema podataka o ligama za ovaj klub.'];
+        }
+
+        $season_label = $season !== '' ? OpenTT_Unified_Readonly_Helpers::slug_to_title($season) : 'aktuelna sezona';
+        $summary = $count > 1
+            ? sprintf('%s ima %d ekipe u sezoni %s (%s).', (string) $club['title'], $count, $season_label, implode(', ', $league_names))
+            : sprintf('%s ima jednu ekipu u sezoni %s (%s).', (string) $club['title'], $season_label, implode(', ', $league_names));
+
+        return [
+            'ok' => true,
+            'club_name' => (string) $club['title'],
+            'season_slug' => $season,
+            'team_count' => $count,
+            'league_slugs' => $liga_rows,
+            'league_names' => $league_names,
+            'summary' => $summary,
+        ];
+    }
+
+    public static function tool_get_site_overview()
+    {
+        global $wpdb;
+        $matches = OpenTT_Unified_Core::db_table('matches');
+        $games = OpenTT_Unified_Core::db_table('games');
+        $sets = OpenTT_Unified_Core::db_table('sets');
+        $clubs_total = intval(wp_count_posts('klub')->publish ?? 0);
+        $players_total = intval(wp_count_posts('igrac')->publish ?? 0);
+        $competitions_total = intval(wp_count_posts('pravilo_takmicenja')->publish ?? 0);
+
+        $matches_total = 0;
+        $played_total = 0;
+        $upcoming_total = 0;
+        if (self::table_exists($matches)) {
+            $matches_total = intval($wpdb->get_var("SELECT COUNT(*) FROM {$matches}"));
+            $played_total = intval($wpdb->get_var("SELECT COUNT(*) FROM {$matches} WHERE played=1 OR home_score<>0 OR away_score<>0"));
+            $upcoming_total = max(0, $matches_total - $played_total);
+        }
+        $games_total = self::table_exists($games) ? intval($wpdb->get_var("SELECT COUNT(*) FROM {$games}")) : 0;
+        $sets_total = self::table_exists($sets) ? intval($wpdb->get_var("SELECT COUNT(*) FROM {$sets}")) : 0;
+
+        $summary = sprintf(
+            'OpenTT backend: %d klubova, %d igrača, %d takmičenja, %d utakmica (%d odigranih, %d zakazanih), %d partija i %d setova.',
+            $clubs_total,
+            $players_total,
+            $competitions_total,
+            $matches_total,
+            $played_total,
+            $upcoming_total,
+            $games_total,
+            $sets_total
+        );
+
+        return [
+            'ok' => true,
+            'clubs_total' => $clubs_total,
+            'players_total' => $players_total,
+            'competitions_total' => $competitions_total,
+            'matches_total' => $matches_total,
+            'played_total' => $played_total,
+            'upcoming_total' => $upcoming_total,
+            'games_total' => $games_total,
+            'sets_total' => $sets_total,
+            'summary' => $summary,
         ];
     }
 
