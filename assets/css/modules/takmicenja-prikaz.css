@@ -3,6 +3,25 @@
   gap: 24px;
 }
 
+.opentt-prikaz-takmicenja .opentt-grid-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  margin: 0;
+}
+
+.opentt-prikaz-takmicenja .opentt-grid-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px;
+}
+
+.opentt-prikaz-takmicenja .opentt-grid-filters select {
+  min-width: 220px;
+}
+
 .opentt-prikaz-takmicenja-rank {
   margin: 0;
 }
@@ -119,6 +138,28 @@
 }
 
 @media (max-width: 640px) {
+  .opentt-prikaz-takmicenja .opentt-grid-filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: end;
+  }
+
+  .opentt-prikaz-takmicenja .opentt-grid-filters label {
+    min-width: 0;
+  }
+
+  .opentt-prikaz-takmicenja .opentt-grid-filters select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .opentt-prikaz-takmicenja .opentt-grid-filters .opentt-grid-filter-reset {
+    width: auto;
+    min-height: 36px;
+    white-space: nowrap;
+  }
+
   .opentt-prikaz-takmicenja-grid {
     grid-template-columns: 1fr;
   }

@@ -1123,6 +1123,33 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 @media (max-width: 767px) {
+  .opentt-grid-filters {
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .opentt-grid-filters-left {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    align-items: end;
+  }
+
+  .opentt-grid-filters-left label {
+    min-width: 0;
+  }
+
+  .opentt-grid-filters select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .opentt-grid-filter-reset {
+    width: 100%;
+    min-height: 34px;
+  }
+
   .opentt-grid.cols-1,
   .opentt-grid.cols-2,
   .opentt-grid.cols-3,
@@ -1135,7 +1162,7 @@ a.opentt-grid-cal-preview-more:focus {
   .opentt-grid-filters-right {
     width: 100%;
     margin-left: 0;
-    justify-content: flex-end;
+    justify-content: space-between;
   }
 
   .opentt-grid-density-switch {
