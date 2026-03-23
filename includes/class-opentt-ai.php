@@ -1408,14 +1408,23 @@ final class OpenTT_AI
                     var thinkingNode = null;
                     var lastToggleAt = 0;
 
-                    if (panel.parentNode !== document.body) {
-                        document.body.appendChild(panel);
-                    }
-                    if (backdrop && backdrop.parentNode !== document.body) {
-                        document.body.appendChild(backdrop);
+                    function ensureOverlayInBody() {
+                        if (!document.body) {
+                            return false;
+                        }
+                        if (panel.parentNode !== document.body) {
+                            document.body.appendChild(panel);
+                        }
+                        if (backdrop && backdrop.parentNode !== document.body) {
+                            document.body.appendChild(backdrop);
+                        }
+                        return true;
                     }
 
                     function openPanel() {
+                        if (!ensureOverlayInBody()) {
+                            return;
+                        }
                         panel.hidden = false;
                         if (backdrop) {
                             backdrop.hidden = false;
@@ -1543,8 +1552,6 @@ final class OpenTT_AI
                     }
 
                     toggle.addEventListener('click', handleToggle);
-                    toggle.addEventListener('touchend', handleToggle);
-                    toggle.addEventListener('pointerup', handleToggle);
                     if (close) {
                         close.addEventListener('click', closePanel);
                     }
