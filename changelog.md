@@ -125,6 +125,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Adjusted compact group separators in `opentt_matches_grid` so the last match in each round group no longer renders a bottom separator line.
 - Updated `opentt_matches_grid` compact rows for unplayed matches: when score is not available (`0:0` / not played), the score slot now shows kickoff time instead of remaining empty.
 - Refined unplayed-time rendering in `opentt_matches_grid`: kickoff time in score slot is now compact-only (spacious view unchanged) and shown once per match row (not duplicated for both teams).
+- Aligned compact unplayed kickoff time vertically to the middle of match row (right side), replacing previous top-right placement.
 - Reworked admin match quick editing UX: renamed action to `Quick edit`, moved editor inline below the selected match row (blue-highlighted box), opened/closed without page refresh, and expanded fields to include score, date, kickoff time, and location (refresh occurs only on save).
 - Updated `opentt_matches_list` default-round selection: when no explicit round is requested, shortcode now opens the first upcoming round (first round containing at least one unplayed match) instead of always opening the latest round.
 - Redesigned `opentt_featured_match` card visuals for stronger hero emphasis: richer layered gradient, premium glass/panel styling, stronger typography hierarchy, featured ribbon marker, and polished hover/live-state presentation across desktop and mobile.

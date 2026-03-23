@@ -777,6 +777,7 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-item-teams {
+  position: relative;
   gap: 1px;
 }
 
@@ -805,6 +806,12 @@ a.opentt-grid-cal-preview-more:focus {
 
 .opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team .team-time {
   display: inline-block;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 42px;
+  text-align: right;
 }
 
 .opentt-grid-filter-block.opentt-grid-density-compact .team.pobednik span,
