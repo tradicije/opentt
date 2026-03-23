@@ -151,6 +151,35 @@ html.opentt-search-open {
   background: linear-gradient(90deg, rgba(53, 114, 226, 0.22), rgba(255, 255, 255, 0.06));
 }
 
+.opentt-search-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-right: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.opentt-search-group-head .opentt-search-group-title {
+  border-bottom: 0;
+}
+
+.opentt-search-clear-history {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  line-height: 1.2;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.opentt-search-clear-history:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
 .opentt-search-group-items {
   display: flex;
   flex-direction: column;

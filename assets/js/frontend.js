@@ -474,7 +474,15 @@
         return;
       }
       html += '<section class="opentt-search-group">';
+      html += '<div class="opentt-search-group-head">';
       html += '<h4 class="opentt-search-group-title">' + label + "</h4>";
+      if (String(group && group.key ? group.key : "") === "history") {
+        html +=
+          '<button type="button" class="opentt-search-clear-history" data-opentt-clear-history>' +
+          esc(group && group.clearLabel ? group.clearLabel : "Očisti istoriju pretrage") +
+          "</button>";
+      }
+      html += "</div>";
       html += '<div class="opentt-search-group-items">';
       items.forEach(function (item) {
         var title = esc(item && item.title ? item.title : "");
@@ -539,6 +547,7 @@
     var loadingText = i18n.loading || "Pretraga...";
     var emptyText = i18n.empty || "Nema rezultata.";
     var historyLabel = i18n.historyLabel || "Istorija pretrage";
+    var clearHistoryText = i18n.clearHistory || "Očisti istoriju pretrage";
     var currentController = null;
     var discoveryCache = null;
     var historyCookieName = "opentt_search_history";
@@ -614,6 +623,7 @@
       return {
         key: "history",
         label: historyLabel,
+        clearLabel: clearHistoryText,
         items: terms.map(function (term) {
           return {
             title: term,
@@ -625,11 +635,13 @@
       };
     }
 
-    function mergeDiscoveryGroups(serverGroups) {
+    function mergeDiscoveryGroups(serverGroups, includeHistory) {
       var groups = [];
-      var historyGroup = buildHistoryGroup();
-      if (historyGroup) {
-        groups.push(historyGroup);
+      if (includeHistory) {
+        var historyGroup = buildHistoryGroup();
+        if (historyGroup) {
+          groups.push(historyGroup);
+        }
       }
       if (Array.isArray(serverGroups) && serverGroups.length) {
         groups = groups.concat(serverGroups);
@@ -637,9 +649,9 @@
       return groups;
     }
 
-    function renderDiscovery() {
+    function renderDiscovery(includeHistory) {
       if (discoveryCache) {
-        renderSearchGroups(results, mergeDiscoveryGroups(discoveryCache));
+        renderSearchGroups(results, mergeDiscoveryGroups(discoveryCache, !!includeHistory));
         return;
       }
 
@@ -648,7 +660,7 @@
           ? String(window.openttFrontend.ajaxUrl)
           : "";
       if (!ajaxUrl) {
-        renderSearchGroups(results, mergeDiscoveryGroups([]));
+        renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory));
         return;
       }
 
@@ -677,11 +689,37 @@
             serverGroups = Array.isArray(payload.data.groups) ? payload.data.groups : [];
           }
           discoveryCache = serverGroups;
-          renderSearchGroups(results, mergeDiscoveryGroups(serverGroups));
+          renderSearchGroups(results, mergeDiscoveryGroups(serverGroups, !!includeHistory));
         })
         .catch(function () {
-          renderSearchGroups(results, mergeDiscoveryGroups([]));
+          renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory));
         });
+    }
+
+    function trackSearchTerm(term) {
+      var value = String(term || "").trim();
+      if (!value) {
+        return;
+      }
+      var ajaxUrl =
+        window.openttFrontend && window.openttFrontend.ajaxUrl
+          ? String(window.openttFrontend.ajaxUrl)
+          : "";
+      if (!ajaxUrl) {
+        return;
+      }
+      var body = new URLSearchParams();
+      body.set("action", "opentt_frontend_search");
+      body.set("nonce", String(window.openttFrontend.searchNonce || ""));
+      body.set("track_term", value);
+      fetch(ajaxUrl, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        },
+        body: body.toString(),
+      }).catch(function () {});
     }
 
     function closePanel() {
@@ -704,7 +742,7 @@
         input.focus();
       }, 0);
       if (!String(input.value || "").trim()) {
-        renderDiscovery();
+        renderDiscovery(true);
       }
     }
 
@@ -739,6 +777,15 @@
     });
 
     results.addEventListener("click", function (e) {
+      var clearBtn =
+        e.target && e.target.closest ? e.target.closest("[data-opentt-clear-history]") : null;
+      if (clearBtn) {
+        e.preventDefault();
+        writeCookie(historyCookieName, "[]", 60);
+        renderDiscovery(true);
+        return;
+      }
+
       var qItem =
         e.target && e.target.closest
           ? e.target.closest("[data-opentt-search-query]")
@@ -750,6 +797,8 @@
           return;
         }
         input.value = q;
+        pushHistoryTerm(q);
+        trackSearchTerm(q);
         runSearch(q);
         return;
       }
@@ -760,14 +809,41 @@
         var term = String(input.value || "").trim();
         if (term.length >= minChars) {
           pushHistoryTerm(term);
+          trackSearchTerm(term);
         }
       }
+    });
+
+    input.addEventListener("focus", function () {
+      if (!String(input.value || "").trim()) {
+        renderDiscovery(true);
+      }
+    });
+
+    input.addEventListener("blur", function () {
+      if (!String(input.value || "").trim()) {
+        setTimeout(function () {
+          renderDiscovery(false);
+        }, 100);
+      }
+    });
+
+    input.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter") {
+        return;
+      }
+      var term = String(input.value || "").trim();
+      if (term.length < minChars) {
+        return;
+      }
+      pushHistoryTerm(term);
+      trackSearchTerm(term);
     });
 
     var runSearch = debounce(function (value) {
       var query = String(value || "").trim();
       if (query.length === 0) {
-        renderDiscovery();
+        renderDiscovery(document.activeElement === input);
         return;
       }
       if (query.length < minChars) {
@@ -818,7 +894,6 @@
           }
           var data = payload.data && typeof payload.data === "object" ? payload.data : {};
           renderSearchGroups(results, data.groups || []);
-          pushHistoryTerm(query);
         })
         .catch(function () {
           results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";

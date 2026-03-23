@@ -134,6 +134,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Polished `opentt_search` header/input layout: localized label to `Pretraga`, increased heading size, improved top spacing and panel padding, and fixed desktop close-button clipping.
 - Updated `opentt_search` heading treatment to stronger visual emphasis: larger all-caps `PRETRAGA` title with increased letter spacing (desktop + mobile scale).
 - Added empty-input discovery mode in `opentt_search`: now shows popular players and clubs (ranked by current match/game performance) plus cookie-based search history (`Istorija pretrage`) for returning visitors without user profiles.
+- Extended `opentt_search` discovery UX: search history now appears contextually on input focus (YouTube-style) with `Očisti istoriju pretrage` action, and added site-wide recent `Trending` terms based on recorded searches from the last 5 days (not lifetime totals).
 
 ## Releases
 

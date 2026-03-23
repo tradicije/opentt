@@ -51,6 +51,7 @@ final class OpenTT_Unified_Core
     const OPTION_IMPORT_PREVIEW = 'opentt_unified_import_preview';
     const OPTION_COMPETITION_DIAGNOSTICS = 'opentt_unified_competition_diagnostics';
     const OPTION_ADMIN_UI_LANGUAGE = 'opentt_unified_admin_ui_language';
+    const OPTION_SEARCH_TRENDING_EVENTS = 'opentt_unified_search_trending_events';
     const TABLE_MATCHES = 'opentt_matches';
     const TABLE_GAMES = 'opentt_games';
     const TABLE_SETS = 'opentt_sets';
@@ -155,6 +156,12 @@ final class OpenTT_Unified_Core
         $nonce_ok = check_ajax_referer('opentt_frontend_search', 'nonce', false);
         if ($nonce_ok === false) {
             wp_send_json_error(['message' => 'Invalid nonce.'], 403);
+        }
+
+        $track_term = isset($_POST['track_term']) ? sanitize_text_field((string) wp_unslash($_POST['track_term'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        if (trim($track_term) !== '') {
+            self::record_search_trending_event($track_term);
+            wp_send_json_success(['tracked' => true]);
         }
 
         $query = isset($_POST['q']) ? sanitize_text_field((string) wp_unslash($_POST['q'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -6129,6 +6136,11 @@ HTML;
     {
         $groups = [];
 
+        $trending = self::search_recent_trending_group($limit);
+        if (!empty($trending)) {
+            $groups[] = ['key' => 'trending', 'label' => 'Trending (poslednjih 5 dana)', 'items' => $trending];
+        }
+
         $players = self::search_popular_players_group($limit, $context);
         if (!empty($players)) {
             $groups[] = ['key' => 'players', 'label' => 'Popularni igrači', 'items' => $players];
@@ -6140,6 +6152,119 @@ HTML;
         }
 
         return $groups;
+    }
+
+    private static function search_recent_trending_group($limit)
+    {
+        $events = get_option(self::OPTION_SEARCH_TRENDING_EVENTS, []);
+        if (!is_array($events) || empty($events)) {
+            return [];
+        }
+
+        $now = time();
+        $retention_seconds = 14 * DAY_IN_SECONDS;
+        $window_seconds = 5 * DAY_IN_SECONDS;
+        $min_ts = $now - $retention_seconds;
+        $window_ts = $now - $window_seconds;
+        $pruned = [];
+        $rank = [];
+
+        foreach ($events as $event) {
+            if (!is_array($event)) {
+                continue;
+            }
+            $term = trim((string) ($event['term'] ?? ''));
+            $ts = intval($event['ts'] ?? 0);
+            if ($term === '' || $ts <= 0) {
+                continue;
+            }
+            if ($ts < $min_ts) {
+                continue;
+            }
+            $pruned[] = ['term' => $term, 'ts' => $ts];
+            if ($ts < $window_ts) {
+                continue;
+            }
+            $key = self::search_fold_text(function_exists('mb_strtolower') ? mb_strtolower($term, 'UTF-8') : strtolower($term));
+            if ($key === '') {
+                continue;
+            }
+            if (!isset($rank[$key])) {
+                $rank[$key] = ['term' => $term, 'count' => 0, 'last_ts' => 0];
+            }
+            $rank[$key]['count']++;
+            if ($ts >= intval($rank[$key]['last_ts'])) {
+                $rank[$key]['last_ts'] = $ts;
+                $rank[$key]['term'] = $term;
+            }
+        }
+
+        if (count($pruned) !== count($events)) {
+            update_option(self::OPTION_SEARCH_TRENDING_EVENTS, array_slice($pruned, -2000), false);
+        }
+
+        if (empty($rank)) {
+            return [];
+        }
+
+        $rows = array_values($rank);
+        usort($rows, static function ($a, $b) {
+            $cnt = intval($b['count'] ?? 0) <=> intval($a['count'] ?? 0);
+            if ($cnt !== 0) {
+                return $cnt;
+            }
+            return intval($b['last_ts'] ?? 0) <=> intval($a['last_ts'] ?? 0);
+        });
+
+        $rows = array_slice($rows, 0, max(3, min(20, intval($limit))));
+        $out = [];
+        foreach ($rows as $row) {
+            $term = trim((string) ($row['term'] ?? ''));
+            if ($term === '') {
+                continue;
+            }
+            $count = intval($row['count'] ?? 0);
+            $out[] = [
+                'title' => $term,
+                'url' => '#',
+                'meta' => $count . ' pretraga',
+                'query' => $term,
+                'thumb' => self::search_plugin_asset_url('assets/icons/search-icon.svg'),
+            ];
+        }
+
+        return $out;
+    }
+
+    private static function record_search_trending_event($term)
+    {
+        $term = trim((string) $term);
+        if ($term === '') {
+            return;
+        }
+        if (function_exists('mb_strlen')) {
+            if (mb_strlen($term, 'UTF-8') < 2) {
+                return;
+            }
+        } elseif (strlen($term) < 2) {
+            return;
+        }
+
+        $events = get_option(self::OPTION_SEARCH_TRENDING_EVENTS, []);
+        if (!is_array($events)) {
+            $events = [];
+        }
+
+        $events[] = [
+            'term' => $term,
+            'ts' => time(),
+        ];
+
+        if (count($events) > 2000) {
+            $events = array_slice($events, -2000);
+        }
+
+        update_option(self::OPTION_SEARCH_TRENDING_EVENTS, $events, false);
     }
 
     private static function search_players_group($query, $limit, array $context, array $competition_club_ids, array $match_player_ids)

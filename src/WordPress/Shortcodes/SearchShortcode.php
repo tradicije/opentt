@@ -59,6 +59,7 @@ final class SearchShortcode
                     'matches' => 'Utakmice',
                 ],
                 'historyLabel' => 'Istorija pretrage',
+                'clearHistory' => 'Očisti istoriju pretrage',
             ],
         ]);
 
