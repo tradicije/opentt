@@ -306,7 +306,7 @@ html.opentt-search-open {
 }
 
 .opentt-search-match-team-name {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.3;
   color: rgba(243, 248, 255, 0.94);
   white-space: nowrap;
@@ -315,23 +315,23 @@ html.opentt-search-open {
 }
 
 .opentt-search-match-score {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   color: #fff;
-  min-width: 52px;
+  min-width: 58px;
   text-align: center;
 }
 
 .opentt-search-item-thumb.is-mini {
-  width: 24px;
-  min-width: 24px;
-  height: 24px;
-  border-radius: 6px;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 8px;
 }
 
 .opentt-search-match-meta {
   font-size: 12px;
-  line-height: 1.35;
+  line-height: 1.4;
   color: rgba(194, 206, 224, 0.9);
 }
 

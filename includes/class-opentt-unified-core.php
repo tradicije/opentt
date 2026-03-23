@@ -6182,11 +6182,11 @@ HTML;
             $params[] = $sezona;
         }
 
-        $sql = "SELECT id, legacy_post_id, liga_slug, sezona_slug, kolo_slug, slug, home_club_post_id, away_club_post_id, home_score, away_score, match_date
+        $sql = "SELECT id, legacy_post_id, liga_slug, sezona_slug, kolo_slug, slug, home_club_post_id, away_club_post_id, home_score, away_score, played, match_date
                 FROM {$table}
                 WHERE " . implode(' AND ', $where) . "
                 ORDER BY match_date DESC, id DESC
-                LIMIT 5";
+                LIMIT 40";
         if (!empty($params)) {
             $sql = $wpdb->prepare($sql, $params);
         }
@@ -6203,6 +6203,12 @@ HTML;
             if ($home_id <= 0 || $away_id <= 0) {
                 continue;
             }
+            $home_score = intval($row->home_score ?? 0);
+            $away_score = intval($row->away_score ?? 0);
+            $is_played = intval($row->played ?? 0) === 1 || $home_score > 0 || $away_score > 0;
+            if (!$is_played || ($home_score === 0 && $away_score === 0)) {
+                continue;
+            }
 
             $home_name = (string) get_the_title($home_id);
             $away_name = (string) get_the_title($away_id);
@@ -6212,7 +6218,7 @@ HTML;
 
             $liga_label = self::slug_to_title((string) ($row->liga_slug ?? ''));
             $date_label = OpenTT_Unified_Readonly_Helpers::display_match_date((string) ($row->match_date ?? ''));
-            $score_label = intval($row->home_score ?? 0) . ' : ' . intval($row->away_score ?? 0);
+            $score_label = $home_score . ' : ' . $away_score;
 
             $items[] = [
                 'score' => intval(strtotime((string) ($row->match_date ?? ''))) ?: 0,
@@ -6791,6 +6797,14 @@ HTML;
                 'title' => trim($home . ' vs ' . $away),
                 'url' => self::search_match_permalink($row),
                 'meta' => $meta,
+                'matchRow' => true,
+                'homeName' => $home,
+                'awayName' => $away,
+                'homeThumb' => self::search_post_thumb_url($home_id, 'assets/img/fallback-club.png'),
+                'awayThumb' => self::search_post_thumb_url($away_id, 'assets/img/fallback-club.png'),
+                'scoreLabel' => intval($row->home_score ?? 0) . ' : ' . intval($row->away_score ?? 0),
+                'leagueLabel' => self::slug_to_title((string) ($row->liga_slug ?? '')),
+                'dateLabel' => $date,
             ];
         }
 

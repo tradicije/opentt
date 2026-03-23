@@ -605,7 +605,7 @@
         if (groupKey === "trending") {
           html += trendingRankHtml(index + 1);
         }
-        if (isMatchRow && groupKey === "latest_results") {
+        if (isMatchRow) {
           var homeName = esc(item && item.homeName ? item.homeName : "");
           var awayName = esc(item && item.awayName ? item.awayName : "");
           var homeThumb = esc(item && item.homeThumb ? item.homeThumb : "");

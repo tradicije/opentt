@@ -145,6 +145,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Updated `opentt_search` discovery composition on desktop to a 2x2 layout: first row `Trending` (left) + `Najnoviji rezultati` (right), second row `Popularni klubovi` (left) + `Popularni igrači` (right); mobile remains single-column.
 - Added `Najnoviji rezultati` discovery block (Top 5 by match date) with compact match rows showing home/away logos, score, league, and date.
 - Improved league thumbnails in search results by resolving logo from competition rule (`pravilo_takmicenja`) for `liga+sezona` before fallback sources.
+- Fixed `Najnoviji rezultati` discovery feed to include only actually played matches (excluding `0:0` unplayed fixtures), and unified match-row presentation so both discovery latest-results and regular searched `Utakmice` use the same compact logo/score/league/date layout sizing.
 
 ## Releases
 
