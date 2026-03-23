@@ -541,6 +541,9 @@ final class MatchesGridShortcode
                     }
 
                     function useRoundCardLayout() {
+                        if (currentDensity === 'compact') {
+                            return true;
+                        }
                         var selectedClub = clubSelect ? (clubSelect.value || '') : '';
                         return !!selectedClub || initialClubConstraint;
                     }
