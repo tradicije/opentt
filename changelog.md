@@ -149,6 +149,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Refined search match-row details: corrected away-team content order to `name + logo`, normalized encoded dash entities in match club names (for example `&#8211;` -> `-`), and added query highlight emphasis for matched club names inside match rows.
 - Fixed frontend search rendering regression where discovery blocks could disappear due missing highlight helper functions in `frontend.js` (restored stable highlight pipeline).
 - Styled `Trending` discovery block with the same fire gradient palette as the trending icon and added subtle pulse animation to increase visual prominence.
+- Center-aligned league/date metadata under match rows in both discovery and regular search results, and added fuzzy typo-tolerant matching for near-miss queries (for example small misspellings like `bubudinac` can still surface `bubušinac`).
 
 ## Releases
 

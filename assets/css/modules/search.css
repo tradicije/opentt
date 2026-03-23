@@ -359,9 +359,12 @@ html.opentt-search-open {
 }
 
 .opentt-search-match-meta {
+  display: block;
+  width: 100%;
   font-size: 12px;
   line-height: 1.3;
   color: rgba(194, 206, 224, 0.9);
+  text-align: center;
 }
 
 .opentt-search-hit {

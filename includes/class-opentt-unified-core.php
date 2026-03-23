@@ -6870,6 +6870,10 @@ HTML;
             $query_folded = self::search_fold_text($query_l);
             $pos = function_exists('mb_strpos') ? mb_strpos($text_folded, $query_folded, 0, 'UTF-8') : strpos($text_folded, $query_folded);
             if ($pos === false) {
+                $fuzzy = self::search_fuzzy_score($text_folded, $query_folded);
+                if ($fuzzy > 0) {
+                    return $fuzzy;
+                }
                 return 0;
             }
             $used_folded = true;
@@ -6889,6 +6893,76 @@ HTML;
         }
 
         return $score;
+    }
+
+    private static function search_fuzzy_score($text_folded, $query_folded)
+    {
+        $text_folded = trim((string) $text_folded);
+        $query_folded = trim((string) $query_folded);
+        if ($text_folded === '' || $query_folded === '' || !function_exists('levenshtein')) {
+            return 0;
+        }
+
+        $query_len = function_exists('mb_strlen') ? mb_strlen($query_folded, 'UTF-8') : strlen($query_folded);
+        if ($query_len < 5 || $query_len > 64) {
+            return 0;
+        }
+
+        $threshold = 2;
+        if ($query_len <= 6) {
+            $threshold = 1;
+        } elseif ($query_len >= 11) {
+            $threshold = 3;
+        }
+
+        $tokens = self::search_tokenize_text($text_folded);
+        if (empty($tokens)) {
+            return 0;
+        }
+
+        $min_dist = PHP_INT_MAX;
+        foreach ($tokens as $token) {
+            $token = (string) $token;
+            $token_len = function_exists('mb_strlen') ? mb_strlen($token, 'UTF-8') : strlen($token);
+            if ($token_len < 3 || $token_len > 64) {
+                continue;
+            }
+            $delta = abs($token_len - $query_len);
+            if ($delta > $threshold) {
+                continue;
+            }
+            $dist = levenshtein($query_folded, $token);
+            if ($dist < $min_dist) {
+                $min_dist = $dist;
+            }
+            if ($min_dist === 0) {
+                break;
+            }
+        }
+
+        if ($min_dist === PHP_INT_MAX || $min_dist > $threshold) {
+            return 0;
+        }
+
+        // Keep fuzzy matches below exact/prefix matches.
+        return max(12, 26 - ($min_dist * 6));
+    }
+
+    private static function search_tokenize_text($text)
+    {
+        $text = trim((string) $text);
+        if ($text === '') {
+            return [];
+        }
+        $parts = preg_split('/[^a-z0-9]+/i', $text) ?: [];
+        $out = [];
+        foreach ($parts as $part) {
+            $part = trim((string) $part);
+            if ($part !== '') {
+                $out[] = $part;
+            }
+        }
+        return array_values(array_unique($out));
     }
 
     private static function search_fold_text($value)
