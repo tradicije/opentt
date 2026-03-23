@@ -266,6 +266,18 @@ final class MatchesGridShortcode
             });
 
             $round_card_mode = ($selected_club > 0 && $selected_kolo === '');
+            $spacious_icon_url = self::discover_icon_url([
+                'assets/icons/spacious-icon.svg',
+                'assets/icons/prostrano.svg',
+                'assets/icons/prostran.svg',
+                'assets/icons/spacious.svg',
+            ]);
+            $compact_icon_url = self::discover_icon_url([
+                'assets/icons/compact-icon.svg',
+                'assets/icons/kompaktno.svg',
+                'assets/icons/kompakt.svg',
+                'assets/icons/compact.svg',
+            ]);
 
             $uid = 'opentt-grid-' . wp_unique_id();
 
@@ -307,6 +319,16 @@ final class MatchesGridShortcode
             }
             echo '</div>';
             echo '<div class="opentt-grid-filters-right">';
+            echo '<div class="opentt-grid-density-switch" role="group" aria-label="Gustina prikaza">';
+            echo '<button type="button" class="opentt-grid-density-option is-active" data-opentt-density="spacious" aria-pressed="true" title="Prostrano">';
+            echo '<span class="opentt-grid-density-icon" aria-hidden="true"' . ($spacious_icon_url !== '' ? ' style="--opentt-density-icon:url(\'' . esc_url($spacious_icon_url) . '\')"' : '') . '></span>';
+            echo '<span class="opentt-grid-density-label">Prostrano</span>';
+            echo '</button>';
+            echo '<button type="button" class="opentt-grid-density-option" data-opentt-density="compact" aria-pressed="false" title="Kompaktno">';
+            echo '<span class="opentt-grid-density-icon" aria-hidden="true"' . ($compact_icon_url !== '' ? ' style="--opentt-density-icon:url(\'' . esc_url($compact_icon_url) . '\')"' : '') . '></span>';
+            echo '<span class="opentt-grid-density-label">Kompaktno</span>';
+            echo '</button>';
+            echo '</div>';
             echo '<input type="hidden" name="opentt_match_date" class="opentt-grid-filter-date-input" value="' . esc_attr($selected_match_date) . '">';
             echo '<button type="button" class="button opentt-grid-calendar-toggle" aria-label="Calendar filter" title="Calendar filter" aria-haspopup="dialog" aria-expanded="false">';
             echo '<span class="opentt-grid-calendar-icon" aria-hidden="true"></span>';
@@ -392,6 +414,7 @@ final class MatchesGridShortcode
                     var calPreview = root.querySelector('.opentt-grid-cal-preview');
                     var calClear = root.querySelector('.opentt-grid-cal-clear');
                     var grid = root.querySelector('.opentt-grid');
+                    var densityButtons = Array.prototype.slice.call(root.querySelectorAll('[data-opentt-density]'));
                     if (!grid) { return false; }
                     var sentinel = root.querySelector('.opentt-grid-sentinel');
                     var loadMoreBtn = root.querySelector('.opentt-grid-load-more');
@@ -401,6 +424,8 @@ final class MatchesGridShortcode
                     var chunkSize = <?php echo intval($chunk_size); ?>;
                     var visibleCount = chunkSize;
                     var observer = null;
+                    var currentDensity = 'spacious';
+                    var lastRenderedItems = [];
                     var previewHideTimer = null;
                     var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-item'));
                     var calendarMonthDate = (function(){
@@ -459,6 +484,62 @@ final class MatchesGridShortcode
                         return dateB - dateA;
                     }
 
+                    function firstNonEmpty(values) {
+                        for (var i = 0; i < values.length; i++) {
+                            var value = String(values[i] || '').trim();
+                            if (value) {
+                                return value;
+                            }
+                        }
+                        return '';
+                    }
+
+                    function roundDateLabel(items) {
+                        if (!items || !items.length) {
+                            return '';
+                        }
+                        var sorted = items.slice().sort(function(a, b){
+                            return getNum(a.getAttribute('data-match-ts')) - getNum(b.getAttribute('data-match-ts'));
+                        });
+                        var firstLabel = firstNonEmpty([
+                            sorted[0].getAttribute('data-match-date-display'),
+                            sorted[0].getAttribute('data-match-date')
+                        ]);
+                        var lastLabel = firstNonEmpty([
+                            sorted[sorted.length - 1].getAttribute('data-match-date-display'),
+                            sorted[sorted.length - 1].getAttribute('data-match-date')
+                        ]);
+                        if (!firstLabel && !lastLabel) {
+                            return '';
+                        }
+                        if (!lastLabel || firstLabel === lastLabel) {
+                            return firstLabel;
+                        }
+                        return firstLabel + ' - ' + lastLabel;
+                    }
+
+                    function buildRoundHeading(slug, title, items) {
+                        var head = document.createElement('div');
+                        head.className = 'opentt-grid-round-heading';
+                        head.setAttribute('data-kolo-slug', slug || '');
+                        if (currentDensity === 'compact') {
+                            head.classList.add('opentt-grid-round-heading-compact');
+                            var left = document.createElement('span');
+                            left.className = 'opentt-grid-round-title';
+                            left.textContent = title;
+                            var right = document.createElement('span');
+                            right.className = 'opentt-grid-round-date';
+                            right.textContent = roundDateLabel(items || []);
+                            head.appendChild(left);
+                            head.appendChild(right);
+                            return head;
+                        }
+                        var text = document.createElement('span');
+                        text.textContent = title;
+                        head.appendChild(text);
+                        return head;
+                    }
+
                     function useRoundCardLayout() {
                         var selectedClub = clubSelect ? (clubSelect.value || '') : '';
                         return !!selectedClub || initialClubConstraint;
@@ -478,6 +559,7 @@ final class MatchesGridShortcode
                     }
 
                     function renderRoundHeadings(renderedItems) {
+                        lastRenderedItems = Array.isArray(renderedItems) ? renderedItems.slice() : [];
                         clearRoundLayout();
                         if (useRoundCardLayout()) {
                             grid.classList.add('opentt-grid-rounds-as-cards');
@@ -501,13 +583,7 @@ final class MatchesGridShortcode
                                 group.className = 'opentt-grid-round-group';
                                 group.setAttribute('data-kolo-slug', groupData.slug);
 
-                                var head = document.createElement('div');
-                                head.className = 'opentt-grid-round-heading';
-                                head.setAttribute('data-kolo-slug', groupData.slug);
-
-                                var text = document.createElement('span');
-                                text.textContent = groupData.title;
-                                head.appendChild(text);
+                                var head = buildRoundHeading(groupData.slug, groupData.title, groupData.items);
 
                                 var itemsWrap = document.createElement('div');
                                 itemsWrap.className = 'opentt-grid-round-group-items';
@@ -523,6 +599,18 @@ final class MatchesGridShortcode
                             return;
                         }
 
+                        var groupedBySlug = {};
+                        (renderedItems || []).forEach(function(rowItem){
+                            var rowSlug = rowItem.getAttribute('data-kolo-slug') || '';
+                            if (!rowSlug) {
+                                return;
+                            }
+                            if (!groupedBySlug[rowSlug]) {
+                                groupedBySlug[rowSlug] = [];
+                            }
+                            groupedBySlug[rowSlug].push(rowItem);
+                        });
+
                         var lastSlug = '';
                         (renderedItems || []).forEach(function(item){
                             var slug = item.getAttribute('data-kolo-slug') || '';
@@ -531,15 +619,23 @@ final class MatchesGridShortcode
                             var koloNo = parseInt(item.getAttribute('data-kolo-no') || '0', 10);
                             if (!title && koloNo > 0) { title = String(koloNo) + '. kolo'; }
                             if (!title) { title = slug; }
-                            var head = document.createElement('div');
-                            head.className = 'opentt-grid-round-heading';
-                            head.setAttribute('data-kolo-slug', slug);
-                            var text = document.createElement('span');
-                            text.textContent = title;
-                            head.appendChild(text);
+                            var head = buildRoundHeading(slug, title, groupedBySlug[slug] || [item]);
                             grid.insertBefore(head, item);
                             lastSlug = slug;
                         });
+                    }
+
+                    function applyDensityLayout(nextDensity) {
+                        var normalized = (nextDensity === 'compact') ? 'compact' : 'spacious';
+                        currentDensity = normalized;
+                        root.classList.toggle('opentt-grid-density-compact', normalized === 'compact');
+                        densityButtons.forEach(function(btn){
+                            var btnDensity = btn.getAttribute('data-opentt-density') || 'spacious';
+                            var active = (btnDensity === normalized);
+                            btn.classList.toggle('is-active', active);
+                            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+                        });
+                        renderRoundHeadings(lastRenderedItems);
                     }
 
                     function render() {
@@ -820,6 +916,11 @@ final class MatchesGridShortcode
                     if (koloSelect) { koloSelect.addEventListener('change', resetAndRender); }
                     if (clubSelect) { clubSelect.addEventListener('change', resetAndRender); }
                     if (sortSelect) { sortSelect.addEventListener('change', resetAndRender); }
+                    densityButtons.forEach(function(btn){
+                        btn.addEventListener('click', function(){
+                            applyDensityLayout(btn.getAttribute('data-opentt-density') || 'spacious');
+                        });
+                    });
                     if (calToggle && calPopover) {
                         calToggle.addEventListener('click', function(){
                             if (calPopover.hidden) {
@@ -890,6 +991,7 @@ final class MatchesGridShortcode
                     }
 
                     render();
+                    applyDensityLayout('spacious');
                     return true;
                 }
 
@@ -1002,5 +1104,33 @@ final class MatchesGridShortcode
         }
 
         return (string) $call('shortcode_title_html', 'Utakmice') . (string) $call('render_matches_grid_html', $rows, $columns, false);
+    }
+
+    private static function discover_icon_url(array $relative_candidates)
+    {
+        $plugin_root = dirname(__DIR__, 3);
+        $plugin_root_norm = wp_normalize_path($plugin_root);
+        $plugins_root_norm = wp_normalize_path((string) WP_PLUGIN_DIR);
+        if ($plugin_root_norm === '' || $plugins_root_norm === '' || strpos($plugin_root_norm, $plugins_root_norm) !== 0) {
+            return '';
+        }
+        $relative_root = ltrim(substr($plugin_root_norm, strlen($plugins_root_norm)), '/');
+        if ($relative_root === '') {
+            return '';
+        }
+        $plugin_base_url = trailingslashit((string) WP_PLUGIN_URL) . str_replace('\\', '/', $relative_root);
+
+        foreach ($relative_candidates as $relative_path) {
+            $relative_path = ltrim((string) $relative_path, '/');
+            if ($relative_path === '') {
+                continue;
+            }
+            $absolute_path = $plugin_root . '/' . $relative_path;
+            if (is_readable($absolute_path)) {
+                return trailingslashit($plugin_base_url) . str_replace('\\', '/', $relative_path);
+            }
+        }
+
+        return '';
     }
 }

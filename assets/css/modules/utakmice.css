@@ -84,6 +84,40 @@ body a {
   padding: 5px 10px;
 }
 
+.opentt-grid-round-heading-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  padding: 0 2px;
+  min-height: 24px;
+}
+
+.opentt-grid-round-heading-compact .opentt-grid-round-title,
+.opentt-grid-round-heading-compact .opentt-grid-round-date {
+  display: inline-block;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.opentt-grid-round-heading-compact .opentt-grid-round-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #eef4ff;
+}
+
+.opentt-grid-round-heading-compact .opentt-grid-round-date {
+  margin-left: auto;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #b8caea;
+}
+
 .opentt-grid.opentt-grid-rounds-as-cards {
   align-items: start;
 }
@@ -137,7 +171,56 @@ body a {
 
 .opentt-grid-filters-right {
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   position: relative;
+}
+
+.opentt-grid-density-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px;
+  border: 1px solid #ffffff2b;
+  border-radius: 8px;
+  background: #000a26;
+}
+
+.opentt-grid-density-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #b7cbef;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.opentt-grid-density-option.is-active {
+  border-color: #8ec5ff66;
+  background: rgba(142, 197, 255, 0.16);
+  color: #ffffff;
+}
+
+.opentt-grid-density-icon {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask: var(--opentt-density-icon) no-repeat center / contain;
+  mask: var(--opentt-density-icon) no-repeat center / contain;
+}
+
+.opentt-grid-density-label {
+  line-height: 1;
 }
 
 .opentt-grid-filters label {
@@ -624,6 +707,74 @@ a.opentt-grid-cal-preview-more:focus {
   color: #b7cbef;
 }
 
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid {
+  grid-template-columns: 1fr !important;
+  gap: 8px;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group {
+  gap: 4px;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group-items {
+  gap: 0;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item {
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 7px 2px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item:last-child {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item:hover {
+  transform: none;
+  box-shadow: none;
+  background: rgba(11, 40, 100, 0.24);
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item-main {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item-side {
+  display: none;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item-teams {
+  gap: 4px;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team {
+  min-height: 26px;
+  gap: 6px;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team img {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  margin-right: 6px;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team span {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team strong {
+  font-size: 1rem;
+  min-width: 20px;
+  text-align: right;
+}
+
 /* === POBEDNIK / GUBITNIK === */
 .team.pobednik span,
 .team.pobednik strong {
@@ -931,6 +1082,17 @@ a.opentt-grid-cal-preview-more:focus {
   .opentt-grid-filters-right {
     width: 100%;
     margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .opentt-grid-density-switch {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .opentt-grid-density-option {
+    flex: 0 0 auto;
+    justify-content: center;
   }
 
   .opentt-grid-calendar-toggle {

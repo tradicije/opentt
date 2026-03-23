@@ -1451,6 +1451,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $attr .= ' data-kolo-no="' . esc_attr((string) $kolo_no) . '"';
                 $attr .= ' data-match-ts="' . esc_attr((string) intval($match_ts)) . '"';
                 $attr .= ' data-match-date="' . esc_attr($match_date_iso) . '"';
+                $attr .= ' data-match-date-display="' . esc_attr($date) . '"';
                 $attr .= ' data-played="' . esc_attr((string) intval($row->played)) . '"';
                 $attr .= ' data-home-club-id="' . esc_attr((string) $home_id) . '"';
                 $attr .= ' data-away-club-id="' . esc_attr((string) $away_id) . '"';
