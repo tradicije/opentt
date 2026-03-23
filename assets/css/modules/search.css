@@ -244,7 +244,7 @@ html.opentt-search-open {
 
 .opentt-search-item-main {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
 }
 
@@ -262,6 +262,7 @@ html.opentt-search-open {
   font-size: 14px;
   line-height: 1;
   color: #fff;
+  align-self: center;
 }
 
 .opentt-search-rank-badge--icon {
@@ -311,8 +312,12 @@ html.opentt-search-open {
 }
 
 .opentt-search-rank-badge--num {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
-  border-color: rgba(255, 255, 255, 0.28);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: rgba(190, 199, 214, 0.94);
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .opentt-search-item-thumb {
