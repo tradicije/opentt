@@ -155,6 +155,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Updated `opentt_match_id` interaction model so only the CTA button is clickable (card body is no longer a full-surface link), and added winner/loser visual emphasis in played mode by muting loser name+score to gray.
 - Polished `opentt_match_id` visual scale and CTA alignment: increased crest/meta/team/CTA typography for better emphasis, and kept CTA full-width while centering its inner label/icon content (no stretched edge alignment).
 - Optimized `opentt_match_id` for mobile screens (<=700px and <=420px): tightened spacing hierarchy, improved logo/text/button scaling, and added safer multi-line handling for long team/opponent names to prevent cramped or broken card layout on phones.
+- Updated `opentt_match_id` mobile card ratio to `4:3` (instead of `1:1`) for better vertical balance and content fit on phone screens.
 - Reworked admin match quick editing UX: renamed action to `Quick edit`, moved editor inline below the selected match row (blue-highlighted box), opened/closed without page refresh, and expanded fields to include score, date, kickoff time, and location (refresh occurs only on save).
 - Added explicit `ID` column to the admin `Utakmice` list table so each match row clearly shows its database match ID.
 - Updated `opentt_matches_list` default-round selection: when no explicit round is requested, shortcode now opens the first upcoming round (first round containing at least one unplayed match) instead of always opening the latest round.

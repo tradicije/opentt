@@ -1053,6 +1053,10 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 @media (max-width: 700px) {
+  .opentt-match-id-card {
+    aspect-ratio: 4 / 3;
+  }
+
   .opentt-match-id-link {
     padding: 12px 10px 10px;
   }
@@ -1106,10 +1110,6 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 @media (max-width: 420px) {
-  .opentt-match-id-card {
-    aspect-ratio: 1 / 1;
-  }
-
   .opentt-match-id-link {
     padding: 10px 9px 9px;
   }
