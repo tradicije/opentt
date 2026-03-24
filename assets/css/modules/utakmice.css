@@ -189,7 +189,8 @@ body a {
 }
 
 .opentt-grid-density-switch.is-locked {
-  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .opentt-grid-density-option {
