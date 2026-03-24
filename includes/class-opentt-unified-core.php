@@ -3021,7 +3021,7 @@ JS;
             [
                 'tag' => 'opentt_matches_grid',
                 'desc' => 'Grid prikaz utakmica sa filterima/sortiranjem, kalendarskim filterom datuma i infinite opcijom.',
-                'attrs' => 'columns, limit, klub, highlight, played, liga, season, kolo, filter, infinite, view, opentt_match_date',
+                'attrs' => 'columns, limit, klub, highlight, played, liga, season, kolo, filter, infinite, view, author, opentt_match_date',
                 'details' => 'Najčešći shortcode za listing utakmica na početnoj ili liga stranici. Kada je `filter=true`, desno prikazuje izbor gustine prikaza (`Prostrano`/`Kompaktno`) i kalendar sa obojenim danima: odigrane (zeleno), predstojeće (plavo). Ako je zadat `view` atribut (`spacious` ili `compact`), prikaz je zaključan i ručni izbor gustine se ne prikazuje.',
                 'builder' => [
                     ['name' => 'columns', 'label' => 'Kolone', 'type' => 'number', 'default' => '4', 'help' => 'Broj kolona u gridu (1-6).'],
@@ -3034,6 +3034,7 @@ JS;
                     ['name' => 'filter', 'label' => 'Filter', 'type' => 'text', 'default' => 'true', 'help' => 'Uključuje filter/sort panel, izbor gustine prikaza (prostrano/kompaktno) i kalendar datuma.'],
                     ['name' => 'infinite', 'label' => 'Infinite', 'type' => 'text', 'default' => 'true', 'help' => 'Učitavanje dodatnih kartica pri skrolu.'],
                     ['name' => 'view', 'label' => 'View', 'type' => 'text', 'default' => '', 'help' => 'Opciono zaključavanje prikaza: `spacious` ili `compact` (sakriva ručni density switch).'],
+                    ['name' => 'author', 'label' => 'Author footer', 'type' => 'text', 'default' => 'true', 'help' => 'Prikaz footer bloka `Podatke uneo` (`true`/`false`).'],
                     ['name' => 'opentt_match_date', 'label' => 'Datum (YYYY-MM-DD)', 'type' => 'text', 'default' => '', 'help' => 'Opcioni početni datum filtera (npr. 2026-03-03).'],
                 ],
             ],
@@ -3053,7 +3054,7 @@ JS;
             [
                 'tag' => 'opentt_matches_list',
                 'desc' => 'Lista utakmica po kolima sa navigacijom levo/desno i mobilno optimizovanim redovima.',
-                'attrs' => 'liga, sezona, season, played, kolo, highlight',
+                'attrs' => 'liga, sezona, season, played, kolo, highlight, author',
                 'details' => 'Prikazuje jedno kolo odjednom i prebacuje između kola bez reload-a. `highlight` prima ID, slug ili naziv kluba i naglašava redove utakmica tog kluba.',
                 'builder' => [
                     ['name' => 'liga', 'label' => 'Liga slug', 'type' => 'text', 'default' => '', 'help' => 'Slug lige/takmičenja.'],
@@ -3061,6 +3062,7 @@ JS;
                     ['name' => 'played', 'label' => 'Played', 'type' => 'text', 'default' => '', 'help' => 'true = odigrane, false = neodigrane, prazno = sve.'],
                     ['name' => 'kolo', 'label' => 'Kolo slug', 'type' => 'text', 'default' => '', 'help' => 'Opcioni početni round slug.'],
                     ['name' => 'highlight', 'label' => 'Highlight klub', 'type' => 'text', 'default' => '', 'help' => 'ID, slug ili naziv kluba za naglašavanje redova utakmica.'],
+                    ['name' => 'author', 'label' => 'Author footer', 'type' => 'text', 'default' => 'true', 'help' => 'Prikaz footer bloka `Podatke uneo` (`true`/`false`).'],
                 ],
             ],
             [

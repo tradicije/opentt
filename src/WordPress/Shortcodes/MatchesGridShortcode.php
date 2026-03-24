@@ -28,6 +28,7 @@ final class MatchesGridShortcode
             'limit' => 5,
             'klub' => '',
             'highlight' => '',
+            'author' => 'true',
             'played' => '',
             'odigrana' => '',
             'liga' => '',
@@ -50,6 +51,7 @@ final class MatchesGridShortcode
         $use_load_more_button = ($pagination_mode === 'button' || $pagination_mode === 'load_more');
         $forced_view = self::normalize_view_mode((string) $atts['view']);
         $initial_density = $forced_view !== '' ? $forced_view : 'spacious';
+        $show_author_footer = self::normalize_bool_attr((string) ($atts['author'] ?? 'true'), true);
         $chunk_size = intval($atts['limit']);
         if ($chunk_size <= 0) {
             $chunk_size = 8;
@@ -138,7 +140,9 @@ final class MatchesGridShortcode
             echo '</div>';
             echo (string) $call('render_matches_grid_html', $rows, $columns, true);
             echo '</div>';
-            echo self::render_last_update_footer($rows);
+            if ($show_author_footer) {
+                echo self::render_last_update_footer($rows);
+            }
             ?>
             <script>
             var openttLegacyGridRoot = document.getElementById('<?php echo esc_js($uid); ?>');
@@ -413,7 +417,9 @@ final class MatchesGridShortcode
                 }
             }
             echo '</div>';
-            echo self::render_last_update_footer($rows);
+            if ($show_author_footer) {
+                echo self::render_last_update_footer($rows);
+            }
             ?>
             <script>
             (function(){
@@ -1053,7 +1059,9 @@ final class MatchesGridShortcode
                 echo '<div class="opentt-grid-sentinel" aria-hidden="true"></div>';
             }
             echo '</div>';
-            echo self::render_last_update_footer($rows);
+            if ($show_author_footer) {
+                echo self::render_last_update_footer($rows);
+            }
             ?>
             <script>
             (function(){
@@ -1163,7 +1171,7 @@ final class MatchesGridShortcode
             . '<div class="' . esc_attr($root_classes) . '">'
             . (string) $call('render_matches_grid_html', $rows, $columns, $initial_density === 'compact')
             . '</div>'
-            . self::render_last_update_footer($rows);
+            . ($show_author_footer ? self::render_last_update_footer($rows) : '');
     }
 
     private static function normalize_played_value($played, $odigrana)
@@ -1194,6 +1202,21 @@ final class MatchesGridShortcode
             return 'spacious';
         }
         return '';
+    }
+
+    private static function normalize_bool_attr($raw, $default = true)
+    {
+        $value = strtolower(trim((string) $raw));
+        if ($value === '') {
+            return (bool) $default;
+        }
+        if (in_array($value, ['1', 'true', 'yes', 'on', 'da'], true)) {
+            return true;
+        }
+        if (in_array($value, ['0', 'false', 'no', 'off', 'ne'], true)) {
+            return false;
+        }
+        return (bool) $default;
     }
 
     private static function resolve_highlight_ids($raw)

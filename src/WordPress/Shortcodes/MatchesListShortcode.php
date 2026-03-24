@@ -26,6 +26,7 @@ final class MatchesListShortcode
         $atts = shortcode_atts([
             'limit' => -1,
             'klub' => '',
+            'author' => 'true',
             'played' => '',
             'odigrana' => '',
             'liga' => '',
@@ -34,6 +35,7 @@ final class MatchesListShortcode
             'kolo' => '',
             'highlight' => '',
         ], $atts);
+        $show_author_footer = self::normalize_bool_attr((string) ($atts['author'] ?? 'true'), true);
 
         $query_args = (array) $call('build_match_query_args', $atts);
         $query_args['limit'] = -1;
@@ -177,7 +179,9 @@ final class MatchesListShortcode
         echo '<script type="application/json" class="opentt-matches-list-data">' . $payload_json . '</script>';
         echo '<div class="opentt-matches-list-body">' . self::render_initial_rows_html($initial_list) . '</div>';
         echo '</div>';
-        echo self::render_last_update_footer($rows);
+        if ($show_author_footer) {
+            echo self::render_last_update_footer($rows);
+        }
         return ob_get_clean();
     }
 
@@ -552,6 +556,21 @@ final class MatchesListShortcode
         }
 
         return array_values(array_unique(array_filter($ids)));
+    }
+
+    private static function normalize_bool_attr($raw, $default = true)
+    {
+        $value = strtolower(trim((string) $raw));
+        if ($value === '') {
+            return (bool) $default;
+        }
+        if (in_array($value, ['1', 'true', 'yes', 'on', 'da'], true)) {
+            return true;
+        }
+        if (in_array($value, ['0', 'false', 'no', 'off', 'ne'], true)) {
+            return false;
+        }
+        return (bool) $default;
     }
 
     private static function render_initial_rows_html(array $list)
