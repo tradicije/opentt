@@ -59,16 +59,17 @@ final class MatchIdShortcode
 
         $home_score = intval($match->home_score ?? 0);
         $away_score = intval($match->away_score ?? 0);
-        $is_played = intval($match->played ?? 0) === 1 || $home_score > 0 || $away_score > 0;
         $is_live = intval($match->live ?? 0) === 1;
-
-        $score_or_time = $is_played
-            ? ($home_score . ' : ' . $away_score)
-            : ((string) $call('display_match_time', (string) ($match->match_date ?? '')) ?: 'Najava');
         $date_label = (string) $call('display_match_date', (string) ($match->match_date ?? ''));
+        $time_label = (string) $call('display_match_time', (string) ($match->match_date ?? ''));
         $kolo_label = (string) $call('kolo_name_from_slug', (string) ($match->kolo_slug ?? ''));
         $liga_label = (string) $call('slug_to_title', (string) ($match->liga_slug ?? ''));
         $sezona_label = trim((string) ($match->sezona_slug ?? ''));
+        $location_label = self::resolve_match_location($match, $home_id);
+        $selected_club_id = self::resolve_selected_club_id($atts, $call);
+        $played_filter = self::normalize_played((string) ($atts['played'] ?? ''), (string) ($atts['odigrana'] ?? ''));
+        $is_latest_mode = ($id_mode === 'latest');
+        $use_opponent_layout = $is_latest_mode && $played_filter === '0';
 
         $top_meta_parts = [];
         if ($liga_label !== '') {
@@ -83,29 +84,49 @@ final class MatchIdShortcode
         $top_meta = implode(' • ', $top_meta_parts);
         $match_url = (string) $call('match_permalink', $match);
 
+        $primary_logo_id = $home_id > 0 ? $home_id : $away_id;
+        $opponent_name = '';
+        if ($selected_club_id > 0) {
+            if ($selected_club_id === $home_id) {
+                $primary_logo_id = $use_opponent_layout ? $away_id : $home_id;
+                $opponent_name = $away_name;
+            } elseif ($selected_club_id === $away_id) {
+                $primary_logo_id = $use_opponent_layout ? $home_id : $away_id;
+                $opponent_name = $home_name;
+            }
+        }
+        if ($primary_logo_id <= 0) {
+            $primary_logo_id = $home_id > 0 ? $home_id : $away_id;
+        }
+
         ob_start();
         echo '<article class="opentt-match-id-card' . ($is_live ? ' is-live' : '') . '">';
         echo '<a class="opentt-match-id-link" href="' . esc_url($match_url) . '">';
+        echo '<div class="opentt-match-id-logo">' . (string) $call('club_logo_html', $primary_logo_id, 'thumbnail', ['class' => 'opentt-match-id-crest']) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         if ($top_meta !== '') {
             echo '<div class="opentt-match-id-meta">' . esc_html($top_meta) . '</div>';
         }
-        echo '<div class="opentt-match-id-main">';
-        echo '<div class="opentt-match-id-team is-home">';
-        echo '<span class="opentt-match-id-team-logo">' . (string) $call('club_logo_html', $home_id, 'thumbnail', ['class' => 'opentt-match-id-crest']) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        echo '<span class="opentt-match-id-team-name">' . esc_html($home_name) . '</span>';
-        echo '</div>';
-        echo '<div class="opentt-match-id-center">';
+
+        if ($use_opponent_layout) {
+            $opponent_label = $opponent_name !== '' ? $opponent_name : ($away_name !== '' ? $away_name : $home_name);
+            echo '<div class="opentt-match-id-opponent">' . esc_html($opponent_label) . '</div>';
+        } else {
+            echo '<div class="opentt-match-id-scoreboard">';
+            echo '<div class="opentt-match-id-score-row"><span class="opentt-match-id-row-score">' . esc_html((string) $home_score) . '</span><span class="opentt-match-id-row-team">' . esc_html($home_name) . '</span></div>';
+            echo '<div class="opentt-match-id-score-row"><span class="opentt-match-id-row-score">' . esc_html((string) $away_score) . '</span><span class="opentt-match-id-row-team">' . esc_html($away_name) . '</span></div>';
+            echo '</div>';
+        }
+
+        echo '<div class="opentt-match-id-datetime">' . esc_html($date_label . ($time_label !== '' ? ' • ' . $time_label : '')) . '</div>';
+        if ($location_label !== '') {
+            echo '<div class="opentt-match-id-location">' . esc_html($location_label) . '</div>';
+        }
+        echo '<div class="opentt-match-id-cta">';
         if ($is_live) {
             echo '<span class="opentt-live-badge">LIVE</span>';
         }
-        echo '<strong class="opentt-match-id-score">' . esc_html($score_or_time) . '</strong>';
+        echo '<span class="opentt-match-id-btn">' . esc_html($use_opponent_layout ? 'Meč centar' : 'Detalji meča') . ' <span aria-hidden="true">→</span></span>';
         echo '</div>';
-        echo '<div class="opentt-match-id-team is-away">';
-        echo '<span class="opentt-match-id-team-logo">' . (string) $call('club_logo_html', $away_id, 'thumbnail', ['class' => 'opentt-match-id-crest']) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        echo '<span class="opentt-match-id-team-name">' . esc_html($away_name) . '</span>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="opentt-match-id-footer">' . esc_html($date_label) . '</div>';
         echo '</a>';
         echo '</article>';
         return ob_get_clean();
@@ -210,5 +231,38 @@ final class MatchIdShortcode
             return intval($m[1]);
         }
         return 0;
+    }
+
+    private static function resolve_selected_club_id(array $atts, callable $call)
+    {
+        $club_input = trim((string) ($atts['klub'] !== '' ? $atts['klub'] : ($atts['club'] ?? '')));
+        if ($club_input === '') {
+            return 0;
+        }
+        $args = $atts;
+        $args['klub'] = $club_input;
+        $query_args = (array) $call('build_match_query_args', $args);
+        return intval($query_args['club_id'] ?? 0);
+    }
+
+    private static function resolve_match_location($match, $home_club_id)
+    {
+        $location = trim((string) ($match->location ?? ''));
+        if ($location !== '') {
+            return $location;
+        }
+        $home_club_id = intval($home_club_id);
+        if ($home_club_id <= 0) {
+            return '';
+        }
+        $candidate = trim((string) get_post_meta($home_club_id, 'adresa_sale', true));
+        if ($candidate !== '') {
+            return $candidate;
+        }
+        $candidate = trim((string) get_post_meta($home_club_id, 'adresa_kluba', true));
+        if ($candidate !== '') {
+            return $candidate;
+        }
+        return trim((string) get_post_meta($home_club_id, 'grad', true));
     }
 }

@@ -886,7 +886,7 @@ a.opentt-grid-cal-preview-more:focus {
   width: 100%;
   aspect-ratio: 1 / 1;
   border: 1px solid rgba(142, 197, 255, 0.34);
-  border-radius: 14px;
+  border-radius: 0;
   background: linear-gradient(155deg, rgba(8, 31, 86, 0.86) 0%, rgba(3, 15, 45, 0.92) 55%, rgba(2, 12, 36, 0.96) 100%);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
   overflow: hidden;
@@ -900,89 +900,126 @@ a.opentt-grid-cal-preview-more:focus {
 .opentt-match-id-link {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   height: 100%;
   color: inherit;
   text-decoration: none !important;
-  padding: 12px;
-}
-
-.opentt-match-id-meta {
+  padding: 14px 12px 12px;
   text-align: center;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: #d8e7ff;
-  margin-bottom: 10px;
 }
 
-.opentt-match-id-main {
-  flex: 1 1 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-}
-
-.opentt-match-id-team {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.opentt-match-id-team-logo {
+.opentt-match-id-logo {
+  width: 68px;
+  height: 68px;
+  border-radius: 10px;
   display: inline-flex;
-  width: 54px;
-  height: 54px;
   align-items: center;
   justify-content: center;
+  margin-bottom: 8px;
 }
 
-.opentt-match-id-team-logo img {
+.opentt-match-id-logo img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   border-radius: 8px;
 }
 
-.opentt-match-id-team-name {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #f3f8ff;
-  text-align: center;
+.opentt-match-id-meta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: #d8e7ff;
+  margin-bottom: 10px;
+}
+
+.opentt-match-id-scoreboard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.opentt-match-id-score-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.opentt-match-id-row-score,
+.opentt-match-id-row-team,
+.opentt-match-id-opponent {
+  text-transform: uppercase;
+}
+
+.opentt-match-id-row-score {
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.opentt-match-id-row-team {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.opentt-match-id-center {
+.opentt-match-id-opponent {
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.opentt-match-id-datetime {
+  margin-top: 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #eaf2ff;
+}
+
+.opentt-match-id-location {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #bdd2f6;
+}
+
+.opentt-match-id-cta {
+  margin-top: auto;
+  padding-top: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.opentt-match-id-btn {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 72px;
-}
-
-.opentt-match-id-score {
-  font-size: 1.24rem;
-  font-weight: 800;
-  line-height: 1;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgba(142, 197, 255, 0.5);
+  background: rgba(10, 45, 118, 0.5);
   color: #ffffff;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.opentt-match-id-footer {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-  text-align: center;
-  font-size: 0.84rem;
-  color: #c2d6fb;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 @media (max-width: 700px) {
@@ -990,22 +1027,27 @@ a.opentt-grid-cal-preview-more:focus {
     padding: 10px;
   }
 
+  .opentt-match-id-logo {
+    width: 56px;
+    height: 56px;
+  }
+
   .opentt-match-id-meta {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     margin-bottom: 8px;
   }
 
-  .opentt-match-id-team-logo {
-    width: 44px;
-    height: 44px;
+  .opentt-match-id-row-team,
+  .opentt-match-id-opponent {
+    font-size: 0.96rem;
   }
 
-  .opentt-match-id-team-name {
+  .opentt-match-id-datetime {
     font-size: 0.82rem;
   }
 
-  .opentt-match-id-score {
-    font-size: 1.08rem;
+  .opentt-match-id-location {
+    font-size: 0.76rem;
   }
 }
 
