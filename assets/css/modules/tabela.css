@@ -127,12 +127,12 @@ thead tr th {
 .opentt-standings-short-table col.col-points { width: 12%; }
 
 .opentt-standings-short-table thead {
-  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
+  background: transparent;
 }
 
 .opentt-standings-short-table th,
 .opentt-standings-short-table td {
-  padding: 7px 6px;
+  padding: 9px 6px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   text-align: center;
   vertical-align: middle;
@@ -231,7 +231,7 @@ thead tr th {
 
   .opentt-standings-short-table th,
   .opentt-standings-short-table td {
-    padding: 6px 5px;
+    padding: 8px 5px;
   }
 
   .opentt-standings-short-table th:not(:nth-child(2)),
