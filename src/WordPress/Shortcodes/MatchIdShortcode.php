@@ -71,6 +71,17 @@ final class MatchIdShortcode
 
         $top_meta = $liga_label;
         $match_url = (string) $call('match_permalink', $match);
+        $home_row_class = '';
+        $away_row_class = '';
+        if (!$use_opponent_layout) {
+            if ($home_score > $away_score) {
+                $home_row_class = ' is-winner';
+                $away_row_class = ' is-loser';
+            } elseif ($away_score > $home_score) {
+                $home_row_class = ' is-loser';
+                $away_row_class = ' is-winner';
+            }
+        }
 
         $primary_logo_id = $home_id > 0 ? $home_id : $away_id;
         $opponent_name = '';
@@ -89,7 +100,7 @@ final class MatchIdShortcode
 
         ob_start();
         echo '<article class="opentt-match-id-card' . ($is_live ? ' is-live' : '') . '">';
-        echo '<a class="opentt-match-id-link" href="' . esc_url($match_url) . '">';
+        echo '<div class="opentt-match-id-link">';
         echo '<div class="opentt-match-id-logo">' . (string) $call('club_logo_html', $primary_logo_id, 'thumbnail', ['class' => 'opentt-match-id-crest']) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         if ($top_meta !== '') {
             echo '<div class="opentt-match-id-meta">' . esc_html($top_meta) . '</div>';
@@ -100,8 +111,8 @@ final class MatchIdShortcode
             echo '<div class="opentt-match-id-opponent">' . esc_html($opponent_label) . '</div>';
         } else {
             echo '<div class="opentt-match-id-scoreboard">';
-            echo '<div class="opentt-match-id-score-row"><span class="opentt-match-id-row-score">' . esc_html((string) $home_score) . '</span><span class="opentt-match-id-row-team">' . esc_html($home_name) . '</span></div>';
-            echo '<div class="opentt-match-id-score-row"><span class="opentt-match-id-row-score">' . esc_html((string) $away_score) . '</span><span class="opentt-match-id-row-team">' . esc_html($away_name) . '</span></div>';
+            echo '<div class="opentt-match-id-score-row' . esc_attr($home_row_class) . '"><span class="opentt-match-id-row-score">' . esc_html((string) $home_score) . '</span><span class="opentt-match-id-row-team">' . esc_html($home_name) . '</span></div>';
+            echo '<div class="opentt-match-id-score-row' . esc_attr($away_row_class) . '"><span class="opentt-match-id-row-score">' . esc_html((string) $away_score) . '</span><span class="opentt-match-id-row-team">' . esc_html($away_name) . '</span></div>';
             echo '</div>';
         }
 
@@ -113,9 +124,9 @@ final class MatchIdShortcode
         if ($is_live) {
             echo '<span class="opentt-live-badge">LIVE</span>';
         }
-        echo '<span class="opentt-match-id-btn">' . esc_html($use_opponent_layout ? 'Meč centar' : 'Detalji meča') . ' <span aria-hidden="true">→</span></span>';
+        echo '<a class="opentt-match-id-btn" href="' . esc_url($match_url) . '">' . esc_html($use_opponent_layout ? 'Meč centar' : 'Detalji meča') . ' <span aria-hidden="true">→</span></a>';
         echo '</div>';
-        echo '</a>';
+        echo '</div>';
         echo '</article>';
         return ob_get_clean();
     }

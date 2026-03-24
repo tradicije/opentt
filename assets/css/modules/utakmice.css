@@ -952,6 +952,16 @@ a.opentt-grid-cal-preview-more:focus {
   width: 100%;
 }
 
+.opentt-match-id-score-row.is-loser .opentt-match-id-row-score,
+.opentt-match-id-score-row.is-loser .opentt-match-id-row-team {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.opentt-match-id-score-row.is-winner .opentt-match-id-row-score,
+.opentt-match-id-score-row.is-winner .opentt-match-id-row-team {
+  color: #ffffff;
+}
+
 .opentt-match-id-row-score,
 .opentt-match-id-row-team,
 .opentt-match-id-opponent {
@@ -1039,6 +1049,7 @@ a.opentt-grid-cal-preview-more:focus {
   letter-spacing: 0.03em;
   white-space: nowrap;
   overflow: hidden;
+  text-decoration: none !important;
 }
 
 @media (max-width: 700px) {
