@@ -3080,6 +3080,17 @@ JS;
                 ],
             ],
             [
+                'tag' => 'opentt_standings_short',
+                'desc' => 'Mini tabela (3 reda) sa izabranim klubom u centru i highlight efektom.',
+                'attrs' => 'liga, sezona, klub',
+                'details' => 'Prikazuje 1 red iznad i 1 red ispod izabranog kluba. Ako je klub na vrhu/dnu tabele, automatski prikazuje 2 reda na dostupnoj strani.',
+                'builder' => [
+                    ['name' => 'liga', 'label' => 'Liga slug', 'type' => 'text', 'default' => '', 'help' => 'Slug lige (npr. kvalitetna-liga).'],
+                    ['name' => 'sezona', 'label' => 'Sezona slug', 'type' => 'text', 'default' => '', 'help' => 'Slug sezone (npr. 2025-26).'],
+                    ['name' => 'klub', 'label' => 'Klub', 'type' => 'text', 'default' => '', 'help' => 'Slug, naziv ili ID kluba koji treba da bude centriran i highlightovan.'],
+                ],
+            ],
+            [
                 'tag' => 'opentt_standings_table',
                 'desc' => 'Tabela lige za kontekst stranice ili zadatu ligu/sezonu.',
                 'attrs' => 'liga, sezona, highlight',
@@ -3169,6 +3180,7 @@ JS;
             'opentt_search' => ['module' => 'search.css', 'classes' => ['.opentt-search', '.opentt-search-toggle', '.opentt-search-panel', '.opentt-search-input', '.opentt-search-results', '.opentt-search-group', '.opentt-search-item']],
             'opentt_matches_grid' => ['module' => 'utakmice.css', 'classes' => ['.opentt-grid', '.opentt-grid-filters', '.opentt-grid-calendar-toggle', '.opentt-grid-calendar-popover', '.opentt-grid-cal-day', '.opentt-item', '.team.pobednik', '.team.gubitnik', '.meta']],
             'opentt_match_id' => ['module' => 'utakmice.css', 'classes' => ['.opentt-match-id-card', '.opentt-match-id-main', '.opentt-match-id-team', '.opentt-match-id-score', '.opentt-match-id-footer']],
+            'opentt_standings_short' => ['module' => 'tabela.css', 'classes' => ['.opentt-standings-short-card', '.opentt-standings-short-title', '.opentt-standings-short-table', '.opentt-standings-short-table tr.is-highlight']],
             'opentt_featured_match' => ['module' => 'featured-match.css', 'classes' => ['.opentt-featured-match-wrap', '.opentt-featured-match-card', '.opentt-featured-meta-top', '.opentt-featured-main', '.opentt-featured-team', '.opentt-featured-countdown', '.opentt-featured-meta-bottom']],
             'opentt_standings_table' => ['module' => 'tabela.css', 'classes' => ['.tabela-lige', '.tabela-lige tr.highlight', '.zone-promote-direct', '.zone-promote-playoff', '.zone-relegate-direct', '.zone-relegate-playoff']],
             'opentt_match_teams' => ['module' => 'ekipe.css', 'classes' => ['.opentt-ekipe', '.opentt-ekipe-home', '.opentt-ekipe-away', '.opentt-ekipe-score']],

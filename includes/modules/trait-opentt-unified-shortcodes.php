@@ -286,6 +286,27 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_standings_short($atts = [])
+    {
+        return \OpenTT\Unified\WordPress\Shortcodes\StandingsShortShortcode::render($atts, [
+            'current_archive_context' => static function () {
+                return self::current_archive_context();
+            },
+            'parse_legacy_liga_sezona' => static function ($liga_slug, $sezona_slug = '') {
+                return self::parse_legacy_liga_sezona($liga_slug, $sezona_slug);
+            },
+            'db_build_standings_for_competition' => static function ($liga_slug, $sezona_slug = '', $max_kolo = null) {
+                return self::db_build_standings_for_competition($liga_slug, $sezona_slug, $max_kolo);
+            },
+            'find_club_rank_in_standings' => static function ($standings, $club_id) {
+                return self::find_club_rank_in_standings($standings, $club_id);
+            },
+            'slug_to_title' => static function ($slug) {
+                return self::slug_to_title($slug);
+            },
+        ]);
+    }
+
     public static function shortcode_games_list($atts = [])
     {
         return \OpenTT\Unified\WordPress\Shortcodes\GamesListShortcode::render($atts, [

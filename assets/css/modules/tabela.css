@@ -79,3 +79,94 @@ thead tr th {
 .tabela-lige tr.zone-relegate-playoff {
   background: rgba(168, 45, 45, 0.18);
 }
+
+/* === STANDINGS SHORT CARD === */
+.opentt-standings-short-card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(2, 14, 44, 0.9);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opentt-standings-short-title {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #f2f7ff;
+  line-height: 1.2;
+}
+
+.opentt-standings-short-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  table-layout: fixed;
+  font-size: 0.84rem;
+}
+
+.opentt-standings-short-table thead {
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
+}
+
+.opentt-standings-short-table th,
+.opentt-standings-short-table td {
+  padding: 7px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  text-align: center;
+  color: #e7f1ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opentt-standings-short-table th {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #bdd2f6;
+}
+
+.opentt-standings-short-table .club-cell {
+  text-align: left;
+  font-weight: 600;
+}
+
+.opentt-standings-short-table tr.is-highlight {
+  background: rgba(8, 30, 82, 0.5);
+}
+
+.opentt-standings-short-table tr.is-highlight .club-cell,
+.opentt-standings-short-table tr.is-highlight td {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .opentt-standings-short-card {
+    aspect-ratio: 4 / 3;
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .opentt-standings-short-title {
+    font-size: 0.92rem;
+  }
+
+  .opentt-standings-short-table {
+    font-size: 0.8rem;
+  }
+
+  .opentt-standings-short-table th,
+  .opentt-standings-short-table td {
+    padding: 6px 5px;
+  }
+}
