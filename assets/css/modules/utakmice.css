@@ -912,8 +912,8 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-match-id-logo {
-  width: 68px;
-  height: 68px;
+  width: 74px;
+  height: 74px;
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
@@ -929,7 +929,7 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-match-id-meta {
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: none;
@@ -976,7 +976,7 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-match-id-row-team {
-  font-size: 1.08rem;
+  font-size: 1.14rem;
   font-weight: 800;
   line-height: 1.1;
   color: #ffffff;
@@ -987,7 +987,7 @@ a.opentt-grid-cal-preview-more:focus {
 }
 
 .opentt-match-id-opponent {
-  font-size: 1.14rem;
+  font-size: 1.2rem;
   font-weight: 800;
   line-height: 1.1;
   color: #ffffff;
@@ -1032,17 +1032,17 @@ a.opentt-grid-cal-preview-more:focus {
 .opentt-match-id-btn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  min-height: 36px;
-  padding: 0 14px;
+  min-height: 40px;
+  padding: 0 16px;
   border: 1px solid rgba(142, 197, 255, 0.5);
   background: rgba(10, 45, 118, 0.5);
   color: #ffffff;
-  font-size: 0.8rem;
+  font-size: 0.86rem;
   font-weight: 700;
   line-height: 1.2;
   text-transform: uppercase;
@@ -1058,18 +1058,18 @@ a.opentt-grid-cal-preview-more:focus {
   }
 
   .opentt-match-id-logo {
-    width: 56px;
-    height: 56px;
+    width: 62px;
+    height: 62px;
   }
 
   .opentt-match-id-meta {
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     margin-bottom: 8px;
   }
 
   .opentt-match-id-row-team,
   .opentt-match-id-opponent {
-    font-size: 1rem;
+    font-size: 1.06rem;
   }
 
   .opentt-match-id-datetime {
