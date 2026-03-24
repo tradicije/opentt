@@ -1002,7 +1002,7 @@ a.opentt-grid-cal-preview-more:focus {
   padding-top: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 8px;
   width: 100%;
   overflow: visible;
@@ -1011,8 +1011,11 @@ a.opentt-grid-cal-preview-more:focus {
 .opentt-match-id-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   min-height: 36px;
   padding: 0 14px;
   border: 1px solid rgba(142, 197, 255, 0.5);
