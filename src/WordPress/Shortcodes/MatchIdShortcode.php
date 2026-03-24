@@ -62,26 +62,14 @@ final class MatchIdShortcode
         $is_live = intval($match->live ?? 0) === 1;
         $date_label = (string) $call('display_match_date', (string) ($match->match_date ?? ''));
         $time_label = (string) $call('display_match_time', (string) ($match->match_date ?? ''));
-        $kolo_label = (string) $call('kolo_name_from_slug', (string) ($match->kolo_slug ?? ''));
         $liga_label = (string) $call('slug_to_title', (string) ($match->liga_slug ?? ''));
-        $sezona_label = trim((string) ($match->sezona_slug ?? ''));
         $location_label = self::resolve_match_location($match, $home_id);
         $selected_club_id = self::resolve_selected_club_id($atts, $call);
         $played_filter = self::normalize_played((string) ($atts['played'] ?? ''), (string) ($atts['odigrana'] ?? ''));
         $is_latest_mode = ($id_mode === 'latest');
         $use_opponent_layout = $is_latest_mode && $played_filter === '0';
 
-        $top_meta_parts = [];
-        if ($liga_label !== '') {
-            $top_meta_parts[] = $liga_label;
-        }
-        if ($sezona_label !== '') {
-            $top_meta_parts[] = $sezona_label;
-        }
-        if ($kolo_label !== '') {
-            $top_meta_parts[] = $kolo_label;
-        }
-        $top_meta = implode(' • ', $top_meta_parts);
+        $top_meta = $liga_label;
         $match_url = (string) $call('match_permalink', $match);
 
         $primary_logo_id = $home_id > 0 ? $home_id : $away_id;
