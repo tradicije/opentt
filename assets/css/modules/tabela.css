@@ -120,6 +120,12 @@ thead tr th {
   font-size: 0.78rem;
 }
 
+.opentt-standings-short-table col.col-rank { width: 8%; }
+.opentt-standings-short-table col.col-club { width: 60%; }
+.opentt-standings-short-table col.col-played { width: 10%; }
+.opentt-standings-short-table col.col-won { width: 10%; }
+.opentt-standings-short-table col.col-points { width: 12%; }
+
 .opentt-standings-short-table thead {
   background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32));
 }
@@ -146,6 +152,13 @@ thead tr th {
 .opentt-standings-short-table .club-cell {
   text-align: left;
   font-weight: 700;
+}
+
+.opentt-standings-short-table th:not(:nth-child(2)),
+.opentt-standings-short-table td:not(:nth-child(2)) {
+  font-size: 0.68rem;
+  padding-left: 2px;
+  padding-right: 2px;
 }
 
 .opentt-standings-short-table .club-wrap {
@@ -205,6 +218,12 @@ thead tr th {
   .opentt-standings-short-table {
     font-size: 0.74rem;
   }
+
+  .opentt-standings-short-table col.col-rank { width: 9%; }
+  .opentt-standings-short-table col.col-club { width: 58%; }
+  .opentt-standings-short-table col.col-played { width: 10%; }
+  .opentt-standings-short-table col.col-won { width: 10%; }
+  .opentt-standings-short-table col.col-points { width: 13%; }
 
   .opentt-standings-short-table th,
   .opentt-standings-short-table td {

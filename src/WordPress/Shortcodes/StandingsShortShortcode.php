@@ -89,6 +89,13 @@ final class StandingsShortShortcode
         echo '<header class="opentt-standings-short-title">' . esc_html($liga_title) . '</header>';
         echo '<div class="opentt-standings-short-body">';
         echo '<table class="opentt-standings-short-table">';
+        echo '<colgroup>';
+        echo '<col class="col-rank">';
+        echo '<col class="col-club">';
+        echo '<col class="col-played">';
+        echo '<col class="col-won">';
+        echo '<col class="col-points">';
+        echo '</colgroup>';
         echo '<thead><tr><th>#</th><th>Klub</th><th>P</th><th>W</th><th>Pts</th></tr></thead>';
         echo '<tbody>';
         foreach ($slice as $row) {
