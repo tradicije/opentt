@@ -188,6 +188,10 @@ body a {
   background: #000a26;
 }
 
+.opentt-grid-density-switch.is-locked {
+  display: none !important;
+}
+
 .opentt-grid-density-option {
   display: inline-flex;
   align-items: center;
@@ -750,6 +754,15 @@ a.opentt-grid-cal-preview-more:focus {
   padding: 5px 1px 6px;
   background: transparent;
   box-shadow: none;
+}
+
+.opentt-grid-density-compact .opentt-item.is-highlight {
+  border: 1px solid rgba(120, 189, 255, 0.58);
+  border-radius: 8px;
+  padding: 5px 6px 6px;
+  margin: 1px 0;
+  background: linear-gradient(135deg, rgba(19, 64, 148, 0.32) 0%, rgba(6, 26, 77, 0.88) 100%);
+  box-shadow: 0 0 0 1px rgba(120, 189, 255, 0.24) inset;
 }
 
 .opentt-grid-density-compact .opentt-item::after {
