@@ -1054,30 +1054,93 @@ a.opentt-grid-cal-preview-more:focus {
 
 @media (max-width: 700px) {
   .opentt-match-id-link {
-    padding: 10px;
+    padding: 12px 10px 10px;
   }
 
   .opentt-match-id-logo {
-    width: 62px;
-    height: 62px;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 7px;
   }
 
   .opentt-match-id-meta {
-    font-size: 0.72rem;
-    margin-bottom: 8px;
+    font-size: 0.7rem;
+    margin-bottom: 7px;
+  }
+
+  .opentt-match-id-scoreboard {
+    gap: 5px;
+  }
+
+  .opentt-match-id-row-score {
+    font-size: 1rem;
+    min-width: 14px;
   }
 
   .opentt-match-id-row-team,
   .opentt-match-id-opponent {
-    font-size: 1.06rem;
+    font-size: 1rem;
+    line-height: 1.2;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   .opentt-match-id-datetime {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
+    padding-top: 12px;
   }
 
   .opentt-match-id-location {
+    font-size: 0.74rem;
+  }
+
+  .opentt-match-id-btn {
+    min-height: 38px;
+    font-size: 0.8rem;
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .opentt-match-id-card {
+    aspect-ratio: 1 / 1;
+  }
+
+  .opentt-match-id-link {
+    padding: 10px 9px 9px;
+  }
+
+  .opentt-match-id-logo {
+    width: 54px;
+    height: 54px;
+  }
+
+  .opentt-match-id-row-score {
+    font-size: 0.94rem;
+  }
+
+  .opentt-match-id-row-team,
+  .opentt-match-id-opponent {
+    font-size: 0.94rem;
+  }
+
+  .opentt-match-id-datetime {
     font-size: 0.76rem;
+    padding-top: 10px;
+  }
+
+  .opentt-match-id-location {
+    font-size: 0.7rem;
+  }
+
+  .opentt-match-id-btn {
+    min-height: 36px;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
   }
 }
 
