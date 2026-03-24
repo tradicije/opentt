@@ -154,6 +154,7 @@ thead tr th {
   text-align: left;
   font-weight: 700;
   vertical-align: middle;
+  display: flex;
 }
 
 .opentt-standings-short-table th:not(:nth-child(2)),
