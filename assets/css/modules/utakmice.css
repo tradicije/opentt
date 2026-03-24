@@ -880,6 +880,135 @@ a.opentt-grid-cal-preview-more:focus {
   }
 }
 
+/* === MATCH ID CARD (1:1) === */
+.opentt-match-id-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 1px solid rgba(142, 197, 255, 0.34);
+  border-radius: 14px;
+  background: linear-gradient(155deg, rgba(8, 31, 86, 0.86) 0%, rgba(3, 15, 45, 0.92) 55%, rgba(2, 12, 36, 0.96) 100%);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.opentt-match-id-card.is-live {
+  border-color: rgba(244, 98, 117, 0.62);
+  animation: openttLiveCardPulse 1.2s ease-in-out infinite;
+}
+
+.opentt-match-id-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none !important;
+  padding: 12px;
+}
+
+.opentt-match-id-meta {
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #d8e7ff;
+  margin-bottom: 10px;
+}
+
+.opentt-match-id-main {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.opentt-match-id-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.opentt-match-id-team-logo {
+  display: inline-flex;
+  width: 54px;
+  height: 54px;
+  align-items: center;
+  justify-content: center;
+}
+
+.opentt-match-id-team-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.opentt-match-id-team-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #f3f8ff;
+  text-align: center;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opentt-match-id-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 72px;
+}
+
+.opentt-match-id-score {
+  font-size: 1.24rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.opentt-match-id-footer {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  text-align: center;
+  font-size: 0.84rem;
+  color: #c2d6fb;
+}
+
+@media (max-width: 700px) {
+  .opentt-match-id-link {
+    padding: 10px;
+  }
+
+  .opentt-match-id-meta {
+    font-size: 0.72rem;
+    margin-bottom: 8px;
+  }
+
+  .opentt-match-id-team-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .opentt-match-id-team-name {
+    font-size: 0.82rem;
+  }
+
+  .opentt-match-id-score {
+    font-size: 1.08rem;
+  }
+}
+
 /* === LIST VARIJANTA === */
 .opentt-list {
   list-style: none;

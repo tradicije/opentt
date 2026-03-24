@@ -3066,6 +3066,19 @@ JS;
                 ],
             ],
             [
+                'tag' => 'opentt_match_id',
+                'desc' => 'Jedna istaknuta 1:1 kartica konkretne utakmice ili latest utakmice kluba.',
+                'attrs' => 'id, klub, played, liga, season',
+                'details' => '`id` može biti broj utakmice ili `latest`. Za `id=\"latest\"` obavezno prosledi `klub` (slug/naziv), a opciono `played=\"true|false\"` za izbor poslednje odigrane ili prve sledeće utakmice.',
+                'builder' => [
+                    ['name' => 'id', 'label' => 'ID ili latest', 'type' => 'text', 'default' => 'latest', 'help' => 'Broj utakmice ili ključna reč `latest`.'],
+                    ['name' => 'klub', 'label' => 'Klub', 'type' => 'text', 'default' => '', 'help' => 'Slug ili naziv kluba (obavezno za `id=latest`).'],
+                    ['name' => 'played', 'label' => 'Played', 'type' => 'text', 'default' => '', 'help' => 'Kod `id=latest`: true = poslednja odigrana, false = prva sledeća, prazno = poslednja po datumu.'],
+                    ['name' => 'liga', 'label' => 'Liga slug', 'type' => 'text', 'default' => '', 'help' => 'Opcioni filter konteksta lige.'],
+                    ['name' => 'season', 'label' => 'Season slug', 'type' => 'text', 'default' => '', 'help' => 'Opcioni filter konteksta sezone (npr. 2025-26).'],
+                ],
+            ],
+            [
                 'tag' => 'opentt_standings_table',
                 'desc' => 'Tabela lige za kontekst stranice ili zadatu ligu/sezonu.',
                 'attrs' => 'liga, sezona, highlight',
@@ -3154,6 +3167,7 @@ JS;
         return [
             'opentt_search' => ['module' => 'search.css', 'classes' => ['.opentt-search', '.opentt-search-toggle', '.opentt-search-panel', '.opentt-search-input', '.opentt-search-results', '.opentt-search-group', '.opentt-search-item']],
             'opentt_matches_grid' => ['module' => 'utakmice.css', 'classes' => ['.opentt-grid', '.opentt-grid-filters', '.opentt-grid-calendar-toggle', '.opentt-grid-calendar-popover', '.opentt-grid-cal-day', '.opentt-item', '.team.pobednik', '.team.gubitnik', '.meta']],
+            'opentt_match_id' => ['module' => 'utakmice.css', 'classes' => ['.opentt-match-id-card', '.opentt-match-id-main', '.opentt-match-id-team', '.opentt-match-id-score', '.opentt-match-id-footer']],
             'opentt_featured_match' => ['module' => 'featured-match.css', 'classes' => ['.opentt-featured-match-wrap', '.opentt-featured-match-card', '.opentt-featured-meta-top', '.opentt-featured-main', '.opentt-featured-team', '.opentt-featured-countdown', '.opentt-featured-meta-bottom']],
             'opentt_standings_table' => ['module' => 'tabela.css', 'classes' => ['.tabela-lige', '.tabela-lige tr.highlight', '.zone-promote-direct', '.zone-promote-playoff', '.zone-relegate-direct', '.zone-relegate-playoff']],
             'opentt_match_teams' => ['module' => 'ekipe.css', 'classes' => ['.opentt-ekipe', '.opentt-ekipe-home', '.opentt-ekipe-away', '.opentt-ekipe-score']],

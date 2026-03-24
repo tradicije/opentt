@@ -20,6 +20,7 @@ final class ShortcodeRegistrar
             'opentt_matches' => 'shortcode_matches',
             'opentt_matches_grid' => 'shortcode_matches_grid',
             'opentt_matches_list' => 'shortcode_matches_list',
+            'opentt_match_id' => 'shortcode_match_id',
             'opentt_featured_match' => 'shortcode_featured_match',
             'opentt_standings_table' => 'shortcode_standings_table',
             'opentt_match_games' => 'shortcode_games_list',

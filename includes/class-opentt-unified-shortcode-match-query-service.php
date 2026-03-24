@@ -145,6 +145,23 @@ final class OpenTT_Unified_Shortcode_Match_Query_Service
         return $row ?: null;
     }
 
+    public static function db_get_match_by_id($id)
+    {
+        global $wpdb;
+        $table = OpenTT_Unified_Core::db_table('matches');
+        $id = intval($id);
+        if ($id <= 0 || !self::table_exists($table)) {
+            return null;
+        }
+
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$table} WHERE id=%d LIMIT 1",
+            $id
+        );
+        $row = $wpdb->get_row($sql);
+        return $row ?: null;
+    }
+
     public static function db_get_match_by_keys($liga_slug, $sezona_slug, $kolo_slug, $slug)
     {
         global $wpdb;

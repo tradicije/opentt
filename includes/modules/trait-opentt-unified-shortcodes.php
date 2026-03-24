@@ -112,6 +112,42 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_match_id($atts = [])
+    {
+        return \OpenTT\Unified\WordPress\Shortcodes\MatchIdShortcode::render($atts, [
+            'db_get_match_by_id' => static function ($id) {
+                return self::db_get_match_by_id($id);
+            },
+            'build_match_query_args' => static function ($args) {
+                return self::build_match_query_args($args);
+            },
+            'db_get_matches' => static function ($args) {
+                return self::db_get_matches($args);
+            },
+            'display_match_date' => static function ($match_date) {
+                return self::display_match_date($match_date);
+            },
+            'display_match_time' => static function ($match_date) {
+                return self::display_match_time($match_date);
+            },
+            'match_permalink' => static function ($row) {
+                return self::match_permalink($row);
+            },
+            'kolo_name_from_slug' => static function ($slug) {
+                return self::kolo_name_from_slug($slug);
+            },
+            'slug_to_title' => static function ($slug) {
+                return self::slug_to_title($slug);
+            },
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
+            'parse_match_timestamp' => static function ($match_date, $end_of_day_if_midnight = false) {
+                return self::parse_match_timestamp($match_date, $end_of_day_if_midnight);
+            },
+        ]);
+    }
+
     public static function shortcode_featured_match($atts = [])
     {
         return \OpenTT\Unified\WordPress\Shortcodes\FeaturedMatchShortcode::render($atts, [
@@ -1380,6 +1416,11 @@ trait OpenTT_Unified_Shortcodes_Trait
     private static function db_get_match_by_legacy_id($legacy_id)
     {
         return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_match_by_legacy_id($legacy_id);
+    }
+
+    private static function db_get_match_by_id($id)
+    {
+        return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_match_by_id($id);
     }
 
     private static function db_get_match_by_keys($liga_slug, $sezona_slug, $kolo_slug, $slug)
