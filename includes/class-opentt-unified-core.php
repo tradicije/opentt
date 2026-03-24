@@ -1508,7 +1508,7 @@ JS;
 
         echo '<p class="opentt-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
         echo '<div class="opentt-table-scroll">';
-        echo '<table id="opentt-matches-table" class="widefat striped opentt-live-search-table"><thead><tr><th style="width:32px;"><input type="checkbox" id="opentt-matches-check-all" aria-label="Izaberi sve utakmice"></th><th>Featured</th><th>LIVE</th><th>Liga</th><th>Sezona</th><th>Kolo</th><th>Utakmica</th><th>Rezultat</th><th>Partije</th><th>Datum</th><th>Akcije</th></tr></thead><tbody>';
+        echo '<table id="opentt-matches-table" class="widefat striped opentt-live-search-table"><thead><tr><th style="width:32px;"><input type="checkbox" id="opentt-matches-check-all" aria-label="Izaberi sve utakmice"></th><th>ID</th><th>Featured</th><th>LIVE</th><th>Liga</th><th>Sezona</th><th>Kolo</th><th>Utakmica</th><th>Rezultat</th><th>Partije</th><th>Datum</th><th>Akcije</th></tr></thead><tbody>';
         $quick_forms_html = [];
         foreach ($rows as $m) {
             $home = get_the_title((int) $m->home_club_post_id);
@@ -1556,6 +1556,7 @@ JS;
 
             echo '<tr>';
             echo '<td><input type="checkbox" class="opentt-match-bulk-checkbox" name="match_ids[]" value="' . intval($m->id) . '" aria-label="Izaberi utakmicu ID ' . intval($m->id) . '"></td>';
+            echo '<td>' . intval($m->id) . '</td>';
             echo '<td>' . ($is_featured ? '★' : '—') . '</td>';
             echo '<td>' . ($is_live ? '<span class="opentt-live-badge">LIVE</span>' : '—') . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '<td>' . esc_html((string) $m->liga_slug) . '</td>';
@@ -1574,7 +1575,7 @@ JS;
             echo '<a class="button button-small button-link-delete" href="' . esc_url($del_url) . '" onclick="return confirm(\'Obrisati utakmicu i partije/setove?\')">Obriši</a></td>';
             echo '</tr>';
             echo '<tr id="' . esc_attr($quick_row_id) . '" class="opentt-quick-edit-row" style="display:none;">';
-            echo '<td colspan="11">';
+            echo '<td colspan="12">';
             echo '<div id="' . esc_attr($quick_wrap_id) . '" style="border:2px solid #2271b1;border-radius:8px;background:#f6fbff;padding:12px 14px;margin:4px 0 10px 0;">';
             echo '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">';
             echo '<strong>Quick edit: ' . esc_html((string) $home . ' — ' . (string) $away) . '</strong>';
