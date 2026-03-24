@@ -27,6 +27,7 @@ final class MatchesGridShortcode
             'columns' => 3,
             'limit' => 5,
             'klub' => '',
+            'highlight' => '',
             'played' => '',
             'odigrana' => '',
             'liga' => '',
@@ -36,6 +37,7 @@ final class MatchesGridShortcode
             'infinite' => '',
             'pagination' => '',
             'opentt_match_date' => '',
+            'view' => '',
         ], $atts);
 
         $columns = max(1, min(6, intval($atts['columns'])));
@@ -45,6 +47,8 @@ final class MatchesGridShortcode
         $infinite_mode = in_array(strtolower(trim((string) $atts['infinite'])), ['1', 'true', 'yes', 'da', 'on'], true);
         $pagination_mode = strtolower(trim((string) $atts['pagination']));
         $use_load_more_button = ($pagination_mode === 'button' || $pagination_mode === 'load_more');
+        $forced_view = self::normalize_view_mode((string) $atts['view']);
+        $initial_density = $forced_view !== '' ? $forced_view : 'spacious';
         $chunk_size = intval($atts['limit']);
         if ($chunk_size <= 0) {
             $chunk_size = 8;
@@ -65,6 +69,10 @@ final class MatchesGridShortcode
 
         $rows = $call('db_get_matches', $query_args);
         $rows = is_array($rows) ? $rows : [];
+        $highlight_ids = self::resolve_highlight_ids((string) ($atts['highlight'] ?? ''));
+        if (!empty($highlight_ids)) {
+            self::apply_highlight_flags($rows, $highlight_ids);
+        }
 
         if (!$legacy_kolo_filter && !$enable_filters && !$infinite_mode) {
             $rows = array_values(array_filter($rows, static function ($row) {
@@ -287,7 +295,11 @@ final class MatchesGridShortcode
 
             ob_start();
             echo (string) $call('shortcode_title_html', 'Utakmice');
-            echo '<div id="' . esc_attr($uid) . '" class="opentt-grid-filter-block">';
+            $root_classes = 'opentt-grid-filter-block';
+            if ($initial_density === 'compact') {
+                $root_classes .= ' opentt-grid-density-compact';
+            }
+            echo '<div id="' . esc_attr($uid) . '" class="' . esc_attr($root_classes) . '">';
             echo '<form method="get" class="opentt-grid-filters">';
             foreach ($_GET as $k => $v) {
                 $k = (string) $k;
@@ -323,16 +335,18 @@ final class MatchesGridShortcode
             }
             echo '</div>';
             echo '<div class="opentt-grid-filters-right">';
-            echo '<div class="opentt-grid-density-switch" role="group" aria-label="Gustina prikaza">';
-            echo '<button type="button" class="opentt-grid-density-option is-active" data-opentt-density="spacious" aria-pressed="true" title="Prostrano">';
-            echo '<span class="opentt-grid-density-icon" aria-hidden="true"' . ($spacious_icon_url !== '' ? ' style="--opentt-density-icon:url(\'' . esc_url($spacious_icon_url) . '\')"' : '') . '></span>';
-            echo '<span class="opentt-grid-density-label">Prostrano</span>';
-            echo '</button>';
-            echo '<button type="button" class="opentt-grid-density-option" data-opentt-density="compact" aria-pressed="false" title="Kompaktno">';
-            echo '<span class="opentt-grid-density-icon" aria-hidden="true"' . ($compact_icon_url !== '' ? ' style="--opentt-density-icon:url(\'' . esc_url($compact_icon_url) . '\')"' : '') . '></span>';
-            echo '<span class="opentt-grid-density-label">Kompaktno</span>';
-            echo '</button>';
-            echo '</div>';
+            if ($forced_view === '') {
+                echo '<div class="opentt-grid-density-switch" role="group" aria-label="Gustina prikaza">';
+                echo '<button type="button" class="opentt-grid-density-option is-active" data-opentt-density="spacious" aria-pressed="true" title="Prostrano">';
+                echo '<span class="opentt-grid-density-icon" aria-hidden="true"' . ($spacious_icon_url !== '' ? ' style="--opentt-density-icon:url(\'' . esc_url($spacious_icon_url) . '\')"' : '') . '></span>';
+                echo '<span class="opentt-grid-density-label">Prostrano</span>';
+                echo '</button>';
+                echo '<button type="button" class="opentt-grid-density-option" data-opentt-density="compact" aria-pressed="false" title="Kompaktno">';
+                echo '<span class="opentt-grid-density-icon" aria-hidden="true"' . ($compact_icon_url !== '' ? ' style="--opentt-density-icon:url(\'' . esc_url($compact_icon_url) . '\')"' : '') . '></span>';
+                echo '<span class="opentt-grid-density-label">Kompaktno</span>';
+                echo '</button>';
+                echo '</div>';
+            }
             echo '<input type="hidden" name="opentt_match_date" class="opentt-grid-filter-date-input" value="' . esc_attr($selected_match_date) . '">';
             echo '<button type="button" class="button opentt-grid-calendar-toggle" aria-label="Calendar filter" title="Calendar filter" aria-haspopup="dialog" aria-expanded="false">';
             echo '<span class="opentt-grid-calendar-icon" aria-hidden="true"></span>';
@@ -430,6 +444,7 @@ final class MatchesGridShortcode
                     var visibleCount = chunkSize;
                     var observer = null;
                     var currentDensity = 'spacious';
+                    var forcedDensity = <?php echo wp_json_encode($forced_view); ?> || '';
                     var lastRenderedItems = [];
                     var previewHideTimer = null;
                     var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-item'));
@@ -634,6 +649,9 @@ final class MatchesGridShortcode
                     }
 
                     function applyDensityLayout(nextDensity) {
+                        if (forcedDensity) {
+                            nextDensity = forcedDensity;
+                        }
                         var normalized = (nextDensity === 'compact') ? 'compact' : 'spacious';
                         currentDensity = normalized;
                         root.classList.toggle('opentt-grid-density-compact', normalized === 'compact');
@@ -924,11 +942,13 @@ final class MatchesGridShortcode
                     if (koloSelect) { koloSelect.addEventListener('change', resetAndRender); }
                     if (clubSelect) { clubSelect.addEventListener('change', resetAndRender); }
                     if (sortSelect) { sortSelect.addEventListener('change', resetAndRender); }
-                    densityButtons.forEach(function(btn){
-                        btn.addEventListener('click', function(){
-                            applyDensityLayout(btn.getAttribute('data-opentt-density') || 'spacious');
+                    if (!forcedDensity) {
+                        densityButtons.forEach(function(btn){
+                            btn.addEventListener('click', function(){
+                                applyDensityLayout(btn.getAttribute('data-opentt-density') || 'spacious');
+                            });
                         });
-                    });
+                    }
                     if (calToggle && calPopover) {
                         calToggle.addEventListener('click', function(){
                             if (calPopover.hidden) {
@@ -999,7 +1019,7 @@ final class MatchesGridShortcode
                     }
 
                     render();
-                    applyDensityLayout('spacious');
+                    applyDensityLayout(forcedDensity || <?php echo wp_json_encode($initial_density); ?> || 'spacious');
                     return true;
                 }
 
@@ -1018,9 +1038,13 @@ final class MatchesGridShortcode
 
         if ($infinite_mode) {
             $uid = 'opentt-grid-' . wp_unique_id();
+            $root_classes = 'opentt-grid-infinite-block';
+            if ($initial_density === 'compact') {
+                $root_classes .= ' opentt-grid-density-compact';
+            }
             ob_start();
             echo (string) $call('shortcode_title_html', 'Utakmice');
-            echo '<div id="' . esc_attr($uid) . '" class="opentt-grid-infinite-block">';
+            echo '<div id="' . esc_attr($uid) . '" class="' . esc_attr($root_classes) . '">';
             echo (string) $call('render_matches_grid_html', $rows, $columns, true);
             if ($use_load_more_button) {
                 echo '<button type="button" class="button opentt-grid-load-more" aria-controls="' . esc_attr($uid) . '">Prikaži još</button>';
@@ -1038,6 +1062,7 @@ final class MatchesGridShortcode
                 var sentinel = root.querySelector('.opentt-grid-sentinel');
                 var loadMoreBtn = root.querySelector('.opentt-grid-load-more');
                 var useLoadMoreButton = <?php echo $use_load_more_button ? 'true' : 'false'; ?>;
+                var forcedDensity = <?php echo wp_json_encode($forced_view); ?> || '';
                 if (!grid) { return; }
                 if (!useLoadMoreButton && !sentinel) { return; }
                 var chunkSize = <?php echo intval($chunk_size); ?>;
@@ -1056,10 +1081,24 @@ final class MatchesGridShortcode
                         if (!title) { title = slug; }
                         var head = document.createElement('div');
                         head.className = 'opentt-grid-round-heading';
+                        if (forcedDensity === 'compact') {
+                            head.className += ' opentt-grid-round-heading-compact';
+                        }
                         head.setAttribute('data-kolo-slug', slug);
-                        var text = document.createElement('span');
-                        text.textContent = title;
-                        head.appendChild(text);
+                        if (forcedDensity === 'compact') {
+                            var left = document.createElement('span');
+                            left.className = 'opentt-grid-round-title';
+                            left.textContent = title;
+                            var right = document.createElement('span');
+                            right.className = 'opentt-grid-round-date';
+                            right.textContent = item.getAttribute('data-match-date-display') || '';
+                            head.appendChild(left);
+                            head.appendChild(right);
+                        } else {
+                            var text = document.createElement('span');
+                            text.textContent = title;
+                            head.appendChild(text);
+                        }
                         grid.insertBefore(head, item);
                         lastSlug = slug;
                     });
@@ -1105,6 +1144,9 @@ final class MatchesGridShortcode
                     }, { rootMargin: '240px 0px' });
                     observer.observe(sentinel);
                 }
+                if (forcedDensity === 'compact') {
+                    root.classList.add('opentt-grid-density-compact');
+                }
                 render();
             })();
             </script>
@@ -1112,8 +1154,14 @@ final class MatchesGridShortcode
             return ob_get_clean();
         }
 
+        $root_classes = 'opentt-grid-static-block';
+        if ($initial_density === 'compact') {
+            $root_classes .= ' opentt-grid-density-compact';
+        }
         return (string) $call('shortcode_title_html', 'Utakmice')
-            . (string) $call('render_matches_grid_html', $rows, $columns, false)
+            . '<div class="' . esc_attr($root_classes) . '">'
+            . (string) $call('render_matches_grid_html', $rows, $columns, $initial_density === 'compact')
+            . '</div>'
             . self::render_last_update_footer($rows);
     }
 
@@ -1133,6 +1181,64 @@ final class MatchesGridShortcode
             }
         }
         return '';
+    }
+
+    private static function normalize_view_mode($raw)
+    {
+        $value = strtolower(trim((string) $raw));
+        if ($value === 'compact' || $value === 'kompaktno' || $value === 'kompakt') {
+            return 'compact';
+        }
+        if ($value === 'spacious' || $value === 'prostrano' || $value === 'prostran') {
+            return 'spacious';
+        }
+        return '';
+    }
+
+    private static function resolve_highlight_ids($raw)
+    {
+        $items = array_filter(array_map('trim', explode(',', (string) $raw)));
+        if (empty($items)) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($items as $item) {
+            if (is_numeric($item)) {
+                $ids[] = intval($item);
+                continue;
+            }
+
+            $post = get_page_by_path(sanitize_title($item), OBJECT, 'klub');
+            if (!$post) {
+                $post = get_page_by_title($item, OBJECT, 'klub');
+            }
+            if ($post && !is_wp_error($post)) {
+                $ids[] = intval($post->ID);
+            }
+        }
+
+        return array_values(array_unique(array_filter($ids)));
+    }
+
+    private static function apply_highlight_flags(array &$rows, array $highlight_ids)
+    {
+        if (empty($rows) || empty($highlight_ids)) {
+            return;
+        }
+        $map = [];
+        foreach ($highlight_ids as $id) {
+            $map[intval($id)] = true;
+        }
+
+        foreach ($rows as $row) {
+            if (!is_object($row)) {
+                continue;
+            }
+            $home_id = intval($row->home_club_post_id ?? 0);
+            $away_id = intval($row->away_club_post_id ?? 0);
+            $row->opentt_is_highlight = (isset($map[$home_id]) || isset($map[$away_id])) ? 1 : 0;
+        }
     }
 
     private static function discover_icon_url(array $relative_candidates)

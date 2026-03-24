@@ -611,6 +611,12 @@ a.opentt-grid-cal-preview-more:focus {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
+.opentt-item.is-highlight {
+  border-color: rgba(120, 189, 255, 0.72);
+  background: linear-gradient(135deg, rgba(20, 66, 150, 0.34) 0%, rgba(6, 26, 77, 0.9) 100%);
+  box-shadow: 0 0 0 1px rgba(120, 189, 255, 0.28) inset;
+}
+
 .opentt-item.opentt-item-live {
   border-color: rgba(244, 98, 117, 0.62);
   background:
@@ -711,24 +717,24 @@ a.opentt-grid-cal-preview-more:focus {
   color: #b7cbef;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid {
+.opentt-grid-density-compact .opentt-grid {
   grid-template-columns: 1fr !important;
   gap: 12px;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group {
+.opentt-grid-density-compact .opentt-grid-round-group {
   gap: 8px;
   border: 1px solid rgba(142, 197, 255, 0.22);
   border-radius: 10px;
   background: rgba(2, 16, 46, 0.62);
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group-items {
+.opentt-grid-density-compact .opentt-grid-round-group-items {
   gap: 0;
   padding: 0px 8px;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-heading-compact {
+.opentt-grid-density-compact .opentt-grid-round-heading-compact {
   padding: 4px 8px;
   background: #000a26 !important;
   border-radius: 8px 8px 0px 0px;
@@ -736,7 +742,7 @@ a.opentt-grid-cal-preview-more:focus {
   box-shadow: none;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item {
+.opentt-grid-density-compact .opentt-item {
   position: relative;
   border: 0;
   border-radius: 0;
@@ -746,7 +752,7 @@ a.opentt-grid-cal-preview-more:focus {
   box-shadow: none;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item::after {
+.opentt-grid-density-compact .opentt-item::after {
   content: "";
   position: absolute;
   left: 1px;
@@ -756,55 +762,55 @@ a.opentt-grid-cal-preview-more:focus {
   background: rgba(255, 255, 255, 0.18);
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-grid-round-group-items .opentt-item:last-child::after {
+.opentt-grid-density-compact .opentt-grid-round-group-items .opentt-item:last-child::after {
   display: none;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item:hover {
+.opentt-grid-density-compact .opentt-item:hover {
   transform: none;
   box-shadow: none;
   background: rgba(11, 40, 100, 0.24);
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item-main {
+.opentt-grid-density-compact .opentt-item-main {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item-side {
+.opentt-grid-density-compact .opentt-item-side {
   display: none;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item-teams {
+.opentt-grid-density-compact .opentt-item-teams {
   position: relative;
   gap: 1px;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team {
+.opentt-grid-density-compact .opentt-item .team {
   min-height: 26px;
   gap: 6px;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team img {
+.opentt-grid-density-compact .opentt-item .team img {
   width: 22px;
   height: 22px;
   border-radius: 4px;
   margin-right: 6px;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team span {
+.opentt-grid-density-compact .opentt-item .team span {
   font-size: 0.86rem;
   font-weight: 600;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team strong {
+.opentt-grid-density-compact .opentt-item .team strong {
   font-size: 1rem;
   min-width: 20px;
   text-align: right;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .opentt-item .team .team-time {
+.opentt-grid-density-compact .opentt-item .team .team-time {
   display: inline-block;
   position: absolute;
   right: 0;
@@ -814,15 +820,15 @@ a.opentt-grid-cal-preview-more:focus {
   text-align: right;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .team.pobednik span,
-.opentt-grid-filter-block.opentt-grid-density-compact .team.pobednik strong {
+.opentt-grid-density-compact .team.pobednik span,
+.opentt-grid-density-compact .team.pobednik strong {
   color: #ffffff;
   font-weight: 700;
   opacity: 1;
 }
 
-.opentt-grid-filter-block.opentt-grid-density-compact .team.gubitnik span,
-.opentt-grid-filter-block.opentt-grid-density-compact .team.gubitnik strong {
+.opentt-grid-density-compact .team.gubitnik span,
+.opentt-grid-density-compact .team.gubitnik strong {
   color: rgba(255, 255, 255, 0.68);
   font-weight: 500;
   opacity: 0.84;
