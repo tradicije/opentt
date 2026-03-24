@@ -87,6 +87,7 @@ final class StandingsShortShortcode
         ob_start();
         echo '<section class="opentt-standings-short-card">';
         echo '<header class="opentt-standings-short-title">' . esc_html($liga_title) . '</header>';
+        echo '<div class="opentt-standings-short-body">';
         echo '<table class="opentt-standings-short-table">';
         echo '<thead><tr><th>#</th><th>Klub</th><th>P</th><th>W</th><th>Pts</th></tr></thead>';
         echo '<tbody>';
@@ -98,13 +99,19 @@ final class StandingsShortShortcode
             $is_highlight = ($row_club_id === $club_id);
             echo '<tr' . ($is_highlight ? ' class="is-highlight"' : '') . '>';
             echo '<td>' . intval($row['rank'] ?? 0) . '</td>';
-            echo '<td class="club-cell">' . esc_html((string) get_the_title($row_club_id)) . '</td>';
+            echo '<td class="club-cell">';
+            echo '<span class="club-wrap">';
+            echo '<span class="club-crest">' . (string) $call('club_logo_html', $row_club_id, 'thumbnail', ['class' => 'opentt-standings-short-crest']) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<span class="club-name">' . esc_html((string) get_the_title($row_club_id)) . '</span>';
+            echo '</span>';
+            echo '</td>';
             echo '<td>' . intval($row['odigrane'] ?? 0) . '</td>';
             echo '<td>' . intval($row['pobede'] ?? 0) . '</td>';
             echo '<td>' . intval($row['bodovi'] ?? 0) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></section>';
+        echo '</tbody></table>';
+        echo '</div></section>';
         return ob_get_clean();
     }
 

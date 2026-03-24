@@ -304,6 +304,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'slug_to_title' => static function ($slug) {
                 return self::slug_to_title($slug);
             },
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
         ]);
     }
 
