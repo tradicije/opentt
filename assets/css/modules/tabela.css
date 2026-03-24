@@ -96,12 +96,15 @@ thead tr th {
 }
 
 .opentt-standings-short-title {
-  font-size: 1.02rem;
+  font-size: 1.12rem;
   font-weight: 800;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: #f2f7ff;
-  line-height: 1.2;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .opentt-standings-short-body {
@@ -169,12 +172,13 @@ thead tr th {
 }
 
 .opentt-standings-short-table .club-wrap {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 0;
+  min-width: 100%;
   width: 100%;
-  line-height: 1;
+  line-height: 1.2;
+  min-height: 28px;
 }
 
 .opentt-standings-short-table .club-crest {
@@ -197,6 +201,7 @@ thead tr th {
   font-size: 0.92rem;
   font-weight: 700;
   color: #f3f8ff;
+  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -220,7 +225,7 @@ thead tr th {
   }
 
   .opentt-standings-short-title {
-    font-size: 0.92rem;
+    font-size: 1rem;
   }
 
   .opentt-standings-short-table {
