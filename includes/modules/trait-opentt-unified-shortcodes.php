@@ -1297,6 +1297,9 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $kolo = sanitize_title((string) $kolo_qv);
             }
         }
+        if (!empty($atts['kolo'])) {
+            $kolo = sanitize_title((string) $atts['kolo']);
+        }
 
         // Public attr: played="true|false" (preferred), with odigrana kept for backward compatibility.
         $raw_played = '';

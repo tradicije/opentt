@@ -33,6 +33,7 @@ final class MatchesGridShortcode
             'liga' => '',
             'sezona' => '',
             'season' => '',
+            'kolo' => '',
             'filter' => '',
             'infinite' => '',
             'pagination' => '',
@@ -59,6 +60,9 @@ final class MatchesGridShortcode
         }
 
         $query_args = (array) $call('build_match_query_args', $atts);
+        if (!empty($atts['kolo'])) {
+            $query_args['kolo_slug'] = sanitize_title((string) $atts['kolo']);
+        }
         if ($legacy_kolo_filter || $enable_filters || $infinite_mode) {
             $query_args['limit'] = -1;
         } else {
@@ -443,8 +447,9 @@ final class MatchesGridShortcode
                     var chunkSize = <?php echo intval($chunk_size); ?>;
                     var visibleCount = chunkSize;
                     var observer = null;
-                    var currentDensity = 'spacious';
                     var forcedDensity = <?php echo wp_json_encode($forced_view); ?> || '';
+                    var defaultDensity = <?php echo wp_json_encode($initial_density); ?> || 'spacious';
+                    var currentDensity = (forcedDensity || defaultDensity || 'spacious');
                     var lastRenderedItems = [];
                     var previewHideTimer = null;
                     var allItems = Array.prototype.slice.call(grid.querySelectorAll('.opentt-item'));
@@ -1019,7 +1024,7 @@ final class MatchesGridShortcode
                     }
 
                     render();
-                    applyDensityLayout(forcedDensity || <?php echo wp_json_encode($initial_density); ?> || 'spacious');
+                    applyDensityLayout(currentDensity);
                     return true;
                 }
 

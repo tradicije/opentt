@@ -3021,13 +3021,14 @@ JS;
             [
                 'tag' => 'opentt_matches_grid',
                 'desc' => 'Grid prikaz utakmica sa filterima/sortiranjem, kalendarskim filterom datuma i infinite opcijom.',
-                'attrs' => 'columns, limit, klub, highlight, played, liga, season, filter, infinite, view, opentt_match_date',
+                'attrs' => 'columns, limit, klub, highlight, played, liga, season, kolo, filter, infinite, view, opentt_match_date',
                 'details' => 'Najčešći shortcode za listing utakmica na početnoj ili liga stranici. Kada je `filter=true`, desno prikazuje izbor gustine prikaza (`Prostrano`/`Kompaktno`) i kalendar sa obojenim danima: odigrane (zeleno), predstojeće (plavo). Ako je zadat `view` atribut (`spacious` ili `compact`), prikaz je zaključan i ručni izbor gustine se ne prikazuje.',
                 'builder' => [
                     ['name' => 'columns', 'label' => 'Kolone', 'type' => 'number', 'default' => '4', 'help' => 'Broj kolona u gridu (1-6).'],
                     ['name' => 'limit', 'label' => 'Limit', 'type' => 'number', 'default' => '8', 'help' => 'Broj utakmica inicijalno (i chunk za infinite).'],
                     ['name' => 'liga', 'label' => 'Liga slug', 'type' => 'text', 'default' => '', 'help' => 'Slug lige/takmičenja.'],
                     ['name' => 'season', 'label' => 'Season slug', 'type' => 'text', 'default' => '', 'help' => 'Slug sezone (npr. 2025-26).'],
+                    ['name' => 'kolo', 'label' => 'Kolo slug', 'type' => 'text', 'default' => '', 'help' => 'Opciono ograničenje na jedno kolo (npr. 11-kolo).'],
                     ['name' => 'highlight', 'label' => 'Highlight klub', 'type' => 'text', 'default' => '', 'help' => 'ID, slug ili naziv kluba (može i više vrednosti odvojeno zarezom).'],
                     ['name' => 'played', 'label' => 'Played', 'type' => 'text', 'default' => '', 'help' => 'true = odigrane, false = neodigrane, prazno = sve.'],
                     ['name' => 'filter', 'label' => 'Filter', 'type' => 'text', 'default' => 'true', 'help' => 'Uključuje filter/sort panel, izbor gustine prikaza (prostrano/kompaktno) i kalendar datuma.'],
