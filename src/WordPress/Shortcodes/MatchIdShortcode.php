@@ -149,44 +149,36 @@ final class MatchIdShortcode
 
     private static function pick_next_upcoming_match(array $rows, callable $call)
     {
-        $now = time();
-        $best_future = null;
-        $best_future_ts = null;
-        $best_fallback = null;
-        $best_fallback_ts = null;
-
+        $prepared = [];
         foreach ($rows as $row) {
             if (!is_object($row)) {
                 continue;
             }
+            $kolo_no = self::extract_round_no((string) ($row->kolo_slug ?? ''));
             $ts = $call('parse_match_timestamp', (string) ($row->match_date ?? ''), true);
-            if ($ts === false) {
-                continue;
-            }
-            $ts = intval($ts);
-
-            if ($ts >= $now) {
-                if ($best_future === null || $ts < $best_future_ts) {
-                    $best_future = $row;
-                    $best_future_ts = $ts;
-                }
-                continue;
-            }
-
-            if ($best_fallback === null || $ts > $best_fallback_ts) {
-                $best_fallback = $row;
-                $best_fallback_ts = $ts;
-            }
+            $prepared[] = [
+                'row' => $row,
+                'kolo_no' => $kolo_no > 0 ? $kolo_no : PHP_INT_MAX,
+                'match_ts' => $ts === false ? PHP_INT_MAX : intval($ts),
+                'id' => intval($row->id ?? 0),
+            ];
         }
 
-        if (is_object($best_future)) {
-            return $best_future;
-        }
-        if (is_object($best_fallback)) {
-            return $best_fallback;
+        if (empty($prepared)) {
+            return is_object($rows[0] ?? null) ? $rows[0] : null;
         }
 
-        return is_object($rows[0]) ? $rows[0] : null;
+        usort($prepared, static function ($a, $b) {
+            if ($a['kolo_no'] !== $b['kolo_no']) {
+                return $a['kolo_no'] <=> $b['kolo_no'];
+            }
+            if ($a['match_ts'] !== $b['match_ts']) {
+                return $a['match_ts'] <=> $b['match_ts'];
+            }
+            return $a['id'] <=> $b['id'];
+        });
+
+        return is_object($prepared[0]['row'] ?? null) ? $prepared[0]['row'] : (is_object($rows[0] ?? null) ? $rows[0] : null);
     }
 
     private static function normalize_played($played, $odigrana)
@@ -206,5 +198,17 @@ final class MatchIdShortcode
             return '0';
         }
         return '';
+    }
+
+    private static function extract_round_no($kolo_slug)
+    {
+        $kolo_slug = strtolower(trim((string) $kolo_slug));
+        if ($kolo_slug === '') {
+            return 0;
+        }
+        if (preg_match('/(\d+)/', $kolo_slug, $m)) {
+            return intval($m[1]);
+        }
+        return 0;
     }
 }
