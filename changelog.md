@@ -161,6 +161,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Rebalanced `opentt_standings_short` column density: enforced compact numeric columns and expanded `Klub` column to the dominant width (via fixed `colgroup` ratios), improving team-name readability while keeping `#/P/W/Pts` just wide enough for values.
 - Fine-tuned `opentt_standings_short` row polish: slightly increased numeric column typography and enforced middle vertical alignment across all cells, including crest+club-name cluster alignment.
 - Increased `opentt_standings_short` row breathing room (larger vertical cell padding) and removed table-header background fill for a cleaner heading row.
+- Updated `opentt_standings_short` header/body readability: aligned `Klub` heading to the left, increased vertical row spacing once more, and bumped numeric column text (`#`, `P`, `W`, `Pts`) for clearer scanability.
 - Reworked admin match quick editing UX: renamed action to `Quick edit`, moved editor inline below the selected match row (blue-highlighted box), opened/closed without page refresh, and expanded fields to include score, date, kickoff time, and location (refresh occurs only on save).
 - Added explicit `ID` column to the admin `Utakmice` list table so each match row clearly shows its database match ID.
 - Updated `opentt_matches_list` default-round selection: when no explicit round is requested, shortcode now opens the first upcoming round (first round containing at least one unplayed match) instead of always opening the latest round.

@@ -132,7 +132,7 @@ thead tr th {
 
 .opentt-standings-short-table th,
 .opentt-standings-short-table td {
-  padding: 9px 6px;
+  padding: 11px 6px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   text-align: center;
   vertical-align: middle;
@@ -150,6 +150,10 @@ thead tr th {
   color: #bdd2f6;
 }
 
+.opentt-standings-short-table th:nth-child(2) {
+  text-align: left;
+}
+
 .opentt-standings-short-table .club-cell {
   text-align: left;
   font-weight: 700;
@@ -159,7 +163,7 @@ thead tr th {
 
 .opentt-standings-short-table th:not(:nth-child(2)),
 .opentt-standings-short-table td:not(:nth-child(2)) {
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   padding-left: 2px;
   padding-right: 2px;
 }
@@ -231,12 +235,12 @@ thead tr th {
 
   .opentt-standings-short-table th,
   .opentt-standings-short-table td {
-    padding: 8px 5px;
+    padding: 9px 5px;
   }
 
   .opentt-standings-short-table th:not(:nth-child(2)),
   .opentt-standings-short-table td:not(:nth-child(2)) {
-    font-size: 0.76rem;
+    font-size: 0.78rem;
   }
 
   .opentt-standings-short-table .club-crest {
