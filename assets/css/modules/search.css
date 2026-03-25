@@ -24,6 +24,29 @@ html.opentt-search-open {
   z-index: 65;
 }
 
+.opentt-search:not(.opentt-search--floating) .opentt-search-toggle {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.opentt-search:not(.opentt-search--floating) .opentt-search-toggle:hover {
+  transform: none;
+  border-color: transparent;
+  background: transparent;
+}
+
+.opentt-search:not(.opentt-search--floating) .opentt-search-toggle-icon {
+  width: 24px;
+  height: 24px;
+}
+
 .opentt-search-toggle {
   width: 40px;
   height: 40px;
