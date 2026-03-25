@@ -184,6 +184,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added configurable floating search mode: `opentt_search` now supports `floating="true"` positioning, and admin `Podešavanja` includes a new enable/disable toggle for a global frontend floating search icon (rendered via footer when enabled).
 - Refined floating search icon appearance by removing toggle wrapper visuals (background/border/button box) so only the icon remains visible.
 - Adjusted search-icon display modes: floating search keeps the boxed toggle wrapper, while shortcode-rendered inline search uses icon-only toggle styling.
+- Improved inline shortcode search UX by adding an invisible enlarged hit-area around the icon (no visible box), making click/tap targeting easier while preserving icon-only look.
 - Added empty-input discovery mode in `opentt_search`: now shows popular players and clubs (ranked by current match/game performance) plus cookie-based search history (`Istorija pretrage`) for returning visitors without user profiles.
 - Extended `opentt_search` discovery UX: search history now appears contextually on input focus (YouTube-style) with `Očisti istoriju pretrage` action, and `Trending` now ranks recently clicked search results (player/club entities) from the last 5 days instead of raw typed terms.
 - Added anti-spam guard for `opentt_search` trending analytics: identical entity clicks (same player/club) now have a per-day counting cap, preventing automated repeated queries/clicks from unfairly pushing one result to the top.
