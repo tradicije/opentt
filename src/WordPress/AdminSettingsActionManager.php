@@ -76,6 +76,7 @@ final class AdminSettingsActionManager
         $optionCustomCss = (string) ($config['option_custom_css'] ?? '');
         $optionCustomCssMap = (string) ($config['option_custom_css_map'] ?? '');
         $optionEloEnabled = (string) ($config['option_elo_enabled'] ?? '');
+        $optionSearchFloatingEnabled = (string) ($config['option_search_floating_enabled'] ?? '');
         $optionAdminUiLanguage = (string) ($config['option_admin_ui_language'] ?? '');
         $availableLanguages = isset($config['available_languages']) && is_array($config['available_languages'])
             ? $config['available_languages']
@@ -125,6 +126,17 @@ final class AdminSettingsActionManager
             }
             if ($section === 'elo') {
                 wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'ELO podešavanje je sačuvano.'));
+                exit;
+            }
+        }
+
+        if ($section === 'search' || $section === 'all') {
+            $searchFloatingEnabled = !empty($_POST['search_floating_enabled']) ? '1' : '0'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            if ($optionSearchFloatingEnabled !== '') {
+                update_option($optionSearchFloatingEnabled, $searchFloatingEnabled, false);
+            }
+            if ($section === 'search') {
+                wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Podešavanje floating pretrage je sačuvano.'));
                 exit;
             }
         }

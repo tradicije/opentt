@@ -30,6 +30,7 @@ final class SearchShortcode
             'liga' => '',
             'sezona' => '',
             'season' => '',
+            'floating' => 'false',
         ], $atts);
 
         $min_chars = max(1, min(4, intval($atts['min_chars'])));
@@ -78,8 +79,15 @@ final class SearchShortcode
             $payload_json = '{}';
         }
 
+        $floating_mode = in_array(
+            strtolower(trim((string) ($atts['floating'] ?? 'false'))),
+            ['1', 'true', 'yes', 'da', 'on'],
+            true
+        );
+        $root_class = 'opentt-search' . ($floating_mode ? ' opentt-search--floating' : '');
+
         ob_start();
-        echo '<div id="' . esc_attr($uid) . '" class="opentt-search" data-opentt-search="1">';
+        echo '<div id="' . esc_attr($uid) . '" class="' . esc_attr($root_class) . '" data-opentt-search="1">';
         echo '<button type="button" class="opentt-search-toggle" aria-expanded="false" aria-controls="' . esc_attr($uid . '-panel') . '" aria-label="Open search">';
         echo '<img class="opentt-search-toggle-icon" src="' . esc_url($icon_url) . '" alt="" aria-hidden="true">';
         echo '</button>';

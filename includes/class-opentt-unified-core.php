@@ -52,6 +52,7 @@ final class OpenTT_Unified_Core
     const OPTION_COMPETITION_DIAGNOSTICS = 'opentt_unified_competition_diagnostics';
     const OPTION_ADMIN_UI_LANGUAGE = 'opentt_unified_admin_ui_language';
     const OPTION_SEARCH_TRENDING_CLICKS = 'opentt_unified_search_trending_clicks';
+    const OPTION_SEARCH_FLOATING_ENABLED = 'opentt_unified_search_floating_enabled';
     const OPTION_MATCHES_LAST_EDITOR_ID = 'opentt_unified_matches_last_editor_id';
     const OPTION_MATCHES_LAST_EDITOR_NAME = 'opentt_unified_matches_last_editor_name';
     const OPTION_MATCHES_LAST_EDITOR_AVATAR_URL = 'opentt_unified_matches_last_editor_avatar_url';
@@ -88,6 +89,7 @@ final class OpenTT_Unified_Core
         add_action('init', [__CLASS__, 'maybe_backfill_elo_ratings_once'], 40);
         add_action('wp_ajax_opentt_frontend_search', [__CLASS__, 'handle_frontend_search_ajax']);
         add_action('wp_ajax_nopriv_opentt_frontend_search', [__CLASS__, 'handle_frontend_search_ajax']);
+        add_action('wp_footer', [__CLASS__, 'render_floating_search_widget'], 40);
     }
 
     public static function activate($plugin_file)
@@ -2993,7 +2995,7 @@ JS;
             [
                 'tag' => 'opentt_search',
                 'desc' => 'Global live search sa kategorijama i kontekstualnim prioritetom (utakmica/liga/sezona).',
-                'attrs' => 'placeholder, min_chars, limit, liga, season',
+                'attrs' => 'placeholder, min_chars, limit, liga, season, floating',
                 'details' => 'Dok korisnik kuca, rezultati se prikazuju uživo i grupisano po kategorijama: igrači, klubovi, lige/sezone i utakmice. Na stranici utakmice automatski prvo prioritizuje klubove/igrače tog meča kada ima podudaranja.',
                 'builder' => [
                     ['name' => 'placeholder', 'label' => 'Placeholder', 'type' => 'text', 'default' => 'Pretraži igrače, klubove, lige...', 'help' => 'Tekst u search input-u.'],
@@ -3001,6 +3003,7 @@ JS;
                     ['name' => 'limit', 'label' => 'Limit po kategoriji', 'type' => 'number', 'default' => '6', 'help' => 'Maksimalan broj rezultata po kategoriji.'],
                     ['name' => 'liga', 'label' => 'Liga slug', 'type' => 'text', 'default' => '', 'help' => 'Opciono forsiranje liga konteksta.'],
                     ['name' => 'season', 'label' => 'Season slug', 'type' => 'text', 'default' => '', 'help' => 'Opciono forsiranje sezonskog konteksta.'],
+                    ['name' => 'floating', 'label' => 'Floating mode', 'type' => 'text', 'default' => 'false', 'help' => 'true prikazuje floating pozicioniranje dugmeta (koristi se za globalni floating search).'],
                 ],
             ],
             [
@@ -3171,6 +3174,7 @@ JS;
             'title' => 'Naslov sekcije shortcode bloka.',
             'placeholder' => 'Placeholder tekst u polju pretrage.',
             'min_chars' => 'Minimalan broj karaktera za pokretanje pretrage.',
+            'floating' => 'Uključuje floating pozicioniranje search dugmeta (true/false).',
         ];
     }
 
@@ -3243,6 +3247,21 @@ JS;
         echo '<label><span>ELO status</span><span style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="elo_enabled" value="0"><input type="checkbox" name="elo_enabled" value="1" ' . checked($elo_enabled, 1, false) . '> Uključi ELO</span></label>';
         echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" class="button button-primary">Sačuvaj ELO podešavanje</button>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+
+        $search_floating_enabled = ((string) get_option(self::OPTION_SEARCH_FLOATING_ENABLED, '0') === '1') ? 1 : 0;
+        echo '<div class="opentt-panel opentt-settings-panel">';
+        echo '<h2>Floating pretraga</h2>';
+        echo '<p class="description">Uključi ili isključi floating search ikonicu na frontend-u.</p>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
+        wp_nonce_field('opentt_unified_save_settings');
+        echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
+        echo '<input type="hidden" name="opentt_settings_section" value="search">';
+        echo '<label><span>Floating search</span><span style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="search_floating_enabled" value="0"><input type="checkbox" name="search_floating_enabled" value="1" ' . checked($search_floating_enabled, 1, false) . '> Uključi floating search ikonicu</span></label>';
+        echo '<div class="opentt-settings-actions">';
+        echo '<button type="submit" class="button button-primary">Sačuvaj pretragu</button>';
         echo '</div>';
         echo '</form>';
         echo '</div>';
@@ -4807,6 +4826,7 @@ HTML;
                 self::OPTION_CUSTOM_SHORTCODE_CSS_MAP,
                 self::OPTION_VISUAL_SETTINGS,
                 self::OPTION_ELO_ENABLED,
+                self::OPTION_SEARCH_FLOATING_ENABLED,
                 self::OPTION_ADMIN_UI_LANGUAGE,
                 self::OPTION_DEFAULT_PAGES_SETUP_DONE,
                 self::OPTION_ONBOARDING_STATE,
@@ -4828,9 +4848,27 @@ HTML;
             'option_custom_css' => self::OPTION_CUSTOM_SHORTCODE_CSS,
             'option_custom_css_map' => self::OPTION_CUSTOM_SHORTCODE_CSS_MAP,
             'option_elo_enabled' => self::OPTION_ELO_ENABLED,
+            'option_search_floating_enabled' => self::OPTION_SEARCH_FLOATING_ENABLED,
             'option_admin_ui_language' => self::OPTION_ADMIN_UI_LANGUAGE,
             'available_languages' => self::get_available_admin_ui_languages(),
         ]);
+    }
+
+    public static function render_floating_search_widget()
+    {
+        if (is_admin() || wp_doing_ajax()) {
+            return;
+        }
+        $enabled = (string) get_option(self::OPTION_SEARCH_FLOATING_ENABLED, '0');
+        if ($enabled !== '1') {
+            return;
+        }
+        static $rendered = false;
+        if ($rendered) {
+            return;
+        }
+        $rendered = true;
+        echo do_shortcode('[opentt_search floating="true"]'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
     public static function render_admin_notice()
