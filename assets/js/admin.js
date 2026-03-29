@@ -98,6 +98,31 @@
       var help = form.querySelector(".opentt-wizard-help");
       var current = 1;
 
+      function getStepRows(stepNo) {
+        return Array.prototype.slice.call(
+          form.querySelectorAll('[data-opentt-step="' + stepNo + '"]')
+        );
+      }
+
+      function findFirstInvalidField(stepNo) {
+        var rowsForStep = getStepRows(stepNo);
+        var invalidField = null;
+        rowsForStep.some(function (row) {
+          var fields = row.querySelectorAll("input, select, textarea");
+          return Array.prototype.slice.call(fields).some(function (field) {
+            if (!field || !field.willValidate || field.disabled) {
+              return false;
+            }
+            if (!field.checkValidity()) {
+              invalidField = field;
+              return true;
+            }
+            return false;
+          });
+        });
+        return invalidField;
+      }
+
       function render() {
         rows.forEach(function (row) {
           var step = parseInt(row.getAttribute("data-opentt-step") || "1", 10);
@@ -134,12 +159,33 @@
       }
       if (nextBtn) {
         nextBtn.addEventListener("click", function () {
+          var invalidOnCurrentStep = findFirstInvalidField(current);
+          if (invalidOnCurrentStep) {
+            invalidOnCurrentStep.reportValidity();
+            return;
+          }
           if (current < stepsCount) {
             current++;
             render();
           }
         });
       }
+
+      form.addEventListener("submit", function (e) {
+        for (var stepNo = 1; stepNo <= stepsCount; stepNo++) {
+          var invalidField = findFirstInvalidField(stepNo);
+          if (!invalidField) {
+            continue;
+          }
+          e.preventDefault();
+          current = stepNo;
+          render();
+          window.requestAnimationFrame(function () {
+            invalidField.reportValidity();
+          });
+          return;
+        }
+      });
 
       render();
     });

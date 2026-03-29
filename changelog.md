@@ -67,6 +67,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Admin & Data
 
+- Fixed admin match wizard submit flow: required-field validation is now enforced per step (`Dalje`) and on final submit, automatically returning users to the first invalid step instead of silently failing when hidden required fields are missing.
 - Added `featured` match flag to match schema and import/export payloads.
 - Added featured controls in admin matches workflow: quick list toggle action (`Feature/Unfeature`), featured indicator column, and featured checkbox in match edit details.
 - Bumped schema version to force migration and added runtime fallback for auto-adding missing `featured` column when older installs hit admin featured actions.
