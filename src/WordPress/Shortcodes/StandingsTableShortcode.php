@@ -283,7 +283,7 @@ final class StandingsTableShortcode
         $watermark_class .= ' has-watermark';
         $watermark_inline_style = ' style="position:relative;isolation:isolate;overflow:hidden;border-radius:8px;"';
         $overlay_inline_style = ' style="position:absolute;left:24px;right:24px;top:calc(44px + 24px);bottom:24px;display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;z-index:5;"';
-        $img_inline_style = ' style="width:100%;height:100%;object-fit:contain;opacity:.05;"';
+        $img_inline_style = ' style="width:100%;height:100%;object-fit:contain;opacity:.1;"';
         $table_inline_style = ' style="position:relative;z-index:1;background-color:rgba(0,10,38,.50);"';
 
         echo (string) $call('shortcode_title_html', 'Tabela');
