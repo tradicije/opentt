@@ -267,7 +267,7 @@ final class StandingsTableShortcode
 
         ob_start();
         $watermark_class = 'opentt-standings-watermark';
-        $plugin_root = dirname(__DIR__, 4);
+        $plugin_root = dirname(__DIR__, 3);
         $watermark_rel = 'assets/img/club-logo.png';
         $club_logo_path = trailingslashit($plugin_root) . $watermark_rel;
         if (!is_readable($club_logo_path)) {
