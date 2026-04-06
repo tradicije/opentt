@@ -272,6 +272,7 @@ final class StandingsTableShortcode
         $watermark_inline_style = '';
         $table_inline_style = '';
         $img_inline_style = '';
+        $wrapper_bg_style = '';
         $watermark_candidates = [
             'assets/img/club-logo.png',
             'assets/img/watermark-logo.png',
@@ -284,29 +285,18 @@ final class StandingsTableShortcode
             if (!is_readable($candidate_path)) {
                 continue;
             }
-            $raw = file_get_contents($candidate_path);
-            if ($raw !== false && $raw !== '') {
-                $ext = strtolower(pathinfo($candidate_path, PATHINFO_EXTENSION));
-                $mime = 'image/png';
-                if ($ext === 'svg') {
-                    $mime = 'image/svg+xml';
-                } elseif ($ext === 'webp') {
-                    $mime = 'image/webp';
-                } elseif ($ext === 'jpg' || $ext === 'jpeg') {
-                    $mime = 'image/jpeg';
-                } elseif ($ext === 'gif') {
-                    $mime = 'image/gif';
-                }
-                $watermark_url = 'data:' . $mime . ';base64,' . base64_encode($raw);
-            } else {
-                $watermark_url = (string) plugins_url($candidate, $plugin_root . '/opentt-unified-core.php');
+            $mtime = filemtime($candidate_path);
+            $watermark_url = (string) plugins_url($candidate, $plugin_root . '/opentt-unified-core.php');
+            if (is_int($mtime) && $mtime > 0) {
+                $watermark_url .= '?v=' . $mtime;
             }
             $watermark_class .= ' has-watermark';
             break;
         }
         if ($watermark_url !== '') {
-            $watermark_inline_style = ' style="position:relative;isolation:isolate;overflow:hidden;border-radius:8px;"';
-            $img_inline_style = ' style="position:absolute;left:50%;top:50%;width:clamp(220px,46%,420px);height:auto;transform:translate(-50%,-50%);opacity:.08;pointer-events:none;user-select:none;z-index:5;"';
+            $wrapper_bg_style = 'background-image:url(' . esc_url_raw($watermark_url) . ');background-repeat:no-repeat;background-position:center center;background-size:clamp(220px,46%,420px) auto;';
+            $watermark_inline_style = ' style="' . esc_attr('position:relative;isolation:isolate;overflow:hidden;border-radius:8px;' . $wrapper_bg_style) . '"';
+            $img_inline_style = ' style="position:absolute;left:50%;top:50%;width:clamp(220px,46%,420px);height:auto;transform:translate(-50%,-50%);opacity:.14;pointer-events:none;user-select:none;z-index:5;"';
             $table_inline_style = ' style="position:relative;z-index:1;background-color:rgba(0,10,38,.50);"';
         }
 
