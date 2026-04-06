@@ -1266,31 +1266,31 @@
       "position:fixed;left:-20000px;top:0;width:1080px;height:1080px;z-index:-1;pointer-events:none;";
     host.innerHTML =
       '<style>' +
-      ".opentt-export-card{position:relative;width:1080px;height:1080px;overflow:hidden;background:linear-gradient(165deg,#03153e 0%,#07296f 58%,#0a3e91 100%);font-family:Inter,Montserrat,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#fff;}" +
+      ".opentt-export-card{position:relative;width:1080px;height:1080px;overflow:hidden;background:linear-gradient(165deg,#03153e 0%,#07296f 58%,#0a3e91 100%);font-family:inherit;color:#fff;}" +
       ".opentt-export-card .soft-shape{position:absolute;border-radius:50%;pointer-events:none;}" +
       ".opentt-export-card .soft-shape.s1{width:360px;height:360px;right:-110px;top:-90px;background:rgba(120,188,255,.12);}" +
       ".opentt-export-card .soft-shape.s2{width:420px;height:420px;left:-140px;bottom:-180px;background:rgba(0,132,255,.10);}" +
       ".opentt-export-card .bg-watermark{position:absolute;left:50%;top:57%;width:640px;height:640px;transform:translate(-50%,-50%) rotate(-12deg);object-fit:contain;opacity:.14;filter:blur(1.4px);pointer-events:none;}" +
-      ".opentt-export-header{position:absolute;left:56px;right:56px;top:44px;display:grid;grid-template-columns:88px 1fr 88px;align-items:center;gap:18px;}" +
-      ".opentt-export-corner-logo{width:88px;height:88px;border-radius:14px;background:rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;}" +
-      ".opentt-export-corner-logo img{width:76px;height:76px;object-fit:contain;}" +
+      ".opentt-export-header{position:absolute;left:56px;right:56px;top:44px;display:grid;grid-template-columns:120px 1fr 120px;align-items:center;gap:18px;}" +
+      ".opentt-export-corner-logo{width:120px;height:88px;display:flex;align-items:center;justify-content:center;}" +
+      ".opentt-export-corner-logo img{width:auto;max-width:112px;height:78px;object-fit:contain;}" +
       ".opentt-export-head-main{text-align:center;}" +
-      ".opentt-export-head-main .league{font-size:44px;font-weight:700;line-height:1.03;color:#ffffff;}" +
-      ".opentt-export-head-main .round{font-size:60px;font-weight:800;line-height:1.02;color:#ffdf44;margin-top:4px;letter-spacing:.01em;}" +
+      ".opentt-export-head-main .league{font-size:52px;font-weight:700;line-height:1.03;color:#ffffff;}" +
+      ".opentt-export-head-main .round{font-size:42px;font-weight:800;line-height:1.02;color:#ffdf44;margin-top:4px;letter-spacing:.01em;}" +
       ".opentt-export-table{position:absolute;left:56px;right:56px;top:192px;bottom:118px;border-radius:22px;background:rgba(3,14,38,.62);overflow:hidden;}" +
-      ".opentt-export-head-row{height:62px;display:grid;grid-template-columns:8% 40% 10% 10% 10% 11% 11%;align-items:center;padding:0 18px;background:rgba(8,30,82,.56);font-size:34px;font-weight:600;color:rgba(236,245,255,.95);}" +
+      ".opentt-export-head-row{height:62px;display:grid;grid-template-columns:7% 47% 9% 9% 9% 9% 10%;align-items:center;padding:0 18px;background:rgba(8,30,82,.56);font-size:26px;font-weight:600;color:rgba(236,245,255,.95);}" +
       ".opentt-export-body{position:absolute;left:0;right:0;top:62px;bottom:0;padding:8px 12px 12px;}" +
-      ".opentt-export-row{display:grid;grid-template-columns:8% 40% 10% 10% 10% 11% 11%;align-items:center;padding:0 12px;font-size:36px;color:rgba(236,245,255,.95);border-bottom:1px solid rgba(255,255,255,.15);}" +
+      ".opentt-export-row{display:grid;grid-template-columns:7% 47% 9% 9% 9% 9% 10%;align-items:center;padding:0 12px;font-size:28px;color:rgba(236,245,255,.95);border-bottom:1px solid rgba(255,255,255,.15);}" +
       ".opentt-export-row:nth-child(even){background:rgba(255,255,255,.025);}" +
       ".opentt-export-row.is-highlight{background:rgba(0,132,255,.12);}" +
       ".opentt-export-row.is-first{background:rgba(255,255,255,.035);}" +
       ".opentt-export-row.is-cut{border-bottom:2px solid #ffdf44;}" +
       ".opentt-export-row .col{display:flex;align-items:center;justify-content:center;}" +
       ".opentt-export-row .col-club{justify-content:flex-start;gap:12px;padding-right:8px;}" +
-      ".opentt-export-row .club-logo-wrap{width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex:0 0 38px;}" +
+      ".opentt-export-row .club-logo-wrap{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:0 0 38px;}" +
       ".opentt-export-row .club-logo-wrap img{width:30px;height:30px;object-fit:contain;}" +
       ".opentt-export-row .club-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
-      ".opentt-export-foot{position:absolute;left:56px;right:56px;bottom:40px;height:58px;border-radius:14px;background:rgba(3,18,50,.72);display:flex;align-items:center;justify-content:center;color:rgba(205,223,252,.96);font-size:30px;font-weight:500;}" +
+      ".opentt-export-foot{position:absolute;left:56px;right:56px;bottom:40px;height:58px;border-radius:14px;background:rgba(3,18,50,.72);display:flex;align-items:center;justify-content:center;color:rgba(205,223,252,.96);font-size:26px;font-weight:500;}" +
       "</style>" +
       '<div class="opentt-export-card">' +
       '<span class="soft-shape s1"></span><span class="soft-shape s2"></span>' +

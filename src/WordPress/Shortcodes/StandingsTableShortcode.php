@@ -262,6 +262,13 @@ final class StandingsTableShortcode
         if ($season_label === '') {
             $season_label = 'Sezona';
         }
+        $league_label_display = $league_label;
+        if (function_exists('mb_convert_case')) {
+            $league_label_display = (string) mb_convert_case($league_label_display, MB_CASE_TITLE, 'UTF-8');
+        } else {
+            $league_label_display = (string) ucwords(strtolower($league_label_display));
+        }
+        $season_label_display = str_replace('-', '/', $season_label);
         $export_round = 0;
         foreach ($rows as $rr) {
             $round_no = intval($call('extract_round_no', (string) ($rr->kolo_slug ?? '')));
@@ -382,8 +389,8 @@ final class StandingsTableShortcode
         $brand_logo_url = (string) plugins_url('assets/img/club-logo.png', $plugin_root . '/opentt-unified-core.php');
         $bg_alt_url = (string) plugins_url('assets/img/club-logo-alt.png', $plugin_root . '/opentt-unified-core.php');
         $share_payload = [
-            'league' => (string) $league_label,
-            'season' => (string) $season_label,
+            'league' => (string) $league_label_display,
+            'season' => (string) $season_label_display,
             'round' => intval($export_round),
             'promotionCut' => max(0, intval($promo_direct) + intval($promo_playoff)),
             'footer' => 'Tabela preuzeta sa stkb.rs',
