@@ -217,7 +217,7 @@ final class GamesListShortcode
             $out = (string) $call('shortcode_title_html', 'Tok utakmice');
             $out .= $pending_notice_html;
             $out .= '<p>Nema partija za prikaz.</p>';
-            $out .= '<p><a class="opentt-games-submit-open" href="' . esc_url($open_form_url) . '" target="_blank" rel="noopener">Unesi partije</a></p>';
+            $out .= '<p><a class="opentt-games-submit-open" href="' . esc_url($open_form_url) . '">Unesi partije</a></p>';
             return $out;
         }
 
