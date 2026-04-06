@@ -281,9 +281,8 @@ final class StandingsTableShortcode
         }
 
         $watermark_class .= ' has-watermark';
-        $wrapper_bg_style = 'background-image:url(' . esc_url_raw($watermark_url) . ');background-repeat:no-repeat;background-position:center center;background-size:clamp(220px,46%,420px) auto;';
-        $watermark_inline_style = ' style="' . esc_attr('position:relative;isolation:isolate;overflow:hidden;border-radius:8px;' . $wrapper_bg_style) . '"';
-        $img_inline_style = ' style="position:absolute;left:50%;top:50%;width:clamp(220px,46%,420px);height:auto;transform:translate(-50%,-50%);opacity:.14;pointer-events:none;user-select:none;z-index:5;"';
+        $watermark_inline_style = ' style="position:relative;isolation:isolate;overflow:hidden;border-radius:8px;"';
+        $img_inline_style = ' style="position:absolute;left:50%;top:50%;width:clamp(220px,46%,420px);height:clamp(220px,46%,420px);object-fit:contain;transform:translate(-50%,-50%);opacity:.05;pointer-events:none;user-select:none;z-index:5;"';
         $table_inline_style = ' style="position:relative;z-index:1;background-color:rgba(0,10,38,.50);"';
 
         echo (string) $call('shortcode_title_html', 'Tabela');
