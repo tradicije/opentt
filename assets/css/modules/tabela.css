@@ -20,6 +20,35 @@
   border-radius: 8px;
 }
 
+.opentt-standings-watermark {
+  position: relative;
+  isolation: isolate;
+  border-radius: 8px;
+}
+
+.opentt-standings-watermark.has-watermark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--opentt-standings-watermark);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: min(62%, 420px) auto;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.opentt-standings-watermark .tabela-lige {
+  position: relative;
+  z-index: 1;
+}
+
+.opentt-standings-watermark.has-watermark .tabela-lige {
+  background-color: rgba(0, 8, 26, 0.68);
+}
+
 .tabela-lige thead {
   color: #ffffffa8;
   font-style: italic;

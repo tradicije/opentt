@@ -266,7 +266,17 @@ final class StandingsTableShortcode
         }
 
         ob_start();
+        $watermark_path = trailingslashit(dirname(__DIR__, 3)) . 'assets/img/club-logo.png';
+        $watermark_class = 'opentt-standings-watermark';
+        $watermark_style = '';
+        if (file_exists($watermark_path)) {
+            $watermark_url = plugins_url('assets/img/club-logo.png', dirname(__DIR__, 3) . '/opentt-unified-core.php');
+            $watermark_class .= ' has-watermark';
+            $watermark_style = ' style="' . esc_attr("--opentt-standings-watermark:url('" . esc_url_raw($watermark_url) . "');") . '"';
+        }
+
         echo (string) $call('shortcode_title_html', 'Tabela');
+        echo '<div class="' . esc_attr($watermark_class) . '"' . $watermark_style . '>';
         echo '<table class="tabela-lige">';
         echo '<thead><tr>';
         echo '<th>#</th>';
@@ -317,6 +327,7 @@ final class StandingsTableShortcode
         }
 
         echo '</tbody></table>';
+        echo '</div>';
         return ob_get_clean();
     }
 }
