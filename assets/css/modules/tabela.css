@@ -21,17 +21,32 @@
 }
 
 .opentt-standings-watermark {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   border-radius: 8px;
 }
 
+.opentt-standings-watermark .opentt-standings-watermark-img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(180px, 42%, 320px);
+  height: auto;
+  transform: translate(-50%, -50%);
+  opacity: 0.13;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.opentt-standings-watermark .tabela-lige {
+  position: relative;
+  z-index: 1;
+}
+
 .opentt-standings-watermark.has-watermark .tabela-lige {
-  background-color: rgba(0, 8, 26, 0.38);
-  background-image:
-    linear-gradient(rgba(0, 8, 26, 0.50), rgba(0, 8, 26, 0.50)),
-    var(--opentt-standings-watermark);
-  background-repeat: repeat, no-repeat;
-  background-position: 0 0, center center;
-  background-size: auto, 320px auto;
+  background-color: rgba(0, 8, 26, 0.50);
 }
 
 .tabela-lige thead {

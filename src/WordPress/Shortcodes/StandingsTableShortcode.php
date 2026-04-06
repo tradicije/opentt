@@ -268,7 +268,7 @@ final class StandingsTableShortcode
         ob_start();
         $watermark_class = 'opentt-standings-watermark';
         $plugin_root = dirname(__DIR__, 4);
-        $watermark_style = '';
+        $watermark_url = '';
         $watermark_candidates = [
             'assets/img/club-logo.png',
             'assets/img/watermark-logo.png',
@@ -281,14 +281,16 @@ final class StandingsTableShortcode
             if (!is_readable($candidate_path)) {
                 continue;
             }
-            $watermark_url = plugins_url($candidate, $plugin_root . '/opentt-unified-core.php');
+            $watermark_url = (string) plugins_url($candidate, $plugin_root . '/opentt-unified-core.php');
             $watermark_class .= ' has-watermark';
-            $watermark_style = ' style="' . esc_attr("--opentt-standings-watermark:url('" . esc_url_raw($watermark_url) . "');") . '"';
             break;
         }
 
         echo (string) $call('shortcode_title_html', 'Tabela');
-        echo '<div class="' . esc_attr($watermark_class) . '"' . $watermark_style . '>';
+        echo '<div class="' . esc_attr($watermark_class) . '">';
+        if ($watermark_url !== '') {
+            echo '<img class="opentt-standings-watermark-img" src="' . esc_url($watermark_url) . '" alt="" loading="lazy" decoding="async" />';
+        }
         echo '<table class="tabela-lige">';
         echo '<thead><tr>';
         echo '<th>#</th>';
