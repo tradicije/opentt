@@ -1281,7 +1281,7 @@
       ".opentt-export-head-main .league{font-size:50px;font-weight:700;line-height:1.02;color:#ffffff;}" +
       ".opentt-export-head-main .round{font-size:40px;font-weight:800;line-height:1.02;color:#ffdf44;letter-spacing:.01em;}" +
       ".opentt-export-table{position:absolute;left:56px;right:56px;border-radius:22px;background:rgba(3,14,38,.62);overflow:hidden;}" +
-      ".opentt-export-table .table-watermark{position:absolute;left:50%;top:54%;width:116%;height:116%;transform:translate(-50%,-50%) rotate(-12deg);object-fit:contain;opacity:.14;filter:blur(1.4px);pointer-events:none;z-index:0;}" +
+      ".opentt-export-table .table-watermark{position:absolute;left:50%;top:54%;width:94%;height:auto;max-height:96%;transform:translate(-50%,-50%) rotate(-12deg);object-fit:contain;opacity:.08;filter:blur(1.4px);pointer-events:none;z-index:0;}" +
       ".opentt-export-head-row{height:62px;display:grid;grid-template-columns:7% 47% 9% 9% 9% 9% 10%;align-items:center;padding:0 12px;background:rgba(8,30,82,.56);font-size:24px;font-weight:600;color:rgba(236,245,255,.95);}" +
       ".opentt-export-head-row > div{display:flex;align-items:center;justify-content:center;}" +
       ".opentt-export-head-row .club-head{justify-content:flex-start;padding-left:8px;}" +
@@ -1295,7 +1295,8 @@
       ".opentt-export-row .club-logo-wrap img{width:30px;height:30px;object-fit:contain;}" +
       ".opentt-export-row .club-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
       ".opentt-export-row .col-num{font-size:24px;font-weight:600;}" +
-      ".opentt-export-head-row,.opentt-export-body{position:relative;z-index:1;}" +
+      ".opentt-export-head-row{position:relative;z-index:1;}" +
+      ".opentt-export-body{z-index:1;}" +
       ".opentt-export-foot{position:absolute;left:56px;right:56px;bottom:40px;height:58px;display:flex;align-items:center;justify-content:space-between;color:rgba(205,223,252,.96);font-size:26px;font-weight:500;}" +
       ".opentt-export-foot .foot-brand{width:150px;height:58px;display:flex;align-items:center;justify-content:flex-start;}" +
       ".opentt-export-foot .foot-brand img{width:auto;height:auto;max-width:142px;max-height:54px;object-fit:contain;}" +
