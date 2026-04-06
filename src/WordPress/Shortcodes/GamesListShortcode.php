@@ -13,10 +13,11 @@ namespace OpenTT\Unified\WordPress\Shortcodes;
 
 final class GamesListShortcode
 {
-    private static function renderPlayerSelect($name, array $options, $selected = 0)
+    private static function renderPlayerSelect($name, array $options, $selected = 0, $required = false)
     {
         $selected = intval($selected);
-        $html = '<select name="' . esc_attr((string) $name) . '">';
+        $req = $required ? ' required' : '';
+        $html = '<select name="' . esc_attr((string) $name) . '"' . $req . '>';
         $html .= '<option value="">— izaberi —</option>';
         foreach ($options as $player_id => $player_name) {
             $player_id = intval($player_id);
@@ -97,6 +98,11 @@ final class GamesListShortcode
         echo '<input type="email" name="submitter_email" required placeholder="ime@domen.rs">';
         echo '<small>Na ovu adresu dobićeš obaveštenje da li je tvoj unos partija odobren ili odbijen od strane administratora.</small>';
         echo '</label>';
+        echo '<label class="opentt-games-submit-email">';
+        echo '<span>Ime i prezime (opciono)</span>';
+        echo '<input type="text" name="submitter_name" placeholder="Ime i prezime">';
+        echo '</label>';
+        echo '<p class="opentt-games-submit-lead" style="margin-top:-4px;">Za svaku partiju obavezno unesi igrače i ukupan rezultat po setovima. Pojedinačni setovi su opcioni.</p>';
 
         if ($turnstileEnabled && $turnstileSiteKey !== '') {
             echo '<div class="opentt-turnstile-wrap">';
@@ -111,13 +117,13 @@ final class GamesListShortcode
             echo '<div class="opentt-games-submit-game">';
             echo '<h4>Partija #' . intval($orderNo) . ($isDoubles ? ' (Dubl)' : '') . '</h4>';
             echo '<div class="opentt-games-submit-grid">';
-            echo '<label><span>Domaći igrač</span>' . self::renderPlayerSelect('games[' . intval($orderNo) . '][home_player_post_id]', $homePlayers, 0) . '</label>';
-            echo '<label><span>Gost igrač</span>' . self::renderPlayerSelect('games[' . intval($orderNo) . '][away_player_post_id]', $awayPlayers, 0) . '</label>';
-            echo '<label><span>Domaći setovi</span><input type="number" min="0" max="7" name="games[' . intval($orderNo) . '][home_sets]" value="0"></label>';
-            echo '<label><span>Gost setovi</span><input type="number" min="0" max="7" name="games[' . intval($orderNo) . '][away_sets]" value="0"></label>';
+            echo '<label><span>Domaći igrač</span>' . self::renderPlayerSelect('games[' . intval($orderNo) . '][home_player_post_id]', $homePlayers, 0, true) . '</label>';
+            echo '<label><span>Gost igrač</span>' . self::renderPlayerSelect('games[' . intval($orderNo) . '][away_player_post_id]', $awayPlayers, 0, true) . '</label>';
+            echo '<label><span>Domaći setovi</span><input type="number" min="0" max="7" name="games[' . intval($orderNo) . '][home_sets]" value="" required></label>';
+            echo '<label><span>Gost setovi</span><input type="number" min="0" max="7" name="games[' . intval($orderNo) . '][away_sets]" value="" required></label>';
             if ($isDoubles) {
-                echo '<label><span>Domaći igrač 2</span>' . self::renderPlayerSelect('games[' . intval($orderNo) . '][home_player2_post_id]', $homePlayers, 0) . '</label>';
-                echo '<label><span>Gost igrač 2</span>' . self::renderPlayerSelect('games[' . intval($orderNo) . '][away_player2_post_id]', $awayPlayers, 0) . '</label>';
+                echo '<label><span>Domaći igrač 2</span>' . self::renderPlayerSelect('games[' . intval($orderNo) . '][home_player2_post_id]', $homePlayers, 0, true) . '</label>';
+                echo '<label><span>Gost igrač 2</span>' . self::renderPlayerSelect('games[' . intval($orderNo) . '][away_player2_post_id]', $awayPlayers, 0, true) . '</label>';
             }
             echo '</div>';
 
@@ -125,9 +131,9 @@ final class GamesListShortcode
             for ($setNo = 1; $setNo <= 5; $setNo++) {
                 echo '<label><span>Set ' . intval($setNo) . ' (D:G)</span>';
                 echo '<span class="opentt-games-submit-set-pair">';
-                echo '<input type="number" min="0" max="30" name="games[' . intval($orderNo) . '][sets][' . intval($setNo) . '][home_points]" value="0" placeholder="11">';
+                echo '<input type="number" min="0" max="30" name="games[' . intval($orderNo) . '][sets][' . intval($setNo) . '][home_points]" value="" placeholder="11">';
                 echo '<span>:</span>';
-                echo '<input type="number" min="0" max="30" name="games[' . intval($orderNo) . '][sets][' . intval($setNo) . '][away_points]" value="0" placeholder="9">';
+                echo '<input type="number" min="0" max="30" name="games[' . intval($orderNo) . '][sets][' . intval($setNo) . '][away_points]" value="" placeholder="9">';
                 echo '</span>';
                 echo '</label>';
             }
@@ -195,6 +201,8 @@ final class GamesListShortcode
             $pending_notice_html = '<p class="opentt-games-submit-error">Unos nije poslat jer nijedna partija nije popunjena.</p>';
         } elseif ($pending_state === 'captcha') {
             $pending_notice_html = '<p class="opentt-games-submit-error">Captcha verifikacija nije uspela. Pokušaj ponovo.</p>';
+        } elseif ($pending_state === 'incomplete') {
+            $pending_notice_html = '<p class="opentt-games-submit-error">Za slanje je potrebno uneti sve partije: igrače i ukupan rezultat po setovima za svaku partiju.</p>';
         } elseif ($pending_state === 'error') {
             $pending_notice_html = '<p class="opentt-games-submit-error">Došlo je do greške pri slanju unosa. Pokušaj ponovo.</p>';
         }

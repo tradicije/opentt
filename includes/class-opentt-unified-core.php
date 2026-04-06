@@ -1786,6 +1786,9 @@ JS;
             echo '<strong>Sezona:</strong> ' . esc_html((string) $match->sezona_slug) . ' | ';
             echo '<strong>Kolo:</strong> ' . esc_html(self::kolo_name_from_slug((string) $match->kolo_slug)) . '</p>';
             echo '<p><strong>Email pošiljaoca:</strong> ' . esc_html((string) ($submission['submitter_email'] ?? '')) . '</p>';
+            if (!empty($submission['submitter_name'])) {
+                echo '<p><strong>Ime i prezime:</strong> ' . esc_html((string) $submission['submitter_name']) . '</p>';
+            }
             echo '<p><strong>Poslato:</strong> ' . esc_html(self::display_match_date((string) ($submission['created_at'] ?? ''))) . '</p>';
             echo '<p><a class="button" href="' . esc_url($edit_url) . '" target="_blank" rel="noopener">Otvori utakmicu u adminu</a> ';
             echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-pending-games')) . '">Nazad na pending listu</a></p>';
@@ -1873,7 +1876,7 @@ JS;
 
         echo '<p class="opentt-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
         echo '<div class="opentt-table-scroll">';
-        echo '<table class="widefat striped"><thead><tr><th>ID</th><th>Liga</th><th>Sezona</th><th>Kolo</th><th>Utakmica</th><th>Email</th><th>Poslato</th><th>Akcije</th></tr></thead><tbody>';
+        echo '<table class="widefat striped"><thead><tr><th>ID</th><th>Liga</th><th>Sezona</th><th>Kolo</th><th>Utakmica</th><th>Ime i prezime</th><th>Email</th><th>Poslato</th><th>Akcije</th></tr></thead><tbody>';
         foreach ($pending_rows as $row) {
             $match_id = intval($row['match_id'] ?? 0);
             $match = $match_id > 0
@@ -1895,6 +1898,7 @@ JS;
             echo '<td>' . esc_html((string) ($match->sezona_slug ?? '')) . '</td>';
             echo '<td>' . esc_html(self::kolo_name_from_slug((string) ($match->kolo_slug ?? ''))) . '</td>';
             echo '<td>' . esc_html($home_name . ' — ' . $away_name) . '</td>';
+            echo '<td>' . esc_html((string) ($row['submitter_name'] ?? '')) . '</td>';
             echo '<td>' . esc_html((string) ($row['submitter_email'] ?? '')) . '</td>';
             echo '<td>' . esc_html(self::display_match_date((string) ($row['created_at'] ?? ''))) . '</td>';
             echo '<td><a class="button button-small" href="' . esc_url($view_url) . '">Pregledaj</a></td>';
@@ -5439,6 +5443,7 @@ HTML;
         dbDelta("CREATE TABLE {$table} (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             match_id bigint(20) unsigned NOT NULL,
+            submitter_name varchar(190) NOT NULL DEFAULT '',
             submitter_email varchar(190) NOT NULL,
             payload longtext NULL,
             status varchar(20) NOT NULL DEFAULT 'pending',

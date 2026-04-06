@@ -721,6 +721,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         $return_url = remove_query_arg(['opentt_games_submit', 'opentt_games_pending'], $redirect_to);
 
         $submitter_email = sanitize_email((string) ($_POST['submitter_email'] ?? ''));
+        $submitter_name = sanitize_text_field((string) ($_POST['submitter_name'] ?? ''));
         if ($match_id <= 0 || !is_email($submitter_email)) {
             wp_safe_redirect(add_query_arg('opentt_games_pending', 'error', $return_url));
             exit;
@@ -741,20 +742,22 @@ final class OpenTT_Unified_Admin_Match_Actions
         }
 
         $posted_games = isset($_POST['games']) && is_array($_POST['games']) ? $_POST['games'] : [];
-        $payload = self::normalize_games_payload_for_storage($match, $posted_games);
-        if (empty($payload)) {
-            wp_safe_redirect(add_query_arg('opentt_games_pending', 'empty', $return_url));
+        $payload = [];
+        $payload_error = '';
+        if (!self::validate_pending_games_payload($match, $posted_games, $payload, $payload_error)) {
+            wp_safe_redirect(add_query_arg('opentt_games_pending', 'incomplete', $return_url));
             exit;
         }
 
         $ok = $wpdb->insert($pending_table, [
             'match_id' => $match_id,
+            'submitter_name' => $submitter_name,
             'submitter_email' => $submitter_email,
             'payload' => wp_json_encode($payload),
             'status' => 'pending',
             'created_at' => current_time('mysql'),
             'updated_at' => current_time('mysql'),
-        ], ['%d', '%s', '%s', '%s', '%s', '%s']);
+        ], ['%d', '%s', '%s', '%s', '%s', '%s', '%s']);
 
         if ($ok === false) {
             wp_safe_redirect(add_query_arg('opentt_games_pending', 'error', $return_url));
@@ -1193,6 +1196,72 @@ final class OpenTT_Unified_Admin_Match_Actions
         return $out;
     }
 
+    private static function validate_pending_games_payload($match, array $posted_games, &$normalized_payload = [], &$error = '')
+    {
+        $normalized_payload = [];
+        $error = '';
+        if (!is_object($match) || empty($match->id)) {
+            $error = 'Utakmica nije pronađena.';
+            return false;
+        }
+
+        $max_games = max(0, min(7, (int) ($match->home_score ?? 0) + (int) ($match->away_score ?? 0)));
+        if ($max_games <= 0) {
+            $max_games = 7;
+        }
+        $match_format = self::match_competition_format((string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''));
+        $expected_doubles_order = ($match_format === 'format_b') ? 7 : 4;
+
+        for ($order_no = 1; $order_no <= $max_games; $order_no++) {
+            $raw = isset($posted_games[$order_no]) && is_array($posted_games[$order_no]) ? $posted_games[$order_no] : [];
+            $is_doubles = ($order_no === $expected_doubles_order);
+            $row = [
+                'home_player_post_id' => intval($raw['home_player_post_id'] ?? 0),
+                'away_player_post_id' => intval($raw['away_player_post_id'] ?? 0),
+                'home_player2_post_id' => intval($raw['home_player2_post_id'] ?? 0),
+                'away_player2_post_id' => intval($raw['away_player2_post_id'] ?? 0),
+                'home_sets' => max(0, intval($raw['home_sets'] ?? 0)),
+                'away_sets' => max(0, intval($raw['away_sets'] ?? 0)),
+                'sets' => [],
+            ];
+
+            if ($row['home_player_post_id'] <= 0 || $row['away_player_post_id'] <= 0) {
+                $error = 'Partija #' . $order_no . ': izaberi oba glavna igrača.';
+                return false;
+            }
+            if ($is_doubles && ($row['home_player2_post_id'] <= 0 || $row['away_player2_post_id'] <= 0)) {
+                $error = 'Partija #' . $order_no . ': izaberi oba dubl igrača.';
+                return false;
+            }
+            if (!$is_doubles) {
+                $row['home_player2_post_id'] = 0;
+                $row['away_player2_post_id'] = 0;
+            }
+
+            if (($row['home_sets'] + $row['away_sets']) <= 0) {
+                $error = 'Partija #' . $order_no . ': unesi ukupan rezultat po setovima.';
+                return false;
+            }
+
+            for ($set_no = 1; $set_no <= 5; $set_no++) {
+                $set_raw = isset($raw['sets'][$set_no]) && is_array($raw['sets'][$set_no]) ? $raw['sets'][$set_no] : [];
+                $home_points = max(0, intval($set_raw['home_points'] ?? 0));
+                $away_points = max(0, intval($set_raw['away_points'] ?? 0));
+                if ($home_points <= 0 && $away_points <= 0) {
+                    continue;
+                }
+                $row['sets'][$set_no] = [
+                    'home_points' => $home_points,
+                    'away_points' => $away_points,
+                ];
+            }
+
+            $normalized_payload[$order_no] = $row;
+        }
+
+        return !empty($normalized_payload);
+    }
+
     private static function send_pending_submission_email(array $submission, $match, $approved, $review_note = '')
     {
         $email = sanitize_email((string) ($submission['submitter_email'] ?? ''));
@@ -1203,13 +1272,15 @@ final class OpenTT_Unified_Admin_Match_Actions
         $home_name = (string) get_the_title((int) ($match->home_club_post_id ?? 0));
         $away_name = (string) get_the_title((int) ($match->away_club_post_id ?? 0));
         $match_label = $home_name . ' vs ' . $away_name . ' (' . self::readable_round_name((string) ($match->kolo_slug ?? '')) . ')';
+        $submitter_name = sanitize_text_field((string) ($submission['submitter_name'] ?? ''));
+        $hello = $submitter_name !== '' ? ('Zdravo ' . $submitter_name . ',') : 'Zdravo,';
 
         if ($approved) {
             $subject = 'OpenTT: Tvoj unos partija je odobren';
-            $message = "Zdravo,\n\nTvoj unos partija za utakmicu {$match_label} je uspešno pregledan i odobren od strane administratora.\n\nHvala ti na doprinosu.\n\nOpenTT tim";
+            $message = "{$hello}\n\nTvoj unos partija za utakmicu {$match_label} je uspešno pregledan i odobren od strane administratora.\n\nHvala ti na doprinosu.\n\nOpenTT tim";
         } else {
             $subject = 'OpenTT: Tvoj unos partija nije odobren';
-            $message = "Zdravo,\n\nTvoj unos partija za utakmicu {$match_label} je pregledan, ali trenutno nije odobren.\n";
+            $message = "{$hello}\n\nTvoj unos partija za utakmicu {$match_label} je pregledan, ali trenutno nije odobren.\n";
             if ($review_note !== '') {
                 $message .= "\nRazlog: {$review_note}\n";
             }

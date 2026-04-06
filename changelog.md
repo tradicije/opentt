@@ -8,6 +8,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Assets & UI
 
+- Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.
 - Added standalone frontend page for match-game submissions (`?opentt_pending_games_form=1&match_id=...`): `Unesi partije` now opens a dedicated full-page entry screen (desktop/mobile optimized) instead of reusing the regular match-content layout.
 - Added frontend pending-submission flow for `opentt_match_games` when no games are entered: users now see `Unesi partije` CTA that opens a dedicated submission view in a new tab, with match-format-aware game rows, player selectors by home/away clubs, required email field, and clear Serbian submission status messages.
 - Reverted visible plugin branding back to `OpenTT` (plugin header metadata, admin UI labels, onboarding copy, import messaging, and README text), while keeping existing technical identifiers unchanged.
@@ -69,6 +70,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Admin & Data
 
+- Extended pending submissions with optional submitter full name (`Ime i prezime`) capture and admin visibility in pending list/details.
 - Added Cloudflare Turnstile protection for frontend game submissions: new settings section (`enable + site key + secret key`) and server-side token verification on submit before pending record creation.
 - Added full `Pending partije` moderation workflow: new pending submissions table, admin menu tab with pending list + per-match review screen, editable game/set payload before decision, `Odobri unos` / `Odbij unos` actions, and automatic submitter email notifications (approved/denied) in Serbian.
 - Added global admin pending alert notice so administrators are notified when new frontend game submissions await review.
