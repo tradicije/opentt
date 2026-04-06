@@ -346,6 +346,41 @@ trait OpenTT_Unified_Shortcodes_Trait
             'games_submit_page_url' => static function ($match_id) {
                 return OpenTT_Unified_Core::games_submit_page_url($match_id);
             },
+            'render_match_teams_for_row' => static function ($row) {
+                if (!is_object($row)) {
+                    return '';
+                }
+                $ctx = [
+                    'db_row' => $row,
+                    'legacy_id' => intval($row->legacy_post_id ?? 0),
+                ];
+                return \OpenTT\Unified\WordPress\Shortcodes\ShowMatchTeamsShortcode::render([], [
+                    'current_match_context' => static function () use ($ctx) {
+                        return $ctx;
+                    },
+                    'competition_display_name' => static function ($liga_slug, $sezona_slug) {
+                        return self::competition_display_name($liga_slug, $sezona_slug);
+                    },
+                    'competition_archive_url' => static function ($liga_slug, $sezona_slug) {
+                        return self::competition_archive_url($liga_slug, $sezona_slug);
+                    },
+                    'kolo_name_from_slug' => static function ($slug) {
+                        return self::kolo_name_from_slug($slug);
+                    },
+                    'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                        return self::club_logo_html($club_id, $size, $attr);
+                    },
+                    'display_match_date' => static function ($match_date) {
+                        return self::display_match_date($match_date);
+                    },
+                    'match_venue_label' => static function ($row_in) {
+                        return self::match_venue_label($row_in);
+                    },
+                    'shortcode_title_html' => static function ($title) {
+                        return '';
+                    },
+                ]);
+            },
         ]);
     }
 

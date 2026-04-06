@@ -76,6 +76,12 @@ final class GamesListShortcode
         echo '<div class="opentt-games-submit-wrap">';
         echo '<h3>Predlog unosa partija</h3>';
         echo '<p class="opentt-games-submit-lead">Unesi partije za ovu utakmicu i pošalji predlog administratoru na pregled.</p>';
+        $matchHeader = (string) $call('render_match_teams_for_row', $matchRow);
+        if ($matchHeader !== '') {
+            echo '<div class="opentt-games-submit-match-header">';
+            echo $matchHeader; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '</div>';
+        }
         if (empty($homePlayers) || empty($awayPlayers)) {
             echo '<p class="opentt-games-submit-warning">Nema dovoljno igrača povezanih sa klubovima ove utakmice za kvalitetan unos partija.</p>';
         }
