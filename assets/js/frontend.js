@@ -1214,7 +1214,10 @@
       String((payload && payload.league) || "Liga") +
       " " +
       String((payload && payload.season) || "Sezona");
-    var rowH = Math.max(44, Math.min(62, Math.floor(620 / Math.max(1, rows.length))));
+    var tableTop = 208;
+    var maxTableHeight = 760;
+    var rowH = Math.max(34, Math.min(54, Math.floor((maxTableHeight - 76) / Math.max(1, rows.length))));
+    var tableHeight = 62 + rows.length * rowH + 14;
 
     var rowsHtml = "";
     for (var i = 0; i < rows.length; i++) {
@@ -1235,7 +1238,7 @@
         '" style="height:' +
         String(rowH) +
         'px;">' +
-        '<div class="col col-rank">' +
+        '<div class="col col-rank col-num">' +
         esc(String(row.rank || "")) +
         '</div>' +
         '<div class="col col-club"><span class="club-logo-wrap"><img src="' +
@@ -1243,19 +1246,19 @@
         '" alt="" loading="eager" decoding="sync"></span><span class="club-name">' +
         esc(clubName) +
         "</span></div>" +
-        '<div class="col">' +
+        '<div class="col col-num">' +
         esc(String(row.played || "")) +
         "</div>" +
-        '<div class="col">' +
+        '<div class="col col-num">' +
         esc(String(row.wins || "")) +
         "</div>" +
-        '<div class="col">' +
+        '<div class="col col-num">' +
         esc(String(row.losses || "")) +
         "</div>" +
-        '<div class="col">' +
+        '<div class="col col-num">' +
         esc(String(row.diff || "")) +
         "</div>" +
-        '<div class="col">' +
+        '<div class="col col-num">' +
         esc(String(row.points || "")) +
         "</div>" +
         "</div>";
@@ -1273,24 +1276,25 @@
       ".opentt-export-card .bg-watermark{position:absolute;left:50%;top:57%;width:640px;height:640px;transform:translate(-50%,-50%) rotate(-12deg);object-fit:contain;opacity:.14;filter:blur(1.4px);pointer-events:none;}" +
       ".opentt-export-header{position:absolute;left:56px;right:56px;top:44px;display:grid;grid-template-columns:120px 1fr 120px;align-items:center;gap:18px;}" +
       ".opentt-export-corner-logo{width:120px;height:88px;display:flex;align-items:center;justify-content:center;}" +
-      ".opentt-export-corner-logo img{width:auto;max-width:112px;height:78px;object-fit:contain;}" +
+      ".opentt-export-corner-logo img{width:auto;height:auto;max-width:112px;max-height:78px;object-fit:contain;}" +
       ".opentt-export-head-main{text-align:center;}" +
       ".opentt-export-head-main .league{font-size:52px;font-weight:700;line-height:1.03;color:#ffffff;}" +
       ".opentt-export-head-main .round{font-size:42px;font-weight:800;line-height:1.02;color:#ffdf44;margin-top:4px;letter-spacing:.01em;}" +
-      ".opentt-export-table{position:absolute;left:56px;right:56px;top:192px;bottom:118px;border-radius:22px;background:rgba(3,14,38,.62);overflow:hidden;}" +
-      ".opentt-export-head-row{height:62px;display:grid;grid-template-columns:7% 47% 9% 9% 9% 9% 10%;align-items:center;padding:0 18px;background:rgba(8,30,82,.56);font-size:26px;font-weight:600;color:rgba(236,245,255,.95);}" +
-      ".opentt-export-body{position:absolute;left:0;right:0;top:62px;bottom:0;padding:8px 12px 12px;}" +
+      ".opentt-export-table{position:absolute;left:56px;right:56px;border-radius:22px;background:rgba(3,14,38,.62);overflow:hidden;}" +
+      ".opentt-export-head-row{height:62px;display:grid;grid-template-columns:7% 47% 9% 9% 9% 9% 10%;align-items:center;padding:0 12px;background:rgba(8,30,82,.56);font-size:24px;font-weight:600;color:rgba(236,245,255,.95);}" +
+      ".opentt-export-head-row > div{display:flex;align-items:center;justify-content:center;}" +
+      ".opentt-export-head-row .club-head{justify-content:flex-start;padding-left:8px;}" +
+      ".opentt-export-body{position:absolute;left:0;right:0;top:62px;bottom:0;padding:8px 12px 6px;}" +
       ".opentt-export-row{display:grid;grid-template-columns:7% 47% 9% 9% 9% 9% 10%;align-items:center;padding:0 12px;font-size:28px;color:rgba(236,245,255,.95);border-bottom:1px solid rgba(255,255,255,.15);}" +
-      ".opentt-export-row:nth-child(even){background:rgba(255,255,255,.025);}" +
       ".opentt-export-row.is-highlight{background:rgba(0,132,255,.12);}" +
-      ".opentt-export-row.is-first{background:rgba(255,255,255,.035);}" +
       ".opentt-export-row.is-cut{border-bottom:2px solid #ffdf44;}" +
       ".opentt-export-row .col{display:flex;align-items:center;justify-content:center;}" +
       ".opentt-export-row .col-club{justify-content:flex-start;gap:12px;padding-right:8px;}" +
       ".opentt-export-row .club-logo-wrap{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:0 0 38px;}" +
       ".opentt-export-row .club-logo-wrap img{width:30px;height:30px;object-fit:contain;}" +
       ".opentt-export-row .club-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
-      ".opentt-export-foot{position:absolute;left:56px;right:56px;bottom:40px;height:58px;border-radius:14px;background:rgba(3,18,50,.72);display:flex;align-items:center;justify-content:center;color:rgba(205,223,252,.96);font-size:26px;font-weight:500;}" +
+      ".opentt-export-row .col-num{font-size:24px;font-weight:600;}" +
+      ".opentt-export-foot{position:absolute;left:56px;right:56px;bottom:40px;height:58px;display:flex;align-items:center;justify-content:center;color:rgba(205,223,252,.96);font-size:26px;font-weight:500;}" +
       "</style>" +
       '<div class="opentt-export-card">' +
       '<span class="soft-shape s1"></span><span class="soft-shape s2"></span>' +
@@ -1320,8 +1324,12 @@
         : "") +
       "</div>" +
       "</header>" +
-      '<section class="opentt-export-table">' +
-      '<div class="opentt-export-head-row"><div>#</div><div style="justify-self:start;">Klub</div><div>Utak</div><div>Pob</div><div>Por</div><div>+/-</div><div>Bod</div></div>' +
+      '<section class="opentt-export-table" style="top:' +
+      String(tableTop) +
+      "px;height:" +
+      String(tableHeight) +
+      'px;">' +
+      '<div class="opentt-export-head-row"><div>#</div><div class="club-head">Klub</div><div>Utak</div><div>Pob</div><div>Por</div><div>+/-</div><div>Bod</div></div>' +
       '<div class="opentt-export-body">' +
       rowsHtml +
       "</div>" +
