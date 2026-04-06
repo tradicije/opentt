@@ -1251,27 +1251,47 @@
         reject(new Error("Canvas nije dostupan."));
         return;
       }
-      loadImageSafe(payload && payload.watermarkUrl)
-        .then(function (watermarkImg) {
+      Promise.all([
+        loadImageSafe(payload && payload.watermarkUrl),
+        loadImageSafe(payload && payload.brandLogoUrl),
+        loadImageSafe(payload && payload.competitionLogoUrl),
+        loadImageSafe(payload && payload.bgAltUrl),
+      ])
+        .then(function (loaded) {
+          var watermarkImg = loaded[0] || null;
+          var brandLogoImg = loaded[1] || null;
+          var competitionLogoImg = loaded[2] || null;
+          var bgAltImg = loaded[3] || null;
+
           var bg = ctx.createLinearGradient(0, 0, 1080, 1080);
-          bg.addColorStop(0, "#031234");
-          bg.addColorStop(0.38, "#06286f");
-          bg.addColorStop(0.76, "#0a3f96");
+          bg.addColorStop(0, "#021238");
+          bg.addColorStop(0.46, "#07286f");
+          bg.addColorStop(0.82, "#0a3f96");
           bg.addColorStop(1, "#072f77");
           ctx.fillStyle = bg;
           ctx.fillRect(0, 0, 1080, 1080);
 
-          var glowA = ctx.createRadialGradient(840, 190, 30, 840, 190, 300);
-          glowA.addColorStop(0, "rgba(120, 188, 255, 0.34)");
+          var glowA = ctx.createRadialGradient(840, 190, 30, 840, 190, 320);
+          glowA.addColorStop(0, "rgba(120, 188, 255, 0.30)");
           glowA.addColorStop(1, "rgba(120, 188, 255, 0)");
           ctx.fillStyle = glowA;
           ctx.fillRect(0, 0, 1080, 1080);
 
-          var glowB = ctx.createRadialGradient(150, 930, 40, 150, 930, 320);
-          glowB.addColorStop(0, "rgba(0, 132, 255, 0.26)");
+          var glowB = ctx.createRadialGradient(160, 930, 40, 160, 930, 340);
+          glowB.addColorStop(0, "rgba(0, 132, 255, 0.22)");
           glowB.addColorStop(1, "rgba(0, 132, 255, 0)");
           ctx.fillStyle = glowB;
           ctx.fillRect(0, 0, 1080, 1080);
+
+          if (bgAltImg) {
+            ctx.save();
+            ctx.translate(540, 590);
+            ctx.rotate((-12 * Math.PI) / 180);
+            ctx.filter = "blur(2px)";
+            ctx.globalAlpha = 0.18;
+            ctx.drawImage(bgAltImg, -360, -360, 720, 720);
+            ctx.restore();
+          }
 
           drawRoundedRect(ctx, 34, 34, 1012, 1012, 34);
           ctx.strokeStyle = "rgba(166, 210, 255, 0.28)";
@@ -1280,7 +1300,9 @@
 
           var league = String((payload && payload.league) || "Liga").toUpperCase();
           var season = String((payload && payload.season) || "Sezona").toUpperCase();
-          var title = league + " • " + season;
+          var round = parseInt(payload && payload.round ? payload.round : 0, 10);
+          var title = league + " " + season;
+          var subtitle = round > 0 ? "TABELA " + String(round) + ". KOLA" : "TABELA";
 
           drawRoundedRect(ctx, 76, 50, 928, 94, 20);
           var titleBg = ctx.createLinearGradient(76, 50, 1004, 144);
@@ -1295,15 +1317,36 @@
           ctx.fillStyle = "#ffffff";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.font = "700 40px sans-serif";
-          ctx.fillText(title, 540, 97);
+          ctx.font = "700 44px sans-serif";
+          ctx.fillText(title, 540, 86);
+          ctx.fillStyle = "#ffdf44";
+          ctx.font = "800 58px sans-serif";
+          ctx.fillText(subtitle, 540, 120);
+
+          if (brandLogoImg) {
+            ctx.save();
+            drawRoundedRect(ctx, 52, 58, 88, 88, 14);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+            ctx.fill();
+            ctx.drawImage(brandLogoImg, 58, 64, 76, 76);
+            ctx.restore();
+          }
+
+          if (competitionLogoImg) {
+            ctx.save();
+            drawRoundedRect(ctx, 940, 58, 88, 88, 14);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+            ctx.fill();
+            ctx.drawImage(competitionLogoImg, 946, 64, 76, 76);
+            ctx.restore();
+          }
 
           var tableX = 64;
-          var tableY = 168;
+          var tableY = 182;
           var tableW = 952;
-          var tableH = 808;
+          var tableH = 790;
           drawRoundedRect(ctx, tableX, tableY, tableW, tableH, 24);
-          ctx.fillStyle = "rgba(3, 14, 38, 0.68)";
+          ctx.fillStyle = "rgba(3, 14, 38, 0.60)";
           ctx.fill();
           ctx.strokeStyle = "rgba(142, 197, 255, 0.46)";
           ctx.lineWidth = 2;
@@ -1328,7 +1371,7 @@
             var wmH = bodyBottom - bodyTop - wmPad * 2;
             if (wmW > 10 && wmH > 10) {
               ctx.save();
-              ctx.globalAlpha = 0.1;
+              ctx.globalAlpha = 0.12;
               ctx.drawImage(watermarkImg, wmX, wmY, wmW, wmH);
               ctx.restore();
             }
@@ -1417,6 +1460,19 @@
                 ctx.fillText(rawVal, cbox.x + cbox.w / 2, y + rowH / 2 + 1);
               }
             }
+          }
+
+          var promotionCut = parseInt(payload && payload.promotionCut ? payload.promotionCut : 0, 10);
+          if (!isNaN(promotionCut) && promotionCut > 0 && promotionCut < visibleRows) {
+            var cutY = bodyTop + rowH * promotionCut;
+            ctx.save();
+            ctx.strokeStyle = "#ffdf44";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(tableX + 14, cutY);
+            ctx.lineTo(tableX + tableW - 14, cutY);
+            ctx.stroke();
+            ctx.restore();
           }
 
           drawRoundedRect(ctx, 76, 984, 928, 58, 14);

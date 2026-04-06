@@ -262,6 +262,13 @@ final class StandingsTableShortcode
         if ($season_label === '') {
             $season_label = 'Sezona';
         }
+        $export_round = 0;
+        foreach ($rows as $rr) {
+            $round_no = intval($call('extract_round_no', (string) ($rr->kolo_slug ?? '')));
+            if ($round_no > $export_round) {
+                $export_round = $round_no;
+            }
+        }
 
         $promo_direct = 0;
         $promo_playoff = 0;
@@ -366,13 +373,26 @@ final class StandingsTableShortcode
         }
 
         echo '</tbody></table>';
+        $brand_logo_url = (string) plugins_url('assets/img/club-logo.png', $plugin_root . '/opentt-unified-core.php');
+        $bg_alt_url = (string) plugins_url('assets/img/club-logo-alt.png', $plugin_root . '/opentt-unified-core.php');
         $share_payload = [
             'league' => (string) $league_label,
             'season' => (string) $season_label,
+            'round' => intval($export_round),
+            'promotionCut' => max(0, intval($promo_direct) + intval($promo_playoff)),
             'footer' => 'Tabela preuzeta sa stkb.rs',
             'watermarkUrl' => (string) $watermark_url,
+            'brandLogoUrl' => (string) $brand_logo_url,
+            'bgAltUrl' => (string) $bg_alt_url,
             'rows' => $export_rows,
         ];
+        $rule_id = is_array($rule) ? intval($rule['id'] ?? 0) : 0;
+        if ($rule_id > 0) {
+            $competition_logo_url = (string) get_the_post_thumbnail_url($rule_id, 'medium');
+            if ($competition_logo_url !== '') {
+                $share_payload['competitionLogoUrl'] = $competition_logo_url;
+            }
+        }
         $share_icon_url = (string) plugins_url('assets/icons/share-icon.svg', $plugin_root . '/opentt-unified-core.php');
         $download_icon_url = (string) plugins_url('assets/icons/download-file-icon.svg', $plugin_root . '/opentt-unified-core.php');
         echo '<div class="opentt-standings-share" data-opentt-standings-share="1">';
