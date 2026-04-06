@@ -267,10 +267,25 @@ final class StandingsTableShortcode
 
         ob_start();
         $watermark_class = 'opentt-standings-watermark';
-        $plugin_root = dirname(__DIR__, 3);
-        $watermark_url = plugins_url('assets/img/club-logo.png', $plugin_root . '/includes/class-opentt-unified-core.php');
-        $watermark_class .= ' has-watermark';
-        $watermark_style = ' style="' . esc_attr("--opentt-standings-watermark:url('" . esc_url_raw($watermark_url) . "');") . '"';
+        $plugin_root = dirname(__DIR__, 4);
+        $watermark_style = '';
+        $watermark_candidates = [
+            'assets/img/club-logo.png',
+            'assets/img/watermark-logo.png',
+            'assets/img/logo-watermark.png',
+            'assets/img/standings-watermark.png',
+            'assets/img/admin-ui-logo.png',
+        ];
+        foreach ($watermark_candidates as $candidate) {
+            $candidate_path = trailingslashit($plugin_root) . $candidate;
+            if (!is_readable($candidate_path)) {
+                continue;
+            }
+            $watermark_url = plugins_url($candidate, $plugin_root . '/opentt-unified-core.php');
+            $watermark_class .= ' has-watermark';
+            $watermark_style = ' style="' . esc_attr("--opentt-standings-watermark:url('" . esc_url_raw($watermark_url) . "');") . '"';
+            break;
+        }
 
         echo (string) $call('shortcode_title_html', 'Tabela');
         echo '<div class="' . esc_attr($watermark_class) . '"' . $watermark_style . '>';
