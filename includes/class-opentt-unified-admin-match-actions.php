@@ -742,9 +742,14 @@ final class OpenTT_Unified_Admin_Match_Actions
         }
 
         $posted_games = isset($_POST['games']) && is_array($_POST['games']) ? $_POST['games'] : [];
+        $entry_mode = sanitize_key((string) ($_POST['entry_mode'] ?? 'quick'));
+        if (!in_array($entry_mode, ['quick', 'advanced'], true)) {
+            $entry_mode = 'quick';
+        }
+
         $payload = [];
         $payload_error = '';
-        if (!self::validate_pending_games_payload($match, $posted_games, $payload, $payload_error)) {
+        if (!self::validate_pending_games_payload($match, $posted_games, $payload, $payload_error, $entry_mode)) {
             wp_safe_redirect(add_query_arg('opentt_games_pending', 'incomplete', $return_url));
             exit;
         }
@@ -753,7 +758,10 @@ final class OpenTT_Unified_Admin_Match_Actions
             'match_id' => $match_id,
             'submitter_name' => $submitter_name,
             'submitter_email' => $submitter_email,
-            'payload' => wp_json_encode($payload),
+            'payload' => wp_json_encode([
+                'entry_mode' => $entry_mode,
+                'games' => $payload,
+            ]),
             'status' => 'pending',
             'created_at' => current_time('mysql'),
             'updated_at' => current_time('mysql'),
@@ -984,7 +992,13 @@ final class OpenTT_Unified_Admin_Match_Actions
             return [];
         }
         $decoded = json_decode($payload_raw, true);
-        return is_array($decoded) ? $decoded : [];
+        if (!is_array($decoded)) {
+            return [];
+        }
+        if (isset($decoded['games']) && is_array($decoded['games'])) {
+            return $decoded['games'];
+        }
+        return $decoded;
     }
 
     private static function apply_games_batch_for_match($match, array $posted_games, &$error = '')
@@ -1196,7 +1210,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         return $out;
     }
 
-    private static function validate_pending_games_payload($match, array $posted_games, &$normalized_payload = [], &$error = '')
+    private static function validate_pending_games_payload($match, array $posted_games, &$normalized_payload = [], &$error = '', $entry_mode = 'quick')
     {
         $normalized_payload = [];
         $error = '';
@@ -1245,15 +1259,43 @@ final class OpenTT_Unified_Admin_Match_Actions
 
             for ($set_no = 1; $set_no <= 5; $set_no++) {
                 $set_raw = isset($raw['sets'][$set_no]) && is_array($raw['sets'][$set_no]) ? $raw['sets'][$set_no] : [];
-                $home_points = max(0, intval($set_raw['home_points'] ?? 0));
-                $away_points = max(0, intval($set_raw['away_points'] ?? 0));
-                if ($home_points <= 0 && $away_points <= 0) {
+                $home_raw = isset($set_raw['home_points']) ? trim((string) $set_raw['home_points']) : '';
+                $away_raw = isset($set_raw['away_points']) ? trim((string) $set_raw['away_points']) : '';
+                $home_points = max(0, intval($home_raw));
+                $away_points = max(0, intval($away_raw));
+                $required_set_count = min(5, max(0, $row['home_sets'] + $row['away_sets']));
+                $is_required_set = $set_no <= $required_set_count;
+
+                if ($entry_mode === 'advanced' && $is_required_set) {
+                    if ($home_raw === '' || $away_raw === '') {
+                        $error = 'Partija #' . $order_no . ': unesi poene za set ' . $set_no . '.';
+                        return false;
+                    }
+                    if ($home_points === $away_points) {
+                        $error = 'Partija #' . $order_no . ': set ' . $set_no . ' ne može biti nerešen.';
+                        return false;
+                    }
+                }
+
+                if ($home_raw === '' && $away_raw === '') {
                     continue;
                 }
                 $row['sets'][$set_no] = [
                     'home_points' => $home_points,
                     'away_points' => $away_points,
                 ];
+            }
+
+            if ($entry_mode === 'advanced') {
+                $required_set_count = min(5, max(0, $row['home_sets'] + $row['away_sets']));
+                if ($required_set_count <= 0) {
+                    $error = 'Partija #' . $order_no . ': unesi validan ukupan rezultat po setovima.';
+                    return false;
+                }
+                if (count($row['sets']) < $required_set_count) {
+                    $error = 'Partija #' . $order_no . ': unesi sve obavezne setove (' . $required_set_count . ').';
+                    return false;
+                }
             }
 
             $normalized_payload[$order_no] = $row;
