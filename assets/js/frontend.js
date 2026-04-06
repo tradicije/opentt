@@ -1204,6 +1204,37 @@
     ctx.closePath();
   }
 
+  function loadImageSafe(src) {
+    return new Promise(function (resolve) {
+      var url = String(src || "").trim();
+      if (!url) {
+        resolve(null);
+        return;
+      }
+      var img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = function () {
+        resolve(img);
+      };
+      img.onerror = function () {
+        resolve(null);
+      };
+      img.src = url;
+    });
+  }
+
+  function decodeHtmlEntities(value) {
+    var raw = String(value || "");
+    if (!raw) {
+      return raw;
+    }
+    var txt = document.createElement("textarea");
+    txt.innerHTML = raw;
+    var decoded = txt.value;
+    txt.innerHTML = decoded;
+    return txt.value || decoded;
+  }
+
   function generateStandingsImage(payload) {
     return new Promise(function (resolve, reject) {
       var rows = Array.isArray(payload && payload.rows) ? payload.rows : [];
@@ -1220,142 +1251,202 @@
         reject(new Error("Canvas nije dostupan."));
         return;
       }
+      loadImageSafe(payload && payload.watermarkUrl)
+        .then(function (watermarkImg) {
+          var bg = ctx.createLinearGradient(0, 0, 1080, 1080);
+          bg.addColorStop(0, "#031234");
+          bg.addColorStop(0.38, "#06286f");
+          bg.addColorStop(0.76, "#0a3f96");
+          bg.addColorStop(1, "#072f77");
+          ctx.fillStyle = bg;
+          ctx.fillRect(0, 0, 1080, 1080);
 
-      var bg = ctx.createLinearGradient(0, 0, 1080, 1080);
-      bg.addColorStop(0, "#04153e");
-      bg.addColorStop(0.55, "#062460");
-      bg.addColorStop(1, "#0a3d88");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, 1080, 1080);
+          var glowA = ctx.createRadialGradient(840, 190, 30, 840, 190, 300);
+          glowA.addColorStop(0, "rgba(120, 188, 255, 0.34)");
+          glowA.addColorStop(1, "rgba(120, 188, 255, 0)");
+          ctx.fillStyle = glowA;
+          ctx.fillRect(0, 0, 1080, 1080);
 
-      ctx.fillStyle = "rgba(142, 197, 255, 0.12)";
-      ctx.beginPath();
-      ctx.arc(930, 160, 180, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(170, 930, 220, 0, Math.PI * 2);
-      ctx.fill();
+          var glowB = ctx.createRadialGradient(150, 930, 40, 150, 930, 320);
+          glowB.addColorStop(0, "rgba(0, 132, 255, 0.26)");
+          glowB.addColorStop(1, "rgba(0, 132, 255, 0)");
+          ctx.fillStyle = glowB;
+          ctx.fillRect(0, 0, 1080, 1080);
 
-      var league = String((payload && payload.league) || "Liga").toUpperCase();
-      var season = String((payload && payload.season) || "Sezona").toUpperCase();
-      var title = league + " • " + season;
+          drawRoundedRect(ctx, 34, 34, 1012, 1012, 34);
+          ctx.strokeStyle = "rgba(166, 210, 255, 0.28)";
+          ctx.lineWidth = 2;
+          ctx.stroke();
 
-      ctx.fillStyle = "#ffffff";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = "700 42px sans-serif";
-      ctx.fillText(title, 540, 86);
+          var league = String((payload && payload.league) || "Liga").toUpperCase();
+          var season = String((payload && payload.season) || "Sezona").toUpperCase();
+          var title = league + " • " + season;
 
-      var tableX = 64;
-      var tableY = 150;
-      var tableW = 952;
-      var tableH = 808;
-      drawRoundedRect(ctx, tableX, tableY, tableW, tableH, 24);
-      ctx.fillStyle = "rgba(4, 16, 42, 0.66)";
-      ctx.fill();
-      ctx.strokeStyle = "rgba(142, 197, 255, 0.42)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
+          drawRoundedRect(ctx, 76, 50, 928, 94, 20);
+          var titleBg = ctx.createLinearGradient(76, 50, 1004, 144);
+          titleBg.addColorStop(0, "rgba(6, 29, 82, 0.86)");
+          titleBg.addColorStop(1, "rgba(9, 48, 120, 0.92)");
+          ctx.fillStyle = titleBg;
+          ctx.fill();
+          ctx.strokeStyle = "rgba(150, 206, 255, 0.35)";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
 
-      var headH = 64;
-      drawRoundedRect(ctx, tableX + 1, tableY + 1, tableW - 2, headH, 20);
-      ctx.fillStyle = "rgba(8, 30, 82, 0.62)";
-      ctx.fill();
-
-      var columns = [
-        { key: "rank", label: "#", width: 0.08, align: "center" },
-        { key: "club", label: "KLUB", width: 0.40, align: "left" },
-        { key: "played", label: "P", width: 0.09, align: "center" },
-        { key: "wins", label: "W", width: 0.09, align: "center" },
-        { key: "losses", label: "L", width: 0.09, align: "center" },
-        { key: "points", label: "PTS", width: 0.11, align: "center" },
-        { key: "diff", label: "+/-", width: 0.14, align: "center" },
-      ];
-
-      var colX = [];
-      var runX = tableX + 22;
-      var innerW = tableW - 44;
-      for (var c = 0; c < columns.length; c++) {
-        var cw = innerW * columns[c].width;
-        colX.push({ x: runX, w: cw });
-        runX += cw;
-      }
-
-      ctx.font = "700 24px sans-serif";
-      ctx.fillStyle = "rgba(233, 243, 255, 0.94)";
-      for (var h = 0; h < columns.length; h++) {
-        var col = columns[h];
-        var cx = colX[h];
-        if (col.align === "left") {
-          ctx.textAlign = "left";
-          ctx.fillText(col.label, cx.x + 8, tableY + headH / 2 + 2);
-        } else {
+          ctx.fillStyle = "#ffffff";
           ctx.textAlign = "center";
-          ctx.fillText(col.label, cx.x + cx.w / 2, tableY + headH / 2 + 2);
-        }
-      }
+          ctx.textBaseline = "middle";
+          ctx.font = "700 40px sans-serif";
+          ctx.fillText(title, 540, 97);
 
-      var bodyTop = tableY + headH + 8;
-      var bodyBottom = tableY + tableH - 18;
-      var maxRows = rows.length;
-      var rowH = Math.floor((bodyBottom - bodyTop) / Math.max(1, maxRows));
-      rowH = Math.max(34, Math.min(52, rowH));
+          var tableX = 64;
+          var tableY = 168;
+          var tableW = 952;
+          var tableH = 808;
+          drawRoundedRect(ctx, tableX, tableY, tableW, tableH, 24);
+          ctx.fillStyle = "rgba(3, 14, 38, 0.68)";
+          ctx.fill();
+          ctx.strokeStyle = "rgba(142, 197, 255, 0.46)";
+          ctx.lineWidth = 2;
+          ctx.stroke();
 
-      var visibleRows = Math.min(rows.length, Math.floor((bodyBottom - bodyTop) / rowH));
-      for (var i = 0; i < visibleRows; i++) {
-        var y = bodyTop + i * rowH;
-        var row = rows[i] || {};
-        var highlight = !!row.highlight;
-        if (highlight) {
-          ctx.fillStyle = "rgba(0, 132, 255, 0.22)";
-          ctx.fillRect(tableX + 10, y, tableW - 20, rowH);
-        }
+          var headH = 64;
+          drawRoundedRect(ctx, tableX + 1, tableY + 1, tableW - 2, headH, 20);
+          var headBg = ctx.createLinearGradient(tableX, tableY, tableX + tableW, tableY);
+          headBg.addColorStop(0, "rgba(9, 36, 94, 0.84)");
+          headBg.addColorStop(1, "rgba(11, 57, 138, 0.84)");
+          ctx.fillStyle = headBg;
+          ctx.fill();
 
-        ctx.strokeStyle = "rgba(255,255,255,0.16)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(tableX + 10, y + rowH);
-        ctx.lineTo(tableX + tableW - 10, y + rowH);
-        ctx.stroke();
+          var bodyTop = tableY + headH + 8;
+          var bodyBottom = tableY + tableH - 18;
 
-        ctx.fillStyle = highlight ? "#ffffff" : "rgba(232, 242, 255, 0.93)";
-        ctx.font = (highlight ? "700 " : "600 ") + "22px sans-serif";
-
-        for (var j = 0; j < columns.length; j++) {
-          var cdef = columns[j];
-          var cbox = colX[j];
-          var rawVal = row[cdef.key] === undefined || row[cdef.key] === null ? "" : String(row[cdef.key]);
-          if (cdef.key === "club" && rawVal.length > 25) {
-            rawVal = rawVal.slice(0, 24) + "…";
+          if (watermarkImg) {
+            var wmPad = 28;
+            var wmX = tableX + wmPad;
+            var wmY = bodyTop + wmPad;
+            var wmW = tableW - wmPad * 2;
+            var wmH = bodyBottom - bodyTop - wmPad * 2;
+            if (wmW > 10 && wmH > 10) {
+              ctx.save();
+              ctx.globalAlpha = 0.1;
+              ctx.drawImage(watermarkImg, wmX, wmY, wmW, wmH);
+              ctx.restore();
+            }
           }
 
-          if (cdef.align === "left") {
-            ctx.textAlign = "left";
-            ctx.fillText(rawVal, cbox.x + 8, y + rowH / 2 + 1);
-          } else {
-            ctx.textAlign = "center";
-            ctx.fillText(rawVal, cbox.x + cbox.w / 2, y + rowH / 2 + 1);
-          }
-        }
-      }
+          var columns = [
+            { key: "rank", label: "#", width: 0.08, align: "center" },
+            { key: "club", label: "KLUB", width: 0.40, align: "left" },
+            { key: "played", label: "P", width: 0.09, align: "center" },
+            { key: "wins", label: "W", width: 0.09, align: "center" },
+            { key: "losses", label: "L", width: 0.09, align: "center" },
+            { key: "points", label: "PTS", width: 0.11, align: "center" },
+            { key: "diff", label: "+/-", width: 0.14, align: "center" },
+          ];
 
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = "600 22px sans-serif";
-      ctx.fillStyle = "rgba(205, 223, 252, 0.94)";
-      ctx.fillText(String((payload && payload.footer) || "Tabela preuzeta sa stkb.rs"), 540, 1028);
-
-      canvas.toBlob(
-        function (blob) {
-          if (!blob) {
-            reject(new Error("Neuspešno generisanje slike."));
-            return;
+          var colX = [];
+          var runX = tableX + 22;
+          var innerW = tableW - 44;
+          for (var c = 0; c < columns.length; c++) {
+            var cw = innerW * columns[c].width;
+            colX.push({ x: runX, w: cw });
+            runX += cw;
           }
-          resolve(blob);
-        },
-        "image/png",
-        1
-      );
+
+          ctx.font = "700 24px sans-serif";
+          ctx.fillStyle = "rgba(241, 248, 255, 0.96)";
+          for (var h = 0; h < columns.length; h++) {
+            var col = columns[h];
+            var cx = colX[h];
+            if (col.align === "left") {
+              ctx.textAlign = "left";
+              ctx.fillText(col.label, cx.x + 8, tableY + headH / 2 + 2);
+            } else {
+              ctx.textAlign = "center";
+              ctx.fillText(col.label, cx.x + cx.w / 2, tableY + headH / 2 + 2);
+            }
+          }
+
+          var maxRows = rows.length;
+          var rowH = Math.floor((bodyBottom - bodyTop) / Math.max(1, maxRows));
+          rowH = Math.max(34, Math.min(52, rowH));
+          var visibleRows = Math.min(rows.length, Math.floor((bodyBottom - bodyTop) / rowH));
+
+          for (var i = 0; i < visibleRows; i++) {
+            var y = bodyTop + i * rowH;
+            var row = rows[i] || {};
+            var highlight = !!row.highlight;
+
+            if (i % 2 === 0) {
+              ctx.fillStyle = "rgba(255,255,255,0.03)";
+              ctx.fillRect(tableX + 10, y, tableW - 20, rowH);
+            }
+
+            if (highlight) {
+              var hi = ctx.createLinearGradient(tableX + 12, y, tableX + tableW - 12, y);
+              hi.addColorStop(0, "rgba(0, 132, 255, 0.2)");
+              hi.addColorStop(1, "rgba(114, 190, 255, 0.2)");
+              ctx.fillStyle = hi;
+              ctx.fillRect(tableX + 10, y, tableW - 20, rowH);
+            }
+
+            ctx.strokeStyle = "rgba(255,255,255,0.16)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(tableX + 10, y + rowH);
+            ctx.lineTo(tableX + tableW - 10, y + rowH);
+            ctx.stroke();
+
+            ctx.fillStyle = highlight ? "#ffffff" : "rgba(232, 242, 255, 0.95)";
+            ctx.font = (highlight ? "700 " : "600 ") + "22px sans-serif";
+
+            for (var j = 0; j < columns.length; j++) {
+              var cdef = columns[j];
+              var cbox = colX[j];
+              var rawVal = row[cdef.key] === undefined || row[cdef.key] === null ? "" : String(row[cdef.key]);
+              rawVal = decodeHtmlEntities(rawVal);
+              if (cdef.key === "club" && rawVal.length > 25) {
+                rawVal = rawVal.slice(0, 24) + "…";
+              }
+
+              if (cdef.align === "left") {
+                ctx.textAlign = "left";
+                ctx.fillText(rawVal, cbox.x + 8, y + rowH / 2 + 1);
+              } else {
+                ctx.textAlign = "center";
+                ctx.fillText(rawVal, cbox.x + cbox.w / 2, y + rowH / 2 + 1);
+              }
+            }
+          }
+
+          drawRoundedRect(ctx, 76, 984, 928, 58, 14);
+          ctx.fillStyle = "rgba(3, 18, 50, 0.72)";
+          ctx.fill();
+          ctx.strokeStyle = "rgba(142, 197, 255, 0.28)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.font = "600 22px sans-serif";
+          ctx.fillStyle = "rgba(205, 223, 252, 0.97)";
+          ctx.fillText(String((payload && payload.footer) || "Tabela preuzeta sa stkb.rs"), 540, 1013);
+
+          canvas.toBlob(
+            function (blob) {
+              if (!blob) {
+                reject(new Error("Neuspešno generisanje slike."));
+                return;
+              }
+              resolve(blob);
+            },
+            "image/png",
+            1
+          );
+        })
+        .catch(function () {
+          reject(new Error("Neuspešno generisanje slike."));
+        });
     });
   }
 

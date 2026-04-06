@@ -314,6 +314,12 @@ final class StandingsTableShortcode
         $team_count = count($stat);
         foreach ($stat as $club_id => $data) {
             $rank++;
+            $club_title_raw = (string) get_the_title($club_id);
+            $club_title = html_entity_decode(
+                html_entity_decode($club_title_raw, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
             $row_classes = [];
             if ($promo_direct > 0 && $rank <= $promo_direct) {
                 $row_classes[] = 'zone-promote-direct';
@@ -336,7 +342,7 @@ final class StandingsTableShortcode
             echo '<td class="klub-cell">';
             echo '<a href="' . esc_url(get_permalink($club_id)) . '">';
             echo (string) $call('club_logo_html', $club_id, 'thumbnail', ['style' => 'width:32px;height:32px;object-fit:contain;border-radius:3px;']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo '<span>' . esc_html(get_the_title($club_id)) . '</span>';
+            echo '<span>' . esc_html($club_title) . '</span>';
             echo '</a>';
             echo '</td>';
             echo '<td>' . intval($data['odigrane']) . '</td>';
@@ -349,7 +355,7 @@ final class StandingsTableShortcode
 
             $export_rows[] = [
                 'rank' => intval($rank),
-                'club' => (string) get_the_title($club_id),
+                'club' => (string) $club_title,
                 'played' => intval($data['odigrane']),
                 'wins' => intval($data['pobede']),
                 'losses' => intval($data['porazi']),
@@ -364,6 +370,7 @@ final class StandingsTableShortcode
             'league' => (string) $league_label,
             'season' => (string) $season_label,
             'footer' => 'Tabela preuzeta sa stkb.rs',
+            'watermarkUrl' => (string) $watermark_url,
             'rows' => $export_rows,
         ];
         $share_icon_url = (string) plugins_url('assets/icons/share-icon.svg', $plugin_root . '/opentt-unified-core.php');
