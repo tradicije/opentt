@@ -12,6 +12,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Enhanced standings social image generator visuals (richer gradient layers, polished header/footer containers, row-striping/highlight contrast) and added centered table watermark rendering from `club-logo.png`.
 - Fixed standings social image club-name encoding so entities like `&#8211;` are decoded to proper characters (for example `Spin - N`) in exported PNG rows.
 - Updated standings social export template to match reference style: yellow promotion cutoff line (based on promotion slots), top-left club brand logo, top-right competition logo (from competition rule featured image), and rotated/blurred low-opacity `club-logo-alt.png` background treatment behind the table.
+- Migrated standings social image rendering from manual canvas drawing to `html2canvas` template capture (1080x1080), enabling easier CSS-like layout control and cleaner premium broadcast styling updates.
 - Updated standings share-action button icons to white tint so `share`/`download` icons visually match button text on dark backgrounds.
 - Added subtle background watermark support for `opentt_standings_table`: each generated league table now renders `assets/img/club-logo.png` behind table rows with low opacity for branding without hurting readability.
 - Fixed standings watermark rendering path so the background logo is always injected from plugin assets and visible with readable transparency.

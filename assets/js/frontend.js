@@ -1193,36 +1193,6 @@
     }
   }
 
-  function drawRoundedRect(ctx, x, y, w, h, r) {
-    var rr = Math.max(0, Math.min(r, Math.min(w, h) / 2));
-    ctx.beginPath();
-    ctx.moveTo(x + rr, y);
-    ctx.arcTo(x + w, y, x + w, y + h, rr);
-    ctx.arcTo(x + w, y + h, x, y + h, rr);
-    ctx.arcTo(x, y + h, x, y, rr);
-    ctx.arcTo(x, y, x + w, y, rr);
-    ctx.closePath();
-  }
-
-  function loadImageSafe(src) {
-    return new Promise(function (resolve) {
-      var url = String(src || "").trim();
-      if (!url) {
-        resolve(null);
-        return;
-      }
-      var img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = function () {
-        resolve(img);
-      };
-      img.onerror = function () {
-        resolve(null);
-      };
-      img.src = url;
-    });
-  }
-
   function decodeHtmlEntities(value) {
     var raw = String(value || "");
     if (!raw) {
@@ -1235,6 +1205,135 @@
     return txt.value || decoded;
   }
 
+  function createStandingsExportNode(payload) {
+    var rows = Array.isArray(payload && payload.rows) ? payload.rows : [];
+    var round = parseInt(payload && payload.round ? payload.round : 0, 10);
+    var promotionCut = parseInt(payload && payload.promotionCut ? payload.promotionCut : 0, 10);
+    var subtitle = round > 0 ? "TABELA " + String(round) + ". KOLA" : "TABELA";
+    var leagueTitle =
+      String((payload && payload.league) || "Liga") +
+      " " +
+      String((payload && payload.season) || "Sezona");
+    var rowH = Math.max(44, Math.min(62, Math.floor(620 / Math.max(1, rows.length))));
+
+    var rowsHtml = "";
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i] || {};
+      var clubName = decodeHtmlEntities(String(row.club || ""));
+      var rowClass = "opentt-export-row";
+      if (promotionCut > 0 && i === promotionCut - 1) {
+        rowClass += " is-cut";
+      } else if (i === 0) {
+        rowClass += " is-first";
+      }
+      if (row.highlight) {
+        rowClass += " is-highlight";
+      }
+      rowsHtml +=
+        '<div class="' +
+        rowClass +
+        '" style="height:' +
+        String(rowH) +
+        'px;">' +
+        '<div class="col col-rank">' +
+        esc(String(row.rank || "")) +
+        '</div>' +
+        '<div class="col col-club"><span class="club-logo-wrap"><img src="' +
+        esc(String(row.logoUrl || "")) +
+        '" alt="" loading="eager" decoding="sync"></span><span class="club-name">' +
+        esc(clubName) +
+        "</span></div>" +
+        '<div class="col">' +
+        esc(String(row.played || "")) +
+        "</div>" +
+        '<div class="col">' +
+        esc(String(row.wins || "")) +
+        "</div>" +
+        '<div class="col">' +
+        esc(String(row.losses || "")) +
+        "</div>" +
+        '<div class="col">' +
+        esc(String(row.diff || "")) +
+        "</div>" +
+        '<div class="col">' +
+        esc(String(row.points || "")) +
+        "</div>" +
+        "</div>";
+    }
+
+    var host = document.createElement("div");
+    host.style.cssText =
+      "position:fixed;left:-20000px;top:0;width:1080px;height:1080px;z-index:-1;pointer-events:none;";
+    host.innerHTML =
+      '<style>' +
+      ".opentt-export-card{position:relative;width:1080px;height:1080px;overflow:hidden;background:linear-gradient(165deg,#03153e 0%,#07296f 58%,#0a3e91 100%);font-family:Inter,Montserrat,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#fff;}" +
+      ".opentt-export-card .soft-shape{position:absolute;border-radius:50%;pointer-events:none;}" +
+      ".opentt-export-card .soft-shape.s1{width:360px;height:360px;right:-110px;top:-90px;background:rgba(120,188,255,.12);}" +
+      ".opentt-export-card .soft-shape.s2{width:420px;height:420px;left:-140px;bottom:-180px;background:rgba(0,132,255,.10);}" +
+      ".opentt-export-card .bg-watermark{position:absolute;left:50%;top:57%;width:640px;height:640px;transform:translate(-50%,-50%) rotate(-12deg);object-fit:contain;opacity:.14;filter:blur(1.4px);pointer-events:none;}" +
+      ".opentt-export-header{position:absolute;left:56px;right:56px;top:44px;display:grid;grid-template-columns:88px 1fr 88px;align-items:center;gap:18px;}" +
+      ".opentt-export-corner-logo{width:88px;height:88px;border-radius:14px;background:rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;}" +
+      ".opentt-export-corner-logo img{width:76px;height:76px;object-fit:contain;}" +
+      ".opentt-export-head-main{text-align:center;}" +
+      ".opentt-export-head-main .league{font-size:44px;font-weight:700;line-height:1.03;color:#ffffff;}" +
+      ".opentt-export-head-main .round{font-size:60px;font-weight:800;line-height:1.02;color:#ffdf44;margin-top:4px;letter-spacing:.01em;}" +
+      ".opentt-export-table{position:absolute;left:56px;right:56px;top:192px;bottom:118px;border-radius:22px;background:rgba(3,14,38,.62);overflow:hidden;}" +
+      ".opentt-export-head-row{height:62px;display:grid;grid-template-columns:8% 40% 10% 10% 10% 11% 11%;align-items:center;padding:0 18px;background:rgba(8,30,82,.56);font-size:34px;font-weight:600;color:rgba(236,245,255,.95);}" +
+      ".opentt-export-body{position:absolute;left:0;right:0;top:62px;bottom:0;padding:8px 12px 12px;}" +
+      ".opentt-export-row{display:grid;grid-template-columns:8% 40% 10% 10% 10% 11% 11%;align-items:center;padding:0 12px;font-size:36px;color:rgba(236,245,255,.95);border-bottom:1px solid rgba(255,255,255,.15);}" +
+      ".opentt-export-row:nth-child(even){background:rgba(255,255,255,.025);}" +
+      ".opentt-export-row.is-highlight{background:rgba(0,132,255,.12);}" +
+      ".opentt-export-row.is-first{background:rgba(255,255,255,.035);}" +
+      ".opentt-export-row.is-cut{border-bottom:2px solid #ffdf44;}" +
+      ".opentt-export-row .col{display:flex;align-items:center;justify-content:center;}" +
+      ".opentt-export-row .col-club{justify-content:flex-start;gap:12px;padding-right:8px;}" +
+      ".opentt-export-row .club-logo-wrap{width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex:0 0 38px;}" +
+      ".opentt-export-row .club-logo-wrap img{width:30px;height:30px;object-fit:contain;}" +
+      ".opentt-export-row .club-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
+      ".opentt-export-foot{position:absolute;left:56px;right:56px;bottom:40px;height:58px;border-radius:14px;background:rgba(3,18,50,.72);display:flex;align-items:center;justify-content:center;color:rgba(205,223,252,.96);font-size:30px;font-weight:500;}" +
+      "</style>" +
+      '<div class="opentt-export-card">' +
+      '<span class="soft-shape s1"></span><span class="soft-shape s2"></span>' +
+      (payload && payload.bgAltUrl
+        ? '<img class="bg-watermark" src="' +
+          esc(String(payload.bgAltUrl || "")) +
+          '" alt="" loading="eager" decoding="sync">'
+        : "") +
+      '<header class="opentt-export-header">' +
+      '<div class="opentt-export-corner-logo">' +
+      (payload && payload.brandLogoUrl
+        ? '<img src="' +
+          esc(String(payload.brandLogoUrl || "")) +
+          '" alt="" loading="eager" decoding="sync">'
+        : "") +
+      "</div>" +
+      '<div class="opentt-export-head-main"><div class="league">' +
+      esc(leagueTitle) +
+      '</div><div class="round">' +
+      esc(subtitle) +
+      "</div></div>" +
+      '<div class="opentt-export-corner-logo">' +
+      (payload && payload.competitionLogoUrl
+        ? '<img src="' +
+          esc(String(payload.competitionLogoUrl || "")) +
+          '" alt="" loading="eager" decoding="sync">'
+        : "") +
+      "</div>" +
+      "</header>" +
+      '<section class="opentt-export-table">' +
+      '<div class="opentt-export-head-row"><div>#</div><div style="justify-self:start;">Klub</div><div>Utak</div><div>Pob</div><div>Por</div><div>+/-</div><div>Bod</div></div>' +
+      '<div class="opentt-export-body">' +
+      rowsHtml +
+      "</div>" +
+      "</section>" +
+      '<footer class="opentt-export-foot">' +
+      esc(String((payload && payload.footer) || "Tabela preuzeta sa sajta stkb.rs")) +
+      "</footer>" +
+      "</div>";
+    document.body.appendChild(host);
+    return host;
+  }
+
   function generateStandingsImage(payload) {
     return new Promise(function (resolve, reject) {
       var rows = Array.isArray(payload && payload.rows) ? payload.rows : [];
@@ -1242,254 +1341,35 @@
         reject(new Error("Nema podataka za tabelu."));
         return;
       }
-
-      var canvas = document.createElement("canvas");
-      canvas.width = 1080;
-      canvas.height = 1080;
-      var ctx = canvas.getContext("2d");
-      if (!ctx) {
-        reject(new Error("Canvas nije dostupan."));
+      if (typeof window.html2canvas !== "function") {
+        reject(new Error("html2canvas nije dostupan."));
         return;
       }
-      Promise.all([
-        loadImageSafe(payload && payload.watermarkUrl),
-        loadImageSafe(payload && payload.brandLogoUrl),
-        loadImageSafe(payload && payload.competitionLogoUrl),
-        loadImageSafe(payload && payload.bgAltUrl),
-      ])
-        .then(function (loaded) {
-          var watermarkImg = loaded[0] || null;
-          var brandLogoImg = loaded[1] || null;
-          var competitionLogoImg = loaded[2] || null;
-          var bgAltImg = loaded[3] || null;
-
-          var bg = ctx.createLinearGradient(0, 0, 1080, 1080);
-          bg.addColorStop(0, "#021238");
-          bg.addColorStop(0.46, "#07286f");
-          bg.addColorStop(0.82, "#0a3f96");
-          bg.addColorStop(1, "#072f77");
-          ctx.fillStyle = bg;
-          ctx.fillRect(0, 0, 1080, 1080);
-
-          var glowA = ctx.createRadialGradient(840, 190, 30, 840, 190, 320);
-          glowA.addColorStop(0, "rgba(120, 188, 255, 0.30)");
-          glowA.addColorStop(1, "rgba(120, 188, 255, 0)");
-          ctx.fillStyle = glowA;
-          ctx.fillRect(0, 0, 1080, 1080);
-
-          var glowB = ctx.createRadialGradient(160, 930, 40, 160, 930, 340);
-          glowB.addColorStop(0, "rgba(0, 132, 255, 0.22)");
-          glowB.addColorStop(1, "rgba(0, 132, 255, 0)");
-          ctx.fillStyle = glowB;
-          ctx.fillRect(0, 0, 1080, 1080);
-
-          if (bgAltImg) {
-            ctx.save();
-            ctx.translate(540, 590);
-            ctx.rotate((-12 * Math.PI) / 180);
-            ctx.filter = "blur(2px)";
-            ctx.globalAlpha = 0.18;
-            ctx.drawImage(bgAltImg, -360, -360, 720, 720);
-            ctx.restore();
-          }
-
-          drawRoundedRect(ctx, 34, 34, 1012, 1012, 34);
-          ctx.strokeStyle = "rgba(166, 210, 255, 0.28)";
-          ctx.lineWidth = 2;
-          ctx.stroke();
-
-          var league = String((payload && payload.league) || "Liga").toUpperCase();
-          var season = String((payload && payload.season) || "Sezona").toUpperCase();
-          var round = parseInt(payload && payload.round ? payload.round : 0, 10);
-          var title = league + " " + season;
-          var subtitle = round > 0 ? "TABELA " + String(round) + ". KOLA" : "TABELA";
-
-          drawRoundedRect(ctx, 76, 50, 928, 94, 20);
-          var titleBg = ctx.createLinearGradient(76, 50, 1004, 144);
-          titleBg.addColorStop(0, "rgba(6, 29, 82, 0.86)");
-          titleBg.addColorStop(1, "rgba(9, 48, 120, 0.92)");
-          ctx.fillStyle = titleBg;
-          ctx.fill();
-          ctx.strokeStyle = "rgba(150, 206, 255, 0.35)";
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-
-          ctx.fillStyle = "#ffffff";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.font = "700 44px sans-serif";
-          ctx.fillText(title, 540, 86);
-          ctx.fillStyle = "#ffdf44";
-          ctx.font = "800 58px sans-serif";
-          ctx.fillText(subtitle, 540, 120);
-
-          if (brandLogoImg) {
-            ctx.save();
-            drawRoundedRect(ctx, 52, 58, 88, 88, 14);
-            ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
-            ctx.fill();
-            ctx.drawImage(brandLogoImg, 58, 64, 76, 76);
-            ctx.restore();
-          }
-
-          if (competitionLogoImg) {
-            ctx.save();
-            drawRoundedRect(ctx, 940, 58, 88, 88, 14);
-            ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
-            ctx.fill();
-            ctx.drawImage(competitionLogoImg, 946, 64, 76, 76);
-            ctx.restore();
-          }
-
-          var tableX = 64;
-          var tableY = 182;
-          var tableW = 952;
-          var tableH = 790;
-          drawRoundedRect(ctx, tableX, tableY, tableW, tableH, 24);
-          ctx.fillStyle = "rgba(3, 14, 38, 0.60)";
-          ctx.fill();
-          ctx.strokeStyle = "rgba(142, 197, 255, 0.46)";
-          ctx.lineWidth = 2;
-          ctx.stroke();
-
-          var headH = 64;
-          drawRoundedRect(ctx, tableX + 1, tableY + 1, tableW - 2, headH, 20);
-          var headBg = ctx.createLinearGradient(tableX, tableY, tableX + tableW, tableY);
-          headBg.addColorStop(0, "rgba(9, 36, 94, 0.84)");
-          headBg.addColorStop(1, "rgba(11, 57, 138, 0.84)");
-          ctx.fillStyle = headBg;
-          ctx.fill();
-
-          var bodyTop = tableY + headH + 8;
-          var bodyBottom = tableY + tableH - 18;
-
-          if (watermarkImg) {
-            var wmPad = 28;
-            var wmX = tableX + wmPad;
-            var wmY = bodyTop + wmPad;
-            var wmW = tableW - wmPad * 2;
-            var wmH = bodyBottom - bodyTop - wmPad * 2;
-            if (wmW > 10 && wmH > 10) {
-              ctx.save();
-              ctx.globalAlpha = 0.12;
-              ctx.drawImage(watermarkImg, wmX, wmY, wmW, wmH);
-              ctx.restore();
-            }
-          }
-
-          var columns = [
-            { key: "rank", label: "#", width: 0.08, align: "center" },
-            { key: "club", label: "KLUB", width: 0.40, align: "left" },
-            { key: "played", label: "P", width: 0.09, align: "center" },
-            { key: "wins", label: "W", width: 0.09, align: "center" },
-            { key: "losses", label: "L", width: 0.09, align: "center" },
-            { key: "points", label: "PTS", width: 0.11, align: "center" },
-            { key: "diff", label: "+/-", width: 0.14, align: "center" },
-          ];
-
-          var colX = [];
-          var runX = tableX + 22;
-          var innerW = tableW - 44;
-          for (var c = 0; c < columns.length; c++) {
-            var cw = innerW * columns[c].width;
-            colX.push({ x: runX, w: cw });
-            runX += cw;
-          }
-
-          ctx.font = "700 24px sans-serif";
-          ctx.fillStyle = "rgba(241, 248, 255, 0.96)";
-          for (var h = 0; h < columns.length; h++) {
-            var col = columns[h];
-            var cx = colX[h];
-            if (col.align === "left") {
-              ctx.textAlign = "left";
-              ctx.fillText(col.label, cx.x + 8, tableY + headH / 2 + 2);
-            } else {
-              ctx.textAlign = "center";
-              ctx.fillText(col.label, cx.x + cx.w / 2, tableY + headH / 2 + 2);
-            }
-          }
-
-          var maxRows = rows.length;
-          var rowH = Math.floor((bodyBottom - bodyTop) / Math.max(1, maxRows));
-          rowH = Math.max(34, Math.min(52, rowH));
-          var visibleRows = Math.min(rows.length, Math.floor((bodyBottom - bodyTop) / rowH));
-
-          for (var i = 0; i < visibleRows; i++) {
-            var y = bodyTop + i * rowH;
-            var row = rows[i] || {};
-            var highlight = !!row.highlight;
-
-            if (i % 2 === 0) {
-              ctx.fillStyle = "rgba(255,255,255,0.03)";
-              ctx.fillRect(tableX + 10, y, tableW - 20, rowH);
-            }
-
-            if (highlight) {
-              var hi = ctx.createLinearGradient(tableX + 12, y, tableX + tableW - 12, y);
-              hi.addColorStop(0, "rgba(0, 132, 255, 0.2)");
-              hi.addColorStop(1, "rgba(114, 190, 255, 0.2)");
-              ctx.fillStyle = hi;
-              ctx.fillRect(tableX + 10, y, tableW - 20, rowH);
-            }
-
-            ctx.strokeStyle = "rgba(255,255,255,0.16)";
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(tableX + 10, y + rowH);
-            ctx.lineTo(tableX + tableW - 10, y + rowH);
-            ctx.stroke();
-
-            ctx.fillStyle = highlight ? "#ffffff" : "rgba(232, 242, 255, 0.95)";
-            ctx.font = (highlight ? "700 " : "600 ") + "22px sans-serif";
-
-            for (var j = 0; j < columns.length; j++) {
-              var cdef = columns[j];
-              var cbox = colX[j];
-              var rawVal = row[cdef.key] === undefined || row[cdef.key] === null ? "" : String(row[cdef.key]);
-              rawVal = decodeHtmlEntities(rawVal);
-              if (cdef.key === "club" && rawVal.length > 25) {
-                rawVal = rawVal.slice(0, 24) + "…";
-              }
-
-              if (cdef.align === "left") {
-                ctx.textAlign = "left";
-                ctx.fillText(rawVal, cbox.x + 8, y + rowH / 2 + 1);
-              } else {
-                ctx.textAlign = "center";
-                ctx.fillText(rawVal, cbox.x + cbox.w / 2, y + rowH / 2 + 1);
-              }
-            }
-          }
-
-          var promotionCut = parseInt(payload && payload.promotionCut ? payload.promotionCut : 0, 10);
-          if (!isNaN(promotionCut) && promotionCut > 0 && promotionCut < visibleRows) {
-            var cutY = bodyTop + rowH * promotionCut;
-            ctx.save();
-            ctx.strokeStyle = "#ffdf44";
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(tableX + 14, cutY);
-            ctx.lineTo(tableX + tableW - 14, cutY);
-            ctx.stroke();
-            ctx.restore();
-          }
-
-          drawRoundedRect(ctx, 76, 984, 928, 58, 14);
-          ctx.fillStyle = "rgba(3, 18, 50, 0.72)";
-          ctx.fill();
-          ctx.strokeStyle = "rgba(142, 197, 255, 0.28)";
-          ctx.lineWidth = 1;
-          ctx.stroke();
-
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.font = "600 22px sans-serif";
-          ctx.fillStyle = "rgba(205, 223, 252, 0.97)";
-          ctx.fillText(String((payload && payload.footer) || "Tabela preuzeta sa stkb.rs"), 540, 1013);
-
+      var host = createStandingsExportNode(payload);
+      var card = host ? host.querySelector(".opentt-export-card") : null;
+      if (!card) {
+        if (host && host.parentNode) {
+          host.parentNode.removeChild(host);
+        }
+        reject(new Error("Neuspešno kreiranje export šablona."));
+        return;
+      }
+      window
+        .html2canvas(card, {
+          backgroundColor: null,
+          scale: 1,
+          width: 1080,
+          height: 1080,
+          useCORS: true,
+          allowTaint: false,
+          logging: false,
+        })
+        .then(function (canvas) {
           canvas.toBlob(
             function (blob) {
+              if (host && host.parentNode) {
+                host.parentNode.removeChild(host);
+              }
               if (!blob) {
                 reject(new Error("Neuspešno generisanje slike."));
                 return;
@@ -1501,6 +1381,9 @@
           );
         })
         .catch(function () {
+          if (host && host.parentNode) {
+            host.parentNode.removeChild(host);
+          }
           reject(new Error("Neuspešno generisanje slike."));
         });
     });

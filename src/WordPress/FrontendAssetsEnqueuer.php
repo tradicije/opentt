@@ -15,13 +15,21 @@ final class FrontendAssetsEnqueuer
 {
     public static function enqueue($pluginDir, $pluginFile, $version, $visualCss, $customCss, $customCssMap)
     {
+        wp_register_script(
+            'opentt-html2canvas',
+            'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+            [],
+            '1.4.1',
+            true
+        );
+
         $jsRel = 'assets/js/frontend.js';
         $jsPath = (string) $pluginDir . $jsRel;
         if (is_readable($jsPath)) {
             wp_enqueue_script(
                 'opentt-unified-frontend',
                 plugins_url($jsRel, $pluginFile),
-                [],
+                ['opentt-html2canvas'],
                 filemtime($jsPath),
                 true
             );

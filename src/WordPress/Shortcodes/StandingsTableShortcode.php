@@ -316,6 +316,7 @@ final class StandingsTableShortcode
         echo '<th data-tooltip="Meč količnik">+/-</th>';
         echo '</tr></thead><tbody>';
 
+        $fallback_club_logo_url = (string) plugins_url('assets/img/fallback-club.png', $plugin_root . '/opentt-unified-core.php');
         $export_rows = [];
         $rank = 0;
         $team_count = count($stat);
@@ -360,9 +361,14 @@ final class StandingsTableShortcode
             echo '<td>' . ($kol > 0 ? '+' : '') . $kol . '</td>';
             echo '</tr>';
 
+            $club_logo_url = (string) get_the_post_thumbnail_url($club_id, 'thumbnail');
+            if ($club_logo_url === '') {
+                $club_logo_url = $fallback_club_logo_url;
+            }
             $export_rows[] = [
                 'rank' => intval($rank),
                 'club' => (string) $club_title,
+                'logoUrl' => (string) $club_logo_url,
                 'played' => intval($data['odigrane']),
                 'wins' => intval($data['pobede']),
                 'losses' => intval($data['porazi']),
