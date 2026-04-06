@@ -85,6 +85,9 @@ final class AdminSettingsActionManager
         $optionMailgunDomain = (string) ($config['option_mailgun_domain'] ?? '');
         $optionMailgunFromEmail = (string) ($config['option_mailgun_from_email'] ?? '');
         $optionMailgunFromName = (string) ($config['option_mailgun_from_name'] ?? '');
+        $mailgunTestSender = (isset($config['mailgun_test_sender']) && is_callable($config['mailgun_test_sender']))
+            ? $config['mailgun_test_sender']
+            : null;
         $optionAdminUiLanguage = (string) ($config['option_admin_ui_language'] ?? '');
         $availableLanguages = isset($config['available_languages']) && is_array($config['available_languages'])
             ? $config['available_languages']
@@ -196,6 +199,29 @@ final class AdminSettingsActionManager
                 wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Mailgun podešavanje je sačuvano.'));
                 exit;
             }
+        }
+
+        if ($section === 'mailgun_test') {
+            $recipientRaw = isset($_POST['mailgun_test_recipient']) ? (string) wp_unslash($_POST['mailgun_test_recipient']) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $recipient = sanitize_email($recipientRaw);
+            if (!is_email($recipient)) {
+                wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'error', 'Unesi validnu email adresu za test.'));
+                exit;
+            }
+
+            if (!$mailgunTestSender) {
+                wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'error', 'Mailgun test nije dostupan.'));
+                exit;
+            }
+
+            $result = $mailgunTestSender($recipient);
+            $ok = is_array($result) ? !empty($result['ok']) : false;
+            $message = is_array($result) && !empty($result['message'])
+                ? (string) $result['message']
+                : ($ok ? 'Test mejl je uspešno poslat.' : 'Test mejl nije uspeo.');
+
+            wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, $ok ? 'success' : 'error', $message));
+            exit;
         }
 
         if ($section === 'css' || $section === 'all') {

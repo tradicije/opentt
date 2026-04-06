@@ -3493,6 +3493,17 @@ JS;
         echo '<button type="submit" class="button button-primary">Sačuvaj Mailgun podešavanje</button>';
         echo '</div>';
         echo '</form>';
+        echo '<hr style="margin:14px 0;border:0;border-top:1px solid rgba(255,255,255,.12);">';
+        echo '<p class="description" style="margin-top:0;">Nakon čuvanja podešavanja možeš odmah poslati test poruku.</p>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
+        wp_nonce_field('opentt_unified_save_settings');
+        echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
+        echo '<input type="hidden" name="opentt_settings_section" value="mailgun_test">';
+        echo '<label><span>Email za test</span><input type="email" name="mailgun_test_recipient" class="regular-text" required placeholder="test@domen.rs"></label>';
+        echo '<div class="opentt-settings-actions">';
+        echo '<button type="submit" class="button">Pošalji test mejl</button>';
+        echo '</div>';
+        echo '</form>';
         echo '</div>';
 
         echo '<div class="opentt-panel opentt-settings-panel">';
@@ -5094,6 +5105,7 @@ HTML;
             'option_mailgun_domain' => self::OPTION_MAILGUN_DOMAIN,
             'option_mailgun_from_email' => self::OPTION_MAILGUN_FROM_EMAIL,
             'option_mailgun_from_name' => self::OPTION_MAILGUN_FROM_NAME,
+            'mailgun_test_sender' => [OpenTT_Unified_Admin_Match_Actions::class, 'send_mailgun_test_email_admin'],
             'option_admin_ui_language' => self::OPTION_ADMIN_UI_LANGUAGE,
             'available_languages' => self::get_available_admin_ui_languages(),
         ]);

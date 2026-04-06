@@ -1354,10 +1354,12 @@ final class OpenTT_Unified_Admin_Match_Actions
         return $result === true;
     }
 
-    private static function send_email_via_mailgun($to, $subject, $message)
+    private static function send_email_via_mailgun($to, $subject, $message, &$error = '')
     {
+        $error = '';
         $to = sanitize_email((string) $to);
         if (!is_email($to)) {
+            $error = 'Neispravna email adresa primaoca.';
             return false;
         }
         $api_key = OpenTT_Unified_Core::mailgun_api_key();
@@ -1365,6 +1367,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         $from_email = OpenTT_Unified_Core::mailgun_from_email();
         $from_name = OpenTT_Unified_Core::mailgun_from_name();
         if ($api_key === '' || $domain === '' || !is_email($from_email)) {
+            $error = 'Mailgun nije kompletno podešen (API ključ, domain ili From email).';
             return false;
         }
 
@@ -1384,10 +1387,54 @@ final class OpenTT_Unified_Admin_Match_Actions
             ],
         ]);
         if (is_wp_error($response)) {
+            $error = (string) $response->get_error_message();
             return false;
         }
         $code = intval(wp_remote_retrieve_response_code($response));
-        return $code >= 200 && $code < 300;
+        if ($code < 200 || $code >= 300) {
+            $body = wp_remote_retrieve_body($response);
+            $body_text = trim((string) $body);
+            $error = 'Mailgun API greška (HTTP ' . $code . ').';
+            if ($body_text !== '') {
+                $error .= ' ' . wp_strip_all_tags($body_text);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public static function send_mailgun_test_email_admin($recipient)
+    {
+        $recipient = sanitize_email((string) $recipient);
+        if (!is_email($recipient)) {
+            return [
+                'ok' => false,
+                'message' => 'Uneta email adresa za test nije validna.',
+            ];
+        }
+        if (!OpenTT_Unified_Core::is_mailgun_enabled()) {
+            return [
+                'ok' => false,
+                'message' => 'Mailgun je trenutno isključen. Uključi ga pa pokušaj test.',
+            ];
+        }
+
+        $site_name = wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES);
+        $subject = 'OpenTT Mailgun test poruka';
+        $message = "Zdravo,\n\nOvo je test poruka iz OpenTT admin panela.\n\nSajt: {$site_name}\nVreme: " . current_time('mysql') . "\n\nAko vidiš ovu poruku, Mailgun integracija radi ispravno.";
+        $error = '';
+        $sent = self::send_email_via_mailgun($recipient, $subject, $message, $error);
+        if ($sent) {
+            return [
+                'ok' => true,
+                'message' => 'Test poruka je uspešno poslata putem Mailgun API-ja.',
+            ];
+        }
+
+        return [
+            'ok' => false,
+            'message' => $error !== '' ? ('Slanje test poruke nije uspelo: ' . $error) : 'Slanje test poruke nije uspelo.',
+        ];
     }
 
     private static function verify_turnstile_token($token)
