@@ -1212,10 +1212,11 @@
     var subtitle = round > 0 ? "TABELA " + String(round) + ". KOLA" : "TABELA";
     var leagueTitle = String((payload && payload.league) || "Liga");
     var seasonLabel = String((payload && payload.season) || "Sezona");
+    var leagueLine = (leagueTitle + " " + seasonLabel).trim();
     var tableTop = 208;
     var maxTableHeight = 760;
     var rowH = Math.max(34, Math.min(54, Math.floor((maxTableHeight - 76) / Math.max(1, rows.length))));
-    var tableHeight = 62 + rows.length * rowH + 16;
+    var tableHeight = 62 + rows.length * rowH + 28;
 
     var rowsHtml = "";
     for (var i = 0; i < rows.length; i++) {
@@ -1277,13 +1278,12 @@
       ".opentt-export-corner-logo img{width:auto;height:auto;max-width:112px;max-height:78px;object-fit:contain;}" +
       ".opentt-export-head-main{text-align:left;display:flex;flex-direction:column;gap:2px;}" +
       ".opentt-export-head-main .league{font-size:50px;font-weight:700;line-height:1.02;color:#ffffff;}" +
-      ".opentt-export-head-main .season{font-size:30px;font-weight:600;line-height:1.04;color:rgba(214,232,255,.94);}" +
       ".opentt-export-head-main .round{font-size:40px;font-weight:800;line-height:1.02;color:#ffdf44;letter-spacing:.01em;}" +
       ".opentt-export-table{position:absolute;left:56px;right:56px;border-radius:22px;background:rgba(3,14,38,.62);overflow:hidden;}" +
       ".opentt-export-head-row{height:62px;display:grid;grid-template-columns:7% 47% 9% 9% 9% 9% 10%;align-items:center;padding:0 12px;background:rgba(8,30,82,.56);font-size:24px;font-weight:600;color:rgba(236,245,255,.95);}" +
       ".opentt-export-head-row > div{display:flex;align-items:center;justify-content:center;}" +
       ".opentt-export-head-row .club-head{justify-content:flex-start;padding-left:8px;}" +
-      ".opentt-export-body{position:absolute;left:0;right:0;top:62px;bottom:0;padding:8px 12px 8px;}" +
+      ".opentt-export-body{position:absolute;left:0;right:0;top:62px;bottom:0;padding:8px 12px 20px;}" +
       ".opentt-export-row{display:grid;grid-template-columns:7% 47% 9% 9% 9% 9% 10%;align-items:center;padding:0 12px;font-size:28px;color:rgba(236,245,255,.95);border-bottom:1px solid rgba(255,255,255,.15);}" +
       ".opentt-export-row.is-highlight{background:rgba(0,132,255,.12);}" +
       ".opentt-export-row.is-cut{border-bottom:2px solid #ffdf44;}" +
@@ -1294,8 +1294,8 @@
       ".opentt-export-row .club-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
       ".opentt-export-row .col-num{font-size:24px;font-weight:600;}" +
       ".opentt-export-foot{position:absolute;left:56px;right:56px;bottom:40px;height:58px;display:flex;align-items:center;justify-content:space-between;color:rgba(205,223,252,.96);font-size:26px;font-weight:500;}" +
-      ".opentt-export-foot .foot-brand{width:130px;height:52px;display:flex;align-items:center;justify-content:flex-start;}" +
-      ".opentt-export-foot .foot-brand img{width:auto;height:auto;max-width:120px;max-height:46px;object-fit:contain;}" +
+      ".opentt-export-foot .foot-brand{width:150px;height:58px;display:flex;align-items:center;justify-content:flex-start;}" +
+      ".opentt-export-foot .foot-brand img{width:auto;height:auto;max-width:142px;max-height:54px;object-fit:contain;}" +
       ".opentt-export-foot .foot-text{text-align:right;flex:1;}" +
       "</style>" +
       '<div class="opentt-export-card">' +
@@ -1314,9 +1314,7 @@
         : "") +
       "</div>" +
       '<div class="opentt-export-head-main"><div class="league">' +
-      esc(leagueTitle) +
-      '</div><div class="season">' +
-      esc(seasonLabel) +
+      esc(leagueLine) +
       '</div><div class="round">' +
       esc(subtitle) +
       "</div></div>" +
