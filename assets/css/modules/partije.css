@@ -154,6 +154,43 @@
   background: rgba(3, 17, 52, 0.6);
 }
 
+.opentt-pending-games-page {
+  margin: 0;
+  background: radial-gradient(circle at top, #0d2f74 0%, #04163d 48%, #020b22 100%);
+  color: #fff;
+}
+
+.opentt-pending-games-main {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px 28px;
+}
+
+.opentt-pending-games-card {
+  width: min(1100px, 100%);
+  border: 1px solid rgba(145, 186, 255, 0.28);
+  border-radius: 16px;
+  background: rgba(2, 14, 41, 0.82);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  padding: 16px;
+}
+
+.opentt-pending-games-head {
+  margin: 0 0 12px;
+}
+
+.opentt-pending-games-head h1 {
+  margin: 0 0 6px;
+  font-size: clamp(1.25rem, 2.4vw, 1.8rem);
+}
+
+.opentt-pending-games-head p {
+  margin: 0;
+  color: #c7daf8;
+}
+
 .opentt-games-submit-wrap h3 {
   margin: 0 0 8px;
 }
@@ -248,6 +285,10 @@
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+.opentt-turnstile-wrap {
+  margin: 4px 0 12px;
 }
 
 .opentt-games-submit-success,

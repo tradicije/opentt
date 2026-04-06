@@ -68,7 +68,9 @@ final class GamesListShortcode
         if ($currentUrl === '') {
             $currentUrl = home_url('/');
         }
-        $redirectTo = remove_query_arg(['opentt_games_submit', 'opentt_games_pending'], $currentUrl);
+        $redirectTo = remove_query_arg(['opentt_games_pending', 'opentt_pending_games_form', 'match_id'], $currentUrl);
+        $turnstileEnabled = (bool) $call('turnstile_enabled');
+        $turnstileSiteKey = trim((string) $call('turnstile_site_key'));
 
         ob_start();
         echo '<div class="opentt-games-submit-wrap">';
@@ -89,6 +91,14 @@ final class GamesListShortcode
         echo '<input type="email" name="submitter_email" required placeholder="ime@domen.rs">';
         echo '<small>Na ovu adresu dobićeš obaveštenje da li je tvoj unos partija odobren ili odbijen od strane administratora.</small>';
         echo '</label>';
+
+        if ($turnstileEnabled && $turnstileSiteKey !== '') {
+            echo '<div class="opentt-turnstile-wrap">';
+            echo '<div class="cf-turnstile" data-sitekey="' . esc_attr($turnstileSiteKey) . '" data-theme="dark"></div>';
+            echo '</div>';
+        } elseif ($turnstileEnabled) {
+            echo '<p class="opentt-games-submit-error">Turnstile zaštita je uključena, ali nije podešen Site Key. Kontaktiraj administratora.</p>';
+        }
 
         for ($orderNo = 1; $orderNo <= $maxGames; $orderNo++) {
             $isDoubles = ($orderNo === $expectedDoublesOrder);
@@ -121,6 +131,9 @@ final class GamesListShortcode
 
         echo '<button type="submit" class="opentt-games-submit-btn">Pošalji na pregled</button>';
         echo '</form>';
+        if ($turnstileEnabled && $turnstileSiteKey !== '') {
+            echo '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>';
+        }
         echo '</div>';
 
         return ob_get_clean();
@@ -136,27 +149,37 @@ final class GamesListShortcode
             return $deps[$name](...$args);
         };
 
+        $atts = shortcode_atts([
+            'submit_page' => 'false',
+            'match_id' => '0',
+        ], (array) $atts, 'opentt_match_games');
+        $submitPage = in_array(strtolower(trim((string) ($atts['submit_page'] ?? 'false'))), ['1', 'true', 'yes', 'on'], true);
+        $forcedMatchId = intval($atts['match_id'] ?? 0);
+
         $ctx = $call('current_match_context');
-        if (!is_array($ctx) || empty($ctx['db_row'])) {
+        $match_row = (is_array($ctx) && !empty($ctx['db_row'])) ? $ctx['db_row'] : null;
+        $legacy_match_id = is_array($ctx) ? intval($ctx['legacy_id'] ?? 0) : 0;
+        if ($forcedMatchId > 0) {
+            $forced = $call('db_get_match_by_id', $forcedMatchId);
+            if (is_object($forced)) {
+                $match_row = $forced;
+                $legacy_match_id = intval($forced->legacy_post_id ?? 0);
+            }
+        }
+        if (!is_object($match_row) || empty($match_row->id)) {
             return '';
         }
 
-        $match_row = $ctx['db_row'];
-        $legacy_match_id = intval($ctx['legacy_id'] ?? 0);
-        $is_submit_mode = isset($_GET['opentt_games_submit']) && (string) $_GET['opentt_games_submit'] === '1'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $pending_state = isset($_GET['opentt_games_pending']) ? sanitize_key((string) $_GET['opentt_games_pending']) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
         $games = $call('db_get_games_for_match_id', intval($match_row->id));
         $games = is_array($games) ? $games : [];
-        $open_form_url = '';
-        if (!empty($_SERVER['REQUEST_URI'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $open_form_url = add_query_arg(
-                ['opentt_games_submit' => '1'],
-                remove_query_arg(['opentt_games_pending'], home_url((string) wp_unslash($_SERVER['REQUEST_URI']))) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            );
-        }
+        $open_form_url = (string) $call('games_submit_page_url', intval($match_row->id));
         if ($open_form_url === '') {
-            $open_form_url = add_query_arg('opentt_games_submit', '1', home_url('/'));
+            $open_form_url = add_query_arg([
+                'opentt_pending_games_form' => '1',
+                'match_id' => intval($match_row->id),
+            ], home_url('/'));
         }
 
         $pending_notice_html = '';
@@ -164,8 +187,16 @@ final class GamesListShortcode
             $pending_notice_html = '<p class="opentt-games-submit-success">Uspešno! Tvoj unos partija je poslat administratoru na pregled i trenutno je na čekanju. Na email adresu koju si ostavio/la dobićeš potvrdu da li je unos odobren ili odbijen.</p>';
         } elseif ($pending_state === 'empty') {
             $pending_notice_html = '<p class="opentt-games-submit-error">Unos nije poslat jer nijedna partija nije popunjena.</p>';
+        } elseif ($pending_state === 'captcha') {
+            $pending_notice_html = '<p class="opentt-games-submit-error">Captcha verifikacija nije uspela. Pokušaj ponovo.</p>';
         } elseif ($pending_state === 'error') {
             $pending_notice_html = '<p class="opentt-games-submit-error">Došlo je do greške pri slanju unosa. Pokušaj ponovo.</p>';
+        }
+
+        if ($submitPage) {
+            $out = $pending_notice_html;
+            $out .= self::renderFrontendSubmissionForm($match_row, $deps);
+            return $out;
         }
 
         if (empty($games)) {
@@ -173,9 +204,6 @@ final class GamesListShortcode
             $out .= $pending_notice_html;
             $out .= '<p>Nema partija za prikaz.</p>';
             $out .= '<p><a class="opentt-games-submit-open" href="' . esc_url($open_form_url) . '" target="_blank" rel="noopener">Unesi partije</a></p>';
-            if ($is_submit_mode) {
-                $out .= self::renderFrontendSubmissionForm($match_row, $deps);
-            }
             return $out;
         }
 

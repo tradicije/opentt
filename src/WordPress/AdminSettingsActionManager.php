@@ -77,6 +77,9 @@ final class AdminSettingsActionManager
         $optionCustomCssMap = (string) ($config['option_custom_css_map'] ?? '');
         $optionEloEnabled = (string) ($config['option_elo_enabled'] ?? '');
         $optionSearchFloatingEnabled = (string) ($config['option_search_floating_enabled'] ?? '');
+        $optionTurnstileEnabled = (string) ($config['option_turnstile_enabled'] ?? '');
+        $optionTurnstileSiteKey = (string) ($config['option_turnstile_site_key'] ?? '');
+        $optionTurnstileSecretKey = (string) ($config['option_turnstile_secret_key'] ?? '');
         $optionAdminUiLanguage = (string) ($config['option_admin_ui_language'] ?? '');
         $availableLanguages = isset($config['available_languages']) && is_array($config['available_languages'])
             ? $config['available_languages']
@@ -137,6 +140,25 @@ final class AdminSettingsActionManager
             }
             if ($section === 'search') {
                 wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Podešavanje floating pretrage je sačuvano.'));
+                exit;
+            }
+        }
+
+        if ($section === 'turnstile' || $section === 'all') {
+            $turnstileEnabled = !empty($_POST['turnstile_enabled']) ? '1' : '0'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $turnstileSiteKey = isset($_POST['turnstile_site_key']) ? sanitize_text_field((string) wp_unslash($_POST['turnstile_site_key'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $turnstileSecretKey = isset($_POST['turnstile_secret_key']) ? sanitize_text_field((string) wp_unslash($_POST['turnstile_secret_key'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            if ($optionTurnstileEnabled !== '') {
+                update_option($optionTurnstileEnabled, $turnstileEnabled, false);
+            }
+            if ($optionTurnstileSiteKey !== '') {
+                update_option($optionTurnstileSiteKey, $turnstileSiteKey, false);
+            }
+            if ($optionTurnstileSecretKey !== '') {
+                update_option($optionTurnstileSecretKey, $turnstileSecretKey, false);
+            }
+            if ($section === 'turnstile') {
+                wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Turnstile podešavanje je sačuvano.'));
                 exit;
             }
         }

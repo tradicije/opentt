@@ -53,6 +53,9 @@ final class OpenTT_Unified_Core
     const OPTION_ADMIN_UI_LANGUAGE = 'opentt_unified_admin_ui_language';
     const OPTION_SEARCH_TRENDING_CLICKS = 'opentt_unified_search_trending_clicks';
     const OPTION_SEARCH_FLOATING_ENABLED = 'opentt_unified_search_floating_enabled';
+    const OPTION_TURNSTILE_ENABLED = 'opentt_unified_turnstile_enabled';
+    const OPTION_TURNSTILE_SITE_KEY = 'opentt_unified_turnstile_site_key';
+    const OPTION_TURNSTILE_SECRET_KEY = 'opentt_unified_turnstile_secret_key';
     const OPTION_MATCHES_LAST_EDITOR_ID = 'opentt_unified_matches_last_editor_id';
     const OPTION_MATCHES_LAST_EDITOR_NAME = 'opentt_unified_matches_last_editor_name';
     const OPTION_MATCHES_LAST_EDITOR_AVATAR_URL = 'opentt_unified_matches_last_editor_avatar_url';
@@ -3279,7 +3282,7 @@ JS;
                     ['name' => 'highlight', 'label' => 'Highlight klubovi', 'type' => 'text', 'default' => '', 'help' => 'Klubovi za naglašavanje (zarez).'],
                 ],
             ],
-            ['tag' => 'opentt_match_games', 'desc' => 'Prikaz partija za jednu utakmicu (tok meča).', 'attrs' => 'kontekstualno', 'details' => 'Koristi kontekst trenutne utakmice.', 'builder' => []],
+            ['tag' => 'opentt_match_games', 'desc' => 'Prikaz partija za jednu utakmicu (tok meča).', 'attrs' => 'kontekstualno, submit_page, match_id', 'details' => 'Podrazumevano koristi kontekst trenutne utakmice. Interno podržava i standalone submit režim (`submit_page=true`, `match_id=ID`).', 'builder' => []],
             ['tag' => 'opentt_match_teams', 'desc' => 'Header blok utakmice (domaćin/gost, rezultat, liga/kolo).', 'attrs' => 'kontekstualno', 'details' => 'Koristi kontekst trenutne utakmice.', 'builder' => []],
             ['tag' => 'opentt_h2h', 'desc' => 'Međusobni dueli klubova iz konteksta utakmice.', 'attrs' => 'limit', 'details' => 'Prikazuje poslednje međusobne rezultate.', 'builder' => [['name' => 'limit', 'label' => 'Limit', 'type' => 'number', 'default' => '3', 'help' => 'Koliko H2H mečeva.']]],
             ['tag' => 'opentt_mvp', 'desc' => 'Najkorisniji igrač utakmice.', 'attrs' => 'kontekstualno', 'details' => 'Računa MVP iz partija meča.', 'builder' => []],
@@ -3437,6 +3440,25 @@ JS;
         echo '<label><span>Floating search</span><span style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="search_floating_enabled" value="0"><input type="checkbox" name="search_floating_enabled" value="1" ' . checked($search_floating_enabled, 1, false) . '> Uključi floating search ikonicu</span></label>';
         echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" class="button button-primary">Sačuvaj pretragu</button>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+
+        $turnstile_enabled = self::is_turnstile_enabled() ? 1 : 0;
+        $turnstile_site_key = self::turnstile_site_key();
+        $turnstile_secret_key = self::turnstile_secret_key();
+        echo '<div class="opentt-panel opentt-settings-panel">';
+        echo '<h2>Cloudflare Turnstile</h2>';
+        echo '<p class="description">Zaštita frontend unosa partija od botova.</p>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
+        wp_nonce_field('opentt_unified_save_settings');
+        echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
+        echo '<input type="hidden" name="opentt_settings_section" value="turnstile">';
+        echo '<label><span>Turnstile status</span><span style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="turnstile_enabled" value="0"><input type="checkbox" name="turnstile_enabled" value="1" ' . checked($turnstile_enabled, 1, false) . '> Uključi Turnstile zaštitu</span></label>';
+        echo '<label><span>Site Key</span><input type="text" name="turnstile_site_key" class="regular-text" value="' . esc_attr($turnstile_site_key) . '" placeholder="0x4AAAAA..."></label>';
+        echo '<label><span>Secret Key</span><input type="text" name="turnstile_secret_key" class="regular-text" value="' . esc_attr($turnstile_secret_key) . '" placeholder="0x4AAAAA..."></label>';
+        echo '<div class="opentt-settings-actions">';
+        echo '<button type="submit" class="button button-primary">Sačuvaj Turnstile podešavanje</button>';
         echo '</div>';
         echo '</form>';
         echo '</div>';
@@ -5002,6 +5024,9 @@ HTML;
                 self::OPTION_VISUAL_SETTINGS,
                 self::OPTION_ELO_ENABLED,
                 self::OPTION_SEARCH_FLOATING_ENABLED,
+                self::OPTION_TURNSTILE_ENABLED,
+                self::OPTION_TURNSTILE_SITE_KEY,
+                self::OPTION_TURNSTILE_SECRET_KEY,
                 self::OPTION_ADMIN_UI_LANGUAGE,
                 self::OPTION_DEFAULT_PAGES_SETUP_DONE,
                 self::OPTION_ONBOARDING_STATE,
@@ -5024,6 +5049,9 @@ HTML;
             'option_custom_css_map' => self::OPTION_CUSTOM_SHORTCODE_CSS_MAP,
             'option_elo_enabled' => self::OPTION_ELO_ENABLED,
             'option_search_floating_enabled' => self::OPTION_SEARCH_FLOATING_ENABLED,
+            'option_turnstile_enabled' => self::OPTION_TURNSTILE_ENABLED,
+            'option_turnstile_site_key' => self::OPTION_TURNSTILE_SITE_KEY,
+            'option_turnstile_secret_key' => self::OPTION_TURNSTILE_SECRET_KEY,
             'option_admin_ui_language' => self::OPTION_ADMIN_UI_LANGUAGE,
             'available_languages' => self::get_available_admin_ui_languages(),
         ]);
@@ -5044,6 +5072,73 @@ HTML;
         }
         $rendered = true;
         echo do_shortcode('[opentt_search floating="true"]'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    }
+
+    public static function is_turnstile_enabled()
+    {
+        return (string) get_option(self::OPTION_TURNSTILE_ENABLED, '0') === '1';
+    }
+
+    public static function turnstile_site_key()
+    {
+        return trim((string) get_option(self::OPTION_TURNSTILE_SITE_KEY, ''));
+    }
+
+    public static function turnstile_secret_key()
+    {
+        return trim((string) get_option(self::OPTION_TURNSTILE_SECRET_KEY, ''));
+    }
+
+    public static function games_submit_page_url($match_id)
+    {
+        return add_query_arg([
+            'opentt_pending_games_form' => '1',
+            'match_id' => max(0, intval($match_id)),
+        ], home_url('/'));
+    }
+
+    public static function render_pending_games_submit_page_if_needed()
+    {
+        if (is_admin() || wp_doing_ajax()) {
+            return;
+        }
+        $is_pending_page = isset($_GET['opentt_pending_games_form']) && (string) $_GET['opentt_pending_games_form'] === '1'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if (!$is_pending_page) {
+            return;
+        }
+
+        $match_id = isset($_GET['match_id']) ? intval($_GET['match_id']) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        status_header(200);
+        nocache_headers();
+        ?>
+<!doctype html>
+<html <?php language_attributes(); ?>>
+<head>
+  <meta charset="<?php bloginfo('charset'); ?>">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <?php wp_head(); ?>
+</head>
+<body class="opentt-pending-games-page">
+  <main class="opentt-pending-games-main">
+    <section class="opentt-pending-games-card">
+      <div class="opentt-pending-games-head">
+        <h1>Unos partija utakmice</h1>
+        <p>Unesi podatke i pošalji administratoru na pregled. Podaci se objavljuju tek nakon odobrenja.</p>
+      </div>
+      <?php
+        if ($match_id > 0) {
+            echo do_shortcode('[opentt_match_games submit_page="true" match_id="' . intval($match_id) . '"]');
+        } else {
+            echo '<p>Nedostaje ID utakmice za unos partija.</p>';
+        }
+      ?>
+    </section>
+  </main>
+  <?php wp_footer(); ?>
+</body>
+</html>
+<?php
+        exit;
     }
 
     public static function render_admin_notice()

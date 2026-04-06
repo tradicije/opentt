@@ -726,6 +726,14 @@ final class OpenTT_Unified_Admin_Match_Actions
             exit;
         }
 
+        if (OpenTT_Unified_Core::is_turnstile_enabled()) {
+            $captcha_token = isset($_POST['cf-turnstile-response']) ? sanitize_text_field((string) wp_unslash($_POST['cf-turnstile-response'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            if (!self::verify_turnstile_token($captcha_token)) {
+                wp_safe_redirect(add_query_arg('opentt_games_pending', 'captcha', $return_url));
+                exit;
+            }
+        }
+
         $match = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$matches_table} WHERE id=%d", $match_id));
         if (!$match) {
             wp_safe_redirect(add_query_arg('opentt_games_pending', 'error', $return_url));
@@ -1213,6 +1221,34 @@ final class OpenTT_Unified_Admin_Match_Actions
             'From: STKB.rs <aleksa.dimitrijevic@stkb.rs>',
         ];
         wp_mail($email, $subject, $message, $headers);
+    }
+
+    private static function verify_turnstile_token($token)
+    {
+        $token = trim((string) $token);
+        $secret = OpenTT_Unified_Core::turnstile_secret_key();
+        if ($secret === '' || $token === '') {
+            return false;
+        }
+
+        $response = wp_remote_post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            'timeout' => 12,
+            'body' => [
+                'secret' => $secret,
+                'response' => $token,
+                'remoteip' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field((string) $_SERVER['REMOTE_ADDR']) : '',
+            ],
+        ]);
+        if (is_wp_error($response)) {
+            return false;
+        }
+        $code = intval(wp_remote_retrieve_response_code($response));
+        if ($code < 200 || $code >= 300) {
+            return false;
+        }
+        $body = wp_remote_retrieve_body($response);
+        $json = json_decode((string) $body, true);
+        return is_array($json) && !empty($json['success']);
     }
 
     private static function readable_round_name($slug)

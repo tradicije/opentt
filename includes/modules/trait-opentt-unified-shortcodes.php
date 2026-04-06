@@ -316,6 +316,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'current_match_context' => static function () {
                 return self::current_match_context();
             },
+            'db_get_match_by_id' => static function ($id) {
+                return self::db_get_match_by_id($id);
+            },
             'db_get_games_for_match_id' => static function ($match_id) {
                 return self::db_get_games_for_match_id($match_id);
             },
@@ -333,6 +336,15 @@ trait OpenTT_Unified_Shortcodes_Trait
             },
             'players_for_club_options' => static function ($club_id) {
                 return OpenTT_Unified_Admin_Readonly_Helpers::players_for_club_options($club_id);
+            },
+            'turnstile_enabled' => static function () {
+                return OpenTT_Unified_Core::is_turnstile_enabled();
+            },
+            'turnstile_site_key' => static function () {
+                return OpenTT_Unified_Core::turnstile_site_key();
+            },
+            'games_submit_page_url' => static function ($match_id) {
+                return OpenTT_Unified_Core::games_submit_page_url($match_id);
             },
         ]);
     }
