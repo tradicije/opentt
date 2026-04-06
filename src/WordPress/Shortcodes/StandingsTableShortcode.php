@@ -282,12 +282,13 @@ final class StandingsTableShortcode
 
         $watermark_class .= ' has-watermark';
         $watermark_inline_style = ' style="position:relative;isolation:isolate;overflow:hidden;border-radius:8px;"';
-        $img_inline_style = ' style="position:absolute;left:50%;top:50%;width:clamp(220px,46%,420px);height:clamp(220px,46%,420px);object-fit:contain;transform:translate(-50%,-50%);opacity:.05;pointer-events:none;user-select:none;z-index:5;"';
+        $overlay_inline_style = ' style="position:absolute;left:24px;right:24px;top:calc(44px + 24px);bottom:24px;display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;z-index:5;"';
+        $img_inline_style = ' style="width:100%;height:100%;object-fit:contain;opacity:.05;"';
         $table_inline_style = ' style="position:relative;z-index:1;background-color:rgba(0,10,38,.50);"';
 
         echo (string) $call('shortcode_title_html', 'Tabela');
         echo '<div class="' . esc_attr($watermark_class) . '"' . $watermark_inline_style . '>';
-        echo '<img class="opentt-standings-watermark-img" src="' . esc_url($watermark_url) . '" alt="" loading="lazy" decoding="async"' . $img_inline_style . ' />';
+        echo '<span class="opentt-standings-watermark-overlay"' . $overlay_inline_style . '><img class="opentt-standings-watermark-img" src="' . esc_url($watermark_url) . '" alt="" loading="lazy" decoding="async"' . $img_inline_style . ' /></span>';
         echo '<table class="tabela-lige"' . $table_inline_style . '>';
         echo '<thead><tr>';
         echo '<th>#</th>';

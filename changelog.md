@@ -18,6 +18,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Made standings watermark rendering deterministic: watermark markup/styles now always render, with fixed primary asset (`assets/img/club-logo.png`) and fallback asset (`assets/img/admin-ui-logo.png`).
 - Fixed standings watermark plugin-root resolution: corrected shortcode path depth so watermark URL now includes `/plugins/opentt/...` and correctly resolves primary `assets/img/club-logo.png`.
 - Refined standings watermark intensity control: removed duplicate wrapper background watermark layer and kept a single overlay image layer, enabling lower effective opacity values (for example `0.05`) to render as expected.
+- Updated standings watermark sizing/placement: watermark now fills the table-body visual area with fixed `24px` insets and centered composition for stronger but still subtle branding.
 - Enhanced pending-games `Napredni unos` behavior: per-set points are now mandatory in advanced mode, and set inputs are dynamically scoped by entered final set score per game (for example `3:0` shows 3 required sets, `3:2` shows 5).
 - Added entry-mode tabs on the standalone pending-games page: default `Brzi unos` (only final game set totals) and optional `Napredni unos` (enables per-set point inputs), with client-side mode switching and mobile-friendly tab styling.
 - Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.
