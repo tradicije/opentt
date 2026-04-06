@@ -5112,6 +5112,26 @@ HTML;
         }
 
         $match_id = isset($_GET['match_id']) ? intval($_GET['match_id']) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $back_url = wp_get_referer();
+        if (!is_string($back_url) || $back_url === '') {
+            $back_url = '';
+        }
+        if ($back_url === '' && $match_id > 0) {
+            global $wpdb;
+            $matches_table = self::db_table('matches');
+            if (self::table_exists($matches_table)) {
+                $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$matches_table} WHERE id=%d LIMIT 1", $match_id));
+                if ($row && is_object($row)) {
+                    $match_url = self::match_permalink($row);
+                    if (is_string($match_url) && $match_url !== '') {
+                        $back_url = $match_url;
+                    }
+                }
+            }
+        }
+        if ($back_url === '') {
+            $back_url = home_url('/');
+        }
         status_header(200);
         nocache_headers();
         ?>
@@ -5125,6 +5145,9 @@ HTML;
 <body class="opentt-pending-games-page">
   <main class="opentt-pending-games-main">
     <section class="opentt-pending-games-card">
+      <p style="margin:0 0 10px 0;">
+        <a class="button" href="<?php echo esc_url($back_url); ?>">← Nazad na prethodnu stranu</a>
+      </p>
       <div class="opentt-pending-games-head">
         <h1>Unos partija utakmice</h1>
         <p>Unesi podatke i pošalji administratoru na pregled. Podaci se objavljuju tek nakon odobrenja.</p>
