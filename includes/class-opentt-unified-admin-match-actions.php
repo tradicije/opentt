@@ -681,8 +681,6 @@ final class OpenTT_Unified_Admin_Match_Actions
         self::require_cap();
         check_admin_referer('opentt_unified_save_games_batch');
         global $wpdb;
-        $games_table = OpenTT_Unified_Core::db_table('games');
-        $sets_table = OpenTT_Unified_Core::db_table('sets');
         $matches_table = OpenTT_Unified_Core::db_table('matches');
 
         $match_id = isset($_POST['match_id']) ? (int) $_POST['match_id'] : 0;
@@ -696,156 +694,153 @@ final class OpenTT_Unified_Admin_Match_Actions
             exit;
         }
 
-        $max_games = max(0, min(7, (int) $match->home_score + (int) $match->away_score));
-        if ($max_games <= 0) {
-            $max_games = 7;
+        $posted_games = isset($_POST['games']) && is_array($_POST['games']) ? $_POST['games'] : [];
+        $error = '';
+        $ok = self::apply_games_batch_for_match($match, $posted_games, $error);
+        if (!$ok) {
+            $msg = $error !== '' ? $error : 'Greška pri čuvanju partija.';
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'error', $msg));
+            exit;
         }
-        $match_format = self::match_competition_format((string) $match->liga_slug, (string) $match->sezona_slug);
-        $expected_doubles_order = ($match_format === 'format_b') ? 7 : 4;
+        wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Sve partije su sačuvane.'));
+        exit;
+    }
+
+    public static function handle_submit_games_pending_frontend()
+    {
+        check_admin_referer('opentt_unified_submit_games_pending');
+        global $wpdb;
+        $matches_table = OpenTT_Unified_Core::db_table('matches');
+        $pending_table = OpenTT_Unified_Core::db_table('games_pending');
+
+        $match_id = isset($_POST['match_id']) ? intval($_POST['match_id']) : 0;
+        $redirect_to = isset($_POST['redirect_to']) ? esc_url_raw((string) wp_unslash($_POST['redirect_to'])) : '';
+        if ($redirect_to === '') {
+            $redirect_to = home_url('/');
+        }
+        $return_url = remove_query_arg(['opentt_games_submit', 'opentt_games_pending'], $redirect_to);
+
+        $submitter_email = sanitize_email((string) ($_POST['submitter_email'] ?? ''));
+        if ($match_id <= 0 || !is_email($submitter_email)) {
+            wp_safe_redirect(add_query_arg('opentt_games_pending', 'error', $return_url));
+            exit;
+        }
+
+        $match = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$matches_table} WHERE id=%d", $match_id));
+        if (!$match) {
+            wp_safe_redirect(add_query_arg('opentt_games_pending', 'error', $return_url));
+            exit;
+        }
 
         $posted_games = isset($_POST['games']) && is_array($_POST['games']) ? $_POST['games'] : [];
-        $existing_rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$games_table} WHERE match_id=%d", $match_id)) ?: [];
-        $existing_by_order = [];
-        foreach ($existing_rows as $er) {
-            $existing_by_order[(int) $er->order_no] = $er;
+        $payload = self::normalize_games_payload_for_storage($match, $posted_games);
+        if (empty($payload)) {
+            wp_safe_redirect(add_query_arg('opentt_games_pending', 'empty', $return_url));
+            exit;
         }
 
-        for ($order_no = 1; $order_no <= $max_games; $order_no++) {
-            $raw = isset($posted_games[$order_no]) && is_array($posted_games[$order_no]) ? $posted_games[$order_no] : [];
-            $hp = isset($raw['home_player_post_id']) ? (int) $raw['home_player_post_id'] : 0;
-            $ap = isset($raw['away_player_post_id']) ? (int) $raw['away_player_post_id'] : 0;
-            $hp2 = isset($raw['home_player2_post_id']) ? (int) $raw['home_player2_post_id'] : 0;
-            $ap2 = isset($raw['away_player2_post_id']) ? (int) $raw['away_player2_post_id'] : 0;
-            $hs = max(0, (int) ($raw['home_sets'] ?? 0));
-            $as = max(0, (int) ($raw['away_sets'] ?? 0));
-            $is_doubles = ($order_no === $expected_doubles_order) ? 1 : 0;
+        $ok = $wpdb->insert($pending_table, [
+            'match_id' => $match_id,
+            'submitter_email' => $submitter_email,
+            'payload' => wp_json_encode($payload),
+            'status' => 'pending',
+            'created_at' => current_time('mysql'),
+            'updated_at' => current_time('mysql'),
+        ], ['%d', '%s', '%s', '%s', '%s', '%s']);
 
-            $sets_raw = isset($raw['sets']) && is_array($raw['sets']) ? $raw['sets'] : [];
-            $set_rows = [];
-            $wins_home = 0;
-            $wins_away = 0;
-            for ($set_no = 1; $set_no <= 5; $set_no++) {
-                $set_in = isset($sets_raw[$set_no]) && is_array($sets_raw[$set_no]) ? $sets_raw[$set_no] : [];
-                $sp_home = max(0, (int) ($set_in['home_points'] ?? 0));
-                $sp_away = max(0, (int) ($set_in['away_points'] ?? 0));
-                if ($sp_home <= 0 && $sp_away <= 0) {
-                    continue;
-                }
-                $set_rows[] = [
-                    'set_no' => $set_no,
-                    'home_points' => $sp_home,
-                    'away_points' => $sp_away,
-                ];
-                if ($sp_home > $sp_away) {
-                    $wins_home++;
-                } elseif ($sp_away > $sp_home) {
-                    $wins_away++;
-                }
-            }
+        if ($ok === false) {
+            wp_safe_redirect(add_query_arg('opentt_games_pending', 'error', $return_url));
+            exit;
+        }
 
-            $has_any = (
-                $hp > 0 || $ap > 0 || $hp2 > 0 || $ap2 > 0
-                || $hs > 0 || $as > 0 || !empty($set_rows)
-            );
-            $existing = isset($existing_by_order[$order_no]) ? $existing_by_order[$order_no] : null;
+        wp_safe_redirect(add_query_arg('opentt_games_pending', 'submitted', $return_url));
+        exit;
+    }
 
-            if (!$has_any) {
-                if ($existing) {
-                    $wpdb->delete($sets_table, ['game_id' => (int) $existing->id]);
-                    $wpdb->delete($games_table, ['id' => (int) $existing->id]);
-                }
-                continue;
-            }
+    public static function handle_review_games_pending_admin()
+    {
+        self::require_cap();
+        global $wpdb;
+        $pending_table = OpenTT_Unified_Core::db_table('games_pending');
+        $matches_table = OpenTT_Unified_Core::db_table('matches');
 
-            if ($hp <= 0 || $ap <= 0) {
-                $msg = 'Partija #' . $order_no . ': izaberi oba glavna igrača.';
-                wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'error', $msg));
+        $submission_id = isset($_POST['submission_id']) ? intval($_POST['submission_id']) : 0;
+        if ($submission_id <= 0) {
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-pending-games'), 'error', 'Nedostaje pending unos.'));
+            exit;
+        }
+        check_admin_referer('opentt_unified_review_games_pending_' . $submission_id);
+
+        $submission = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$pending_table} WHERE id=%d LIMIT 1", $submission_id), ARRAY_A);
+        if (!is_array($submission) || empty($submission)) {
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-pending-games'), 'error', 'Pending unos nije pronađen.'));
+            exit;
+        }
+        if ((string) ($submission['status'] ?? '') !== 'pending') {
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-pending-games'), 'error', 'Ovaj unos više nije pending.'));
+            exit;
+        }
+
+        $decision = sanitize_key((string) ($_POST['review_decision'] ?? ''));
+        $review_note = sanitize_textarea_field((string) ($_POST['review_note'] ?? ''));
+        $match_id = intval($submission['match_id'] ?? 0);
+        $match = $match_id > 0 ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$matches_table} WHERE id=%d", $match_id)) : null;
+        if (!$match) {
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-pending-games'), 'error', 'Utakmica za ovaj pending unos nije pronađena.'));
+            exit;
+        }
+
+        if ($decision === 'approve') {
+            $posted_games = isset($_POST['games']) && is_array($_POST['games']) ? $_POST['games'] : [];
+            $error = '';
+            $ok = self::apply_games_batch_for_match($match, $posted_games, $error);
+            if (!$ok) {
+                $url = admin_url('admin.php?page=stkb-unified-pending-games&submission_id=' . $submission_id);
+                wp_safe_redirect(self::admin_notice_url($url, 'error', $error !== '' ? $error : 'Greška pri odobravanju partija.'));
                 exit;
             }
 
-            if ($is_doubles && ($hp2 <= 0 || $ap2 <= 0 || $hp === $hp2 || $ap === $ap2)) {
-                $msg = 'Partija #' . $order_no . ': dubl nije validan (proveri igrače 2).';
-                wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'error', $msg));
-                exit;
-            }
-
-            if (!$is_doubles) {
-                $hp2 = 0;
-                $ap2 = 0;
-            }
-
-            if (($hs + $as) === 0 && !empty($set_rows)) {
-                $hs = $wins_home;
-                $as = $wins_away;
-            }
-
-            $data = [
-                'match_id' => $match_id,
-                'order_no' => $order_no,
-                'slug' => 'partija-' . $order_no,
-                'is_doubles' => $is_doubles,
-                'home_player_post_id' => $hp,
-                'away_player_post_id' => $ap,
-                'home_player2_post_id' => $is_doubles ? ($hp2 ?: null) : null,
-                'away_player2_post_id' => $is_doubles ? ($ap2 ?: null) : null,
-                'home_sets' => $hs,
-                'away_sets' => $as,
-                'updated_at' => current_time('mysql'),
-            ];
-
-            $game_id = 0;
-            if ($existing) {
-                $game_id = (int) $existing->id;
-                $ok = $wpdb->update($games_table, $data, ['id' => $game_id]);
-                if ($ok === false) {
-                    $msg = 'Greška pri čuvanju partije #' . $order_no . '.';
-                    wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'error', $msg));
-                    exit;
-                }
-            } else {
-                $data['created_at'] = current_time('mysql');
-                $ok = $wpdb->insert($games_table, $data);
-                if ($ok === false) {
-                    $msg = 'Greška pri dodavanju partije #' . $order_no . '.';
-                    wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'error', $msg));
-                    exit;
-                }
-                $game_id = (int) $wpdb->insert_id;
-                if ($is_doubles !== 1) {
-                    $winner_id = ($hs > $as) ? $hp : (($as > $hs) ? $ap : 0);
-                    if ($winner_id > 0) {
-                        \OpenTT\Unified\Infrastructure\EloRatingManager::updateAfterMatch(
-                            $hp,
-                            $ap,
-                            $winner_id,
-                            \OpenTT\Unified\Infrastructure\EloRatingManager::K_FACTOR,
-                            (string) ($match->liga_slug ?? ''),
-                            (string) ($match->sezona_slug ?? '')
-                        );
-                    }
-                }
-            }
-
-            $wpdb->delete($sets_table, ['game_id' => $game_id]);
-            foreach ($set_rows as $sr) {
-                $wpdb->insert($sets_table, [
-                    'game_id' => $game_id,
-                    'set_no' => (int) $sr['set_no'],
-                    'home_points' => (int) $sr['home_points'],
-                    'away_points' => (int) $sr['away_points'],
-                    'created_at' => current_time('mysql'),
+            $payload = self::normalize_games_payload_for_storage($match, $posted_games);
+            $wpdb->update(
+                $pending_table,
+                [
+                    'status' => 'approved',
+                    'review_note' => $review_note,
+                    'reviewed_payload' => wp_json_encode($payload),
+                    'reviewed_by' => get_current_user_id(),
+                    'reviewed_at' => current_time('mysql'),
                     'updated_at' => current_time('mysql'),
-                ]);
-            }
+                ],
+                ['id' => $submission_id],
+                ['%s', '%s', '%s', '%d', '%s', '%s'],
+                ['%d']
+            );
+
+            self::send_pending_submission_email($submission, $match, true, $review_note);
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-pending-games'), 'success', 'Unos partija je odobren i objavljen.'));
+            exit;
         }
 
-        $extra_game_ids = $wpdb->get_col($wpdb->prepare("SELECT id FROM {$games_table} WHERE match_id=%d AND order_no > %d", $match_id, $max_games)) ?: [];
-        foreach ($extra_game_ids as $gid) {
-            $wpdb->delete($sets_table, ['game_id' => (int) $gid]);
+        if ($decision === 'deny') {
+            $wpdb->update(
+                $pending_table,
+                [
+                    'status' => 'denied',
+                    'review_note' => $review_note,
+                    'reviewed_by' => get_current_user_id(),
+                    'reviewed_at' => current_time('mysql'),
+                    'updated_at' => current_time('mysql'),
+                ],
+                ['id' => $submission_id],
+                ['%s', '%s', '%d', '%s', '%s'],
+                ['%d']
+            );
+            self::send_pending_submission_email($submission, $match, false, $review_note);
+            wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-pending-games'), 'success', 'Unos partija je odbijen.'));
+            exit;
         }
-        $wpdb->query($wpdb->prepare("DELETE FROM {$games_table} WHERE match_id=%d AND order_no > %d", $match_id, $max_games));
-        self::touch_matches_last_update((string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''));
-        wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Sve partije su sačuvane.'));
+
+        wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-pending-games&submission_id=' . $submission_id), 'error', 'Izaberi validnu akciju pregleda.'));
         exit;
     }
 
@@ -916,6 +911,320 @@ final class OpenTT_Unified_Admin_Match_Actions
         self::touch_matches_last_update((string) ($scope['liga_slug'] ?? ''), (string) ($scope['sezona_slug'] ?? ''));
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'success', 'Set je obrisan.'));
         exit;
+    }
+
+    public static function pending_submissions_count()
+    {
+        global $wpdb;
+        $table = OpenTT_Unified_Core::db_table('games_pending');
+        if ($table === '') {
+            return 0;
+        }
+        $exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
+        if ($exists !== $table) {
+            return 0;
+        }
+        $count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table} WHERE status=%s", 'pending'));
+        return max(0, intval($count));
+    }
+
+    public static function pending_submissions_list($limit = 200)
+    {
+        global $wpdb;
+        $table = OpenTT_Unified_Core::db_table('games_pending');
+        if ($table === '') {
+            return [];
+        }
+        $exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
+        if ($exists !== $table) {
+            return [];
+        }
+        $limit = max(1, min(1000, intval($limit)));
+        $rows = $wpdb->get_results(
+            $wpdb->prepare("SELECT * FROM {$table} WHERE status=%s ORDER BY created_at DESC, id DESC LIMIT %d", 'pending', $limit),
+            ARRAY_A
+        ) ?: [];
+        return is_array($rows) ? $rows : [];
+    }
+
+    public static function pending_submission_by_id($submission_id)
+    {
+        global $wpdb;
+        $table = OpenTT_Unified_Core::db_table('games_pending');
+        $submission_id = intval($submission_id);
+        if ($table === '' || $submission_id <= 0) {
+            return null;
+        }
+        $exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
+        if ($exists !== $table) {
+            return null;
+        }
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id=%d LIMIT 1", $submission_id), ARRAY_A);
+        return is_array($row) ? $row : null;
+    }
+
+    public static function pending_submission_payload($submission_row)
+    {
+        if (!is_array($submission_row)) {
+            return [];
+        }
+        $payload_raw = (string) ($submission_row['payload'] ?? '');
+        if ($payload_raw === '') {
+            return [];
+        }
+        $decoded = json_decode($payload_raw, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    private static function apply_games_batch_for_match($match, array $posted_games, &$error = '')
+    {
+        global $wpdb;
+        $error = '';
+        if (!is_object($match) || empty($match->id)) {
+            $error = 'Utakmica nije pronađena.';
+            return false;
+        }
+
+        $match_id = intval($match->id);
+        $games_table = OpenTT_Unified_Core::db_table('games');
+        $sets_table = OpenTT_Unified_Core::db_table('sets');
+
+        $max_games = max(0, min(7, (int) $match->home_score + (int) $match->away_score));
+        if ($max_games <= 0) {
+            $max_games = 7;
+        }
+        $match_format = self::match_competition_format((string) $match->liga_slug, (string) $match->sezona_slug);
+        $expected_doubles_order = ($match_format === 'format_b') ? 7 : 4;
+
+        $existing_rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$games_table} WHERE match_id=%d", $match_id)) ?: [];
+        $existing_by_order = [];
+        foreach ($existing_rows as $er) {
+            $existing_by_order[(int) $er->order_no] = $er;
+        }
+
+        for ($order_no = 1; $order_no <= $max_games; $order_no++) {
+            $raw = isset($posted_games[$order_no]) && is_array($posted_games[$order_no]) ? $posted_games[$order_no] : [];
+            $hp = isset($raw['home_player_post_id']) ? (int) $raw['home_player_post_id'] : 0;
+            $ap = isset($raw['away_player_post_id']) ? (int) $raw['away_player_post_id'] : 0;
+            $hp2 = isset($raw['home_player2_post_id']) ? (int) $raw['home_player2_post_id'] : 0;
+            $ap2 = isset($raw['away_player2_post_id']) ? (int) $raw['away_player2_post_id'] : 0;
+            $hs = max(0, (int) ($raw['home_sets'] ?? 0));
+            $as = max(0, (int) ($raw['away_sets'] ?? 0));
+            $is_doubles = ($order_no === $expected_doubles_order) ? 1 : 0;
+
+            $sets_raw = isset($raw['sets']) && is_array($raw['sets']) ? $raw['sets'] : [];
+            $set_rows = [];
+            $wins_home = 0;
+            $wins_away = 0;
+            for ($set_no = 1; $set_no <= 5; $set_no++) {
+                $set_in = isset($sets_raw[$set_no]) && is_array($sets_raw[$set_no]) ? $sets_raw[$set_no] : [];
+                $sp_home = max(0, (int) ($set_in['home_points'] ?? 0));
+                $sp_away = max(0, (int) ($set_in['away_points'] ?? 0));
+                if ($sp_home <= 0 && $sp_away <= 0) {
+                    continue;
+                }
+                $set_rows[] = [
+                    'set_no' => $set_no,
+                    'home_points' => $sp_home,
+                    'away_points' => $sp_away,
+                ];
+                if ($sp_home > $sp_away) {
+                    $wins_home++;
+                } elseif ($sp_away > $sp_home) {
+                    $wins_away++;
+                }
+            }
+
+            $has_any = (
+                $hp > 0 || $ap > 0 || $hp2 > 0 || $ap2 > 0
+                || $hs > 0 || $as > 0 || !empty($set_rows)
+            );
+            $existing = isset($existing_by_order[$order_no]) ? $existing_by_order[$order_no] : null;
+
+            if (!$has_any) {
+                if ($existing) {
+                    $wpdb->delete($sets_table, ['game_id' => (int) $existing->id]);
+                    $wpdb->delete($games_table, ['id' => (int) $existing->id]);
+                }
+                continue;
+            }
+
+            if ($hp <= 0 || $ap <= 0) {
+                $error = 'Partija #' . $order_no . ': izaberi oba glavna igrača.';
+                return false;
+            }
+
+            if ($is_doubles && ($hp2 <= 0 || $ap2 <= 0 || $hp === $hp2 || $ap === $ap2)) {
+                $error = 'Partija #' . $order_no . ': dubl nije validan (proveri igrače 2).';
+                return false;
+            }
+
+            if (!$is_doubles) {
+                $hp2 = 0;
+                $ap2 = 0;
+            }
+
+            if (($hs + $as) === 0 && !empty($set_rows)) {
+                $hs = $wins_home;
+                $as = $wins_away;
+            }
+
+            $data = [
+                'match_id' => $match_id,
+                'order_no' => $order_no,
+                'slug' => 'partija-' . $order_no,
+                'is_doubles' => $is_doubles,
+                'home_player_post_id' => $hp,
+                'away_player_post_id' => $ap,
+                'home_player2_post_id' => $is_doubles ? ($hp2 ?: null) : null,
+                'away_player2_post_id' => $is_doubles ? ($ap2 ?: null) : null,
+                'home_sets' => $hs,
+                'away_sets' => $as,
+                'updated_at' => current_time('mysql'),
+            ];
+
+            $game_id = 0;
+            if ($existing) {
+                $game_id = (int) $existing->id;
+                $ok = $wpdb->update($games_table, $data, ['id' => $game_id]);
+                if ($ok === false) {
+                    $error = 'Greška pri čuvanju partije #' . $order_no . '.';
+                    return false;
+                }
+            } else {
+                $data['created_at'] = current_time('mysql');
+                $ok = $wpdb->insert($games_table, $data);
+                if ($ok === false) {
+                    $error = 'Greška pri dodavanju partije #' . $order_no . '.';
+                    return false;
+                }
+                $game_id = (int) $wpdb->insert_id;
+                if ($is_doubles !== 1) {
+                    $winner_id = ($hs > $as) ? $hp : (($as > $hs) ? $ap : 0);
+                    if ($winner_id > 0) {
+                        \OpenTT\Unified\Infrastructure\EloRatingManager::updateAfterMatch(
+                            $hp,
+                            $ap,
+                            $winner_id,
+                            \OpenTT\Unified\Infrastructure\EloRatingManager::K_FACTOR,
+                            (string) ($match->liga_slug ?? ''),
+                            (string) ($match->sezona_slug ?? '')
+                        );
+                    }
+                }
+            }
+
+            $wpdb->delete($sets_table, ['game_id' => $game_id]);
+            foreach ($set_rows as $sr) {
+                $wpdb->insert($sets_table, [
+                    'game_id' => $game_id,
+                    'set_no' => (int) $sr['set_no'],
+                    'home_points' => (int) $sr['home_points'],
+                    'away_points' => (int) $sr['away_points'],
+                    'created_at' => current_time('mysql'),
+                    'updated_at' => current_time('mysql'),
+                ]);
+            }
+        }
+
+        $extra_game_ids = $wpdb->get_col($wpdb->prepare("SELECT id FROM {$games_table} WHERE match_id=%d AND order_no > %d", $match_id, $max_games)) ?: [];
+        foreach ($extra_game_ids as $gid) {
+            $wpdb->delete($sets_table, ['game_id' => (int) $gid]);
+        }
+        $wpdb->query($wpdb->prepare("DELETE FROM {$games_table} WHERE match_id=%d AND order_no > %d", $match_id, $max_games));
+        self::touch_matches_last_update((string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''));
+
+        return true;
+    }
+
+    private static function normalize_games_payload_for_storage($match, array $posted_games)
+    {
+        $max_games = max(0, min(7, (int) ($match->home_score ?? 0) + (int) ($match->away_score ?? 0)));
+        if ($max_games <= 0) {
+            $max_games = 7;
+        }
+        $out = [];
+
+        for ($order_no = 1; $order_no <= $max_games; $order_no++) {
+            $raw = isset($posted_games[$order_no]) && is_array($posted_games[$order_no]) ? $posted_games[$order_no] : [];
+            $row = [
+                'home_player_post_id' => intval($raw['home_player_post_id'] ?? 0),
+                'away_player_post_id' => intval($raw['away_player_post_id'] ?? 0),
+                'home_player2_post_id' => intval($raw['home_player2_post_id'] ?? 0),
+                'away_player2_post_id' => intval($raw['away_player2_post_id'] ?? 0),
+                'home_sets' => max(0, intval($raw['home_sets'] ?? 0)),
+                'away_sets' => max(0, intval($raw['away_sets'] ?? 0)),
+                'sets' => [],
+            ];
+
+            for ($set_no = 1; $set_no <= 5; $set_no++) {
+                $set_raw = isset($raw['sets'][$set_no]) && is_array($raw['sets'][$set_no]) ? $raw['sets'][$set_no] : [];
+                $home_points = max(0, intval($set_raw['home_points'] ?? 0));
+                $away_points = max(0, intval($set_raw['away_points'] ?? 0));
+                if ($home_points <= 0 && $away_points <= 0) {
+                    continue;
+                }
+                $row['sets'][$set_no] = [
+                    'home_points' => $home_points,
+                    'away_points' => $away_points,
+                ];
+            }
+
+            $has_any = (
+                $row['home_player_post_id'] > 0 || $row['away_player_post_id'] > 0
+                || $row['home_player2_post_id'] > 0 || $row['away_player2_post_id'] > 0
+                || $row['home_sets'] > 0 || $row['away_sets'] > 0
+                || !empty($row['sets'])
+            );
+            if (!$has_any) {
+                continue;
+            }
+            $out[$order_no] = $row;
+        }
+
+        return $out;
+    }
+
+    private static function send_pending_submission_email(array $submission, $match, $approved, $review_note = '')
+    {
+        $email = sanitize_email((string) ($submission['submitter_email'] ?? ''));
+        if (!is_email($email) || !is_object($match)) {
+            return;
+        }
+
+        $home_name = (string) get_the_title((int) ($match->home_club_post_id ?? 0));
+        $away_name = (string) get_the_title((int) ($match->away_club_post_id ?? 0));
+        $match_label = $home_name . ' vs ' . $away_name . ' (' . self::readable_round_name((string) ($match->kolo_slug ?? '')) . ')';
+
+        if ($approved) {
+            $subject = 'OpenTT: Tvoj unos partija je odobren';
+            $message = "Zdravo,\n\nTvoj unos partija za utakmicu {$match_label} je uspešno pregledan i odobren od strane administratora.\n\nHvala ti na doprinosu.\n\nOpenTT tim";
+        } else {
+            $subject = 'OpenTT: Tvoj unos partija nije odobren';
+            $message = "Zdravo,\n\nTvoj unos partija za utakmicu {$match_label} je pregledan, ali trenutno nije odobren.\n";
+            if ($review_note !== '') {
+                $message .= "\nRazlog: {$review_note}\n";
+            }
+            $message .= "\nMožeš ponovo poslati ispravljen unos.\n\nOpenTT tim";
+        }
+
+        $headers = [
+            'Content-Type: text/plain; charset=UTF-8',
+            'From: STKB.rs <aleksa.dimitrijevic@stkb.rs>',
+        ];
+        wp_mail($email, $subject, $message, $headers);
+    }
+
+    private static function readable_round_name($slug)
+    {
+        $slug = sanitize_title((string) $slug);
+        if ($slug === '') {
+            return '';
+        }
+        if (preg_match('/^(\d+)-kolo$/', $slug, $m)) {
+            return intval($m[1]) . '. kolo';
+        }
+        return str_replace('-', ' ', $slug);
     }
 
     private static function require_cap()

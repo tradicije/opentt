@@ -35,6 +35,9 @@ final class OpenTT_Unified_Admin_Module
         add_action('admin_post_opentt_unified_quick_update_match_score', ['OpenTT_Unified_Core', 'handle_quick_update_match_score_admin']);
         add_action('admin_post_opentt_unified_save_game', ['OpenTT_Unified_Core', 'handle_save_game']);
         add_action('admin_post_opentt_unified_save_games_batch', ['OpenTT_Unified_Core', 'handle_save_games_batch']);
+        add_action('admin_post_opentt_unified_submit_games_pending', ['OpenTT_Unified_Core', 'handle_submit_games_pending_frontend']);
+        add_action('admin_post_nopriv_opentt_unified_submit_games_pending', ['OpenTT_Unified_Core', 'handle_submit_games_pending_frontend']);
+        add_action('admin_post_opentt_unified_review_games_pending', ['OpenTT_Unified_Core', 'handle_review_games_pending_admin']);
         add_action('admin_post_opentt_unified_delete_game', ['OpenTT_Unified_Core', 'handle_delete_game']);
         add_action('admin_post_opentt_unified_save_set', ['OpenTT_Unified_Core', 'handle_save_set']);
         add_action('admin_post_opentt_unified_delete_set', ['OpenTT_Unified_Core', 'handle_delete_set']);

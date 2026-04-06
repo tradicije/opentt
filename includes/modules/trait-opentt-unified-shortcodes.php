@@ -331,6 +331,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'render_lp2_player' => static function ($player_id) {
                 return self::render_lp2_player($player_id);
             },
+            'players_for_club_options' => static function ($club_id) {
+                return OpenTT_Unified_Admin_Readonly_Helpers::players_for_club_options($club_id);
+            },
         ]);
     }
 

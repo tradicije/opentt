@@ -34,7 +34,7 @@ final class OpenTT_Unified_Core
     const VERSION = '1.1.0';
     const CAP = 'edit_others_posts';
     const OPTION_SCHEMA_VERSION = 'opentt_unified_schema_version';
-    const SCHEMA_VERSION = '7';
+    const SCHEMA_VERSION = '8';
     const OPTION_MIGRATION_STATE = 'opentt_unified_migration_state';
     const OPTION_VALIDATION_REPORT = 'opentt_unified_validation_report';
     const OPTION_LEAGUE_SEASON_VALIDATION_REPORT = 'opentt_unified_league_season_validation_report';
@@ -61,6 +61,7 @@ final class OpenTT_Unified_Core
     const TABLE_MATCHES = 'opentt_matches';
     const TABLE_GAMES = 'opentt_games';
     const TABLE_SETS = 'opentt_sets';
+    const TABLE_GAMES_PENDING = 'opentt_games_pending_submissions';
     const LEGACY_TABLE_MATCHES = 'stkb_matches';
     const LEGACY_TABLE_GAMES = 'stkb_games';
     const LEGACY_TABLE_SETS = 'stkb_sets';
@@ -1068,6 +1069,7 @@ final class OpenTT_Unified_Core
 
         add_submenu_page('stkb-unified', 'Kontrolna tabla', 'Kontrolna tabla', self::CAP, 'stkb-unified', [__CLASS__, 'render_dashboard_page']);
         add_submenu_page('stkb-unified', 'Utakmice', 'Utakmice', self::CAP, 'stkb-unified-matches', [__CLASS__, 'render_matches_page']);
+        add_submenu_page('stkb-unified', 'Pending partije', 'Pending partije', self::CAP, 'stkb-unified-pending-games', [__CLASS__, 'render_pending_games_page']);
         add_submenu_page('stkb-unified', 'Uživo', 'Uživo', self::CAP, 'stkb-unified-live', [__CLASS__, 'render_live_page']);
         add_submenu_page('stkb-unified', 'Klubovi', 'Klubovi', self::CAP, 'stkb-unified-clubs', [__CLASS__, 'render_clubs_page']);
         add_submenu_page('stkb-unified', 'Igrači', 'Igrači', self::CAP, 'stkb-unified-players', [__CLASS__, 'render_players_page']);
@@ -1726,6 +1728,178 @@ JS;
         echo '</tbody></table></div></div>';
     }
 
+    public static function render_pending_games_page()
+    {
+        self::require_cap();
+        global $wpdb;
+
+        $pending_table = OpenTT_Unified_Core::db_table('games_pending');
+        $matches_table = OpenTT_Unified_Core::db_table('matches');
+        if (!self::table_exists($pending_table) || !self::table_exists($matches_table)) {
+            echo '<div class="wrap opentt-admin">';
+            self::render_admin_topbar();
+            echo '<h1>Pending partije</h1><p>Pending tabela trenutno nije dostupna.</p></div>';
+            return;
+        }
+
+        $submission_id = isset($_GET['submission_id']) ? intval($_GET['submission_id']) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $submission = null;
+        if ($submission_id > 0) {
+            $submission = OpenTT_Unified_Admin_Match_Actions::pending_submission_by_id($submission_id);
+        }
+
+        echo '<div class="wrap opentt-admin">';
+        self::render_admin_topbar();
+        echo '<h1>Pending partije</h1>';
+        echo '<p class="description">Ovde pregledaš korisničke unose partija pre objave. Tek nakon odobrenja unos ulazi u zvanične podatke.</p>';
+
+        if ($submission && is_array($submission) && !empty($submission['id'])) {
+            $match_id = intval($submission['match_id'] ?? 0);
+            $match = $match_id > 0
+                ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$matches_table} WHERE id=%d", $match_id))
+                : null;
+            if (!$match) {
+                echo '<p>Utakmica za ovaj pending unos više ne postoji.</p>';
+                echo '<p><a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-pending-games')) . '">Nazad na listu</a></p>';
+                echo '</div>';
+                return;
+            }
+
+            $home_name = (string) get_the_title((int) ($match->home_club_post_id ?? 0));
+            $away_name = (string) get_the_title((int) ($match->away_club_post_id ?? 0));
+            $edit_url = admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . intval($match->id));
+            $payload = OpenTT_Unified_Admin_Match_Actions::pending_submission_payload($submission);
+
+            $max_games = max(0, min(7, (int) $match->home_score + (int) $match->away_score));
+            if ($max_games <= 0) {
+                $max_games = 7;
+            }
+            $match_format = self::match_competition_format((string) $match->liga_slug, (string) $match->sezona_slug);
+            $expected_doubles_order = ($match_format === 'format_b') ? 7 : 4;
+
+            echo '<div class="opentt-panel">';
+            echo '<p><strong>Utakmica:</strong> ' . esc_html($home_name . ' — ' . $away_name) . ' | ';
+            echo '<strong>Liga:</strong> ' . esc_html((string) $match->liga_slug) . ' | ';
+            echo '<strong>Sezona:</strong> ' . esc_html((string) $match->sezona_slug) . ' | ';
+            echo '<strong>Kolo:</strong> ' . esc_html(self::kolo_name_from_slug((string) $match->kolo_slug)) . '</p>';
+            echo '<p><strong>Email pošiljaoca:</strong> ' . esc_html((string) ($submission['submitter_email'] ?? '')) . '</p>';
+            echo '<p><strong>Poslato:</strong> ' . esc_html(self::display_match_date((string) ($submission['created_at'] ?? ''))) . '</p>';
+            echo '<p><a class="button" href="' . esc_url($edit_url) . '" target="_blank" rel="noopener">Otvori utakmicu u adminu</a> ';
+            echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-pending-games')) . '">Nazad na pending listu</a></p>';
+            echo '</div>';
+
+            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-panel">';
+            wp_nonce_field('opentt_unified_review_games_pending_' . intval($submission['id']));
+            echo '<input type="hidden" name="action" value="opentt_unified_review_games_pending">';
+            echo '<input type="hidden" name="submission_id" value="' . intval($submission['id']) . '">';
+
+            for ($n = 1; $n <= $max_games; $n++) {
+                $raw = (isset($payload[$n]) && is_array($payload[$n])) ? $payload[$n] : [];
+                $is_doubles = ($n === $expected_doubles_order);
+                $home_player = intval($raw['home_player_post_id'] ?? 0);
+                $away_player = intval($raw['away_player_post_id'] ?? 0);
+                $home_player2 = intval($raw['home_player2_post_id'] ?? 0);
+                $away_player2 = intval($raw['away_player2_post_id'] ?? 0);
+                $home_sets = intval($raw['home_sets'] ?? 0);
+                $away_sets = intval($raw['away_sets'] ?? 0);
+                $sets_raw = (isset($raw['sets']) && is_array($raw['sets'])) ? $raw['sets'] : [];
+
+                echo '<div class="opentt-games-batch-row">';
+                echo '<h3>Partija #' . intval($n) . ($is_doubles ? ' (Dubl)' : '') . '</h3>';
+                echo '<div class="opentt-games-batch-grid">';
+                echo '<label>Domaći igrač';
+                echo self::players_dropdown_admin('games[' . intval($n) . '][home_player_post_id]', $home_player, (int) $match->home_club_post_id, false);
+                echo '</label>';
+                echo '<label>Gost igrač';
+                echo self::players_dropdown_admin('games[' . intval($n) . '][away_player_post_id]', $away_player, (int) $match->away_club_post_id, false);
+                echo '</label>';
+                echo '<label>Domaći setovi';
+                echo '<input name="games[' . intval($n) . '][home_sets]" type="number" min="0" max="7" value="' . esc_attr((string) $home_sets) . '" style="width:90px;">';
+                echo '</label>';
+                echo '<label>Gost setovi';
+                echo '<input name="games[' . intval($n) . '][away_sets]" type="number" min="0" max="7" value="' . esc_attr((string) $away_sets) . '" style="width:90px;">';
+                echo '</label>';
+
+                if ($is_doubles) {
+                    echo '<label>Domaći igrač 2';
+                    echo self::players_dropdown_admin('games[' . intval($n) . '][home_player2_post_id]', $home_player2, (int) $match->home_club_post_id, false);
+                    echo '</label>';
+                    echo '<label>Gost igrač 2';
+                    echo self::players_dropdown_admin('games[' . intval($n) . '][away_player2_post_id]', $away_player2, (int) $match->away_club_post_id, false);
+                    echo '</label>';
+                } else {
+                    echo '<div class="opentt-games-batch-note">Singl partija: drugi igrač nije potreban.</div>';
+                }
+                echo '</div>';
+
+                echo '<div class="opentt-sets-batch-grid">';
+                for ($s = 1; $s <= 5; $s++) {
+                    $set_item = (isset($sets_raw[$s]) && is_array($sets_raw[$s])) ? $sets_raw[$s] : [];
+                    $hp = intval($set_item['home_points'] ?? 0);
+                    $ap = intval($set_item['away_points'] ?? 0);
+                    echo '<label>Set ' . intval($s) . ' (D:G)';
+                    echo '<span style="display:flex;gap:6px;align-items:center;">';
+                    echo '<input name="games[' . intval($n) . '][sets][' . intval($s) . '][home_points]" type="number" min="0" max="30" value="' . esc_attr((string) $hp) . '" placeholder="11" style="width:80px;">';
+                    echo '<span>:</span>';
+                    echo '<input name="games[' . intval($n) . '][sets][' . intval($s) . '][away_points]" type="number" min="0" max="30" value="' . esc_attr((string) $ap) . '" placeholder="9" style="width:80px;">';
+                    echo '</span>';
+                    echo '</label>';
+                }
+                echo '</div>';
+                echo '</div>';
+            }
+
+            echo '<label style="display:flex;flex-direction:column;gap:6px;margin:12px 0 14px 0;">Razlog odbijanja (opciono)';
+            echo '<textarea name="review_note" rows="3" class="large-text" placeholder="Kratko objasni zašto je unos odbijen (biće poslato na email)."></textarea>';
+            echo '</label>';
+
+            echo '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+            echo '<button type="submit" name="review_decision" value="approve" class="button button-primary">Odobri unos</button>';
+            echo '<button type="submit" name="review_decision" value="deny" class="button button-secondary" onclick="return confirm(\'Odbiti ovaj unos partija?\')">Odbij unos</button>';
+            echo '</div>';
+            echo '</form>';
+            echo '</div>';
+            return;
+        }
+
+        $pending_rows = OpenTT_Unified_Admin_Match_Actions::pending_submissions_list(400);
+        if (empty($pending_rows)) {
+            echo '<p>Trenutno nema pending unosa partija.</p></div>';
+            return;
+        }
+
+        echo '<p class="opentt-mobile-scroll-hint">Na telefonu prevuci tabelu levo/desno za prikaz svih kolona.</p>';
+        echo '<div class="opentt-table-scroll">';
+        echo '<table class="widefat striped"><thead><tr><th>ID</th><th>Liga</th><th>Sezona</th><th>Kolo</th><th>Utakmica</th><th>Email</th><th>Poslato</th><th>Akcije</th></tr></thead><tbody>';
+        foreach ($pending_rows as $row) {
+            $match_id = intval($row['match_id'] ?? 0);
+            $match = $match_id > 0
+                ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$matches_table} WHERE id=%d", $match_id))
+                : null;
+            if (!$match) {
+                continue;
+            }
+            $home_name = (string) get_the_title((int) ($match->home_club_post_id ?? 0));
+            $away_name = (string) get_the_title((int) ($match->away_club_post_id ?? 0));
+            $view_url = add_query_arg([
+                'page' => 'stkb-unified-pending-games',
+                'submission_id' => intval($row['id'] ?? 0),
+            ], admin_url('admin.php'));
+
+            echo '<tr>';
+            echo '<td>#' . intval($row['id'] ?? 0) . '</td>';
+            echo '<td>' . esc_html((string) ($match->liga_slug ?? '')) . '</td>';
+            echo '<td>' . esc_html((string) ($match->sezona_slug ?? '')) . '</td>';
+            echo '<td>' . esc_html(self::kolo_name_from_slug((string) ($match->kolo_slug ?? ''))) . '</td>';
+            echo '<td>' . esc_html($home_name . ' — ' . $away_name) . '</td>';
+            echo '<td>' . esc_html((string) ($row['submitter_email'] ?? '')) . '</td>';
+            echo '<td>' . esc_html(self::display_match_date((string) ($row['created_at'] ?? ''))) . '</td>';
+            echo '<td><a class="button button-small" href="' . esc_url($view_url) . '">Pregledaj</a></td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table></div></div>';
+    }
+
     public static function render_clubs_page()
     {
         self::require_cap();
@@ -2195,6 +2369,7 @@ HTML;
         echo '<div class="opentt-admin-actions">';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified')) . '">Kontrolna tabla</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-matches')) . '">Utakmice</a>';
+        echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-pending-games')) . '">Pending partije</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-live')) . '">Uživo</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-clubs')) . '">Klubovi</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-players')) . '">Igrači</a>';
@@ -4874,6 +5049,22 @@ HTML;
     public static function render_admin_notice()
     {
         \OpenTT\Unified\WordPress\AdminNoticeManager::renderFromRequest();
+        if (!is_admin() || !current_user_can(self::CAP)) {
+            return;
+        }
+        $pending_count = OpenTT_Unified_Admin_Match_Actions::pending_submissions_count();
+        if ($pending_count <= 0) {
+            return;
+        }
+        $current_page = isset($_GET['page']) ? sanitize_key((string) $_GET['page']) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ($current_page === 'stkb-unified-pending-games') {
+            return;
+        }
+        $pending_url = admin_url('admin.php?page=stkb-unified-pending-games');
+        echo '<div class="notice notice-warning is-dismissible"><p>';
+        echo 'Imaš <strong>' . esc_html((string) $pending_count) . '</strong> pending unosa partija za pregled. ';
+        echo '<a href="' . esc_url($pending_url) . '">Otvori pending tab</a>.';
+        echo '</p></div>';
     }
 
     public static function handle_save_match()
@@ -4919,6 +5110,16 @@ HTML;
     public static function handle_save_games_batch()
     {
         OpenTT_Unified_Admin_Match_Actions::handle_save_games_batch();
+    }
+
+    public static function handle_submit_games_pending_frontend()
+    {
+        OpenTT_Unified_Admin_Match_Actions::handle_submit_games_pending_frontend();
+    }
+
+    public static function handle_review_games_pending_admin()
+    {
+        OpenTT_Unified_Admin_Match_Actions::handle_review_games_pending_admin();
     }
 
     public static function handle_delete_game()
@@ -5127,6 +5328,35 @@ HTML;
                 \OpenTT\Unified\Infrastructure\DbTableResolver::resetCache();
             },
         ]);
+        self::maybe_migrate_pending_games_schema();
+    }
+
+    private static function maybe_migrate_pending_games_schema()
+    {
+        global $wpdb;
+        $table = self::db_table('games_pending');
+        if ($table === '') {
+            return;
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        $charset_collate = $wpdb->get_charset_collate();
+        dbDelta("CREATE TABLE {$table} (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            match_id bigint(20) unsigned NOT NULL,
+            submitter_email varchar(190) NOT NULL,
+            payload longtext NULL,
+            status varchar(20) NOT NULL DEFAULT 'pending',
+            review_note text NULL,
+            reviewed_payload longtext NULL,
+            reviewed_by bigint(20) unsigned DEFAULT NULL,
+            reviewed_at datetime DEFAULT NULL,
+            created_at datetime NOT NULL,
+            updated_at datetime NOT NULL,
+            PRIMARY KEY  (id),
+            KEY status_created (status, created_at),
+            KEY match_id (match_id)
+        ) {$charset_collate};");
     }
 
     private static function migrate_batch($batch_size)
@@ -6453,6 +6683,10 @@ HTML;
                     'new' => self::TABLE_SETS,
                     'legacy' => self::LEGACY_TABLE_SETS,
                 ],
+                'games_pending' => [
+                    'new' => self::TABLE_GAMES_PENDING,
+                    'legacy' => self::TABLE_GAMES_PENDING,
+                ],
             ],
             self::TABLE_MATCHES
         );
@@ -6474,6 +6708,10 @@ HTML;
             'sets' => [
                 'new' => self::TABLE_SETS,
                 'legacy' => self::LEGACY_TABLE_SETS,
+            ],
+            'games_pending' => [
+                'new' => self::TABLE_GAMES_PENDING,
+                'legacy' => self::TABLE_GAMES_PENDING,
             ],
         ];
 

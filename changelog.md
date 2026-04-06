@@ -8,6 +8,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Assets & UI
 
+- Added frontend pending-submission flow for `opentt_match_games` when no games are entered: users now see `Unesi partije` CTA that opens a dedicated submission view in a new tab, with match-format-aware game rows, player selectors by home/away clubs, required email field, and clear Serbian submission status messages.
 - Reverted visible plugin branding back to `OpenTT` (plugin header metadata, admin UI labels, onboarding copy, import messaging, and README text), while keeping existing technical identifiers unchanged.
 - Added an explicit project disclaimer in README files clarifying that OpenTT is not affiliated with `opentt.pl`.
 - Added new `opentt_matches` combined shortcode (grid/list switcher): default grid view, dropdown toggle with grid/list icons, list mode without grid filters, and `filter=true` mode using incremental `Prikaži još` loading (no infinite-scroll takeover).
@@ -67,6 +68,8 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Admin & Data
 
+- Added full `Pending partije` moderation workflow: new pending submissions table, admin menu tab with pending list + per-match review screen, editable game/set payload before decision, `Odobri unos` / `Odbij unos` actions, and automatic submitter email notifications (approved/denied) in Serbian.
+- Added global admin pending alert notice so administrators are notified when new frontend game submissions await review.
 - Fixed admin match wizard submit flow: required-field validation is now enforced per step (`Dalje`) and on final submit, automatically returning users to the first invalid step instead of silently failing when hidden required fields are missing.
 - Added `featured` match flag to match schema and import/export payloads.
 - Added featured controls in admin matches workflow: quick list toggle action (`Feature/Unfeature`), featured indicator column, and featured checkbox in match edit details.

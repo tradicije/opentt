@@ -350,6 +350,47 @@ final class OpenTT_Unified_Admin_Readonly_Helpers
         return $html;
     }
 
+    public static function players_for_club_options($club_id)
+    {
+        $club_id = (int) $club_id;
+        if ($club_id <= 0) {
+            return [];
+        }
+
+        $rows = get_posts([
+            'post_type' => 'igrac',
+            'numberposts' => 900,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'post_status' => ['publish', 'draft', 'pending', 'private'],
+            'meta_query' => [
+                'relation' => 'OR',
+                [
+                    'key' => 'povezani_klub',
+                    'value' => $club_id,
+                    'compare' => '=',
+                    'type' => 'NUMERIC',
+                ],
+                [
+                    'key' => 'klub_igraca',
+                    'value' => $club_id,
+                    'compare' => '=',
+                    'type' => 'NUMERIC',
+                ],
+            ],
+        ]) ?: [];
+
+        $out = [];
+        foreach ($rows as $row) {
+            $player_id = (int) ($row->ID ?? 0);
+            if ($player_id <= 0) {
+                continue;
+            }
+            $out[$player_id] = (string) ($row->post_title ?? ('#' . $player_id));
+        }
+        return $out;
+    }
+
     public static function all_players_admin_index()
     {
         $rows = get_posts([
