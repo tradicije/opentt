@@ -269,6 +269,9 @@ final class StandingsTableShortcode
         $watermark_class = 'opentt-standings-watermark';
         $plugin_root = dirname(__DIR__, 4);
         $watermark_url = '';
+        $watermark_inline_style = '';
+        $table_inline_style = '';
+        $img_inline_style = '';
         $watermark_candidates = [
             'assets/img/club-logo.png',
             'assets/img/watermark-logo.png',
@@ -281,17 +284,38 @@ final class StandingsTableShortcode
             if (!is_readable($candidate_path)) {
                 continue;
             }
-            $watermark_url = (string) plugins_url($candidate, $plugin_root . '/opentt-unified-core.php');
+            $raw = file_get_contents($candidate_path);
+            if ($raw !== false && $raw !== '') {
+                $ext = strtolower(pathinfo($candidate_path, PATHINFO_EXTENSION));
+                $mime = 'image/png';
+                if ($ext === 'svg') {
+                    $mime = 'image/svg+xml';
+                } elseif ($ext === 'webp') {
+                    $mime = 'image/webp';
+                } elseif ($ext === 'jpg' || $ext === 'jpeg') {
+                    $mime = 'image/jpeg';
+                } elseif ($ext === 'gif') {
+                    $mime = 'image/gif';
+                }
+                $watermark_url = 'data:' . $mime . ';base64,' . base64_encode($raw);
+            } else {
+                $watermark_url = (string) plugins_url($candidate, $plugin_root . '/opentt-unified-core.php');
+            }
             $watermark_class .= ' has-watermark';
             break;
         }
+        if ($watermark_url !== '') {
+            $watermark_inline_style = ' style="position:relative;isolation:isolate;overflow:hidden;border-radius:8px;"';
+            $img_inline_style = ' style="position:absolute;left:50%;top:50%;width:clamp(180px,42%,320px);height:auto;transform:translate(-50%,-50%);opacity:.16;pointer-events:none;user-select:none;z-index:0;"';
+            $table_inline_style = ' style="position:relative;z-index:1;background-color:rgba(0,10,38,.50);"';
+        }
 
         echo (string) $call('shortcode_title_html', 'Tabela');
-        echo '<div class="' . esc_attr($watermark_class) . '">';
+        echo '<div class="' . esc_attr($watermark_class) . '"' . $watermark_inline_style . '>';
         if ($watermark_url !== '') {
-            echo '<img class="opentt-standings-watermark-img" src="' . esc_url($watermark_url) . '" alt="" loading="lazy" decoding="async" />';
+            echo '<img class="opentt-standings-watermark-img" src="' . esc_url($watermark_url) . '" alt="" loading="lazy" decoding="async"' . $img_inline_style . ' />';
         }
-        echo '<table class="tabela-lige">';
+        echo '<table class="tabela-lige"' . $table_inline_style . '>';
         echo '<thead><tr>';
         echo '<th>#</th>';
         echo '<th class="tabela-klub-left">Klub</th>';
