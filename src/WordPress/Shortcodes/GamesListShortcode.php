@@ -92,6 +92,14 @@ final class GamesListShortcode
         echo '<input type="hidden" name="action" value="opentt_unified_submit_games_pending">';
         echo '<input type="hidden" name="match_id" value="' . intval($matchRow->id ?? 0) . '">';
         echo '<input type="hidden" name="redirect_to" value="' . esc_attr((string) $redirectTo) . '">';
+        echo '<input type="hidden" name="entry_mode" value="quick">';
+
+        echo '<div class="opentt-games-submit-tabs" role="tablist" aria-label="Režim unosa">';
+        echo '<button type="button" class="opentt-games-submit-tab is-active" data-entry-mode="quick" role="tab" aria-selected="true">Brzi unos</button>';
+        echo '<button type="button" class="opentt-games-submit-tab" data-entry-mode="advanced" role="tab" aria-selected="false">Napredni unos</button>';
+        echo '</div>';
+        echo '<p class="opentt-games-submit-mode-note opentt-games-submit-mode-note-quick">Brzi unos: unosiš samo konačne rezultate setova po partijama.</p>';
+        echo '<p class="opentt-games-submit-mode-note opentt-games-submit-mode-note-advanced" hidden>Napredni unos: pored konačnih rezultata možeš uneti i pojedinačne setove.</p>';
 
         echo '<label class="opentt-games-submit-email">';
         echo '<span>Email adresa <strong>*</strong></span>';
@@ -127,7 +135,7 @@ final class GamesListShortcode
             }
             echo '</div>';
 
-            echo '<div class="opentt-games-submit-sets">';
+            echo '<div class="opentt-games-submit-sets" data-advanced-only="1">';
             for ($setNo = 1; $setNo <= 5; $setNo++) {
                 echo '<label><span>Set ' . intval($setNo) . ' (D:G)</span>';
                 echo '<span class="opentt-games-submit-set-pair">';
@@ -143,6 +151,7 @@ final class GamesListShortcode
 
         echo '<button type="submit" class="opentt-games-submit-btn">Pošalji na pregled</button>';
         echo '</form>';
+        echo '<script>(function(){var forms=document.querySelectorAll(".opentt-games-submit-form");forms.forEach(function(form){if(form.dataset.tabsBound==="1"){return;}form.dataset.tabsBound="1";var tabs=form.querySelectorAll(".opentt-games-submit-tab[data-entry-mode]");var advancedBlocks=form.querySelectorAll("[data-advanced-only=\'1\']");var quickNote=form.querySelector(".opentt-games-submit-mode-note-quick");var advancedNote=form.querySelector(".opentt-games-submit-mode-note-advanced");var modeField=form.querySelector("input[name=\'entry_mode\']");function applyMode(mode){var isAdvanced=mode==="advanced";form.setAttribute("data-entry-mode",isAdvanced?"advanced":"quick");if(modeField){modeField.value=isAdvanced?"advanced":"quick";}tabs.forEach(function(tab){var active=tab.getAttribute("data-entry-mode")===(isAdvanced?"advanced":"quick");tab.classList.toggle("is-active",active);tab.setAttribute("aria-selected",active?"true":"false");});if(quickNote){quickNote.hidden=isAdvanced;}if(advancedNote){advancedNote.hidden=!isAdvanced;}advancedBlocks.forEach(function(block){block.hidden=!isAdvanced;var inputs=block.querySelectorAll("input, select, textarea");inputs.forEach(function(inp){inp.disabled=!isAdvanced;});});}tabs.forEach(function(tab){tab.addEventListener("click",function(){applyMode(String(tab.getAttribute("data-entry-mode")||"quick"));});});applyMode("quick");});})();</script>';
         if ($turnstileEnabled && $turnstileSiteKey !== '') {
             echo '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>';
         }

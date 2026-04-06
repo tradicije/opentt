@@ -8,6 +8,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Assets & UI
 
+- Added entry-mode tabs on the standalone pending-games page: default `Brzi unos` (only final game set totals) and optional `Napredni unos` (enables per-set point inputs), with client-side mode switching and mobile-friendly tab styling.
 - Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.
 - Added standalone frontend page for match-game submissions (`?opentt_pending_games_form=1&match_id=...`): `Unesi partije` now opens a dedicated full-page entry screen (desktop/mobile optimized) instead of reusing the regular match-content layout.
 - Added frontend pending-submission flow for `opentt_match_games` when no games are entered: users now see `Unesi partije` CTA that opens a dedicated submission view in a new tab, with match-format-aware game rows, player selectors by home/away clubs, required email field, and clear Serbian submission status messages.

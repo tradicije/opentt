@@ -228,6 +228,37 @@
   color: #c5d9fb;
 }
 
+.opentt-games-submit-tabs {
+  display: inline-flex;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(132, 176, 245, 0.35);
+}
+
+.opentt-games-submit-tab {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #d5e6ff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.opentt-games-submit-tab.is-active {
+  background: rgba(24, 92, 198, 0.7);
+  color: #fff;
+  border-color: rgba(126, 184, 255, 0.7);
+}
+
+.opentt-games-submit-mode-note {
+  margin: 0 0 10px;
+  color: #c5d9fb;
+}
+
 .opentt-games-submit-game {
   margin: 0 0 14px;
   padding: 12px;
@@ -282,6 +313,10 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(110px, 1fr));
   gap: 8px;
+}
+
+.opentt-games-submit-form[data-entry-mode="quick"] .opentt-games-submit-sets[data-advanced-only="1"] {
+  display: none;
 }
 
 .opentt-games-submit-set-pair {
