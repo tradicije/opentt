@@ -29,6 +29,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Refined standings watermark intensity control: removed duplicate wrapper background watermark layer and kept a single overlay image layer, enabling lower effective opacity values (for example `0.05`) to render as expected.
 - Updated standings watermark sizing/placement: watermark now fills the table-body visual area with fixed `24px` insets and centered composition for stronger but still subtle branding.
 - Increased standings watermark opacity from `0.05` to `0.1` for clearer visibility while preserving table readability.
+- Refined standings export scene composition: removed decorative background circle overlays, moved watermark into the table card (centered, larger, clipped to table bounds), and vertically centered the table block in the 1080x1080 canvas when fewer rows are present.
 - Enhanced pending-games `Napredni unos` behavior: per-set points are now mandatory in advanced mode, and set inputs are dynamically scoped by entered final set score per game (for example `3:0` shows 3 required sets, `3:2` shows 5).
 - Added entry-mode tabs on the standalone pending-games page: default `Brzi unos` (only final game set totals) and optional `Napredni unos` (enables per-set point inputs), with client-side mode switching and mobile-friendly tab styling.
 - Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.

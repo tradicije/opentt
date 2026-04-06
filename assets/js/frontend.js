@@ -1213,10 +1213,15 @@
     var leagueTitle = String((payload && payload.league) || "Liga");
     var seasonLabel = String((payload && payload.season) || "Sezona");
     var leagueLine = (leagueTitle + " " + seasonLabel).trim();
-    var tableTop = 208;
-    var maxTableHeight = 760;
+    var layoutTop = 188;
+    var layoutBottom = 940;
+    var maxTableHeight = layoutBottom - layoutTop;
     var rowH = Math.max(34, Math.min(54, Math.floor((maxTableHeight - 76) / Math.max(1, rows.length))));
     var tableHeight = 62 + rows.length * rowH + 28;
+    if (tableHeight > maxTableHeight) {
+      tableHeight = maxTableHeight;
+    }
+    var tableTop = Math.round(layoutTop + (maxTableHeight - tableHeight) / 2);
 
     var rowsHtml = "";
     for (var i = 0; i < rows.length; i++) {
@@ -1269,10 +1274,6 @@
     host.innerHTML =
       '<style>' +
       ".opentt-export-card{position:relative;width:1080px;height:1080px;overflow:hidden;background:linear-gradient(165deg,#03153e 0%,#07296f 58%,#0a3e91 100%);font-family:inherit;color:#fff;}" +
-      ".opentt-export-card .soft-shape{position:absolute;border-radius:50%;pointer-events:none;}" +
-      ".opentt-export-card .soft-shape.s1{width:360px;height:360px;right:-110px;top:-90px;background:rgba(120,188,255,.12);}" +
-      ".opentt-export-card .soft-shape.s2{width:420px;height:420px;left:-140px;bottom:-180px;background:rgba(0,132,255,.10);}" +
-      ".opentt-export-card .bg-watermark{position:absolute;left:50%;top:57%;width:640px;height:640px;transform:translate(-50%,-50%) rotate(-12deg);object-fit:contain;opacity:.14;filter:blur(1.4px);pointer-events:none;}" +
       ".opentt-export-header{position:absolute;left:56px;right:56px;top:44px;display:flex;align-items:center;gap:16px;}" +
       ".opentt-export-corner-logo{width:120px;height:88px;display:flex;align-items:center;justify-content:center;}" +
       ".opentt-export-corner-logo img{width:auto;height:auto;max-width:112px;max-height:78px;object-fit:contain;}" +
@@ -1280,6 +1281,7 @@
       ".opentt-export-head-main .league{font-size:50px;font-weight:700;line-height:1.02;color:#ffffff;}" +
       ".opentt-export-head-main .round{font-size:40px;font-weight:800;line-height:1.02;color:#ffdf44;letter-spacing:.01em;}" +
       ".opentt-export-table{position:absolute;left:56px;right:56px;border-radius:22px;background:rgba(3,14,38,.62);overflow:hidden;}" +
+      ".opentt-export-table .table-watermark{position:absolute;left:50%;top:54%;width:116%;height:116%;transform:translate(-50%,-50%) rotate(-12deg);object-fit:contain;opacity:.14;filter:blur(1.4px);pointer-events:none;z-index:0;}" +
       ".opentt-export-head-row{height:62px;display:grid;grid-template-columns:7% 47% 9% 9% 9% 9% 10%;align-items:center;padding:0 12px;background:rgba(8,30,82,.56);font-size:24px;font-weight:600;color:rgba(236,245,255,.95);}" +
       ".opentt-export-head-row > div{display:flex;align-items:center;justify-content:center;}" +
       ".opentt-export-head-row .club-head{justify-content:flex-start;padding-left:8px;}" +
@@ -1293,18 +1295,13 @@
       ".opentt-export-row .club-logo-wrap img{width:30px;height:30px;object-fit:contain;}" +
       ".opentt-export-row .club-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
       ".opentt-export-row .col-num{font-size:24px;font-weight:600;}" +
+      ".opentt-export-head-row,.opentt-export-body{position:relative;z-index:1;}" +
       ".opentt-export-foot{position:absolute;left:56px;right:56px;bottom:40px;height:58px;display:flex;align-items:center;justify-content:space-between;color:rgba(205,223,252,.96);font-size:26px;font-weight:500;}" +
       ".opentt-export-foot .foot-brand{width:150px;height:58px;display:flex;align-items:center;justify-content:flex-start;}" +
       ".opentt-export-foot .foot-brand img{width:auto;height:auto;max-width:142px;max-height:54px;object-fit:contain;}" +
       ".opentt-export-foot .foot-text{text-align:right;flex:1;}" +
       "</style>" +
       '<div class="opentt-export-card">' +
-      '<span class="soft-shape s1"></span><span class="soft-shape s2"></span>' +
-      (payload && payload.bgAltUrl
-        ? '<img class="bg-watermark" src="' +
-          esc(String(payload.bgAltUrl || "")) +
-          '" alt="" loading="eager" decoding="sync">'
-        : "") +
       '<header class="opentt-export-header">' +
       '<div class="opentt-export-corner-logo">' +
       (payload && payload.competitionLogoUrl
@@ -1324,6 +1321,11 @@
       "px;height:" +
       String(tableHeight) +
       'px;">' +
+      (payload && payload.bgAltUrl
+        ? '<img class="table-watermark" src="' +
+          esc(String(payload.bgAltUrl || "")) +
+          '" alt="" loading="eager" decoding="sync">'
+        : "") +
       '<div class="opentt-export-head-row"><div>#</div><div class="club-head">Klub</div><div>Utak</div><div>Pob</div><div>Por</div><div>+/-</div><div>Bod</div></div>' +
       '<div class="opentt-export-body">' +
       rowsHtml +
