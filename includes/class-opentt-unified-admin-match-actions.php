@@ -1331,9 +1331,63 @@ final class OpenTT_Unified_Admin_Match_Actions
 
         $headers = [
             'Content-Type: text/plain; charset=UTF-8',
-            'From: STKB.rs <aleksa.dimitrijevic@stkb.rs>',
+            'From: ' . OpenTT_Unified_Core::mailgun_from_name() . ' <' . OpenTT_Unified_Core::mailgun_from_email() . '>',
         ];
-        wp_mail($email, $subject, $message, $headers);
+        $sent = false;
+        if (OpenTT_Unified_Core::is_mailgun_enabled()) {
+            $sent = self::send_email_via_mailgun($email, $subject, $message);
+        }
+        if (!$sent) {
+            self::send_email_via_wp_mail($email, $subject, $message, $headers);
+        }
+    }
+
+    private static function send_email_via_wp_mail($to, $subject, $message, array $headers = [])
+    {
+        $to = sanitize_email((string) $to);
+        if (!is_email($to)) {
+            return false;
+        }
+        $subject = (string) $subject;
+        $message = (string) $message;
+        $result = wp_mail($to, $subject, $message, $headers);
+        return $result === true;
+    }
+
+    private static function send_email_via_mailgun($to, $subject, $message)
+    {
+        $to = sanitize_email((string) $to);
+        if (!is_email($to)) {
+            return false;
+        }
+        $api_key = OpenTT_Unified_Core::mailgun_api_key();
+        $domain = OpenTT_Unified_Core::mailgun_domain();
+        $from_email = OpenTT_Unified_Core::mailgun_from_email();
+        $from_name = OpenTT_Unified_Core::mailgun_from_name();
+        if ($api_key === '' || $domain === '' || !is_email($from_email)) {
+            return false;
+        }
+
+        $endpoint = 'https://api.mailgun.net/v3/' . rawurlencode($domain) . '/messages';
+        $from = $from_name !== '' ? ($from_name . ' <' . $from_email . '>') : $from_email;
+
+        $response = wp_remote_post($endpoint, [
+            'timeout' => 15,
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode('api:' . $api_key),
+            ],
+            'body' => [
+                'from' => $from,
+                'to' => $to,
+                'subject' => (string) $subject,
+                'text' => (string) $message,
+            ],
+        ]);
+        if (is_wp_error($response)) {
+            return false;
+        }
+        $code = intval(wp_remote_retrieve_response_code($response));
+        return $code >= 200 && $code < 300;
     }
 
     private static function verify_turnstile_token($token)

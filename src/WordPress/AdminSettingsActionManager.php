@@ -80,6 +80,11 @@ final class AdminSettingsActionManager
         $optionTurnstileEnabled = (string) ($config['option_turnstile_enabled'] ?? '');
         $optionTurnstileSiteKey = (string) ($config['option_turnstile_site_key'] ?? '');
         $optionTurnstileSecretKey = (string) ($config['option_turnstile_secret_key'] ?? '');
+        $optionMailgunEnabled = (string) ($config['option_mailgun_enabled'] ?? '');
+        $optionMailgunApiKey = (string) ($config['option_mailgun_api_key'] ?? '');
+        $optionMailgunDomain = (string) ($config['option_mailgun_domain'] ?? '');
+        $optionMailgunFromEmail = (string) ($config['option_mailgun_from_email'] ?? '');
+        $optionMailgunFromName = (string) ($config['option_mailgun_from_name'] ?? '');
         $optionAdminUiLanguage = (string) ($config['option_admin_ui_language'] ?? '');
         $availableLanguages = isset($config['available_languages']) && is_array($config['available_languages'])
             ? $config['available_languages']
@@ -159,6 +164,36 @@ final class AdminSettingsActionManager
             }
             if ($section === 'turnstile') {
                 wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Turnstile podešavanje je sačuvano.'));
+                exit;
+            }
+        }
+
+        if ($section === 'mailgun' || $section === 'all') {
+            $mailgunEnabled = !empty($_POST['mailgun_enabled']) ? '1' : '0'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $mailgunApiKey = isset($_POST['mailgun_api_key']) ? sanitize_text_field((string) wp_unslash($_POST['mailgun_api_key'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $mailgunDomain = isset($_POST['mailgun_domain']) ? sanitize_text_field((string) wp_unslash($_POST['mailgun_domain'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $mailgunFromEmailRaw = isset($_POST['mailgun_from_email']) ? sanitize_text_field((string) wp_unslash($_POST['mailgun_from_email'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $mailgunFromEmail = sanitize_email($mailgunFromEmailRaw);
+            $mailgunFromName = isset($_POST['mailgun_from_name']) ? sanitize_text_field((string) wp_unslash($_POST['mailgun_from_name'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+            if ($optionMailgunEnabled !== '') {
+                update_option($optionMailgunEnabled, $mailgunEnabled, false);
+            }
+            if ($optionMailgunApiKey !== '') {
+                update_option($optionMailgunApiKey, $mailgunApiKey, false);
+            }
+            if ($optionMailgunDomain !== '') {
+                update_option($optionMailgunDomain, $mailgunDomain, false);
+            }
+            if ($optionMailgunFromEmail !== '') {
+                update_option($optionMailgunFromEmail, $mailgunFromEmail, false);
+            }
+            if ($optionMailgunFromName !== '') {
+                update_option($optionMailgunFromName, $mailgunFromName, false);
+            }
+
+            if ($section === 'mailgun') {
+                wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Mailgun podešavanje je sačuvano.'));
                 exit;
             }
         }

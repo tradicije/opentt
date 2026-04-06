@@ -56,6 +56,11 @@ final class OpenTT_Unified_Core
     const OPTION_TURNSTILE_ENABLED = 'opentt_unified_turnstile_enabled';
     const OPTION_TURNSTILE_SITE_KEY = 'opentt_unified_turnstile_site_key';
     const OPTION_TURNSTILE_SECRET_KEY = 'opentt_unified_turnstile_secret_key';
+    const OPTION_MAILGUN_ENABLED = 'opentt_unified_mailgun_enabled';
+    const OPTION_MAILGUN_API_KEY = 'opentt_unified_mailgun_api_key';
+    const OPTION_MAILGUN_DOMAIN = 'opentt_unified_mailgun_domain';
+    const OPTION_MAILGUN_FROM_EMAIL = 'opentt_unified_mailgun_from_email';
+    const OPTION_MAILGUN_FROM_NAME = 'opentt_unified_mailgun_from_name';
     const OPTION_MATCHES_LAST_EDITOR_ID = 'opentt_unified_matches_last_editor_id';
     const OPTION_MATCHES_LAST_EDITOR_NAME = 'opentt_unified_matches_last_editor_name';
     const OPTION_MATCHES_LAST_EDITOR_AVATAR_URL = 'opentt_unified_matches_last_editor_avatar_url';
@@ -3467,6 +3472,29 @@ JS;
         echo '</form>';
         echo '</div>';
 
+        $mailgun_enabled = self::is_mailgun_enabled() ? 1 : 0;
+        $mailgun_api_key = self::mailgun_api_key();
+        $mailgun_domain = self::mailgun_domain();
+        $mailgun_from_email = self::mailgun_from_email();
+        $mailgun_from_name = self::mailgun_from_name();
+        echo '<div class="opentt-panel opentt-settings-panel">';
+        echo '<h2>Mailgun (automatski email)</h2>';
+        echo '<p class="description">Koristi Mailgun API za automatske email poruke kod odobravanja/odbijanja pending unosa partija.</p>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
+        wp_nonce_field('opentt_unified_save_settings');
+        echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
+        echo '<input type="hidden" name="opentt_settings_section" value="mailgun">';
+        echo '<label><span>Mailgun status</span><span style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="mailgun_enabled" value="0"><input type="checkbox" name="mailgun_enabled" value="1" ' . checked($mailgun_enabled, 1, false) . '> Uključi Mailgun API slanje</span></label>';
+        echo '<label><span>Mailgun API key</span><input type="text" name="mailgun_api_key" class="regular-text" value="' . esc_attr($mailgun_api_key) . '" placeholder="key-..."></label>';
+        echo '<label><span>Mailgun domain</span><input type="text" name="mailgun_domain" class="regular-text" value="' . esc_attr($mailgun_domain) . '" placeholder="mg.tvoj-domen.rs"></label>';
+        echo '<label><span>From email</span><input type="email" name="mailgun_from_email" class="regular-text" value="' . esc_attr($mailgun_from_email) . '" placeholder="noreply@stkb.rs"></label>';
+        echo '<label><span>From name</span><input type="text" name="mailgun_from_name" class="regular-text" value="' . esc_attr($mailgun_from_name) . '" placeholder="STKB.rs"></label>';
+        echo '<div class="opentt-settings-actions">';
+        echo '<button type="submit" class="button button-primary">Sačuvaj Mailgun podešavanje</button>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+
         echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>Katalog shortcode-ova</h2>';
         echo '<p class="description">Klikni na shortcode da se otvore detalji, primer i mini builder za generisanje shortcode niza.</p>';
@@ -5031,6 +5059,11 @@ HTML;
                 self::OPTION_TURNSTILE_ENABLED,
                 self::OPTION_TURNSTILE_SITE_KEY,
                 self::OPTION_TURNSTILE_SECRET_KEY,
+                self::OPTION_MAILGUN_ENABLED,
+                self::OPTION_MAILGUN_API_KEY,
+                self::OPTION_MAILGUN_DOMAIN,
+                self::OPTION_MAILGUN_FROM_EMAIL,
+                self::OPTION_MAILGUN_FROM_NAME,
                 self::OPTION_ADMIN_UI_LANGUAGE,
                 self::OPTION_DEFAULT_PAGES_SETUP_DONE,
                 self::OPTION_ONBOARDING_STATE,
@@ -5056,6 +5089,11 @@ HTML;
             'option_turnstile_enabled' => self::OPTION_TURNSTILE_ENABLED,
             'option_turnstile_site_key' => self::OPTION_TURNSTILE_SITE_KEY,
             'option_turnstile_secret_key' => self::OPTION_TURNSTILE_SECRET_KEY,
+            'option_mailgun_enabled' => self::OPTION_MAILGUN_ENABLED,
+            'option_mailgun_api_key' => self::OPTION_MAILGUN_API_KEY,
+            'option_mailgun_domain' => self::OPTION_MAILGUN_DOMAIN,
+            'option_mailgun_from_email' => self::OPTION_MAILGUN_FROM_EMAIL,
+            'option_mailgun_from_name' => self::OPTION_MAILGUN_FROM_NAME,
             'option_admin_ui_language' => self::OPTION_ADMIN_UI_LANGUAGE,
             'available_languages' => self::get_available_admin_ui_languages(),
         ]);
@@ -5091,6 +5129,33 @@ HTML;
     public static function turnstile_secret_key()
     {
         return trim((string) get_option(self::OPTION_TURNSTILE_SECRET_KEY, ''));
+    }
+
+    public static function is_mailgun_enabled()
+    {
+        return (string) get_option(self::OPTION_MAILGUN_ENABLED, '0') === '1';
+    }
+
+    public static function mailgun_api_key()
+    {
+        return trim((string) get_option(self::OPTION_MAILGUN_API_KEY, ''));
+    }
+
+    public static function mailgun_domain()
+    {
+        return trim((string) get_option(self::OPTION_MAILGUN_DOMAIN, ''));
+    }
+
+    public static function mailgun_from_email()
+    {
+        $value = trim((string) get_option(self::OPTION_MAILGUN_FROM_EMAIL, 'aleksa.dimitrijevic@stkb.rs'));
+        return is_email($value) ? $value : 'aleksa.dimitrijevic@stkb.rs';
+    }
+
+    public static function mailgun_from_name()
+    {
+        $value = trim((string) get_option(self::OPTION_MAILGUN_FROM_NAME, 'STKB.rs'));
+        return $value !== '' ? $value : 'STKB.rs';
     }
 
     public static function games_submit_page_url($match_id)
