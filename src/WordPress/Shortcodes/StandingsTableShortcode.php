@@ -254,6 +254,15 @@ final class StandingsTableShortcode
             return ($a['bodovi'] > $b['bodovi']) ? -1 : 1;
         });
 
+        $league_label = trim(str_replace('-', ' ', (string) $liga_slug));
+        $season_label = trim((string) $sezona_slug);
+        if ($league_label === '') {
+            $league_label = 'Liga';
+        }
+        if ($season_label === '') {
+            $season_label = 'Sezona';
+        }
+
         $promo_direct = 0;
         $promo_playoff = 0;
         $releg_direct = 0;
@@ -300,6 +309,7 @@ final class StandingsTableShortcode
         echo '<th data-tooltip="Meč količnik">+/-</th>';
         echo '</tr></thead><tbody>';
 
+        $export_rows = [];
         $rank = 0;
         $team_count = count($stat);
         foreach ($stat as $club_id => $data) {
@@ -336,9 +346,41 @@ final class StandingsTableShortcode
             $kol = intval($data['meckol']);
             echo '<td>' . ($kol > 0 ? '+' : '') . $kol . '</td>';
             echo '</tr>';
+
+            $export_rows[] = [
+                'rank' => intval($rank),
+                'club' => (string) get_the_title($club_id),
+                'played' => intval($data['odigrane']),
+                'wins' => intval($data['pobede']),
+                'losses' => intval($data['porazi']),
+                'points' => intval($data['bodovi']),
+                'diff' => ($kol > 0 ? '+' : '') . (string) $kol,
+                'highlight' => in_array(intval($club_id), $highlight_ids, true),
+            ];
         }
 
         echo '</tbody></table>';
+        $share_payload = [
+            'league' => (string) $league_label,
+            'season' => (string) $season_label,
+            'footer' => 'Tabela preuzeta sa stkb.rs',
+            'rows' => $export_rows,
+        ];
+        $share_icon_url = (string) plugins_url('assets/icons/share-icon.svg', $plugin_root . '/opentt-unified-core.php');
+        $download_icon_url = (string) plugins_url('assets/icons/download-file-icon.svg', $plugin_root . '/opentt-unified-core.php');
+        echo '<div class="opentt-standings-share" data-opentt-standings-share="1">';
+        echo '<script type="application/json" class="opentt-standings-share-data">' . wp_json_encode($share_payload) . '</script>';
+        echo '<div class="opentt-standings-share-actions">';
+        echo '<button type="button" class="opentt-standings-share-btn is-share" data-opentt-standings-share-btn="share">';
+        echo '<img src="' . esc_url($share_icon_url) . '" alt="" aria-hidden="true" loading="lazy" decoding="async">';
+        echo '<span>Podeli</span>';
+        echo '</button>';
+        echo '<button type="button" class="opentt-standings-share-btn is-download" data-opentt-standings-share-btn="download">';
+        echo '<img src="' . esc_url($download_icon_url) . '" alt="" aria-hidden="true" loading="lazy" decoding="async">';
+        echo '<span>Preuzmi</span>';
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         return ob_get_clean();
     }

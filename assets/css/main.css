@@ -1074,6 +1074,68 @@ thead tr th {
   background: rgba(168, 45, 45, 0.18);
 }
 
+.opentt-standings-share {
+  margin: 12px 0 18px;
+}
+
+.opentt-standings-share-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.opentt-standings-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  border: 1px solid rgba(142, 197, 255, 0.48);
+  border-radius: 10px;
+  padding: 0 14px;
+  background: linear-gradient(135deg, rgba(7, 34, 92, 0.9), rgba(5, 22, 64, 0.95));
+  color: #f3f8ff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, opacity 0.16s ease;
+}
+
+.opentt-standings-share-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(142, 197, 255, 0.82);
+  background: linear-gradient(135deg, rgba(9, 46, 122, 0.95), rgba(7, 30, 84, 0.98));
+}
+
+.opentt-standings-share-btn:disabled,
+.opentt-standings-share-btn.is-busy {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.opentt-standings-share-btn img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  opacity: 0.95;
+}
+
+@media (max-width: 700px) {
+  .opentt-standings-share-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .opentt-standings-share-btn {
+    width: 100%;
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 0.88rem;
+  }
+}
+
 /* === GRID – desktop i veći ekrani === */
 .opentt-grid {
   display: grid;

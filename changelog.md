@@ -8,6 +8,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Assets & UI
 
+- Added standings social export actions under each `opentt_standings_table`: new `Podeli` and `Preuzmi` buttons (with `share-icon` / `download-file-icon`) now generate a context-aware 1080x1080 social image (league+season header, rendered standings table, branded footer `Tabela preuzeta sa stkb.rs`) with OpenTT blue gradient background.
 - Added subtle background watermark support for `opentt_standings_table`: each generated league table now renders `assets/img/club-logo.png` behind table rows with low opacity for branding without hurting readability.
 - Fixed standings watermark rendering path so the background logo is always injected from plugin assets and visible with readable transparency.
 - Improved standings watermark robustness and visibility: added multi-filename asset fallback lookup in `assets/img` and moved watermark rendering to table background layer for consistent display across themes/cache order.

@@ -1178,6 +1178,298 @@
     });
   }
 
+  function parseStandingsShareData(root) {
+    if (!root) {
+      return null;
+    }
+    var node = root.querySelector(".opentt-standings-share-data");
+    if (!node) {
+      return null;
+    }
+    try {
+      return JSON.parse(String(node.textContent || "").trim());
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function drawRoundedRect(ctx, x, y, w, h, r) {
+    var rr = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+  }
+
+  function generateStandingsImage(payload) {
+    return new Promise(function (resolve, reject) {
+      var rows = Array.isArray(payload && payload.rows) ? payload.rows : [];
+      if (!rows.length) {
+        reject(new Error("Nema podataka za tabelu."));
+        return;
+      }
+
+      var canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = 1080;
+      var ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Canvas nije dostupan."));
+        return;
+      }
+
+      var bg = ctx.createLinearGradient(0, 0, 1080, 1080);
+      bg.addColorStop(0, "#04153e");
+      bg.addColorStop(0.55, "#062460");
+      bg.addColorStop(1, "#0a3d88");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 1080, 1080);
+
+      ctx.fillStyle = "rgba(142, 197, 255, 0.12)";
+      ctx.beginPath();
+      ctx.arc(930, 160, 180, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(170, 930, 220, 0, Math.PI * 2);
+      ctx.fill();
+
+      var league = String((payload && payload.league) || "Liga").toUpperCase();
+      var season = String((payload && payload.season) || "Sezona").toUpperCase();
+      var title = league + " • " + season;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "700 42px sans-serif";
+      ctx.fillText(title, 540, 86);
+
+      var tableX = 64;
+      var tableY = 150;
+      var tableW = 952;
+      var tableH = 808;
+      drawRoundedRect(ctx, tableX, tableY, tableW, tableH, 24);
+      ctx.fillStyle = "rgba(4, 16, 42, 0.66)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(142, 197, 255, 0.42)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      var headH = 64;
+      drawRoundedRect(ctx, tableX + 1, tableY + 1, tableW - 2, headH, 20);
+      ctx.fillStyle = "rgba(8, 30, 82, 0.62)";
+      ctx.fill();
+
+      var columns = [
+        { key: "rank", label: "#", width: 0.08, align: "center" },
+        { key: "club", label: "KLUB", width: 0.40, align: "left" },
+        { key: "played", label: "P", width: 0.09, align: "center" },
+        { key: "wins", label: "W", width: 0.09, align: "center" },
+        { key: "losses", label: "L", width: 0.09, align: "center" },
+        { key: "points", label: "PTS", width: 0.11, align: "center" },
+        { key: "diff", label: "+/-", width: 0.14, align: "center" },
+      ];
+
+      var colX = [];
+      var runX = tableX + 22;
+      var innerW = tableW - 44;
+      for (var c = 0; c < columns.length; c++) {
+        var cw = innerW * columns[c].width;
+        colX.push({ x: runX, w: cw });
+        runX += cw;
+      }
+
+      ctx.font = "700 24px sans-serif";
+      ctx.fillStyle = "rgba(233, 243, 255, 0.94)";
+      for (var h = 0; h < columns.length; h++) {
+        var col = columns[h];
+        var cx = colX[h];
+        if (col.align === "left") {
+          ctx.textAlign = "left";
+          ctx.fillText(col.label, cx.x + 8, tableY + headH / 2 + 2);
+        } else {
+          ctx.textAlign = "center";
+          ctx.fillText(col.label, cx.x + cx.w / 2, tableY + headH / 2 + 2);
+        }
+      }
+
+      var bodyTop = tableY + headH + 8;
+      var bodyBottom = tableY + tableH - 18;
+      var maxRows = rows.length;
+      var rowH = Math.floor((bodyBottom - bodyTop) / Math.max(1, maxRows));
+      rowH = Math.max(34, Math.min(52, rowH));
+
+      var visibleRows = Math.min(rows.length, Math.floor((bodyBottom - bodyTop) / rowH));
+      for (var i = 0; i < visibleRows; i++) {
+        var y = bodyTop + i * rowH;
+        var row = rows[i] || {};
+        var highlight = !!row.highlight;
+        if (highlight) {
+          ctx.fillStyle = "rgba(0, 132, 255, 0.22)";
+          ctx.fillRect(tableX + 10, y, tableW - 20, rowH);
+        }
+
+        ctx.strokeStyle = "rgba(255,255,255,0.16)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(tableX + 10, y + rowH);
+        ctx.lineTo(tableX + tableW - 10, y + rowH);
+        ctx.stroke();
+
+        ctx.fillStyle = highlight ? "#ffffff" : "rgba(232, 242, 255, 0.93)";
+        ctx.font = (highlight ? "700 " : "600 ") + "22px sans-serif";
+
+        for (var j = 0; j < columns.length; j++) {
+          var cdef = columns[j];
+          var cbox = colX[j];
+          var rawVal = row[cdef.key] === undefined || row[cdef.key] === null ? "" : String(row[cdef.key]);
+          if (cdef.key === "club" && rawVal.length > 25) {
+            rawVal = rawVal.slice(0, 24) + "…";
+          }
+
+          if (cdef.align === "left") {
+            ctx.textAlign = "left";
+            ctx.fillText(rawVal, cbox.x + 8, y + rowH / 2 + 1);
+          } else {
+            ctx.textAlign = "center";
+            ctx.fillText(rawVal, cbox.x + cbox.w / 2, y + rowH / 2 + 1);
+          }
+        }
+      }
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "600 22px sans-serif";
+      ctx.fillStyle = "rgba(205, 223, 252, 0.94)";
+      ctx.fillText(String((payload && payload.footer) || "Tabela preuzeta sa stkb.rs"), 540, 1028);
+
+      canvas.toBlob(
+        function (blob) {
+          if (!blob) {
+            reject(new Error("Neuspešno generisanje slike."));
+            return;
+          }
+          resolve(blob);
+        },
+        "image/png",
+        1
+      );
+    });
+  }
+
+  function downloadStandingsBlob(blob, payload) {
+    var fileName =
+      "stkb-tabela-" +
+      String((payload && payload.league) || "liga")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") +
+      "-" +
+      String((payload && payload.season) || "sezona")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") +
+      ".png";
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 1000);
+  }
+
+  function shareStandingsBlob(blob, payload) {
+    var fileName = "stkb-tabela.png";
+    var file = new File([blob], fileName, { type: "image/png" });
+    if (
+      navigator &&
+      typeof navigator.share === "function" &&
+      typeof navigator.canShare === "function" &&
+      navigator.canShare({ files: [file] })
+    ) {
+      return navigator.share({
+        title: String((payload && payload.league) || "Tabela"),
+        text: "Tabela preuzeta sa stkb.rs",
+        files: [file],
+      });
+    }
+    return Promise.reject(new Error("share_not_supported"));
+  }
+
+  function initStandingsShare(root) {
+    if (!root || root.dataset.openttStandingsShareReady === "1") {
+      return;
+    }
+    var payload = parseStandingsShareData(root);
+    if (!payload || !Array.isArray(payload.rows) || !payload.rows.length) {
+      return;
+    }
+
+    var shareBtn = root.querySelector('[data-opentt-standings-share-btn="share"]');
+    var downloadBtn = root.querySelector('[data-opentt-standings-share-btn="download"]');
+    if (!shareBtn || !downloadBtn) {
+      return;
+    }
+
+    root.dataset.openttStandingsShareReady = "1";
+    var busy = false;
+
+    function setBusy(state) {
+      busy = !!state;
+      shareBtn.disabled = busy;
+      downloadBtn.disabled = busy;
+      shareBtn.classList.toggle("is-busy", busy);
+      downloadBtn.classList.toggle("is-busy", busy);
+    }
+
+    function runAction(type) {
+      if (busy) {
+        return;
+      }
+      setBusy(true);
+      generateStandingsImage(payload)
+        .then(function (blob) {
+          if (type === "download") {
+            downloadStandingsBlob(blob, payload);
+            return null;
+          }
+          return shareStandingsBlob(blob, payload).catch(function (err) {
+            if (err && err.message === "share_not_supported") {
+              downloadStandingsBlob(blob, payload);
+              return null;
+            }
+            throw err;
+          });
+        })
+        .catch(function () {
+          window.alert("Neuspešno generisanje slike tabele. Pokušaj ponovo.");
+        })
+        .finally(function () {
+          setBusy(false);
+        });
+    }
+
+    shareBtn.addEventListener("click", function () {
+      runAction("share");
+    });
+    downloadBtn.addEventListener("click", function () {
+      runAction("download");
+    });
+  }
+
+  function initAllStandingsShare() {
+    var roots = document.querySelectorAll('[data-opentt-standings-share="1"]');
+    for (var i = 0; i < roots.length; i++) {
+      initStandingsShare(roots[i]);
+    }
+  }
+
   function initAllMatchesLists() {
     var roots = document.querySelectorAll('[data-opentt-matches-list="1"]');
     for (var i = 0; i < roots.length; i++) {
@@ -1196,10 +1488,12 @@
     document.addEventListener("DOMContentLoaded", function () {
       initAllMatchesLists();
       initAllSearches();
+      initAllStandingsShare();
     });
   } else {
     initAllMatchesLists();
     initAllSearches();
+    initAllStandingsShare();
   }
 })();
     function escapeRegex(value) {
