@@ -123,11 +123,44 @@ final class UserPortalManager
             $raw = [];
         }
         $out = [];
-        foreach ($raw as $slug) {
-            $slug = sanitize_title((string) $slug);
+        foreach ($raw as $item) {
+            $item = (string) $item;
+            if (strpos($item, '|') !== false) {
+                $parts = explode('|', $item, 2);
+                $slug = sanitize_title((string) ($parts[0] ?? ''));
+            } else {
+                $slug = sanitize_title($item);
+            }
             if ($slug !== '') {
                 $out[] = $slug;
             }
+        }
+        return array_values(array_unique($out));
+    }
+
+    public static function getUserManagedLeagueSeasons($userId)
+    {
+        $userId = intval($userId);
+        if ($userId <= 0) {
+            return [];
+        }
+        $raw = get_user_meta($userId, self::META_LEAGUES, true);
+        if (!is_array($raw)) {
+            $raw = [];
+        }
+        $out = [];
+        foreach ($raw as $item) {
+            $item = (string) $item;
+            if (strpos($item, '|') === false) {
+                continue;
+            }
+            $parts = explode('|', $item, 2);
+            $league = sanitize_title((string) ($parts[0] ?? ''));
+            $season = sanitize_title((string) ($parts[1] ?? ''));
+            if ($league === '' || $season === '') {
+                continue;
+            }
+            $out[] = $league . '|' . $season;
         }
         return array_values(array_unique($out));
     }
@@ -149,10 +182,11 @@ final class UserPortalManager
         return 0;
     }
 
-    public static function canManageLeague($userId, $leagueSlug)
+    public static function canManageLeague($userId, $leagueSlug, $seasonSlug = '')
     {
         $userId = intval($userId);
         $leagueSlug = sanitize_title((string) $leagueSlug);
+        $seasonSlug = sanitize_title((string) $seasonSlug);
         if ($userId <= 0 || $leagueSlug === '') {
             return false;
         }
@@ -162,8 +196,15 @@ final class UserPortalManager
         if (!user_can($userId, self::ROLE_LEAGUE_ADMIN)) {
             return false;
         }
-        $allowed = self::getUserManagedLeagues($userId);
-        return in_array($leagueSlug, $allowed, true);
+        $allowedLeagues = self::getUserManagedLeagues($userId);
+        if (in_array($leagueSlug, $allowedLeagues, true)) {
+            return true;
+        }
+        if ($seasonSlug === '') {
+            return false;
+        }
+        $allowedLeagueSeasons = self::getUserManagedLeagueSeasons($userId);
+        return in_array($leagueSlug . '|' . $seasonSlug, $allowedLeagueSeasons, true);
     }
 
     public static function canManageClub($userId, $clubId)
@@ -192,7 +233,18 @@ final class UserPortalManager
         $matchesTable = \OpenTT_Unified_Core::db_table('matches');
         $leagueOptions = [];
         if (self::tableExists($matchesTable)) {
-            $leagueOptions = $wpdb->get_col("SELECT DISTINCT liga_slug FROM {$matchesTable} WHERE liga_slug <> '' ORDER BY liga_slug ASC") ?: [];
+            $leagueRows = $wpdb->get_results("SELECT DISTINCT liga_slug, sezona_slug FROM {$matchesTable} WHERE liga_slug <> '' ORDER BY liga_slug ASC, sezona_slug DESC") ?: [];
+            foreach ($leagueRows as $lr) {
+                if (!is_object($lr)) {
+                    continue;
+                }
+                $liga = sanitize_title((string) ($lr->liga_slug ?? ''));
+                $sezona = sanitize_title((string) ($lr->sezona_slug ?? ''));
+                if ($liga === '' || $sezona === '') {
+                    continue;
+                }
+                $leagueOptions[] = $liga . '|' . $sezona;
+            }
         }
 
         $clubs = get_posts([
@@ -217,7 +269,7 @@ final class UserPortalManager
             'orderby' => 'display_name',
             'order' => 'ASC',
             'number' => 999,
-            'fields' => ['ID', 'display_name', 'user_login', 'user_email', 'roles'],
+            'fields' => 'all',
         ]);
 
         echo '<div class="wrap opentt-admin">';
@@ -226,7 +278,7 @@ final class UserPortalManager
 
         echo '<div class="opentt-panel">';
         echo '<table class="widefat striped"><thead><tr>';
-        echo '<th>Korisnik</th><th>Email</th><th>Role</th><th>Povezan igrač</th><th>Lige (admin)</th><th>Tim (manager)</th><th>Akcija</th>';
+        echo '<th>Korisnik</th><th>Email</th><th>Role</th><th>Povezan igrač</th><th>Lige/Sezone (admin)</th><th>Tim (manager)</th><th>Akcija</th>';
         echo '</tr></thead><tbody>';
 
         foreach ($users as $user) {
@@ -240,7 +292,7 @@ final class UserPortalManager
             }
             $role = self::getPrimaryRole($user);
             $linkedPlayerId = self::getUserLinkedPlayerId($uid);
-            $managedLeagues = self::getUserManagedLeagues($uid);
+            $managedLeagues = self::getUserManagedLeagueSeasons($uid);
             $managedClubId = self::getUserManagedClubId($uid);
             $formId = 'opentt-user-access-' . $uid;
 
@@ -263,12 +315,19 @@ final class UserPortalManager
             echo '</select></td>';
 
             echo '<td><select name="admin_leagues[]" form="' . esc_attr($formId) . '" multiple size="4" style="min-width:200px;">';
-            foreach ($leagueOptions as $leagueSlug) {
-                $leagueSlug = sanitize_title((string) $leagueSlug);
-                if ($leagueSlug === '') {
+            foreach ($leagueOptions as $leagueSeason) {
+                $leagueSeason = (string) $leagueSeason;
+                if (strpos($leagueSeason, '|') === false) {
                     continue;
                 }
-                echo '<option value="' . esc_attr($leagueSlug) . '"' . (in_array($leagueSlug, $managedLeagues, true) ? ' selected' : '') . '>' . esc_html((string) self::slugToTitle($leagueSlug)) . '</option>';
+                $parts = explode('|', $leagueSeason, 2);
+                $leagueSlug = sanitize_title((string) ($parts[0] ?? ''));
+                $seasonSlug = sanitize_title((string) ($parts[1] ?? ''));
+                if ($leagueSlug === '' || $seasonSlug === '') {
+                    continue;
+                }
+                $label = self::slugToTitle($leagueSlug) . ' / ' . str_replace('-', '/', $seasonSlug);
+                echo '<option value="' . esc_attr($leagueSeason) . '"' . (in_array($leagueSeason, $managedLeagues, true) ? ' selected' : '') . '>' . esc_html($label) . '</option>';
             }
             echo '</select></td>';
 
@@ -319,10 +378,20 @@ final class UserPortalManager
 
         $leagues = isset($_POST['admin_leagues']) && is_array($_POST['admin_leagues']) ? (array) wp_unslash($_POST['admin_leagues']) : [];
         $cleanLeagues = [];
-        foreach ($leagues as $slug) {
-            $slug = sanitize_title((string) $slug);
-            if ($slug !== '') {
-                $cleanLeagues[] = $slug;
+        foreach ($leagues as $item) {
+            $item = (string) $item;
+            if (strpos($item, '|') !== false) {
+                $parts = explode('|', $item, 2);
+                $leagueSlug = sanitize_title((string) ($parts[0] ?? ''));
+                $seasonSlug = sanitize_title((string) ($parts[1] ?? ''));
+                if ($leagueSlug !== '' && $seasonSlug !== '') {
+                    $cleanLeagues[] = $leagueSlug . '|' . $seasonSlug;
+                }
+            } else {
+                $slug = sanitize_title($item);
+                if ($slug !== '') {
+                    $cleanLeagues[] = $slug;
+                }
             }
         }
         update_user_meta($userId, self::META_LEAGUES, array_values(array_unique($cleanLeagues)));
@@ -653,11 +722,27 @@ final class UserPortalManager
             return '<section class="opentt-profile-section"><h3>Alati administratora lige</h3><p>Tabela utakmica nije dostupna.</p></section>';
         }
 
-        $allLeagues = $isSuper
-            ? ($wpdb->get_col("SELECT DISTINCT liga_slug FROM {$matchesTable} WHERE liga_slug <> '' ORDER BY liga_slug ASC") ?: [])
-            : $managedLeagues;
+        $allowedLeagueSeasonMap = [];
+        if (!$isSuper) {
+            foreach (self::getUserManagedLeagueSeasons($userId) as $pair) {
+                $parts = explode('|', (string) $pair, 2);
+                $leagueSlug = sanitize_title((string) ($parts[0] ?? ''));
+                $seasonSlug = sanitize_title((string) ($parts[1] ?? ''));
+                if ($leagueSlug === '' || $seasonSlug === '') {
+                    continue;
+                }
+                if (!isset($allowedLeagueSeasonMap[$leagueSlug])) {
+                    $allowedLeagueSeasonMap[$leagueSlug] = [];
+                }
+                $allowedLeagueSeasonMap[$leagueSlug][$seasonSlug] = true;
+            }
+        }
 
+        $allLeagues = $isSuper ? ($wpdb->get_col("SELECT DISTINCT liga_slug FROM {$matchesTable} WHERE liga_slug <> '' ORDER BY liga_slug ASC") ?: []) : $managedLeagues;
         $allLeagues = array_values(array_filter(array_map('sanitize_title', (array) $allLeagues)));
+        if (!$isSuper && !empty($allowedLeagueSeasonMap)) {
+            $allLeagues = array_values(array_unique(array_merge($allLeagues, array_keys($allowedLeagueSeasonMap))));
+        }
         if (empty($allLeagues)) {
             return '<section class="opentt-profile-section"><h3>Alati administratora lige</h3><p>Nema liga za upravljanje.</p></section>';
         }
@@ -728,6 +813,9 @@ final class UserPortalManager
                 $out .= '<p>Nema utakmica za ovu ligu.</p>';
             } else {
                 foreach ($matchesBySeason as $seasonSlug => $seasonMatches) {
+                    if (!$isSuper && isset($allowedLeagueSeasonMap[$leagueSlug]) && !isset($allowedLeagueSeasonMap[$leagueSlug][$seasonSlug])) {
+                        continue;
+                    }
                     $seasonLabel = $seasonSlug === 'bez-sezone'
                         ? 'Bez sezone'
                         : str_replace('-', '/', (string) $seasonSlug);
@@ -1395,7 +1483,7 @@ final class UserPortalManager
         }
 
         $userId = get_current_user_id();
-        if (!self::canManageLeague($userId, (string) ($row->liga_slug ?? ''))) {
+        if (!self::canManageLeague($userId, (string) ($row->liga_slug ?? ''), (string) ($row->sezona_slug ?? ''))) {
             wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nemaš dozvolu za ovu ligu.'));
             exit;
         }
@@ -1466,7 +1554,7 @@ final class UserPortalManager
             exit;
         }
         $userId = get_current_user_id();
-        if (!self::canManageLeague($userId, (string) ($match->liga_slug ?? ''))) {
+        if (!self::canManageLeague($userId, (string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''))) {
             wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nemaš dozvolu za unos partija u ovoj ligi.'));
             exit;
         }
@@ -1498,11 +1586,6 @@ final class UserPortalManager
         }
 
         $userId = get_current_user_id();
-        if (!self::canManageLeague($userId, $leagueSlug)) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nemaš dozvolu za ovu ligu.'));
-            exit;
-        }
-
         $seasonSlug = isset($_POST['sezona_slug']) ? sanitize_title((string) wp_unslash($_POST['sezona_slug'])) : '';
         $roundSlug = isset($_POST['kolo_slug']) ? sanitize_title((string) wp_unslash($_POST['kolo_slug'])) : '';
         $homeClubId = isset($_POST['home_club_post_id']) ? intval($_POST['home_club_post_id']) : 0;
@@ -1512,6 +1595,10 @@ final class UserPortalManager
 
         if ($seasonSlug === '' || $roundSlug === '' || $homeClubId <= 0 || $awayClubId <= 0 || $homeClubId === $awayClubId) {
             wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Proveri obavezna polja za novu utakmicu.'));
+            exit;
+        }
+        if (!self::canManageLeague($userId, $leagueSlug, $seasonSlug)) {
+            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nemaš dozvolu za ovu ligu/sezonu.'));
             exit;
         }
 
