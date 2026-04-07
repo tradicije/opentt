@@ -334,6 +334,48 @@
   gap: 10px;
 }
 
+.opentt-season-tab-head {
+  margin-bottom: 4px;
+}
+
+.opentt-league-subtab-head {
+  margin-bottom: 10px;
+}
+
+.opentt-season-pane,
+.opentt-league-subpane {
+  display: none;
+}
+
+.opentt-season-pane.is-active,
+.opentt-league-subpane.is-active {
+  display: block;
+}
+
+.opentt-league-admin-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.opentt-league-admin-controls label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.86rem;
+}
+
+.opentt-league-admin-controls input,
+.opentt-league-admin-controls select {
+  width: 100%;
+}
+
+.opentt-league-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .opentt-league-season-group {
   margin-top: 12px;
 }
@@ -347,10 +389,16 @@
 }
 
 .opentt-league-match-card {
-  background: rgba(3, 20, 58, 0.72);
-  border: 1px solid rgba(142, 197, 255, 0.32);
+  background: rgba(3, 20, 58, 0.84);
+  border: 1px solid rgba(142, 197, 255, 0.36);
   border-radius: 12px;
   padding: 10px 12px;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+.opentt-league-match-card:hover {
+  border-color: rgba(142, 197, 255, 0.58);
+  transform: translateY(-1px);
 }
 
 .opentt-league-match-card summary {
@@ -474,6 +522,14 @@
   }
 
   .opentt-editor-posts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .opentt-league-admin-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .opentt-league-admin-grid {
     grid-template-columns: 1fr;
   }
 }
