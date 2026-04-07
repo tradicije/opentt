@@ -452,12 +452,12 @@ final class UserPortalManager
         $out .= '<img src="' . esc_url($avatar) . '" alt="' . esc_attr((string) $user->display_name) . '">';
         $out .= '</button>';
         $out .= '<div class="opentt-auth-menu-dropdown" hidden>';
-        $out .= '<a class="opentt-auth-menu-link" href="' . esc_url($profileUrl) . '">Izmeni profil</a>';
+        $out .= '<a class="opentt-auth-menu-link" href="' . esc_url(add_query_arg('opentt_profile_tab', 'profile', $profileUrl)) . '">Izmeni profil</a>';
         if (user_can($userId, self::ROLE_LEAGUE_ADMIN) || user_can($userId, 'administrator') || user_can($userId, \OpenTT_Unified_Core::CAP)) {
-            $out .= '<a class="opentt-auth-menu-link" href="' . esc_url($profileUrl . '#opentt-profile-league-admin') . '">Administracija lige</a>';
+            $out .= '<a class="opentt-auth-menu-link" href="' . esc_url(add_query_arg('opentt_profile_tab', 'league', $profileUrl)) . '">Administracija lige</a>';
         }
         if (user_can($userId, 'editor') || user_can($userId, 'administrator')) {
-            $out .= '<a class="opentt-auth-menu-link" href="' . esc_url($profileUrl . '#opentt-profile-editor-tools') . '">Urednički portal</a>';
+            $out .= '<a class="opentt-auth-menu-link" href="' . esc_url(add_query_arg('opentt_profile_tab', 'editor', $profileUrl)) . '">Urednički portal</a>';
         }
         $out .= '<a class="opentt-auth-menu-link is-logout" href="' . esc_url(wp_logout_url(home_url('/prijava/'))) . '">Odjavi se</a>';
         $out .= '</div>';
@@ -487,14 +487,42 @@ final class UserPortalManager
         $linkedPlayerId = self::getUserLinkedPlayerId($userId);
         $profileAvatar = self::profileAvatarUrl($userId, 128);
 
+        $requestedTab = isset($_GET['opentt_profile_tab']) ? sanitize_key((string) wp_unslash($_GET['opentt_profile_tab'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $allowedTabs = ['profile' => true];
+        if (user_can($userId, 'editor') || user_can($userId, 'administrator')) {
+            $allowedTabs['editor'] = true;
+        }
+        if (user_can($userId, self::ROLE_LEAGUE_ADMIN) || user_can($userId, 'administrator') || user_can($userId, \OpenTT_Unified_Core::CAP)) {
+            $allowedTabs['league'] = true;
+        }
+        if (user_can($userId, self::ROLE_TEAM_MANAGER) || user_can($userId, 'administrator') || user_can($userId, \OpenTT_Unified_Core::CAP)) {
+            $allowedTabs['team'] = true;
+        }
+        $activeTab = isset($allowedTabs[$requestedTab]) ? $requestedTab : 'profile';
+
         $out = '<div class="opentt-profile-wrap">';
         $out .= '<section class="opentt-profile-card opentt-profile-card--account" id="opentt-profile-account">';
         $out .= '<header class="opentt-profile-head">';
         $out .= '<img src="' . esc_url($profileAvatar) . '" alt="Avatar" class="opentt-profile-avatar">';
-        $out .= '<div class="opentt-profile-head-meta"><h2>' . esc_html((string) $user->display_name) . '</h2><p>Rola: <strong>' . esc_html($roleLabel) . '</strong></p></div>';
+        $out .= '<div class="opentt-profile-head-meta"><h2><strong>' . esc_html((string) $user->display_name) . '</strong></h2><p>' . esc_html($roleLabel) . '</p></div>';
         $out .= '</header>';
         $out .= '</section>';
 
+        $out .= '<div class="opentt-profile-tabs" data-opentt-profile-tabs="1">';
+        $out .= '<div class="opentt-profile-tab-head">';
+        $out .= '<button type="button" class="opentt-profile-tab-btn' . ($activeTab === 'profile' ? ' is-active' : '') . '" data-tab="profile">Profil</button>';
+        if (isset($allowedTabs['editor'])) {
+            $out .= '<button type="button" class="opentt-profile-tab-btn' . ($activeTab === 'editor' ? ' is-active' : '') . '" data-tab="editor">Urednički portal</button>';
+        }
+        if (isset($allowedTabs['league'])) {
+            $out .= '<button type="button" class="opentt-profile-tab-btn' . ($activeTab === 'league' ? ' is-active' : '') . '" data-tab="league">Administracija lige</button>';
+        }
+        if (isset($allowedTabs['team'])) {
+            $out .= '<button type="button" class="opentt-profile-tab-btn' . ($activeTab === 'team' ? ' is-active' : '') . '" data-tab="team">Menadžer tima</button>';
+        }
+        $out .= '</div>';
+
+        $out .= '<div class="opentt-profile-tab-pane' . ($activeTab === 'profile' ? ' is-active' : '') . '" data-tab-pane="profile">';
         $out .= '<section class="opentt-profile-section" id="opentt-profile-settings">';
         $out .= '<h3>Podešavanje profila</h3>';
         $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" enctype="multipart/form-data" class="opentt-auth-form">';
@@ -512,19 +540,29 @@ final class UserPortalManager
             }
         }
         $out .= '</section>';
+        $out .= '</div>';
 
-        if (user_can($userId, 'editor') || user_can($userId, 'administrator')) {
+        if (isset($allowedTabs['editor'])) {
+            $out .= '<div class="opentt-profile-tab-pane' . ($activeTab === 'editor' ? ' is-active' : '') . '" data-tab-pane="editor">';
             $out .= self::renderEditorTools($userId);
             $out .= self::renderEditorPosts($userId);
+            $out .= '</div>';
         }
 
-        if (user_can($userId, self::ROLE_LEAGUE_ADMIN) || user_can($userId, 'administrator') || user_can($userId, \OpenTT_Unified_Core::CAP)) {
+        if (isset($allowedTabs['league'])) {
+            $out .= '<div class="opentt-profile-tab-pane' . ($activeTab === 'league' ? ' is-active' : '') . '" data-tab-pane="league">';
             $out .= self::renderLeagueAdminTools($userId);
+            $out .= '</div>';
         }
 
-        if (user_can($userId, self::ROLE_TEAM_MANAGER) || user_can($userId, 'administrator') || user_can($userId, \OpenTT_Unified_Core::CAP)) {
+        if (isset($allowedTabs['team'])) {
+            $out .= '<div class="opentt-profile-tab-pane' . ($activeTab === 'team' ? ' is-active' : '') . '" data-tab-pane="team">';
             $out .= self::renderTeamManagerTools($userId);
+            $out .= '</div>';
         }
+
+        $out .= '</div>';
+        $out .= "<script>(function(){var root=document.querySelector('[data-opentt-profile-tabs=\"1\"]');if(!root||root.dataset.bound==='1'){return;}root.dataset.bound='1';var btns=root.querySelectorAll('.opentt-profile-tab-btn');var panes=root.querySelectorAll('.opentt-profile-tab-pane');btns.forEach(function(btn){btn.addEventListener('click',function(){var tab=String(btn.getAttribute('data-tab')||'profile');btns.forEach(function(b){b.classList.toggle('is-active',b===btn);});panes.forEach(function(p){p.classList.toggle('is-active',String(p.getAttribute('data-tab-pane')||'')===tab);});});});})();</script>";
 
         $out .= '</div>';
         return $notice . $out;
@@ -711,7 +749,10 @@ final class UserPortalManager
                         $awayName = trim((string) get_the_title($awayId));
                         $homeLogo = (string) get_the_post_thumbnail_url($homeId, 'thumbnail');
                         $awayLogo = (string) get_the_post_thumbnail_url($awayId, 'thumbnail');
-                        $gamesAdminUrl = admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $matchId);
+                        $maxGames = max(0, min(7, intval($row->home_score ?? 0) + intval($row->away_score ?? 0)));
+                        if ($maxGames <= 0) {
+                            $maxGames = 7;
+                        }
 
                         $out .= '<details class="opentt-league-match-card">';
                         $out .= '<summary>';
@@ -762,8 +803,9 @@ final class UserPortalManager
                         $out .= '<label>Lokacija<input type="text" name="location" value="' . esc_attr((string) ($row->location ?? '')) . '"></label>';
                         $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="played" value="1"' . checked(intval($row->played ?? 0), 1, false) . '> Odigrana</label>';
                         $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="live" value="1"' . checked(intval($row->live ?? 0), 1, false) . '> Uživo</label>';
-                        $out .= '<div class="opentt-editor-media-row"><button type="submit" class="opentt-auth-btn">Sačuvaj izmene</button><a class="opentt-auth-btn is-ghost" href="' . esc_url($gamesAdminUrl) . '">Unos partija i setova</a></div>';
+                        $out .= '<div class="opentt-editor-media-row"><button type="submit" class="opentt-auth-btn">Sačuvaj izmene</button></div>';
                         $out .= '</form>';
+                        $out .= self::renderLeagueMatchGamesForm($matchId, $homeId, $awayId, $maxGames);
 
                         $out .= '</details>';
                     }
@@ -855,6 +897,319 @@ final class UserPortalManager
         $out .= '</form></section></section>';
 
         return $out;
+    }
+
+    private static function renderPlayerSelect($name, array $options, $selectedId)
+    {
+        $out = '<select name="' . esc_attr((string) $name) . '"><option value="">- izaberi -</option>';
+        foreach ($options as $option) {
+            if (!is_array($option)) {
+                continue;
+            }
+            $pid = intval($option['id'] ?? 0);
+            $title = (string) ($option['title'] ?? '');
+            if ($pid <= 0 || $title === '') {
+                continue;
+            }
+            $out .= '<option value="' . esc_attr((string) $pid) . '"' . selected(intval($selectedId), $pid, false) . '>' . esc_html($title) . '</option>';
+        }
+        $out .= '</select>';
+        return $out;
+    }
+
+    private static function playersByClub($clubId)
+    {
+        $clubId = intval($clubId);
+        if ($clubId <= 0) {
+            return [];
+        }
+        $players = get_posts([
+            'post_type' => 'igrac',
+            'numberposts' => 200,
+            'post_status' => ['publish', 'draft', 'pending', 'private'],
+            'meta_query' => [
+                'relation' => 'OR',
+                ['key' => 'povezani_klub', 'value' => $clubId, 'compare' => '=', 'type' => 'NUMERIC'],
+                ['key' => 'klub_igraca', 'value' => $clubId, 'compare' => '=', 'type' => 'NUMERIC'],
+            ],
+            'orderby' => 'title',
+            'order' => 'ASC',
+        ]) ?: [];
+
+        $out = [];
+        foreach ($players as $player) {
+            if (!($player instanceof \WP_Post)) {
+                continue;
+            }
+            $out[] = [
+                'id' => intval($player->ID),
+                'title' => (string) $player->post_title,
+            ];
+        }
+        return $out;
+    }
+
+    private static function expectedDoublesOrderByCompetition($ligaSlug, $sezonaSlug)
+    {
+        $ligaSlug = sanitize_title((string) $ligaSlug);
+        $sezonaSlug = sanitize_title((string) $sezonaSlug);
+        if ($ligaSlug === '' || $sezonaSlug === '') {
+            return 4;
+        }
+
+        $rules = get_posts([
+            'post_type' => 'pravilo_takmicenja',
+            'numberposts' => 1,
+            'post_status' => ['publish', 'draft', 'pending', 'private'],
+            'fields' => 'ids',
+            'meta_query' => [
+                'relation' => 'AND',
+                ['key' => 'opentt_competition_league_slug', 'value' => $ligaSlug, 'compare' => '='],
+                ['key' => 'opentt_competition_season_slug', 'value' => $sezonaSlug, 'compare' => '='],
+            ],
+        ]) ?: [];
+        $ruleId = !empty($rules) ? intval($rules[0]) : 0;
+        if ($ruleId <= 0) {
+            return 4;
+        }
+
+        $format = sanitize_key((string) get_post_meta($ruleId, 'format_partija', true));
+        return $format === 'format_b' ? 7 : 4;
+    }
+
+    private static function renderLeagueMatchGamesForm($matchId, $homeClubId, $awayClubId, $maxGames)
+    {
+        $matchId = intval($matchId);
+        if ($matchId <= 0) {
+            return '';
+        }
+
+        global $wpdb;
+        $gamesTable = \OpenTT_Unified_Core::db_table('games');
+        $setsTable = \OpenTT_Unified_Core::db_table('sets');
+        $matchesTable = \OpenTT_Unified_Core::db_table('matches');
+        if (!self::tableExists($gamesTable) || !self::tableExists($setsTable) || !self::tableExists($matchesTable)) {
+            return '';
+        }
+
+        $match = $wpdb->get_row($wpdb->prepare("SELECT liga_slug,sezona_slug FROM {$matchesTable} WHERE id=%d LIMIT 1", $matchId));
+        $expectedDoublesOrder = self::expectedDoublesOrderByCompetition(
+            is_object($match) ? (string) ($match->liga_slug ?? '') : '',
+            is_object($match) ? (string) ($match->sezona_slug ?? '') : ''
+        );
+
+        $existingGames = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$gamesTable} WHERE match_id=%d ORDER BY order_no ASC, id ASC", $matchId)) ?: [];
+        $gamesByOrder = [];
+        $setsByGame = [];
+        foreach ($existingGames as $game) {
+            if (!is_object($game)) {
+                continue;
+            }
+            $orderNo = intval($game->order_no ?? 0);
+            if ($orderNo <= 0) {
+                continue;
+            }
+            $gamesByOrder[$orderNo] = $game;
+            $gid = intval($game->id ?? 0);
+            if ($gid <= 0) {
+                continue;
+            }
+            $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$setsTable} WHERE game_id=%d ORDER BY set_no ASC, id ASC", $gid)) ?: [];
+            $tmp = [];
+            foreach ($rows as $sr) {
+                if (!is_object($sr)) {
+                    continue;
+                }
+                $tmp[intval($sr->set_no ?? 0)] = $sr;
+            }
+            $setsByGame[$gid] = $tmp;
+        }
+
+        $homePlayers = self::playersByClub($homeClubId);
+        $awayPlayers = self::playersByClub($awayClubId);
+        $maxGames = max(1, intval($maxGames));
+
+        $out = '<section class="opentt-profile-subsection"><h4>Unos partija i setova</h4>';
+        $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-auth-form opentt-league-games-form">';
+        $out .= wp_nonce_field('opentt_front_save_league_games_' . $matchId, '_wpnonce', true, false);
+        $out .= '<input type="hidden" name="action" value="opentt_front_save_league_games">';
+        $out .= '<input type="hidden" name="match_id" value="' . esc_attr((string) $matchId) . '">';
+
+        for ($orderNo = 1; $orderNo <= $maxGames; $orderNo++) {
+            $game = isset($gamesByOrder[$orderNo]) ? $gamesByOrder[$orderNo] : null;
+            $gameId = $game ? intval($game->id ?? 0) : 0;
+            $isDoubles = $game ? intval($game->is_doubles ?? 0) === 1 : ($orderNo === $expectedDoublesOrder);
+            $homeSets = $game ? intval($game->home_sets ?? 0) : 0;
+            $awaySets = $game ? intval($game->away_sets ?? 0) : 0;
+            $existingSets = ($gameId > 0 && isset($setsByGame[$gameId])) ? $setsByGame[$gameId] : [];
+
+            $out .= '<div class="opentt-league-game-card">';
+            $out .= '<div class="opentt-league-game-title">Partija #' . intval($orderNo) . ($isDoubles ? ' (Dubl)' : '') . '</div>';
+            $out .= '<input type="hidden" name="games[' . intval($orderNo) . '][order_no]" value="' . esc_attr((string) $orderNo) . '">';
+            $out .= '<input type="hidden" name="games[' . intval($orderNo) . '][game_id]" value="' . esc_attr((string) $gameId) . '">';
+            $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="games[' . intval($orderNo) . '][is_doubles]" value="1"' . checked($isDoubles, true, false) . '> Dubl</label>';
+            $out .= '<div class="opentt-inline-select-grid">';
+            $out .= '<label>Domaći igrač' . self::renderPlayerSelect('games[' . intval($orderNo) . '][home_player_post_id]', $homePlayers, $game ? intval($game->home_player_post_id ?? 0) : 0) . '</label>';
+            $out .= '<label>Gost igrač' . self::renderPlayerSelect('games[' . intval($orderNo) . '][away_player_post_id]', $awayPlayers, $game ? intval($game->away_player_post_id ?? 0) : 0) . '</label>';
+            $out .= '<label>Domaći setovi<input type="number" min="0" max="7" name="games[' . intval($orderNo) . '][home_sets]" value="' . esc_attr((string) $homeSets) . '"></label>';
+            $out .= '<label>Gost setovi<input type="number" min="0" max="7" name="games[' . intval($orderNo) . '][away_sets]" value="' . esc_attr((string) $awaySets) . '"></label>';
+            $out .= '<label>Domaći igrač 2' . self::renderPlayerSelect('games[' . intval($orderNo) . '][home_player2_post_id]', $homePlayers, $game ? intval($game->home_player2_post_id ?? 0) : 0) . '</label>';
+            $out .= '<label>Gost igrač 2' . self::renderPlayerSelect('games[' . intval($orderNo) . '][away_player2_post_id]', $awayPlayers, $game ? intval($game->away_player2_post_id ?? 0) : 0) . '</label>';
+            $out .= '</div>';
+            $out .= '<div class="opentt-inline-select-grid">';
+            for ($setNo = 1; $setNo <= 5; $setNo++) {
+                $set = isset($existingSets[$setNo]) ? $existingSets[$setNo] : null;
+                $hp = $set ? intval($set->home_points ?? 0) : '';
+                $ap = $set ? intval($set->away_points ?? 0) : '';
+                $out .= '<label>Set ' . intval($setNo) . ' (D:G)<span class="opentt-league-game-set-pair"><input type="number" min="0" max="30" name="games[' . intval($orderNo) . '][sets][' . intval($setNo) . '][home_points]" value="' . esc_attr((string) $hp) . '" placeholder="11"><span>:</span><input type="number" min="0" max="30" name="games[' . intval($orderNo) . '][sets][' . intval($setNo) . '][away_points]" value="' . esc_attr((string) $ap) . '" placeholder="9"></span></label>';
+            }
+            $out .= '</div>';
+            $out .= '</div>';
+        }
+
+        $out .= '<button type="submit" class="opentt-auth-btn">Sačuvaj partije</button>';
+        $out .= '</form></section>';
+        return $out;
+    }
+
+    private static function applyFrontGamesBatchForMatch($match, array $postedGames, &$error = '')
+    {
+        global $wpdb;
+        $error = '';
+        if (!is_object($match) || empty($match->id)) {
+            $error = 'Utakmica nije pronađena.';
+            return false;
+        }
+
+        $matchId = intval($match->id);
+        $gamesTable = \OpenTT_Unified_Core::db_table('games');
+        $setsTable = \OpenTT_Unified_Core::db_table('sets');
+        if (!self::tableExists($gamesTable) || !self::tableExists($setsTable)) {
+            $error = 'Tabela partija/setova nije dostupna.';
+            return false;
+        }
+
+        $maxGames = max(0, min(7, intval($match->home_score ?? 0) + intval($match->away_score ?? 0)));
+        if ($maxGames <= 0) {
+            $maxGames = 7;
+        }
+        $expectedDoublesOrder = self::expectedDoublesOrderByCompetition((string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''));
+
+        $existingRows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$gamesTable} WHERE match_id=%d", $matchId)) ?: [];
+        $existingByOrder = [];
+        foreach ($existingRows as $row) {
+            if (!is_object($row)) {
+                continue;
+            }
+            $existingByOrder[intval($row->order_no ?? 0)] = $row;
+        }
+
+        for ($orderNo = 1; $orderNo <= $maxGames; $orderNo++) {
+            $raw = isset($postedGames[$orderNo]) && is_array($postedGames[$orderNo]) ? $postedGames[$orderNo] : [];
+            $hp = intval($raw['home_player_post_id'] ?? 0);
+            $ap = intval($raw['away_player_post_id'] ?? 0);
+            $hp2 = intval($raw['home_player2_post_id'] ?? 0);
+            $ap2 = intval($raw['away_player2_post_id'] ?? 0);
+            $hs = max(0, intval($raw['home_sets'] ?? 0));
+            $as = max(0, intval($raw['away_sets'] ?? 0));
+            $isDoubles = isset($raw['is_doubles']) ? 1 : (($orderNo === $expectedDoublesOrder) ? 1 : 0);
+
+            $setsRaw = isset($raw['sets']) && is_array($raw['sets']) ? $raw['sets'] : [];
+            $setRows = [];
+            $winsHome = 0;
+            $winsAway = 0;
+            for ($setNo = 1; $setNo <= 5; $setNo++) {
+                $setIn = isset($setsRaw[$setNo]) && is_array($setsRaw[$setNo]) ? $setsRaw[$setNo] : [];
+                $spHome = max(0, intval($setIn['home_points'] ?? 0));
+                $spAway = max(0, intval($setIn['away_points'] ?? 0));
+                if ($spHome <= 0 && $spAway <= 0) {
+                    continue;
+                }
+                $setRows[] = ['set_no' => $setNo, 'home_points' => $spHome, 'away_points' => $spAway];
+                if ($spHome > $spAway) {
+                    $winsHome++;
+                } elseif ($spAway > $spHome) {
+                    $winsAway++;
+                }
+            }
+
+            $hasAny = ($hp > 0 || $ap > 0 || $hp2 > 0 || $ap2 > 0 || $hs > 0 || $as > 0 || !empty($setRows));
+            $existing = isset($existingByOrder[$orderNo]) ? $existingByOrder[$orderNo] : null;
+            if (!$hasAny) {
+                if ($existing) {
+                    $wpdb->delete($setsTable, ['game_id' => intval($existing->id ?? 0)]);
+                    $wpdb->delete($gamesTable, ['id' => intval($existing->id ?? 0)]);
+                }
+                continue;
+            }
+            if ($hp <= 0 || $ap <= 0) {
+                $error = 'Partija #' . intval($orderNo) . ': izaberi oba glavna igrača.';
+                return false;
+            }
+            if ($isDoubles === 1 && ($hp2 <= 0 || $ap2 <= 0 || $hp === $hp2 || $ap === $ap2)) {
+                $error = 'Partija #' . intval($orderNo) . ': dubl nije validan (proveri igrače 2).';
+                return false;
+            }
+            if ($isDoubles !== 1) {
+                $hp2 = 0;
+                $ap2 = 0;
+            }
+            if (($hs + $as) === 0 && !empty($setRows)) {
+                $hs = $winsHome;
+                $as = $winsAway;
+            }
+
+            $data = [
+                'match_id' => $matchId,
+                'order_no' => $orderNo,
+                'slug' => 'partija-' . $orderNo,
+                'is_doubles' => $isDoubles,
+                'home_player_post_id' => $hp,
+                'away_player_post_id' => $ap,
+                'home_player2_post_id' => $isDoubles ? ($hp2 ?: null) : null,
+                'away_player2_post_id' => $isDoubles ? ($ap2 ?: null) : null,
+                'home_sets' => $hs,
+                'away_sets' => $as,
+                'updated_at' => current_time('mysql'),
+            ];
+
+            $gameId = 0;
+            if ($existing) {
+                $gameId = intval($existing->id ?? 0);
+                $ok = $wpdb->update($gamesTable, $data, ['id' => $gameId]);
+                if ($ok === false) {
+                    $error = 'Greška pri čuvanju partije #' . intval($orderNo) . '.';
+                    return false;
+                }
+            } else {
+                $data['created_at'] = current_time('mysql');
+                $ok = $wpdb->insert($gamesTable, $data);
+                if ($ok === false) {
+                    $error = 'Greška pri dodavanju partije #' . intval($orderNo) . '.';
+                    return false;
+                }
+                $gameId = intval($wpdb->insert_id);
+            }
+
+            $wpdb->delete($setsTable, ['game_id' => $gameId]);
+            foreach ($setRows as $sr) {
+                $wpdb->insert($setsTable, [
+                    'game_id' => $gameId,
+                    'set_no' => intval($sr['set_no']),
+                    'home_points' => intval($sr['home_points']),
+                    'away_points' => intval($sr['away_points']),
+                    'created_at' => current_time('mysql'),
+                    'updated_at' => current_time('mysql'),
+                ]);
+            }
+        }
+
+        $extraIds = $wpdb->get_col($wpdb->prepare("SELECT id FROM {$gamesTable} WHERE match_id=%d AND order_no>%d", $matchId, $maxGames)) ?: [];
+        foreach ($extraIds as $gid) {
+            $wpdb->delete($setsTable, ['game_id' => intval($gid)]);
+        }
+        $wpdb->query($wpdb->prepare("DELETE FROM {$gamesTable} WHERE match_id=%d AND order_no>%d", $matchId, $maxGames));
+        return true;
     }
 
     public static function handleFrontLogin()
@@ -1082,6 +1437,48 @@ final class UserPortalManager
         ], ['id' => $matchId]);
 
         wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'success', 'Utakmica je sačuvana.'));
+        exit;
+    }
+
+    public static function handleFrontSaveLeagueGames()
+    {
+        if (!is_user_logged_in()) {
+            wp_safe_redirect(home_url('/prijava/'));
+            exit;
+        }
+
+        $matchId = isset($_POST['match_id']) ? intval($_POST['match_id']) : 0;
+        if ($matchId <= 0) {
+            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nedostaje ID utakmice za partije.'));
+            exit;
+        }
+        check_admin_referer('opentt_front_save_league_games_' . $matchId);
+
+        global $wpdb;
+        $matchesTable = \OpenTT_Unified_Core::db_table('matches');
+        if (!self::tableExists($matchesTable)) {
+            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Tabela utakmica nije dostupna.'));
+            exit;
+        }
+        $match = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$matchesTable} WHERE id=%d LIMIT 1", $matchId));
+        if (!$match || !is_object($match)) {
+            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Utakmica nije pronađena.'));
+            exit;
+        }
+        $userId = get_current_user_id();
+        if (!self::canManageLeague($userId, (string) ($match->liga_slug ?? ''))) {
+            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nemaš dozvolu za unos partija u ovoj ligi.'));
+            exit;
+        }
+
+        $postedGames = isset($_POST['games']) && is_array($_POST['games']) ? (array) $_POST['games'] : [];
+        $error = '';
+        if (!self::applyFrontGamesBatchForMatch($match, $postedGames, $error)) {
+            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/?opentt_profile_tab=league'), 'error', $error !== '' ? $error : 'Greška pri čuvanju partija.'));
+            exit;
+        }
+
+        wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/?opentt_profile_tab=league'), 'success', 'Partije su sačuvane.'));
         exit;
     }
 

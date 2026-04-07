@@ -71,6 +71,7 @@ final class OpenTT_Unified_Admin_Module
         add_action('admin_post_opentt_front_profile_update', ['OpenTT_Unified_Core', 'handle_front_profile_update']);
         add_action('admin_post_opentt_front_save_editor_post', ['OpenTT_Unified_Core', 'handle_front_save_editor_post']);
         add_action('admin_post_opentt_front_save_league_match', ['OpenTT_Unified_Core', 'handle_front_save_league_match']);
+        add_action('admin_post_opentt_front_save_league_games', ['OpenTT_Unified_Core', 'handle_front_save_league_games']);
         add_action('admin_post_opentt_front_add_league_match', ['OpenTT_Unified_Core', 'handle_front_add_league_match']);
         add_action('admin_post_opentt_front_team_save_club', ['OpenTT_Unified_Core', 'handle_front_team_save_club']);
         add_action('admin_post_opentt_front_team_save_player', ['OpenTT_Unified_Core', 'handle_front_team_save_player']);

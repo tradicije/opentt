@@ -14,6 +14,40 @@
   gap: 16px;
 }
 
+.opentt-profile-tabs {
+  display: grid;
+  gap: 14px;
+}
+
+.opentt-profile-tab-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.opentt-profile-tab-btn {
+  border: 1px solid rgba(142, 197, 255, 0.35);
+  background: rgba(5, 23, 66, 0.72);
+  color: #d8e9ff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.opentt-profile-tab-btn.is-active {
+  background: linear-gradient(135deg, #0b4db8, #1b79f3);
+  color: #fff;
+}
+
+.opentt-profile-tab-pane {
+  display: none;
+}
+
+.opentt-profile-tab-pane.is-active {
+  display: block;
+}
+
 .opentt-auth-card h3,
 .opentt-profile-card h2,
 .opentt-profile-section h3,
@@ -313,8 +347,8 @@
 }
 
 .opentt-league-match-card {
-  background: rgba(5, 23, 66, 0.62);
-  border: 1px solid rgba(142, 197, 255, 0.22);
+  background: rgba(3, 20, 58, 0.72);
+  border: 1px solid rgba(142, 197, 255, 0.32);
   border-radius: 12px;
   padding: 10px 12px;
 }
@@ -365,6 +399,35 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.opentt-league-games-form {
+  margin-top: 10px;
+  border-top: 1px solid rgba(142, 197, 255, 0.22);
+  padding-top: 10px;
+}
+
+.opentt-league-game-card {
+  border: 1px solid rgba(142, 197, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(5, 23, 66, 0.45);
+}
+
+.opentt-league-game-title {
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.opentt-league-game-set-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.opentt-league-game-set-pair input {
+  width: 80px;
 }
 
 .opentt-lm-score {

@@ -5253,6 +5253,11 @@ HTML;
         \OpenTT\Unified\WordPress\UserPortalManager::handleFrontSaveLeagueMatch();
     }
 
+    public static function handle_front_save_league_games()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleFrontSaveLeagueGames();
+    }
+
     public static function handle_front_add_league_match()
     {
         \OpenTT\Unified\WordPress\UserPortalManager::handleFrontAddLeagueMatch();
