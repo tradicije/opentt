@@ -5245,6 +5245,11 @@ HTML;
         \OpenTT\Unified\WordPress\UserPortalManager::handleFrontSaveLeagueMatch();
     }
 
+    public static function handle_front_add_league_match()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleFrontAddLeagueMatch();
+    }
+
     public static function handle_front_team_save_club()
     {
         \OpenTT\Unified\WordPress\UserPortalManager::handleFrontTeamSaveClub();
