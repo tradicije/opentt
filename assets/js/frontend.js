@@ -1206,6 +1206,10 @@
   }
 
   function createStandingsExportNode(payload) {
+    function toCell(value) {
+      return value === null || typeof value === "undefined" ? "" : String(value);
+    }
+
     var rows = Array.isArray(payload && payload.rows) ? payload.rows : [];
     var round = parseInt(payload && payload.round ? payload.round : 0, 10);
     var promotionCut = parseInt(payload && payload.promotionCut ? payload.promotionCut : 0, 10);
@@ -1243,7 +1247,7 @@
         String(rowH) +
         'px;">' +
         '<div class="col col-rank col-num">' +
-        esc(String(row.rank || "")) +
+        esc(toCell(row.rank)) +
         '</div>' +
         '<div class="col col-club"><span class="club-logo-wrap"><img src="' +
         esc(String(row.logoUrl || "")) +
@@ -1251,19 +1255,19 @@
         esc(clubName) +
         "</span></div>" +
         '<div class="col col-num">' +
-        esc(String(row.played || "")) +
+        esc(toCell(row.played)) +
         "</div>" +
         '<div class="col col-num">' +
-        esc(String(row.wins || "")) +
+        esc(toCell(row.wins)) +
         "</div>" +
         '<div class="col col-num">' +
-        esc(String(row.losses || "")) +
+        esc(toCell(row.losses)) +
         "</div>" +
         '<div class="col col-num">' +
-        esc(String(row.diff || "")) +
+        esc(toCell(row.diff)) +
         "</div>" +
         '<div class="col col-num">' +
-        esc(String(row.points || "")) +
+        esc(toCell(row.points)) +
         "</div>" +
         "</div>";
     }

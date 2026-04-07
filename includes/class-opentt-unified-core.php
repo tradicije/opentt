@@ -61,6 +61,8 @@ final class OpenTT_Unified_Core
     const OPTION_MAILGUN_DOMAIN = 'opentt_unified_mailgun_domain';
     const OPTION_MAILGUN_FROM_EMAIL = 'opentt_unified_mailgun_from_email';
     const OPTION_MAILGUN_FROM_NAME = 'opentt_unified_mailgun_from_name';
+    const OPTION_STANDINGS_WATERMARK_ENABLED = 'opentt_unified_standings_watermark_enabled';
+    const OPTION_STANDINGS_WATERMARK_URL = 'opentt_unified_standings_watermark_url';
     const OPTION_MATCHES_LAST_EDITOR_ID = 'opentt_unified_matches_last_editor_id';
     const OPTION_MATCHES_LAST_EDITOR_NAME = 'opentt_unified_matches_last_editor_name';
     const OPTION_MATCHES_LAST_EDITOR_AVATAR_URL = 'opentt_unified_matches_last_editor_avatar_url';
@@ -3396,6 +3398,7 @@ JS;
     public static function render_settings_page()
     {
         self::require_cap();
+        wp_enqueue_media();
         $catalog = self::shortcode_catalog();
         $admin_ui_lang = self::get_admin_ui_language();
 
@@ -3449,6 +3452,30 @@ JS;
         echo '<label><span>Floating search</span><span style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="search_floating_enabled" value="0"><input type="checkbox" name="search_floating_enabled" value="1" ' . checked($search_floating_enabled, 1, false) . '> Uključi floating search ikonicu</span></label>';
         echo '<div class="opentt-settings-actions">';
         echo '<button type="submit" class="button button-primary">Sačuvaj pretragu</button>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+
+        $standings_wm_enabled = ((string) get_option(self::OPTION_STANDINGS_WATERMARK_ENABLED, '1') === '1') ? 1 : 0;
+        $standings_wm_url = trim((string) get_option(self::OPTION_STANDINGS_WATERMARK_URL, ''));
+        echo '<div class="opentt-panel opentt-settings-panel">';
+        echo '<h2>Watermark tabela (frontend)</h2>';
+        echo '<p class="description">Podešavanje važi za prikaz tabela na sajtu (ne za generisanu social sliku).</p>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
+        wp_nonce_field('opentt_unified_save_settings');
+        echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
+        echo '<input type="hidden" name="opentt_settings_section" value="standings_watermark">';
+        echo '<label><span>Status watermark-a</span><span style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="standings_watermark_enabled" value="0"><input type="checkbox" name="standings_watermark_enabled" value="1" ' . checked($standings_wm_enabled, 1, false) . '> Prikaži watermark na tabelama</span></label>';
+        echo '<label><span>Watermark slika (URL)</span><input type="text" id="opentt-standings-watermark-url" name="standings_watermark_url" class="regular-text" value="' . esc_attr($standings_wm_url) . '" placeholder="https://... ili izbor iz Media Library"></label>';
+        echo '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">';
+        echo '<button type="button" class="button" id="opentt-watermark-media-open">Izaberi/Upload watermark</button>';
+        echo '<button type="button" class="button" id="opentt-watermark-media-clear">Ukloni watermark sliku</button>';
+        echo '</div>';
+        echo '<div id="opentt-watermark-preview-wrap" style="margin-top:10px;' . ($standings_wm_url !== '' ? '' : 'display:none;') . '">';
+        echo '<img id="opentt-watermark-preview" src="' . esc_url($standings_wm_url) . '" alt="" style="max-width:220px;height:auto;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px;background:rgba(255,255,255,.03);">';
+        echo '</div>';
+        echo '<div class="opentt-settings-actions">';
+        echo '<button type="submit" class="button button-primary">Sačuvaj watermark podešavanje</button>';
         echo '</div>';
         echo '</form>';
         echo '</div>';
@@ -3629,6 +3656,52 @@ JS;
     buildOutput(root);
   }
   document.querySelectorAll('.opentt-shortcode-builder').forEach(initBuilder);
+
+  var wmInput = document.getElementById('opentt-standings-watermark-url');
+  var wmPreviewWrap = document.getElementById('opentt-watermark-preview-wrap');
+  var wmPreview = document.getElementById('opentt-watermark-preview');
+  var wmOpen = document.getElementById('opentt-watermark-media-open');
+  var wmClear = document.getElementById('opentt-watermark-media-clear');
+  function refreshWatermarkPreview(){
+    if (!wmInput || !wmPreviewWrap || !wmPreview) { return; }
+    var url = String(wmInput.value || '').trim();
+    if (!url) {
+      wmPreviewWrap.style.display = 'none';
+      wmPreview.removeAttribute('src');
+      return;
+    }
+    wmPreview.src = url;
+    wmPreviewWrap.style.display = '';
+  }
+  if (wmInput) {
+    wmInput.addEventListener('input', refreshWatermarkPreview);
+  }
+  if (wmOpen && window.wp && wp.media && wmInput) {
+    wmOpen.addEventListener('click', function(){
+      var frame = wp.media({
+        title: 'Izaberi watermark sliku',
+        button: { text: 'Koristi ovu sliku' },
+        multiple: false,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        var selection = frame.state().get('selection').first();
+        if (!selection) { return; }
+        var json = selection.toJSON ? selection.toJSON() : null;
+        var url = json && json.url ? String(json.url) : '';
+        if (!url) { return; }
+        wmInput.value = url;
+        refreshWatermarkPreview();
+      });
+      frame.open();
+    });
+  }
+  if (wmClear && wmInput) {
+    wmClear.addEventListener('click', function(){
+      wmInput.value = '';
+      refreshWatermarkPreview();
+    });
+  }
 })();
 </script>
 HTML;
@@ -5075,6 +5148,8 @@ HTML;
                 self::OPTION_MAILGUN_DOMAIN,
                 self::OPTION_MAILGUN_FROM_EMAIL,
                 self::OPTION_MAILGUN_FROM_NAME,
+                self::OPTION_STANDINGS_WATERMARK_ENABLED,
+                self::OPTION_STANDINGS_WATERMARK_URL,
                 self::OPTION_ADMIN_UI_LANGUAGE,
                 self::OPTION_DEFAULT_PAGES_SETUP_DONE,
                 self::OPTION_ONBOARDING_STATE,
@@ -5105,6 +5180,8 @@ HTML;
             'option_mailgun_domain' => self::OPTION_MAILGUN_DOMAIN,
             'option_mailgun_from_email' => self::OPTION_MAILGUN_FROM_EMAIL,
             'option_mailgun_from_name' => self::OPTION_MAILGUN_FROM_NAME,
+            'option_standings_watermark_enabled' => self::OPTION_STANDINGS_WATERMARK_ENABLED,
+            'option_standings_watermark_url' => self::OPTION_STANDINGS_WATERMARK_URL,
             'mailgun_test_sender' => [OpenTT_Unified_Admin_Match_Actions::class, 'send_mailgun_test_email_admin'],
             'option_admin_ui_language' => self::OPTION_ADMIN_UI_LANGUAGE,
             'available_languages' => self::get_available_admin_ui_languages(),

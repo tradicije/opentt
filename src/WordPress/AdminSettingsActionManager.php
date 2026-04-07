@@ -85,6 +85,8 @@ final class AdminSettingsActionManager
         $optionMailgunDomain = (string) ($config['option_mailgun_domain'] ?? '');
         $optionMailgunFromEmail = (string) ($config['option_mailgun_from_email'] ?? '');
         $optionMailgunFromName = (string) ($config['option_mailgun_from_name'] ?? '');
+        $optionStandingsWatermarkEnabled = (string) ($config['option_standings_watermark_enabled'] ?? '');
+        $optionStandingsWatermarkUrl = (string) ($config['option_standings_watermark_url'] ?? '');
         $mailgunTestSender = (isset($config['mailgun_test_sender']) && is_callable($config['mailgun_test_sender']))
             ? $config['mailgun_test_sender']
             : null;
@@ -148,6 +150,22 @@ final class AdminSettingsActionManager
             }
             if ($section === 'search') {
                 wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Podešavanje floating pretrage je sačuvano.'));
+                exit;
+            }
+        }
+
+        if ($section === 'standings_watermark' || $section === 'all') {
+            $standingsWatermarkEnabled = !empty($_POST['standings_watermark_enabled']) ? '1' : '0'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $standingsWatermarkUrlRaw = isset($_POST['standings_watermark_url']) ? (string) wp_unslash($_POST['standings_watermark_url']) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $standingsWatermarkUrl = esc_url_raw(trim($standingsWatermarkUrlRaw));
+            if ($optionStandingsWatermarkEnabled !== '') {
+                update_option($optionStandingsWatermarkEnabled, $standingsWatermarkEnabled, false);
+            }
+            if ($optionStandingsWatermarkUrl !== '') {
+                update_option($optionStandingsWatermarkUrl, $standingsWatermarkUrl, false);
+            }
+            if ($section === 'standings_watermark') {
+                wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Podešavanje watermark-a tabela je sačuvano.'));
                 exit;
             }
         }
