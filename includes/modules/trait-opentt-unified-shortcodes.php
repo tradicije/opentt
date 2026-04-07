@@ -22,6 +22,12 @@ trait OpenTT_Unified_Shortcodes_Trait
         return \OpenTT\Unified\WordPress\UserPortalManager::renderAuthShortcode();
     }
 
+    public static function shortcode_auth_menu($atts = [])
+    {
+        unset($atts);
+        return \OpenTT\Unified\WordPress\UserPortalManager::renderAuthMenuShortcode();
+    }
+
     public static function shortcode_profile($atts = [])
     {
         unset($atts);

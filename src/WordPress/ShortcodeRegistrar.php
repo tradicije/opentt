@@ -17,6 +17,7 @@ final class ShortcodeRegistrar
     {
         $map = [
             'opentt_auth' => 'shortcode_auth',
+            'opentt_auth_menu' => 'shortcode_auth_menu',
             'opentt_profile' => 'shortcode_profile',
             'opentt_search' => 'shortcode_search',
             'opentt_matches' => 'shortcode_matches',

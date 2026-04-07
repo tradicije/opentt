@@ -431,6 +431,42 @@ final class UserPortalManager
         return $notice . $out;
     }
 
+    public static function renderAuthMenuShortcode()
+    {
+        if (!is_user_logged_in()) {
+            return '<div class="opentt-auth-menu"><a class="opentt-auth-menu-login" href="' . esc_url(home_url('/prijava/')) . '">Prijavi se</a></div>';
+        }
+
+        $userId = get_current_user_id();
+        $user = get_userdata($userId);
+        if (!$user) {
+            return '<div class="opentt-auth-menu"><a class="opentt-auth-menu-login" href="' . esc_url(home_url('/prijava/')) . '">Prijavi se</a></div>';
+        }
+
+        $avatar = self::profileAvatarUrl($userId, 64);
+        $profileUrl = home_url('/profil/');
+        $menuId = 'opentt-auth-menu-' . $userId . '-' . wp_rand(100, 9999);
+
+        $out = '<div class="opentt-auth-menu" id="' . esc_attr($menuId) . '">';
+        $out .= '<button type="button" class="opentt-auth-menu-toggle" aria-expanded="false" aria-label="Korisnički meni">';
+        $out .= '<img src="' . esc_url($avatar) . '" alt="' . esc_attr((string) $user->display_name) . '">';
+        $out .= '</button>';
+        $out .= '<div class="opentt-auth-menu-dropdown" hidden>';
+        $out .= '<a class="opentt-auth-menu-link" href="' . esc_url($profileUrl) . '">Izmeni profil</a>';
+        if (user_can($userId, self::ROLE_LEAGUE_ADMIN) || user_can($userId, 'administrator') || user_can($userId, \OpenTT_Unified_Core::CAP)) {
+            $out .= '<a class="opentt-auth-menu-link" href="' . esc_url($profileUrl . '#opentt-profile-league-admin') . '">Administracija lige</a>';
+        }
+        if (user_can($userId, 'editor') || user_can($userId, 'administrator')) {
+            $out .= '<a class="opentt-auth-menu-link" href="' . esc_url($profileUrl . '#opentt-profile-editor-tools') . '">Urednički portal</a>';
+        }
+        $out .= '<a class="opentt-auth-menu-link is-logout" href="' . esc_url(wp_logout_url(home_url('/prijava/'))) . '">Odjavi se</a>';
+        $out .= '</div>';
+        $out .= '</div>';
+        $out .= "<script>(function(){var root=document.getElementById('" . esc_js($menuId) . "');if(!root||root.dataset.bound==='1'){return;}root.dataset.bound='1';var btn=root.querySelector('.opentt-auth-menu-toggle');var menu=root.querySelector('.opentt-auth-menu-dropdown');if(!btn||!menu){return;}function close(){btn.setAttribute('aria-expanded','false');menu.hidden=true;}btn.addEventListener('click',function(e){e.preventDefault();var open=btn.getAttribute('aria-expanded')==='true';if(open){close();return;}btn.setAttribute('aria-expanded','true');menu.hidden=false;});document.addEventListener('click',function(e){if(!root.contains(e.target)){close();}});})();</script>";
+
+        return $out;
+    }
+
     public static function renderProfileShortcode()
     {
         $notice = self::renderFrontendNotice();
@@ -452,14 +488,14 @@ final class UserPortalManager
         $profileAvatar = self::profileAvatarUrl($userId, 128);
 
         $out = '<div class="opentt-profile-wrap">';
-        $out .= '<section class="opentt-profile-card opentt-profile-card--account">';
+        $out .= '<section class="opentt-profile-card opentt-profile-card--account" id="opentt-profile-account">';
         $out .= '<header class="opentt-profile-head">';
         $out .= '<img src="' . esc_url($profileAvatar) . '" alt="Avatar" class="opentt-profile-avatar">';
         $out .= '<div class="opentt-profile-head-meta"><h2>' . esc_html((string) $user->display_name) . '</h2><p>Rola: <strong>' . esc_html($roleLabel) . '</strong></p></div>';
         $out .= '</header>';
         $out .= '</section>';
 
-        $out .= '<section class="opentt-profile-section">';
+        $out .= '<section class="opentt-profile-section" id="opentt-profile-settings">';
         $out .= '<h3>Podešavanje profila</h3>';
         $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" enctype="multipart/form-data" class="opentt-auth-form">';
         $out .= wp_nonce_field('opentt_front_profile_update', '_wpnonce', true, false);
@@ -496,7 +532,7 @@ final class UserPortalManager
 
     private static function renderEditorTools($userId)
     {
-        $out = '<section class="opentt-profile-section"><h3>Alati urednika</h3>';
+        $out = '<section class="opentt-profile-section" id="opentt-profile-editor-tools"><h3>Alati urednika</h3>';
         $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-auth-form" id="opentt-editor-post-form">';
         $out .= wp_nonce_field('opentt_front_save_editor_post', '_wpnonce', true, false);
         $out .= '<input type="hidden" name="action" value="opentt_front_save_editor_post">';
@@ -538,7 +574,7 @@ final class UserPortalManager
             'order' => 'DESC',
         ]);
 
-        $out = '<section class="opentt-profile-section"><h3>Moje vesti</h3>';
+        $out = '<section class="opentt-profile-section" id="opentt-profile-editor-posts"><h3>Moje vesti</h3>';
         if (empty($posts)) {
             $out .= '<p>Nema objavljenih vesti.</p>';
         } else {
@@ -588,7 +624,7 @@ final class UserPortalManager
             return '<section class="opentt-profile-section"><h3>Alati administratora lige</h3><p>Nema liga za upravljanje.</p></section>';
         }
 
-        $out = '<section class="opentt-profile-section"><h3>Alati administratora lige</h3>';
+        $out = '<section class="opentt-profile-section" id="opentt-profile-league-admin"><h3>Alati administratora lige</h3>';
 
         $out .= '<div class="opentt-league-tabs" data-opentt-league-tabs="1">';
         $out .= '<div class="opentt-league-tab-head">';
@@ -630,73 +666,110 @@ final class UserPortalManager
             $out .= '</section>';
 
             $matches = $wpdb->get_results($wpdb->prepare(
-                "SELECT * FROM {$matchesTable} WHERE liga_slug=%s ORDER BY match_date DESC, id DESC LIMIT 120",
+                "SELECT * FROM {$matchesTable} WHERE liga_slug=%s ORDER BY sezona_slug DESC, kolo_slug DESC, match_date DESC, id DESC LIMIT 200",
                 $leagueSlug
             )) ?: [];
+
+            $matchesBySeason = [];
+            foreach ($matches as $row) {
+                if (!is_object($row)) {
+                    continue;
+                }
+                $seasonKey = sanitize_title((string) ($row->sezona_slug ?? ''));
+                if ($seasonKey === '') {
+                    $seasonKey = 'bez-sezone';
+                }
+                if (!isset($matchesBySeason[$seasonKey])) {
+                    $matchesBySeason[$seasonKey] = [];
+                }
+                $matchesBySeason[$seasonKey][] = $row;
+            }
 
             $out .= '<section class="opentt-profile-subsection"><h4>Utakmice lige</h4>';
             if (empty($matches)) {
                 $out .= '<p>Nema utakmica za ovu ligu.</p>';
             } else {
-                $out .= '<div class="opentt-league-matches-grid">';
-                foreach ($matches as $row) {
-                    if (!is_object($row)) {
-                        continue;
-                    }
-                    $matchId = intval($row->id ?? 0);
-                    if ($matchId <= 0) {
-                        continue;
-                    }
-                    $homeId = intval($row->home_club_post_id ?? 0);
-                    $awayId = intval($row->away_club_post_id ?? 0);
-                    $homeName = trim((string) get_the_title($homeId));
-                    $awayName = trim((string) get_the_title($awayId));
-                    $matchLink = (string) add_query_arg([
-                        'opentt_pending_games_form' => '1',
-                        'match_id' => $matchId,
-                    ], home_url('/'));
+                foreach ($matchesBySeason as $seasonSlug => $seasonMatches) {
+                    $seasonLabel = $seasonSlug === 'bez-sezone'
+                        ? 'Bez sezone'
+                        : str_replace('-', '/', (string) $seasonSlug);
 
-                    $out .= '<details class="opentt-league-match-card">';
-                    $out .= '<summary>';
-                    $out .= '<span class="opentt-lm-top">' . esc_html(self::koloNameFromSlug((string) ($row->kolo_slug ?? ''))) . '</span>';
-                    $out .= '<span class="opentt-lm-main">' . esc_html($homeName) . ' <strong>' . intval($row->home_score ?? 0) . ':' . intval($row->away_score ?? 0) . '</strong> ' . esc_html($awayName) . '</span>';
-                    $out .= '<span class="opentt-lm-date">' . esc_html((string) ($row->match_date ?? '')) . '</span>';
-                    $out .= '</summary>';
+                    $out .= '<div class="opentt-league-season-group">';
+                    $out .= '<h5 class="opentt-league-season-title">Sezona ' . esc_html($seasonLabel) . '</h5>';
+                    $out .= '<div class="opentt-league-matches-grid">';
+                    foreach ($seasonMatches as $row) {
+                        if (!is_object($row)) {
+                            continue;
+                        }
+                        $matchId = intval($row->id ?? 0);
+                        if ($matchId <= 0) {
+                            continue;
+                        }
+                        $homeId = intval($row->home_club_post_id ?? 0);
+                        $awayId = intval($row->away_club_post_id ?? 0);
+                        $homeName = trim((string) get_the_title($homeId));
+                        $awayName = trim((string) get_the_title($awayId));
+                        $homeLogo = (string) get_the_post_thumbnail_url($homeId, 'thumbnail');
+                        $awayLogo = (string) get_the_post_thumbnail_url($awayId, 'thumbnail');
+                        $gamesAdminUrl = admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $matchId);
 
-                    $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-auth-form">';
-                    $out .= wp_nonce_field('opentt_front_save_league_match_' . $matchId, '_wpnonce', true, false);
-                    $out .= '<input type="hidden" name="action" value="opentt_front_save_league_match">';
-                    $out .= '<input type="hidden" name="match_id" value="' . esc_attr((string) $matchId) . '">';
-                    $out .= '<div class="opentt-inline-select-grid">';
-                    $out .= '<label>Sezona (slug)<input type="text" name="sezona_slug" value="' . esc_attr((string) ($row->sezona_slug ?? '')) . '" required></label>';
-                    $out .= '<label>Kolo (slug)<input type="text" name="kolo_slug" value="' . esc_attr((string) ($row->kolo_slug ?? '')) . '" required></label>';
-                    $out .= '</div>';
-                    $out .= '<div class="opentt-inline-select-grid">';
-                    $out .= '<label>Domaćin<select name="home_club_post_id" required>';
-                    foreach ($clubsInLeague as $cid) {
-                        $out .= '<option value="' . esc_attr((string) $cid) . '"' . selected($homeId, intval($cid), false) . '>' . esc_html((string) get_the_title($cid)) . '</option>';
-                    }
-                    $out .= '</select></label>';
-                    $out .= '<label>Gost<select name="away_club_post_id" required>';
-                    foreach ($clubsInLeague as $cid) {
-                        $out .= '<option value="' . esc_attr((string) $cid) . '"' . selected($awayId, intval($cid), false) . '>' . esc_html((string) get_the_title($cid)) . '</option>';
-                    }
-                    $out .= '</select></label>';
-                    $out .= '</div>';
-                    $out .= '<div class="opentt-inline-select-grid">';
-                    $out .= '<label>Domaći rezultat<input type="number" min="0" max="9" name="home_score" value="' . esc_attr((string) intval($row->home_score ?? 0)) . '"></label>';
-                    $out .= '<label>Gostujući rezultat<input type="number" min="0" max="9" name="away_score" value="' . esc_attr((string) intval($row->away_score ?? 0)) . '"></label>';
-                    $out .= '</div>';
-                    $out .= '<label>Datum i vreme<input type="text" name="match_date" value="' . esc_attr((string) ($row->match_date ?? '')) . '"></label>';
-                    $out .= '<label>Lokacija<input type="text" name="location" value="' . esc_attr((string) ($row->location ?? '')) . '"></label>';
-                    $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="played" value="1"' . checked(intval($row->played ?? 0), 1, false) . '> Odigrana</label>';
-                    $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="live" value="1"' . checked(intval($row->live ?? 0), 1, false) . '> Uživo</label>';
-                    $out .= '<div class="opentt-editor-media-row"><button type="submit" class="opentt-auth-btn">Sačuvaj izmene</button><a class="opentt-auth-btn is-ghost" href="' . esc_url($matchLink) . '">Unesi partije</a></div>';
-                    $out .= '</form>';
+                        $out .= '<details class="opentt-league-match-card">';
+                        $out .= '<summary>';
+                        $out .= '<span class="opentt-lm-top">' . esc_html(self::koloNameFromSlug((string) ($row->kolo_slug ?? ''))) . '</span>';
+                        $out .= '<span class="opentt-lm-main">';
+                        $out .= '<span class="opentt-lm-team">';
+                        if ($homeLogo !== '') {
+                            $out .= '<img src="' . esc_url($homeLogo) . '" alt="" loading="lazy">';
+                        }
+                        $out .= '<span>' . esc_html($homeName) . '</span>';
+                        $out .= '</span>';
+                        $out .= '<strong class="opentt-lm-score">' . intval($row->home_score ?? 0) . ':' . intval($row->away_score ?? 0) . '</strong>';
+                        $out .= '<span class="opentt-lm-team">';
+                        if ($awayLogo !== '') {
+                            $out .= '<img src="' . esc_url($awayLogo) . '" alt="" loading="lazy">';
+                        }
+                        $out .= '<span>' . esc_html($awayName) . '</span>';
+                        $out .= '</span>';
+                        $out .= '</span>';
+                        $out .= '<span class="opentt-lm-date">' . esc_html((string) ($row->match_date ?? '')) . '</span>';
+                        $out .= '</summary>';
 
-                    $out .= '</details>';
+                        $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-auth-form">';
+                        $out .= wp_nonce_field('opentt_front_save_league_match_' . $matchId, '_wpnonce', true, false);
+                        $out .= '<input type="hidden" name="action" value="opentt_front_save_league_match">';
+                        $out .= '<input type="hidden" name="match_id" value="' . esc_attr((string) $matchId) . '">';
+                        $out .= '<div class="opentt-inline-select-grid">';
+                        $out .= '<label>Sezona (slug)<input type="text" name="sezona_slug" value="' . esc_attr((string) ($row->sezona_slug ?? '')) . '" required></label>';
+                        $out .= '<label>Kolo (slug)<input type="text" name="kolo_slug" value="' . esc_attr((string) ($row->kolo_slug ?? '')) . '" required></label>';
+                        $out .= '</div>';
+                        $out .= '<div class="opentt-inline-select-grid">';
+                        $out .= '<label>Domaćin<select name="home_club_post_id" required>';
+                        foreach ($clubsInLeague as $cid) {
+                            $out .= '<option value="' . esc_attr((string) $cid) . '"' . selected($homeId, intval($cid), false) . '>' . esc_html((string) get_the_title($cid)) . '</option>';
+                        }
+                        $out .= '</select></label>';
+                        $out .= '<label>Gost<select name="away_club_post_id" required>';
+                        foreach ($clubsInLeague as $cid) {
+                            $out .= '<option value="' . esc_attr((string) $cid) . '"' . selected($awayId, intval($cid), false) . '>' . esc_html((string) get_the_title($cid)) . '</option>';
+                        }
+                        $out .= '</select></label>';
+                        $out .= '</div>';
+                        $out .= '<div class="opentt-inline-select-grid">';
+                        $out .= '<label>Domaći rezultat<input type="number" min="0" max="9" name="home_score" value="' . esc_attr((string) intval($row->home_score ?? 0)) . '"></label>';
+                        $out .= '<label>Gostujući rezultat<input type="number" min="0" max="9" name="away_score" value="' . esc_attr((string) intval($row->away_score ?? 0)) . '"></label>';
+                        $out .= '</div>';
+                        $out .= '<label>Datum i vreme<input type="text" name="match_date" value="' . esc_attr((string) ($row->match_date ?? '')) . '"></label>';
+                        $out .= '<label>Lokacija<input type="text" name="location" value="' . esc_attr((string) ($row->location ?? '')) . '"></label>';
+                        $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="played" value="1"' . checked(intval($row->played ?? 0), 1, false) . '> Odigrana</label>';
+                        $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="live" value="1"' . checked(intval($row->live ?? 0), 1, false) . '> Uživo</label>';
+                        $out .= '<div class="opentt-editor-media-row"><button type="submit" class="opentt-auth-btn">Sačuvaj izmene</button><a class="opentt-auth-btn is-ghost" href="' . esc_url($gamesAdminUrl) . '">Unos partija i setova</a></div>';
+                        $out .= '</form>';
+
+                        $out .= '</details>';
+                    }
+                    $out .= '</div>';
+                    $out .= '</div>';
                 }
-                $out .= '</div>';
             }
             $out .= '</section>';
 

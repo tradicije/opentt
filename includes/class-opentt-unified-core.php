@@ -3200,6 +3200,13 @@ JS;
                 'builder' => [],
             ],
             [
+                'tag' => 'opentt_auth_menu',
+                'desc' => 'Mali auth meni (prijava ili avatar sa dropdown alatima).',
+                'attrs' => 'kontekstualno',
+                'details' => 'Ako korisnik nije prijavljen prikazuje link "Prijavi se". Ako je prijavljen prikazuje avatar i dropdown (profil + alati po roli).',
+                'builder' => [],
+            ],
+            [
                 'tag' => 'opentt_profile',
                 'desc' => 'Frontend korisnički profil sa alatima po roli.',
                 'attrs' => 'kontekstualno',
@@ -3396,6 +3403,7 @@ JS;
     {
         return [
             'opentt_auth' => ['module' => 'auth-profile.css', 'classes' => ['.opentt-auth-card', '.opentt-auth-form', '.opentt-auth-btn', '.opentt-frontend-notice']],
+            'opentt_auth_menu' => ['module' => 'auth-profile.css', 'classes' => ['.opentt-auth-menu', '.opentt-auth-menu-toggle', '.opentt-auth-menu-dropdown', '.opentt-auth-menu-link']],
             'opentt_profile' => ['module' => 'auth-profile.css', 'classes' => ['.opentt-profile-card', '.opentt-profile-head', '.opentt-profile-section', '.opentt-profile-list']],
             'opentt_search' => ['module' => 'search.css', 'classes' => ['.opentt-search', '.opentt-search-toggle', '.opentt-search-panel', '.opentt-search-input', '.opentt-search-results', '.opentt-search-group', '.opentt-search-item']],
             'opentt_matches_grid' => ['module' => 'utakmice.css', 'classes' => ['.opentt-grid', '.opentt-grid-filters', '.opentt-grid-calendar-toggle', '.opentt-grid-calendar-popover', '.opentt-grid-cal-day', '.opentt-item', '.team.pobednik', '.team.gubitnik', '.meta']],
