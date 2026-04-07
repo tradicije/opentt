@@ -16,6 +16,18 @@ if (!defined('ABSPATH')) {
 
 trait OpenTT_Unified_Shortcodes_Trait
 {
+    public static function shortcode_auth($atts = [])
+    {
+        unset($atts);
+        return \OpenTT\Unified\WordPress\UserPortalManager::renderAuthShortcode();
+    }
+
+    public static function shortcode_profile($atts = [])
+    {
+        unset($atts);
+        return \OpenTT\Unified\WordPress\UserPortalManager::renderProfileShortcode();
+    }
+
     private static function shortcode_title_html($title)
     {
         $title = trim((string) $title);

@@ -56,4 +56,9 @@ final class DefaultPagesProvisioner
             'ping_status' => 'closed',
         ]);
     }
+
+    public static function ensureUserPortalPages()
+    {
+        UserPortalManager::ensureDefaultPages();
+    }
 }

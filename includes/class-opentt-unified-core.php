@@ -87,6 +87,7 @@ final class OpenTT_Unified_Core
     {
         self::$plugin_file = $plugin_file;
         self::$plugin_dir = plugin_dir_path($plugin_file);
+        \OpenTT\Unified\WordPress\UserPortalManager::registerRoles();
         self::maybe_migrate_schema();
         OpenTT_Unified_Assets_Module::register();
         OpenTT_Unified_Admin_Module::register();
@@ -107,6 +108,7 @@ final class OpenTT_Unified_Core
     {
         self::$plugin_file = $plugin_file;
         self::$plugin_dir = plugin_dir_path($plugin_file);
+        \OpenTT\Unified\WordPress\UserPortalManager::registerRoles();
         self::register_legacy_content_types();
         \OpenTT\Unified\WordPress\RewriteRulesManager::flushAndMark(self::OPTION_REWRITE_FLUSHED);
         self::prepare_onboarding_state_on_activate();
@@ -142,10 +144,12 @@ final class OpenTT_Unified_Core
     {
         $done = (string) get_option(self::OPTION_DEFAULT_PAGES_SETUP_DONE, '');
         if ($done === '1') {
+            \OpenTT\Unified\WordPress\DefaultPagesProvisioner::ensureUserPortalPages();
             return;
         }
 
         \OpenTT\Unified\WordPress\DefaultPagesProvisioner::ensureCompetitionsPage();
+        \OpenTT\Unified\WordPress\DefaultPagesProvisioner::ensureUserPortalPages();
         update_option(self::OPTION_DEFAULT_PAGES_SETUP_DONE, '1', false);
     }
 
@@ -1084,6 +1088,7 @@ final class OpenTT_Unified_Core
         add_submenu_page('stkb-unified', 'Klubovi', 'Klubovi', self::CAP, 'stkb-unified-clubs', [__CLASS__, 'render_clubs_page']);
         add_submenu_page('stkb-unified', 'Igrači', 'Igrači', self::CAP, 'stkb-unified-players', [__CLASS__, 'render_players_page']);
         add_submenu_page('stkb-unified', 'Takmičenja', 'Takmičenja', self::CAP, 'stkb-unified-competitions', [__CLASS__, 'render_competition_rules_page']);
+        add_submenu_page('stkb-unified', 'Korisnici', 'Korisnici', self::CAP, 'stkb-unified-users', [__CLASS__, 'render_users_page']);
         add_submenu_page('stkb-unified', 'Uvezi/Izvezi', 'Uvezi/Izvezi', self::CAP, 'stkb-unified-transfer', [__CLASS__, 'render_import_export_page']);
         add_submenu_page('stkb-unified', 'Prilagođavanje', 'Prilagođavanje', self::CAP, 'stkb-unified-customize', [__CLASS__, 'render_customize_page']);
         add_submenu_page('stkb-unified', 'Podešavanja', 'Podešavanja', self::CAP, 'stkb-unified-settings', [__CLASS__, 'render_settings_page']);
@@ -2188,6 +2193,11 @@ JS;
         echo '</tbody></table></div></form></div>';
     }
 
+    public static function render_users_page()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::renderUsersAdminPage(self::CAP);
+    }
+
     public static function render_leagues_page()
     {
         self::require_cap();
@@ -2387,6 +2397,7 @@ HTML;
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-live')) . '">Uživo</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-clubs')) . '">Klubovi</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-players')) . '">Igrači</a>';
+        echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-users')) . '">Korisnici</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-competitions')) . '">Takmičenja</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-transfer')) . '">Uvezi/Izvezi</a>';
         echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-customize')) . '">Prilagođavanje</a>';
@@ -3182,6 +3193,20 @@ JS;
     {
         return [
             [
+                'tag' => 'opentt_auth',
+                'desc' => 'Frontend prijava/registracija korisnika.',
+                'attrs' => 'kontekstualno',
+                'details' => 'Prikazuje login i (ako je omogućeno u WP) registraciju kroz OpenTT stilizovan formular.',
+                'builder' => [],
+            ],
+            [
+                'tag' => 'opentt_profile',
+                'desc' => 'Frontend korisnički profil sa alatima po roli.',
+                'attrs' => 'kontekstualno',
+                'details' => 'Prikazuje korisnički profil, avatar upload i role-based alate (urednik, administrator lige, menadžer tima).',
+                'builder' => [],
+            ],
+            [
                 'tag' => 'opentt_search',
                 'desc' => 'Global live search sa kategorijama i kontekstualnim prioritetom (utakmica/liga/sezona).',
                 'attrs' => 'placeholder, min_chars, limit, liga, season, floating',
@@ -3370,6 +3395,8 @@ JS;
     private static function shortcode_css_class_reference()
     {
         return [
+            'opentt_auth' => ['module' => 'auth-profile.css', 'classes' => ['.opentt-auth-card', '.opentt-auth-form', '.opentt-auth-btn', '.opentt-frontend-notice']],
+            'opentt_profile' => ['module' => 'auth-profile.css', 'classes' => ['.opentt-profile-card', '.opentt-profile-head', '.opentt-profile-section', '.opentt-profile-list']],
             'opentt_search' => ['module' => 'search.css', 'classes' => ['.opentt-search', '.opentt-search-toggle', '.opentt-search-panel', '.opentt-search-input', '.opentt-search-results', '.opentt-search-group', '.opentt-search-item']],
             'opentt_matches_grid' => ['module' => 'utakmice.css', 'classes' => ['.opentt-grid', '.opentt-grid-filters', '.opentt-grid-calendar-toggle', '.opentt-grid-calendar-popover', '.opentt-grid-cal-day', '.opentt-item', '.team.pobednik', '.team.gubitnik', '.meta']],
             'opentt_match_id' => ['module' => 'utakmice.css', 'classes' => ['.opentt-match-id-card', '.opentt-match-id-main', '.opentt-match-id-team', '.opentt-match-id-score', '.opentt-match-id-footer']],
@@ -5186,6 +5213,46 @@ HTML;
             'option_admin_ui_language' => self::OPTION_ADMIN_UI_LANGUAGE,
             'available_languages' => self::get_available_admin_ui_languages(),
         ]);
+    }
+
+    public static function handle_save_user_access_admin()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleSaveUserAccess(self::CAP);
+    }
+
+    public static function handle_front_login()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleFrontLogin();
+    }
+
+    public static function handle_front_register()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleFrontRegister();
+    }
+
+    public static function handle_front_profile_update()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleFrontProfileUpdate();
+    }
+
+    public static function handle_front_save_editor_post()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleFrontEditorPost();
+    }
+
+    public static function handle_front_save_league_match()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleFrontSaveLeagueMatch();
+    }
+
+    public static function handle_front_team_save_club()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleFrontTeamSaveClub();
+    }
+
+    public static function handle_front_team_save_player()
+    {
+        \OpenTT\Unified\WordPress\UserPortalManager::handleFrontTeamSavePlayer();
     }
 
     public static function render_floating_search_widget()

@@ -63,6 +63,7 @@ final class FrontendAssetsEnqueuer
             'prikaz-klubova',
             'featured-match',
             'search',
+            'auth-profile',
         ];
 
         foreach ($modules as $mod) {

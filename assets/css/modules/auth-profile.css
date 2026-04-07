@@ -1,0 +1,126 @@
+.opentt-auth-card,
+.opentt-profile-card,
+.opentt-profile-section {
+  background: rgba(3, 20, 58, 0.72);
+  border: 1px solid rgba(142, 197, 255, 0.28);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 0 0 16px 0;
+  color: #d8e9ff;
+}
+
+.opentt-auth-card h3,
+.opentt-profile-card h2,
+.opentt-profile-section h3,
+.opentt-profile-section h4 {
+  margin: 0 0 10px 0;
+  color: #ffffff;
+}
+
+.opentt-auth-form {
+  display: grid;
+  gap: 10px;
+}
+
+.opentt-auth-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.92rem;
+}
+
+.opentt-auth-form input,
+.opentt-auth-form textarea,
+.opentt-auth-form select {
+  background: rgba(5, 23, 66, 0.95);
+  border: 1px solid rgba(142, 197, 255, 0.35);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.opentt-auth-inline {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.opentt-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(142, 197, 255, 0.48);
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0b4db8, #1b79f3);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.opentt-auth-btn.is-ghost {
+  background: transparent;
+  color: #cfe4ff;
+}
+
+.opentt-auth-note {
+  margin: 10px 0 0;
+  color: #c3d9fb;
+}
+
+.opentt-profile-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.opentt-profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid rgba(142, 197, 255, 0.45);
+}
+
+.opentt-profile-list ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.opentt-inline-form {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.opentt-frontend-notice {
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(5, 23, 66, 0.9);
+  color: #fff;
+}
+
+.opentt-frontend-notice.is-success {
+  border-color: rgba(88, 230, 144, 0.55);
+  color: #beffd4;
+}
+
+.opentt-frontend-notice.is-error {
+  border-color: rgba(255, 107, 107, 0.55);
+  color: #ffd0d0;
+}
+
+@media (max-width: 768px) {
+  .opentt-inline-form {
+    display: grid;
+    width: 100%;
+  }
+
+  .opentt-profile-head {
+    align-items: flex-start;
+  }
+}

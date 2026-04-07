@@ -53,6 +53,7 @@ final class OpenTT_Unified_Admin_Module
         add_action('admin_post_opentt_unified_delete_season', ['OpenTT_Unified_Core', 'handle_delete_season_admin']);
         add_action('admin_post_opentt_unified_save_competition_rule', ['OpenTT_Unified_Core', 'handle_save_competition_rule_admin']);
         add_action('admin_post_opentt_unified_delete_competition_rule', ['OpenTT_Unified_Core', 'handle_delete_competition_rule_admin']);
+        add_action('admin_post_opentt_unified_save_user_access', ['OpenTT_Unified_Core', 'handle_save_user_access_admin']);
         add_action('admin_post_opentt_unified_save_settings', ['OpenTT_Unified_Core', 'handle_save_settings_admin']);
         add_action('admin_post_opentt_unified_delete_all_data', ['OpenTT_Unified_Core', 'handle_delete_all_data']);
         add_action('admin_post_opentt_unified_onboarding_action', ['OpenTT_Unified_Core', 'handle_onboarding_action']);
@@ -62,5 +63,15 @@ final class OpenTT_Unified_Admin_Module
         add_action('admin_post_opentt_unified_reset_competition_matches', ['OpenTT_Unified_Core', 'handle_reset_competition_matches_admin']);
         add_action('admin_post_opentt_unified_competition_diagnostics', ['OpenTT_Unified_Core', 'handle_competition_diagnostics_admin']);
         add_action('admin_post_opentt_unified_repair_competition_played', ['OpenTT_Unified_Core', 'handle_repair_competition_played_admin']);
+
+        add_action('admin_post_opentt_front_login', ['OpenTT_Unified_Core', 'handle_front_login']);
+        add_action('admin_post_nopriv_opentt_front_login', ['OpenTT_Unified_Core', 'handle_front_login']);
+        add_action('admin_post_opentt_front_register', ['OpenTT_Unified_Core', 'handle_front_register']);
+        add_action('admin_post_nopriv_opentt_front_register', ['OpenTT_Unified_Core', 'handle_front_register']);
+        add_action('admin_post_opentt_front_profile_update', ['OpenTT_Unified_Core', 'handle_front_profile_update']);
+        add_action('admin_post_opentt_front_save_editor_post', ['OpenTT_Unified_Core', 'handle_front_save_editor_post']);
+        add_action('admin_post_opentt_front_save_league_match', ['OpenTT_Unified_Core', 'handle_front_save_league_match']);
+        add_action('admin_post_opentt_front_team_save_club', ['OpenTT_Unified_Core', 'handle_front_team_save_club']);
+        add_action('admin_post_opentt_front_team_save_player', ['OpenTT_Unified_Core', 'handle_front_team_save_player']);
     }
 }
