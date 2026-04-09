@@ -1877,6 +1877,10 @@ final class UserPortalManager
                 return $url;
             }
         }
+        $fallback = (string) plugins_url('assets/img/fallback-player.png', dirname(__DIR__, 2) . '/opentt-unified-core.php');
+        if ($fallback !== '') {
+            return $fallback;
+        }
         return (string) get_avatar_url(intval($userId), ['size' => max(32, intval($size))]);
     }
 
