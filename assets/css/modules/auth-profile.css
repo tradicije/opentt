@@ -9,6 +9,10 @@
   color: #d8e9ff;
 }
 
+.opentt-auth-card {
+  padding-top: 24px;
+}
+
 .opentt-profile-wrap {
   display: grid;
   gap: 16px;
@@ -59,7 +63,7 @@
 .opentt-auth-logo-wrap {
   display: flex;
   justify-content: center;
-  margin: 0 0 12px 0;
+  margin: 0 0 24px 0;
   padding: 0 40px;
 }
 
