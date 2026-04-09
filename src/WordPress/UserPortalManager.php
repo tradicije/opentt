@@ -517,24 +517,28 @@ final class UserPortalManager
 
         $avatar = self::profileAvatarUrl($userId, 64);
         $profileUrl = home_url('/profil/');
-        $menuId = 'opentt-auth-menu-' . $userId . '-' . wp_rand(100, 9999);
+        $canLeague = user_can($userId, self::ROLE_LEAGUE_ADMIN) || user_can($userId, 'administrator') || user_can($userId, \OpenTT_Unified_Core::CAP);
+        $canEditor = user_can($userId, 'editor') || user_can($userId, 'administrator');
+        $canTeam = user_can($userId, self::ROLE_TEAM_MANAGER) || user_can($userId, 'administrator') || user_can($userId, \OpenTT_Unified_Core::CAP);
 
-        $out = '<div class="opentt-auth-menu" id="' . esc_attr($menuId) . '">';
-        $out .= '<button type="button" class="opentt-auth-menu-toggle" aria-expanded="false" aria-label="Korisnički meni">';
+        $out = '<div class="opentt-auth-menu">';
+        $out .= '<a class="opentt-auth-menu-toggle" href="' . esc_url($profileUrl) . '" aria-label="Profil">';
         $out .= '<img src="' . esc_url($avatar) . '" alt="' . esc_attr((string) $user->display_name) . '">';
-        $out .= '</button>';
-        $out .= '<div class="opentt-auth-menu-dropdown" hidden>';
-        $out .= '<a class="opentt-auth-menu-link" href="' . esc_url(add_query_arg('opentt_profile_tab', 'profile', $profileUrl)) . '">Izmeni profil</a>';
-        if (user_can($userId, self::ROLE_LEAGUE_ADMIN) || user_can($userId, 'administrator') || user_can($userId, \OpenTT_Unified_Core::CAP)) {
+        $out .= '</a>';
+        $out .= '<div class="opentt-auth-menu-dropdown">';
+        $out .= '<a class="opentt-auth-menu-link" href="' . esc_url($profileUrl) . '">Izmeni profil</a>';
+        if ($canLeague) {
             $out .= '<a class="opentt-auth-menu-link" href="' . esc_url(add_query_arg('opentt_profile_tab', 'league', $profileUrl)) . '">Administracija lige</a>';
         }
-        if (user_can($userId, 'editor') || user_can($userId, 'administrator')) {
+        if ($canEditor) {
             $out .= '<a class="opentt-auth-menu-link" href="' . esc_url(add_query_arg('opentt_profile_tab', 'editor', $profileUrl)) . '">Urednički portal</a>';
+        }
+        if ($canTeam) {
+            $out .= '<a class="opentt-auth-menu-link" href="' . esc_url(add_query_arg('opentt_profile_tab', 'team', $profileUrl)) . '">Menadžer tima</a>';
         }
         $out .= '<a class="opentt-auth-menu-link is-logout" href="' . esc_url(wp_logout_url(home_url('/prijava/'))) . '">Odjavi se</a>';
         $out .= '</div>';
         $out .= '</div>';
-        $out .= "<script>(function(){var root=document.getElementById('" . esc_js($menuId) . "');if(!root||root.dataset.bound==='1'){return;}root.dataset.bound='1';var btn=root.querySelector('.opentt-auth-menu-toggle');var menu=root.querySelector('.opentt-auth-menu-dropdown');if(!btn||!menu){return;}function close(){btn.setAttribute('aria-expanded','false');menu.hidden=true;}btn.addEventListener('click',function(e){e.preventDefault();var open=btn.getAttribute('aria-expanded')==='true';if(open){close();return;}btn.setAttribute('aria-expanded','true');menu.hidden=false;});document.addEventListener('click',function(e){if(!root.contains(e.target)){close();}});})();</script>";
 
         return $out;
     }

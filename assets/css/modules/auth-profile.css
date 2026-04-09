@@ -111,13 +111,14 @@
 .opentt-auth-menu-toggle {
   border: 0;
   background: transparent;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-decoration: none;
 }
 
 .opentt-auth-menu-toggle img {
@@ -139,6 +140,19 @@
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
   padding: 8px;
   z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+}
+
+.opentt-auth-menu:hover .opentt-auth-menu-dropdown,
+.opentt-auth-menu:focus-within .opentt-auth-menu-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .opentt-auth-menu-link {
