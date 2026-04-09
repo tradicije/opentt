@@ -2685,6 +2685,8 @@ HTML;
         $club_content = $club ? (string) $club->post_content : '';
         $thumb_id = $club ? get_post_thumbnail_id($club->ID) : 0;
         $thumb_html = $thumb_id ? wp_get_attachment_image($thumb_id, 'medium') : '<div style="width:120px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema grba</div>';
+        $cover_id = $club ? intval(get_post_meta($club->ID, 'opentt_club_featured_image_id', true)) : 0;
+        $cover_html = $cover_id > 0 ? wp_get_attachment_image($cover_id, 'large') : '<div style="width:240px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema cover slike</div>';
 
         echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
@@ -2698,6 +2700,7 @@ HTML;
         echo '<tr data-opentt-step="1"><th>Naziv kluba</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($club_title) . '" required></td></tr>';
         echo '<tr data-opentt-step="1"><th>Opis</th><td><textarea name="post_content" rows="6" class="large-text">' . esc_textarea($club_content) . '</textarea></td></tr>';
         echo '<tr data-opentt-step="2"><th>Grb</th><td><div id="opentt_club_thumb_preview">' . $thumb_html . '</div><input type="hidden" id="opentt_club_thumb_id" name="featured_image_id" value="' . esc_attr((string) $thumb_id) . '"><p><button type="button" class="button" id="opentt_club_thumb_btn">Izaberi grb</button> <button type="button" class="button" id="opentt_club_thumb_remove">Ukloni</button></p></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Cover slika kluba</th><td><div id="opentt_club_cover_preview">' . $cover_html . '</div><input type="hidden" id="opentt_club_cover_id" name="opentt_club_featured_image_id" value="' . esc_attr((string) $cover_id) . '"><p><button type="button" class="button" id="opentt_club_cover_btn">Izaberi cover</button> <button type="button" class="button" id="opentt_club_cover_remove">Ukloni</button></p><p class="description">Ova slika se koristi za shortcode <code>[opentt_club_featured]</code> kao cover kluba.</p></td></tr>';
         $opstina_selected = (string) get_post_meta($club_id, 'opstina', true);
         if ($opstina_selected === '') {
             $opstina_selected = (string) get_post_meta($club_id, 'grad', true);
@@ -2739,6 +2742,23 @@ HTML;
     $('#opentt_club_thumb_remove').on('click', function(){
         $('#opentt_club_thumb_id').val('');
         $('#opentt_club_thumb_preview').html('<div style="width:120px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema grba</div>');
+    });
+
+    var coverFrame;
+    $('#opentt_club_cover_btn').on('click', function(e){
+        e.preventDefault();
+        if (coverFrame) { coverFrame.open(); return; }
+        coverFrame = wp.media({ title: 'Izaberi cover sliku kluba', button: { text: 'Postavi cover' }, multiple: false });
+        coverFrame.on('select', function(){
+            var att = coverFrame.state().get('selection').first().toJSON();
+            $('#opentt_club_cover_id').val(att.id);
+            $('#opentt_club_cover_preview').html('<img src="' + att.url + '" style="max-width:360px;height:auto;" />');
+        });
+        coverFrame.open();
+    });
+    $('#opentt_club_cover_remove').on('click', function(){
+        $('#opentt_club_cover_id').val('');
+        $('#opentt_club_cover_preview').html('<div style="width:240px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema cover slike</div>');
     });
 })(jQuery);
 </script>
@@ -3348,6 +3368,7 @@ JS;
             ['tag' => 'opentt_player_news', 'desc' => 'Kartice vesti igrača.', 'attrs' => 'igrac, limit, columns', 'details' => 'Vesti povezane sa igračem.', 'builder' => [['name' => 'igrac', 'label' => 'Igrač slug', 'type' => 'text', 'default' => ''], ['name' => 'limit', 'label' => 'Limit', 'type' => 'number', 'default' => '6'], ['name' => 'columns', 'label' => 'Kolone', 'type' => 'number', 'default' => '3']]],
             ['tag' => 'opentt_related_posts', 'desc' => 'Povezane objave.', 'attrs' => 'limit, columns', 'details' => 'Kontekstualno vezane objave.', 'builder' => [['name' => 'limit', 'label' => 'Limit', 'type' => 'number', 'default' => '6'], ['name' => 'columns', 'label' => 'Kolone', 'type' => 'number', 'default' => '3']]],
             ['tag' => 'opentt_club_info', 'desc' => 'Info kartica kluba (osnovni podaci + takmičenje/savez).', 'attrs' => 'klub', 'details' => 'Na single-klub radi bez atributa.', 'builder' => [['name' => 'klub', 'label' => 'Klub slug', 'type' => 'text', 'default' => '']]],
+            ['tag' => 'opentt_club_featured', 'desc' => 'Cover kartica kluba sa posebnom custom slikom (nije WordPress featured image).', 'attrs' => 'klub, id, height, link', 'details' => 'Prikazuje custom club cover koji se podešava u admin panelu ili kroz frontend menadžer tima.', 'builder' => [['name' => 'klub', 'label' => 'Klub slug/naziv', 'type' => 'text', 'default' => ''], ['name' => 'id', 'label' => 'ID kluba', 'type' => 'number', 'default' => ''], ['name' => 'height', 'label' => 'Visina (px)', 'type' => 'number', 'default' => '420'], ['name' => 'link', 'label' => 'Link ka klubu', 'type' => 'text', 'default' => 'true']]],
             ['tag' => 'opentt_club_form', 'desc' => 'Poslednje utakmice kluba (forma).', 'attrs' => 'klub, limit', 'details' => 'Pobede/porazi sa stilskim markerima.', 'builder' => [['name' => 'klub', 'label' => 'Klub slug', 'type' => 'text', 'default' => ''], ['name' => 'limit', 'label' => 'Limit', 'type' => 'number', 'default' => '5']]],
             ['tag' => 'opentt_team_stats', 'desc' => 'Statistika ekipe + tabela oko pozicije kluba.', 'attrs' => 'klub, filter', 'details' => 'Prikaz metrika ekipe i skraćene/pune tabele.', 'builder' => [['name' => 'klub', 'label' => 'Klub slug', 'type' => 'text', 'default' => ''], ['name' => 'filter', 'label' => 'Filter', 'type' => 'text', 'default' => 'true']]],
             ['tag' => 'opentt_player_info', 'desc' => 'Info kartica igrača (profil + klub + državljanstvo).', 'attrs' => 'igrac', 'details' => 'Na single-igrac radi bez atributa.', 'builder' => [['name' => 'igrac', 'label' => 'Igrač slug', 'type' => 'text', 'default' => '']]],
@@ -3389,8 +3410,11 @@ JS;
             'highlight' => 'Naglašava prosleđene klubove u tabeli.',
             'kolo' => 'Ograničava prikaz do određenog kola.',
             'klub' => 'Slug kluba za koji se povlače podaci.',
+            'id' => 'Numerički ID entiteta (npr. utakmica ili klub, zavisno od shortcode-a).',
             'igrac' => 'Slug igrača za koji se povlače podaci.',
             'show_logo' => '1 prikazuje logo, 0 sakriva.',
+            'height' => 'Visina bloka u pikselima.',
+            'link' => 'Uključi klik na detalje (true/false).',
             'opstina' => 'Opština/grad kluba (filter kroz polje grad).',
             'title' => 'Naslov sekcije shortcode bloka.',
             'placeholder' => 'Placeholder tekst u polju pretrage.',
@@ -3415,6 +3439,7 @@ JS;
             'opentt_match_games' => ['module' => 'partije.css', 'classes' => ['.lista-partija', '.partija-row', '.lp2-win', '.lp2-name']],
             'opentt_top_players' => ['module' => 'rang-lista.css', 'classes' => ['.igrac-rang-lista', '.igrac-card-list', '.igrac-card-list.highlight']],
             'opentt_club_info' => ['module' => 'info-kluba.css', 'classes' => ['.opentt-info-kluba', '.opentt-info-kluba-head', '.opentt-info-kluba-meta']],
+            'opentt_club_featured' => ['module' => 'club-featured.css', 'classes' => ['.opentt-club-featured-wrap', '.opentt-club-featured-media', '.opentt-club-featured-image', '.opentt-club-featured-overlay']],
             'opentt_player_info' => ['module' => 'info-igraca.css', 'classes' => ['.opentt-info-igraca', '.opentt-info-igraca-head', '.opentt-info-igraca-meta']],
             'opentt_club_form' => ['module' => 'forma-kluba.css', 'classes' => ['.opentt-forma-kluba', '.opentt-forma-item', '.opentt-forma-win', '.opentt-forma-loss']],
             'opentt_team_stats' => ['module' => 'statistika-ekipe.css', 'classes' => ['.opentt-stat-ekipe', '.opentt-stat-ekipe-card', '.opentt-stat-ekipe-table', '.opentt-stat-ekipe-table tr.highlight']],
@@ -4185,7 +4210,7 @@ HTML;
             'numberposts' => -1,
             'post_status' => ['publish', 'draft', 'pending', 'private'],
         ]) ?: [];
-        $meta_keys = ['grad', 'opstina', 'kontakt', 'email', 'zastupnik_kluba', 'website_kluba', 'boja_dresa', 'loptice', 'adresa_kluba', 'adresa_sale', 'termin_igranja'];
+        $meta_keys = ['grad', 'opstina', 'kontakt', 'email', 'zastupnik_kluba', 'website_kluba', 'boja_dresa', 'loptice', 'adresa_kluba', 'adresa_sale', 'termin_igranja', 'opentt_club_featured_image_id'];
         $out = [];
         foreach ($rows as $r) {
             $id = (int) $r->ID;
@@ -4713,7 +4738,7 @@ HTML;
 
         if (in_array('clubs', $sections, true) && !empty($data['clubs']) && is_array($data['clubs'])) {
             foreach ($data['clubs'] as $row) {
-                $post_id = self::upsert_post_from_import('klub', $row, ['grad', 'opstina', 'kontakt', 'email', 'zastupnik_kluba', 'website_kluba', 'boja_dresa', 'loptice', 'adresa_kluba', 'adresa_sale', 'termin_igranja']);
+                $post_id = self::upsert_post_from_import('klub', $row, ['grad', 'opstina', 'kontakt', 'email', 'zastupnik_kluba', 'website_kluba', 'boja_dresa', 'loptice', 'adresa_kluba', 'adresa_sale', 'termin_igranja', 'opentt_club_featured_image_id']);
                 if ($post_id > 0) {
                     $source = intval($row['source_id'] ?? 0);
                     if ($source > 0) {

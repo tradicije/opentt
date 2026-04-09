@@ -1,0 +1,57 @@
+.opentt-club-featured-wrap {
+  --opentt-club-featured-height: 420px;
+  width: 100%;
+}
+
+.opentt-club-featured-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--opentt-club-featured-height);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  background: linear-gradient(135deg, rgba(6, 22, 64, 0.95), rgba(10, 45, 114, 0.9));
+  border: 1px solid rgba(142, 197, 255, 0.26);
+}
+
+.opentt-club-featured-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.opentt-club-featured-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(3, 14, 40, 0) 0%, rgba(3, 14, 40, 0.88) 100%);
+}
+
+.opentt-club-featured-title {
+  display: inline-block;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.opentt-club-featured-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  border-radius: 12px;
+  border: 1px dashed rgba(142, 197, 255, 0.32);
+  background: rgba(5, 23, 66, 0.72);
+  color: #d8e9ff;
+  padding: 16px;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .opentt-club-featured-wrap {
+    --opentt-club-featured-height: 260px;
+  }
+}

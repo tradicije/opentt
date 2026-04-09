@@ -956,6 +956,12 @@ final class UserPortalManager
         $out .= wp_nonce_field('opentt_front_team_save_club_' . $clubId, '_wpnonce', true, false);
         $out .= '<input type="hidden" name="action" value="opentt_front_team_save_club">';
         $out .= '<input type="hidden" name="club_id" value="' . esc_attr((string) $clubId) . '">';
+        $coverId = intval(get_post_meta($clubId, 'opentt_club_featured_image_id', true));
+        $coverPreview = $coverId > 0 ? wp_get_attachment_image($coverId, 'large') : '';
+        $out .= '<label>Cover slika kluba</label>';
+        $out .= '<div class="opentt-editor-featured-preview" id="opentt_team_club_cover_preview_' . esc_attr((string) $clubId) . '">' . ($coverPreview !== '' ? $coverPreview : '<div style="width:100%;max-width:360px;height:140px;background:#0a1f4f;border:1px dashed rgba(142,197,255,0.35);display:flex;align-items:center;justify-content:center;border-radius:10px;color:#d8e9ff;">Nema cover slike</div>') . '</div>';
+        $out .= '<input type="hidden" id="opentt_team_club_cover_id_' . esc_attr((string) $clubId) . '" name="opentt_club_featured_image_id" value="' . esc_attr((string) $coverId) . '">';
+        $out .= '<div class="opentt-editor-media-row"><button type="button" class="opentt-auth-btn is-ghost" id="opentt_team_club_cover_btn_' . esc_attr((string) $clubId) . '">Izaberi cover</button><button type="button" class="opentt-auth-btn is-ghost" id="opentt_team_club_cover_remove_' . esc_attr((string) $clubId) . '">Ukloni</button></div>';
         $out .= '<label>Opis kluba<textarea name="post_content" rows="4">' . esc_textarea((string) $club->post_content) . '</textarea></label>';
         $out .= '<div class="opentt-inline-select-grid">';
         $out .= '<label>Grad<input type="text" name="grad" value="' . esc_attr((string) get_post_meta($clubId, 'grad', true)) . '"></label>';
@@ -967,6 +973,7 @@ final class UserPortalManager
         $out .= '</div>';
         $out .= '<button type="submit" class="opentt-auth-btn">Sačuvaj klub</button>';
         $out .= '</form></section>';
+        $out .= "<script>(function($){var frame;var btn=$('#opentt_team_club_cover_btn_" . esc_js((string) $clubId) . "');var remove=$('#opentt_team_club_cover_remove_" . esc_js((string) $clubId) . "');var input=$('#opentt_team_club_cover_id_" . esc_js((string) $clubId) . "');var preview=$('#opentt_team_club_cover_preview_" . esc_js((string) $clubId) . "');if(!btn.length||!input.length||!preview.length){return;}btn.on('click',function(e){e.preventDefault();if(frame){frame.open();return;}frame=wp.media({title:'Izaberi cover sliku kluba',button:{text:'Postavi cover'},multiple:false});frame.on('select',function(){var att=frame.state().get('selection').first().toJSON();input.val(att.id);preview.html('<img src=\"'+att.url+'\" alt=\"Cover\" style=\"max-width:100%;height:auto;border-radius:10px;border:1px solid rgba(142,197,255,0.35);\" />');});frame.open();});remove.on('click',function(e){e.preventDefault();input.val('');preview.html('<div style=\"width:100%;max-width:360px;height:140px;background:#0a1f4f;border:1px dashed rgba(142,197,255,0.35);display:flex;align-items:center;justify-content:center;border-radius:10px;color:#d8e9ff;\">Nema cover slike</div>');});})(jQuery);</script>";
 
         $players = get_posts([
             'post_type' => 'igrac',
@@ -1712,6 +1719,12 @@ final class UserPortalManager
         update_post_meta($clubId, 'termin_igranja', sanitize_text_field((string) wp_unslash($_POST['termin_igranja'] ?? '')));
         $jerseyColor = sanitize_hex_color((string) wp_unslash($_POST['boja_dresa'] ?? ''));
         update_post_meta($clubId, 'boja_dresa', $jerseyColor ? $jerseyColor : '');
+        $coverId = isset($_POST['opentt_club_featured_image_id']) ? intval($_POST['opentt_club_featured_image_id']) : 0;
+        if ($coverId > 0) {
+            update_post_meta($clubId, 'opentt_club_featured_image_id', $coverId);
+        } else {
+            delete_post_meta($clubId, 'opentt_club_featured_image_id');
+        }
 
         wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'success', 'Klub je sačuvan.'));
         exit;

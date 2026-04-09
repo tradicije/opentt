@@ -39,6 +39,7 @@ final class ShortcodeRegistrar
             'opentt_top_players' => 'shortcode_top_players_list',
             'opentt_players' => 'shortcode_show_players',
             'opentt_club_news' => 'shortcode_club_news',
+            'opentt_club_featured' => 'shortcode_club_featured',
             'opentt_player_news' => 'shortcode_player_news',
             'opentt_related_posts' => 'shortcode_related_posts',
             'opentt_club_info' => 'shortcode_club_info',

@@ -74,6 +74,13 @@ final class OpenTT_Unified_Admin_Club_Player_Actions
             delete_post_thumbnail($club_id);
         }
 
+        $club_cover_id = isset($_POST['opentt_club_featured_image_id']) ? (int) $_POST['opentt_club_featured_image_id'] : 0;
+        if ($club_cover_id > 0) {
+            update_post_meta($club_id, 'opentt_club_featured_image_id', $club_cover_id);
+        } else {
+            delete_post_meta($club_id, 'opentt_club_featured_image_id');
+        }
+
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-clubs'), 'success', 'Klub je sačuvan.'));
         exit;
     }

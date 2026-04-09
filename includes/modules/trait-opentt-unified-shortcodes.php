@@ -645,6 +645,78 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_club_featured($atts = [])
+    {
+        $atts = shortcode_atts([
+            'klub' => '',
+            'id' => '',
+            'height' => '',
+            'link' => 'true',
+        ], (array) $atts, 'opentt_club_featured');
+
+        $club_id = 0;
+        $id_raw = trim((string) ($atts['id'] ?? ''));
+        if ($id_raw !== '' && is_numeric($id_raw)) {
+            $club_id = intval($id_raw);
+            if ($club_id > 0 && get_post_type($club_id) !== 'klub') {
+                $club_id = 0;
+            }
+        }
+
+        if ($club_id <= 0) {
+            $club_id = self::resolve_club_id_from_value((string) ($atts['klub'] ?? ''));
+        }
+
+        if ($club_id <= 0 && is_singular('klub')) {
+            $club_id = intval(get_the_ID());
+        }
+
+        if ($club_id <= 0) {
+            $ctx = self::current_match_context();
+            if (is_array($ctx) && !empty($ctx['db_row'])) {
+                $club_id = intval($ctx['db_row']->home_club_post_id ?? 0);
+            }
+        }
+
+        if ($club_id <= 0 || get_post_type($club_id) !== 'klub') {
+            return '';
+        }
+
+        $image_id = intval(get_post_meta($club_id, 'opentt_club_featured_image_id', true));
+        $image_url = $image_id > 0 ? wp_get_attachment_image_url($image_id, 'full') : '';
+        if (!is_string($image_url)) {
+            $image_url = '';
+        }
+
+        $title = (string) get_the_title($club_id);
+        $height = max(220, min(900, intval($atts['height'] ?? 0)));
+        $style_attr = $height > 0 ? ' style="--opentt-club-featured-height:' . esc_attr((string) $height) . 'px;"' : '';
+        $link_raw = strtolower(trim((string) ($atts['link'] ?? 'true')));
+        $link_enabled = !in_array($link_raw, ['0', 'false', 'no', 'off'], true);
+        $url = get_permalink($club_id);
+
+        ob_start();
+        echo '<div class="opentt-club-featured-wrap"' . $style_attr . '>';
+        if ($image_url !== '') {
+            if ($link_enabled && is_string($url) && $url !== '') {
+                echo '<a class="opentt-club-featured-media" href="' . esc_url($url) . '">';
+            } else {
+                echo '<div class="opentt-club-featured-media">';
+            }
+            echo '<img class="opentt-club-featured-image" src="' . esc_url($image_url) . '" alt="' . esc_attr($title) . '">';
+            echo '<span class="opentt-club-featured-overlay"><span class="opentt-club-featured-title">' . esc_html($title) . '</span></span>';
+            if ($link_enabled && is_string($url) && $url !== '') {
+                echo '</a>';
+            } else {
+                echo '</div>';
+            }
+        } else {
+            echo '<div class="opentt-club-featured-empty">Nije postavljena cover slika za ovaj klub.</div>';
+        }
+        echo '</div>';
+        return ob_get_clean();
+    }
+
     public static function shortcode_club_info($atts = [])
     {
         return \OpenTT\Unified\WordPress\Shortcodes\ClubInfoShortcode::render($atts, [
@@ -1728,6 +1800,27 @@ trait OpenTT_Unified_Shortcodes_Trait
         }
 
         return self::club_fallback_image_url();
+    }
+
+    private static function resolve_club_id_from_value($value)
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return 0;
+        }
+        if (is_numeric($value)) {
+            $id = intval($value);
+            return ($id > 0 && get_post_type($id) === 'klub') ? $id : 0;
+        }
+
+        $club = get_page_by_path(sanitize_title($value), OBJECT, 'klub');
+        if (!($club instanceof \WP_Post)) {
+            $club = get_page_by_title($value, OBJECT, 'klub');
+        }
+        if ($club instanceof \WP_Post && $club->post_type === 'klub') {
+            return intval($club->ID);
+        }
+        return 0;
     }
 
     private static function club_logo_html($club_id, $size = 'thumbnail', $attr = [])
