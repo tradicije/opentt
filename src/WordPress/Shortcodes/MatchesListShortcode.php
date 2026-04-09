@@ -541,6 +541,23 @@ final class MatchesListShortcode
 
         $ids = [];
         foreach ($items as $item) {
+            if (strtolower($item) === 'auto') {
+                $context_club_id = 0;
+                if (function_exists('is_singular') && is_singular('klub')) {
+                    $context_club_id = intval(get_queried_object_id());
+                    if ($context_club_id <= 0) {
+                        $context_club_id = intval(get_the_ID());
+                    }
+                    if ($context_club_id > 0 && get_post_type($context_club_id) !== 'klub') {
+                        $context_club_id = 0;
+                    }
+                }
+                if ($context_club_id > 0) {
+                    $ids[] = $context_club_id;
+                }
+                continue;
+            }
+
             if (is_numeric($item)) {
                 $ids[] = intval($item);
                 continue;
