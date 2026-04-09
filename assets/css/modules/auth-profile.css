@@ -147,6 +147,15 @@
   transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
 }
 
+.opentt-auth-menu-dropdown::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10px;
+  height: 10px;
+}
+
 .opentt-auth-menu:hover .opentt-auth-menu-dropdown,
 .opentt-auth-menu:focus-within .opentt-auth-menu-dropdown {
   opacity: 1;
