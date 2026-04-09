@@ -445,16 +445,17 @@ final class UserPortalManager
         $turnstileEnabled = (bool) \OpenTT_Unified_Core::is_turnstile_enabled();
         $turnstileSiteKey = trim((string) \OpenTT_Unified_Core::turnstile_site_key());
         $turnstileOk = $turnstileEnabled && $turnstileSiteKey !== '';
+        $authLogo = (string) plugins_url('assets/img/club-logo.png', dirname(__DIR__, 2) . '/opentt-unified-core.php');
 
         if (is_user_logged_in()) {
             $profileUrl = home_url('/profil/');
-            return $notice . '<section class="opentt-auth-card"><h3>Prijava</h3><p>Već si prijavljen.</p><p><a class="opentt-auth-btn" href="' . esc_url($profileUrl) . '">Idi na profil</a> <a class="opentt-auth-btn is-ghost" href="' . esc_url(wp_logout_url(home_url('/prijava/'))) . '">Odjavi se</a></p></section>';
+            return $notice . '<section class="opentt-auth-card"><div class="opentt-auth-logo-wrap"><img src="' . esc_url($authLogo) . '" alt="OpenTT" class="opentt-auth-logo"></div><p>Već si prijavljen.</p><p><a class="opentt-auth-btn" href="' . esc_url($profileUrl) . '">Idi na profil</a> <a class="opentt-auth-btn is-ghost" href="' . esc_url(wp_logout_url(home_url('/prijava/'))) . '">Odjavi se</a></p></section>';
         }
 
         $registerEnabled = get_option('users_can_register') === '1';
         $out = '<section class="opentt-auth-card opentt-auth-switcher" data-opentt-auth="1">';
+        $out .= '<div class="opentt-auth-logo-wrap"><img src="' . esc_url($authLogo) . '" alt="OpenTT" class="opentt-auth-logo"></div>';
         $out .= '<div class="opentt-auth-pane is-active" data-pane="login">';
-        $out .= '<h3>Prijava</h3>';
         $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-auth-form">';
         $out .= wp_nonce_field('opentt_front_login', '_wpnonce', true, false);
         $out .= '<input type="hidden" name="action" value="opentt_front_login">';
@@ -475,7 +476,6 @@ final class UserPortalManager
 
         if ($registerEnabled) {
             $out .= '<div class="opentt-auth-pane" data-pane="register">';
-            $out .= '<h3>Registracija</h3>';
             $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-auth-form">';
             $out .= wp_nonce_field('opentt_front_register', '_wpnonce', true, false);
             $out .= '<input type="hidden" name="action" value="opentt_front_register">';
@@ -1877,11 +1877,15 @@ final class UserPortalManager
                 return $url;
             }
         }
+        $gravatarUrl = (string) get_avatar_url(intval($userId), ['size' => max(32, intval($size))]);
+        if ($gravatarUrl !== '') {
+            return $gravatarUrl;
+        }
         $fallback = (string) plugins_url('assets/img/fallback-player.png', dirname(__DIR__, 2) . '/opentt-unified-core.php');
         if ($fallback !== '') {
             return $fallback;
         }
-        return (string) get_avatar_url(intval($userId), ['size' => max(32, intval($size))]);
+        return '';
     }
 
     private static function adminNoticeUrl($url, $type, $message)

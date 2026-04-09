@@ -56,6 +56,18 @@
   color: #ffffff;
 }
 
+.opentt-auth-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 12px 0;
+}
+
+.opentt-auth-logo {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+}
+
 .opentt-auth-switcher {
   max-width: 560px;
   margin: 0 auto 16px;
