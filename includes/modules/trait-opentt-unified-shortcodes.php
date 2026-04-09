@@ -687,6 +687,9 @@ trait OpenTT_Unified_Shortcodes_Trait
         if (!is_string($image_url)) {
             $image_url = '';
         }
+        if ($image_url === '') {
+            return '';
+        }
 
         $focus_x_raw = floatval(get_post_meta($club_id, 'opentt_club_featured_focus_x', true));
         $focus_y_raw = floatval(get_post_meta($club_id, 'opentt_club_featured_focus_y', true));
@@ -711,20 +714,16 @@ trait OpenTT_Unified_Shortcodes_Trait
 
         ob_start();
         echo '<div class="' . esc_attr($wrap_class) . '"' . $style_attr . '>';
-        if ($image_url !== '') {
-            if ($link_enabled && is_string($url) && $url !== '') {
-                echo '<a class="opentt-club-featured-media" href="' . esc_url($url) . '">';
-            } else {
-                echo '<div class="opentt-club-featured-media">';
-            }
-            echo '<img class="opentt-club-featured-image" src="' . esc_url($image_url) . '" alt="' . esc_attr($title) . '">';
-            if ($link_enabled && is_string($url) && $url !== '') {
-                echo '</a>';
-            } else {
-                echo '</div>';
-            }
+        if ($link_enabled && is_string($url) && $url !== '') {
+            echo '<a class="opentt-club-featured-media" href="' . esc_url($url) . '">';
         } else {
-            echo '<div class="opentt-club-featured-empty">Nije postavljena cover slika za ovaj klub.</div>';
+            echo '<div class="opentt-club-featured-media">';
+        }
+        echo '<img class="opentt-club-featured-image" src="' . esc_url($image_url) . '" alt="' . esc_attr($title) . '">';
+        if ($link_enabled && is_string($url) && $url !== '') {
+            echo '</a>';
+        } else {
+            echo '</div>';
         }
         echo '</div>';
         return ob_get_clean();
