@@ -120,6 +120,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added Mailgun integration settings in admin (`enable`, `API key`, `domain`, `from email`, `from name`) and wired pending approve/deny notifications to send through Mailgun API when enabled (with safe `wp_mail` fallback).
 - Added Mailgun test-send action in admin settings (`Email za test` + `Pošalji test mejl`) with direct success/error feedback from Mailgun API response.
 - Extended pending submissions with optional submitter full name (`Ime i prezime`) capture and admin visibility in pending list/details.
+.
 - Added Cloudflare Turnstile protection for frontend game submissions: new settings section (`enable + site key + secret key`) and server-side token verification on submit before pending record creation.
 - Added full `Pending partije` moderation workflow: new pending submissions table, admin menu tab with pending list + per-match review screen, editable game/set payload before decision, `Odobri unos` / `Odbij unos` actions, and automatic submitter email notifications (approved/denied) in Serbian.
 - Added global admin pending alert notice so administrators are notified when new frontend game submissions await review.
