@@ -1,0 +1,1742 @@
+body a {
+  text-decoration: none !important;
+}
+
+@keyframes openttLivePulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.45; }
+  100% { opacity: 1; }
+}
+
+@keyframes openttLiveCardPulse {
+  0% {
+    filter: brightness(1) saturate(1);
+    border-color: rgba(244, 98, 117, 0.62);
+    box-shadow: 0 0 0 0 rgba(214, 36, 58, 0.26);
+  }
+  50% {
+    filter: brightness(1.12) saturate(1.18);
+    border-color: rgba(255, 130, 146, 0.9);
+    box-shadow: 0 0 0 3px rgba(214, 36, 58, 0.44);
+  }
+  100% {
+    filter: brightness(1) saturate(1);
+    border-color: rgba(244, 98, 117, 0.62);
+    box-shadow: 0 0 0 0 rgba(214, 36, 58, 0.26);
+  }
+}
+
+.opentt-live-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(176, 14, 30, 0.92);
+  border: 1px solid rgba(255, 130, 130, 0.7);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  animation: openttLivePulse 1.2s infinite;
+}
+
+.opentt-live-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.16);
+  animation: openttLivePulse 1.2s infinite;
+}
+
+.opentt-grid {
+  display: grid;
+  gap: 16px;
+}
+.opentt-grid.cols-1 { grid-template-columns: repeat(1, 1fr); }
+.opentt-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.opentt-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.opentt-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.opentt-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+.opentt-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+.opentt-grid-round-heading {
+  grid-column: 1 / -1;
+  margin: 6px 0 2px;
+  padding: 2px 0;
+}
+
+.opentt-grid-round-heading span {
+  display: inline-block;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #eaf2ff;
+  background: rgba(142, 197, 255, 0.14);
+  border: 1px solid #8ec5ff4d;
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
+.opentt-grid-round-heading-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  padding: 0 2px;
+  min-height: 24px;
+}
+
+.opentt-grid-round-heading-compact .opentt-grid-round-title,
+.opentt-grid-round-heading-compact .opentt-grid-round-date {
+  display: inline-block;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.opentt-grid-round-heading-compact .opentt-grid-round-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #eef4ff;
+}
+
+.opentt-grid-round-heading-compact .opentt-grid-round-date {
+  margin-left: auto;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #b8caea;
+}
+
+.opentt-grid.opentt-grid-rounds-as-cards {
+  align-items: start;
+}
+
+.opentt-grid-round-group {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.opentt-grid-round-group .opentt-grid-round-heading {
+  grid-column: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.opentt-grid-round-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.opentt-grid-round-group-items > .opentt-grid-wrapper {
+  width: 100%;
+}
+
+.opentt-grid-round-group-items .opentt-grid {
+  gap: 16px;
+}
+
+.opentt-grid-round-group-items .opentt-grid-round-heading {
+  display: none;
+}
+
+.opentt-grid-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.opentt-grid-filters-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: end;
+}
+
+.opentt-grid-filters-right {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  position: relative;
+}
+
+.opentt-grid-density-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px;
+  border: 1px solid #ffffff2b;
+  border-radius: 8px;
+  background: #000a26;
+}
+
+.opentt-grid-density-switch.is-locked {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.opentt-grid-density-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #b7cbef;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.opentt-grid-density-option.is-active {
+  border-color: #8ec5ff66;
+  background: rgba(142, 197, 255, 0.16);
+  color: #ffffff;
+}
+
+.opentt-grid-density-icon {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask: var(--opentt-density-icon) no-repeat center / contain;
+  mask: var(--opentt-density-icon) no-repeat center / contain;
+}
+
+.opentt-grid-density-label {
+  line-height: 1;
+}
+
+.opentt-grid-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.92rem;
+  color: #c7d7ff;
+}
+
+.opentt-grid-filters select {
+  min-width: 170px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ffffff33;
+  background: #000a26;
+  color: #fff;
+}
+
+.opentt-grid-filter-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid #8ec5ff !important;
+  background: #000a26 !important;
+  color: #cfe0ff !important;
+  text-decoration: none !important;
+  line-height: 1;
+}
+
+.opentt-grid-filter-reset:hover {
+  background: var(--opentt-box-table-head-bg-soft, rgba(8, 30, 82, 0.32)) !important;
+  color: #fff !important;
+}
+
+.opentt-grid-load-more {
+  display: block;
+  margin: 14px auto 0;
+  min-height: 38px;
+  padding: 0 18px;
+  border-radius: 8px;
+  border: 1px solid #8ec5ff80 !important;
+  background: #001c56 !important;
+  color: #eaf3ff !important;
+  font-weight: 700;
+}
+
+.opentt-grid-load-more:hover {
+  background: #07286d !important;
+  color: #fff !important;
+}
+
+.opentt-matches-combined {
+  display: block;
+}
+
+.opentt-matches-view-switch {
+  position: relative;
+  margin-left: auto;
+}
+
+.opentt-matches-view-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  width: 42px;
+  border: 1px solid #ffffff33;
+  border-radius: 6px;
+  background: #000a26;
+  color: #fff;
+  cursor: pointer;
+}
+
+.opentt-matches-view-trigger .opentt-view-icon {
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.opentt-matches-view-trigger .opentt-view-caret {
+  font-size: 0.65rem;
+  opacity: 0.9;
+}
+
+.opentt-matches-view-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 80;
+  min-width: 120px;
+  padding: 6px;
+  border: 1px solid #8ec5ff66;
+  border-radius: 8px;
+  background: #001136;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.opentt-matches-view-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #eaf3ff;
+  text-align: left;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.opentt-matches-view-option:hover {
+  background: rgba(142, 197, 255, 0.16);
+}
+
+.opentt-matches-view-option .opentt-view-icon {
+  width: 14px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.opentt-grid-calendar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  width: auto;
+  min-width: 36px;
+  padding: 6px 10px !important;
+  border: 1px solid #ffffff33 !important;
+  border-radius: 6px !important;
+  background: #000a26 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.opentt-grid-calendar-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  background-color: #ffffff;
+  -webkit-mask: url('../../icons/calendar.svg') no-repeat center / contain;
+  mask: url('../../icons/calendar.svg') no-repeat center / contain;
+}
+
+.opentt-grid-calendar-label {
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.opentt-grid-calendar-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 290px;
+  border: 1px solid #8ec5ff66;
+  border-radius: 10px;
+  background: #000a26;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.36);
+  padding: 12px;
+  z-index: 50;
+}
+
+.opentt-grid-calendar-head {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.opentt-grid-cal-month {
+  text-align: center;
+  color: #f2f7ff;
+  text-transform: capitalize;
+}
+
+.opentt-grid-cal-nav {
+  border: 1px solid #8ec5ff66;
+  border-radius: 6px;
+  background: #001340;
+  color: #cfe0ff;
+  min-height: 28px;
+  cursor: pointer;
+}
+
+.opentt-grid-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+  color: #97b6e8;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.opentt-grid-cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.opentt-grid-cal-preview {
+  position: absolute;
+  z-index: 60;
+  min-width: 156px;
+  max-width: 200px;
+  padding: 8px;
+  border: 1px solid #8ec5ff73;
+  border-radius: 8px;
+  background: #001944;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.opentt-grid-cal-preview-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  color: #eaf2ff;
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+a.opentt-grid-cal-preview-row:hover,
+a.opentt-grid-cal-preview-row:focus {
+  background: rgba(142, 197, 255, 0.14);
+  color: #ffffff;
+  outline: none;
+}
+
+.opentt-grid-cal-preview-row .home {
+  text-align: left;
+  font-weight: 700;
+}
+
+.opentt-grid-cal-preview-row .score {
+  text-align: center;
+  color: #cfe0ff;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.opentt-grid-cal-preview-row .away {
+  text-align: right;
+  font-weight: 700;
+}
+
+.opentt-grid-cal-preview-more {
+  display: block;
+  margin-top: 4px;
+  border-top: 1px solid #ffffff24;
+  padding-top: 4px;
+  font-size: 0.72rem;
+  color: #97b6e8;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.opentt-grid-cal-preview-more:hover,
+a.opentt-grid-cal-preview-more:focus {
+  color: #d8e9ff;
+  text-decoration: underline;
+  outline: none;
+}
+
+.opentt-grid-cal-day {
+  border: 1px solid #ffffff2b;
+  border-radius: 7px;
+  background: #001240;
+  color: #eaf2ff;
+  min-height: 32px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.opentt-grid-cal-day.is-empty {
+  border-color: transparent;
+  background: transparent;
+  cursor: default;
+}
+
+.opentt-grid-cal-day.has-played {
+  border-color: #27d06f99;
+  background: rgba(39, 208, 111, 0.2);
+}
+
+.opentt-grid-cal-day.has-upcoming {
+  border-color: #3c95ff99;
+  background: rgba(60, 149, 255, 0.2);
+}
+
+.opentt-grid-cal-day.has-both {
+  border-color: #80b8ff;
+  background: linear-gradient(135deg, rgba(39, 208, 111, 0.2) 0%, rgba(60, 149, 255, 0.2) 100%);
+}
+
+.opentt-grid-cal-day.is-selected {
+  box-shadow: inset 0 0 0 2px #ffffff;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.opentt-grid-cal-legend {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.opentt-grid-cal-legend span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid #ffffff4d;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  color: #d9e8ff;
+}
+
+.opentt-grid-cal-legend .played {
+  border-color: #27d06f99;
+  background: rgba(39, 208, 111, 0.2);
+}
+
+.opentt-grid-cal-legend .upcoming {
+  border-color: #3c95ff99;
+  background: rgba(60, 149, 255, 0.2);
+}
+
+.opentt-grid-cal-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  margin-top: 4px;
+  padding: 0 10px;
+  border: 1px solid #8ec5ff66 !important;
+  border-radius: 6px;
+  background: #001340 !important;
+  color: #eaf3ff !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+
+.opentt-grid-cal-clear:hover,
+.opentt-grid-cal-clear:focus {
+  background: #0b2969 !important;
+  color: #ffffff !important;
+  border-color: #b9dcff !important;
+  outline: none;
+}
+
+.opentt-grid-sentinel {
+  width: 100%;
+  height: 1px;
+  margin-top: 4px;
+}
+
+/* === POJEDINAČNA UTAKMICA === */
+.opentt-item {
+  border: 2px solid #ffffff26;
+  padding: 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  background: #000a26;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.opentt-item:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.opentt-item.is-highlight {
+  border-color: rgba(120, 189, 255, 0.72);
+  background: linear-gradient(135deg, rgba(20, 66, 150, 0.34) 0%, rgba(6, 26, 77, 0.9) 100%);
+  box-shadow: 0 0 0 1px rgba(120, 189, 255, 0.28) inset;
+}
+
+.opentt-item.opentt-item-live {
+  border-color: rgba(244, 98, 117, 0.62);
+  background:
+    linear-gradient(135deg, rgba(183, 20, 43, 0.44), rgba(74, 8, 22, 0.5)),
+    #000a26;
+  will-change: filter, box-shadow, border-color;
+  animation: openttLiveCardPulse 1.2s ease-in-out infinite;
+}
+
+.opentt-item.opentt-item-live .opentt-live-badge {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+  animation: openttLivePulse 1.2s ease-in-out infinite;
+}
+
+.opentt-item > a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.opentt-item-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.opentt-item-teams {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.opentt-item .team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 34px;
+}
+
+.opentt-item .team img {
+  width: 32px;
+  height: 32px;
+  aspect-ratio: 1/1;
+  border-radius: 6px;
+  object-fit: cover;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.opentt-item .team span {
+  flex: 1;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.opentt-item .team strong {
+  font-size: 1.2rem;
+  font-weight: 700;
+  min-width: 26px;
+  text-align: right;
+}
+
+.opentt-item .team .team-time {
+  display: none;
+}
+
+.opentt-item-side {
+  min-width: 86px;
+  border-left: 2px solid #ffffff2e;
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  text-align: right;
+}
+
+.opentt-item-side-top,
+.opentt-item-side-bottom {
+  display: block;
+  white-space: nowrap;
+}
+
+.opentt-item-side-top {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #eef4ff;
+}
+
+.opentt-item-side-bottom {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #b7cbef;
+}
+
+.opentt-grid-density-compact .opentt-grid {
+  grid-template-columns: 1fr !important;
+  gap: 12px;
+}
+
+.opentt-grid-density-compact .opentt-grid-round-group {
+  gap: 8px;
+  border: 1px solid rgba(142, 197, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(2, 16, 46, 0.62);
+}
+
+.opentt-grid-density-compact .opentt-grid-round-group-items {
+  gap: 0;
+  padding: 0px 8px;
+}
+
+.opentt-grid-density-compact .opentt-grid-round-heading-compact {
+  padding: 4px 8px;
+  background: #000a26 !important;
+  border-radius: 8px 8px 0px 0px;
+  border: 1px solid rgba(142, 197, 255, 0.22);
+  box-shadow: none;
+}
+
+.opentt-grid-density-compact .opentt-item {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 0;
+  padding: 5px 1px 6px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.opentt-grid-density-compact .opentt-item.is-highlight {
+  border: 1px solid rgba(120, 189, 255, 0.58);
+  border-radius: 8px;
+  padding: 5px 6px 6px;
+  margin: 1px 0;
+  background: linear-gradient(135deg, rgba(19, 64, 148, 0.32) 0%, rgba(6, 26, 77, 0.88) 100%);
+  box-shadow: 0 0 0 1px rgba(120, 189, 255, 0.24) inset;
+}
+
+.opentt-grid-density-compact .opentt-item::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  bottom: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.opentt-grid-density-compact .opentt-grid-round-group-items .opentt-item:last-child::after {
+  display: none;
+}
+
+.opentt-grid-density-compact .opentt-item:hover {
+  transform: none;
+  box-shadow: none;
+  background: rgba(11, 40, 100, 0.24);
+}
+
+.opentt-grid-density-compact .opentt-item-main {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.opentt-grid-density-compact .opentt-item-side {
+  display: none;
+}
+
+.opentt-grid-density-compact .opentt-item-teams {
+  position: relative;
+  gap: 1px;
+}
+
+.opentt-grid-density-compact .opentt-item .team {
+  min-height: 26px;
+  gap: 6px;
+}
+
+.opentt-grid-density-compact .opentt-item .team img {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  margin-right: 6px;
+}
+
+.opentt-grid-density-compact .opentt-item .team span {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.opentt-grid-density-compact .opentt-item .team strong {
+  font-size: 1rem;
+  min-width: 20px;
+  text-align: right;
+}
+
+.opentt-grid-density-compact .opentt-item .team .team-time {
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 42px;
+  text-align: right;
+}
+
+.opentt-grid-density-compact .team.pobednik span,
+.opentt-grid-density-compact .team.pobednik strong {
+  color: #ffffff;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.opentt-grid-density-compact .team.gubitnik span,
+.opentt-grid-density-compact .team.gubitnik strong {
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 500;
+  opacity: 0.84;
+}
+
+/* === POBEDNIK / GUBITNIK === */
+.team.pobednik span,
+.team.pobednik strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+.team.gubitnik span,
+.team.gubitnik strong {
+  color: #ffffffa8;
+  font-weight: 500;
+}
+
+@media (max-width: 700px) {
+  .opentt-item-main {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .opentt-item-side {
+    min-width: 76px;
+    padding-left: 8px;
+  }
+
+  .opentt-item-side-top {
+    font-size: 0.8rem;
+  }
+
+  .opentt-item-side-bottom {
+    font-size: 0.76rem;
+  }
+}
+
+/* === MATCH ID CARD (1:1) === */
+.opentt-match-id-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 1px solid rgba(142, 197, 255, 0.34);
+  border-radius: 0;
+  background: linear-gradient(155deg, rgba(8, 31, 86, 0.86) 0%, rgba(3, 15, 45, 0.92) 55%, rgba(2, 12, 36, 0.96) 100%);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.opentt-match-id-card.is-live {
+  border-color: rgba(244, 98, 117, 0.62);
+  animation: openttLiveCardPulse 1.2s ease-in-out infinite;
+}
+
+.opentt-match-id-link {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 100%;
+  min-height: 0;
+  color: inherit;
+  text-decoration: none !important;
+  padding: 14px 12px 12px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.opentt-match-id-logo {
+  width: 74px;
+  height: 74px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.opentt-match-id-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.opentt-match-id-meta {
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: #d8e7ff;
+  margin-bottom: 10px;
+}
+
+.opentt-match-id-scoreboard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.opentt-match-id-score-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.opentt-match-id-score-row.is-loser .opentt-match-id-row-score,
+.opentt-match-id-score-row.is-loser .opentt-match-id-row-team {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.opentt-match-id-score-row.is-winner .opentt-match-id-row-score,
+.opentt-match-id-score-row.is-winner .opentt-match-id-row-team {
+  color: #ffffff;
+}
+
+.opentt-match-id-row-score,
+.opentt-match-id-row-team,
+.opentt-match-id-opponent {
+  text-transform: uppercase;
+}
+
+.opentt-match-id-row-score {
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.opentt-match-id-row-team {
+  font-size: 1.14rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opentt-match-id-opponent {
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.opentt-match-id-datetime {
+  margin-top: auto;
+  padding-top: 14px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #eaf2ff;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opentt-match-id-location {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #bdd2f6;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opentt-match-id-cta {
+  margin-top: 10px;
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  overflow: visible;
+  flex: 0 0 auto;
+}
+
+.opentt-match-id-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(142, 197, 255, 0.5);
+  background: rgba(10, 45, 118, 0.5);
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-decoration: none !important;
+}
+
+@media (max-width: 700px) {
+  .opentt-match-id-card {
+    aspect-ratio: 4 / 3;
+  }
+
+  .opentt-match-id-link {
+    padding: 12px 10px 10px;
+  }
+
+  .opentt-match-id-logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 7px;
+  }
+
+  .opentt-match-id-meta {
+    font-size: 0.7rem;
+    margin-bottom: 7px;
+  }
+
+  .opentt-match-id-scoreboard {
+    gap: 5px;
+  }
+
+  .opentt-match-id-row-score {
+    font-size: 1rem;
+    min-width: 14px;
+  }
+
+  .opentt-match-id-row-team,
+  .opentt-match-id-opponent {
+    font-size: 1rem;
+    line-height: 1.2;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .opentt-match-id-datetime {
+    font-size: 0.8rem;
+    padding-top: 12px;
+  }
+
+  .opentt-match-id-location {
+    font-size: 0.74rem;
+  }
+
+  .opentt-match-id-btn {
+    min-height: 38px;
+    font-size: 0.8rem;
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .opentt-match-id-link {
+    padding: 10px 9px 9px;
+  }
+
+  .opentt-match-id-logo {
+    width: 54px;
+    height: 54px;
+  }
+
+  .opentt-match-id-row-score {
+    font-size: 0.94rem;
+  }
+
+  .opentt-match-id-row-team,
+  .opentt-match-id-opponent {
+    font-size: 0.94rem;
+  }
+
+  .opentt-match-id-datetime {
+    font-size: 0.76rem;
+    padding-top: 10px;
+  }
+
+  .opentt-match-id-location {
+    font-size: 0.7rem;
+  }
+
+  .opentt-match-id-btn {
+    min-height: 36px;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* === LIST VARIJANTA === */
+.opentt-list {
+  list-style: none;
+  padding: 12px;
+  margin: 0;
+  border: 2px solid #ffffff26;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
+.opentt-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.opentt-list li:last-child {
+  border-bottom: none;
+}
+.opentt-list li a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+}
+
+/* === MATCHES LIST (ROUND NAV) === */
+.opentt-matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opentt-matches-list-nav {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 8px;
+}
+
+.opentt-matches-list-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ffffff38;
+  background: rgba(3, 22, 66, 0.7);
+  color: #f3f8ff;
+  border-radius: 8px;
+  min-height: 36px;
+  font-size: 1.3rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+.opentt-matches-list-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.opentt-matches-list-nav-btn.is-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.opentt-matches-list-round {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #eaf2ff;
+}
+
+.opentt-matches-list-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.opentt-matches-list-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) 70px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.opentt-matches-list-row:hover,
+.opentt-matches-list-row:focus {
+  background: rgba(15, 47, 113, 0.58);
+  border-color: rgba(142, 197, 255, 0.56);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  outline: none;
+}
+
+.opentt-matches-list-row.is-highlight {
+  background: rgba(28, 78, 170, 0.2);
+  border-color: rgba(142, 197, 255, 0.48);
+  box-shadow: inset 0 0 0 1px rgba(142, 197, 255, 0.2);
+}
+
+.opentt-matches-list-col--date {
+  font-size: 0.86rem;
+  color: #c6d8fb;
+  white-space: nowrap;
+}
+
+.opentt-matches-list-col--match {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  text-align: center;
+}
+
+.opentt-matches-list-col--match .match-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.opentt-matches-list-col--match .match-side--home {
+  justify-content: flex-end;
+}
+
+.opentt-matches-list-col--match .match-side--away {
+  justify-content: flex-start;
+}
+
+.opentt-matches-list-col--match .match-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 74px;
+  white-space: nowrap;
+}
+
+.opentt-matches-list-col--match .match-time {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.opentt-matches-list-col--match .team-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #f5f8ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opentt-matches-list-col--match .team-name--home {
+  text-align: right;
+}
+
+.opentt-matches-list-col--match .team-name--away {
+  text-align: left;
+}
+
+.opentt-matches-list-col--match .team-crest {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.opentt-matches-list-col--match .team-crest img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.opentt-matches-list-col--match .team-score,
+.opentt-matches-list-col--match .team-sep {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.opentt-matches-list-col--match .team-name.is-winner,
+.opentt-matches-list-col--match .team-score.is-winner {
+  color: #ffffff;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.opentt-matches-list-col--match .team-name.is-loser,
+.opentt-matches-list-col--match .team-score.is-loser {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.opentt-matches-list-col--media {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.opentt-matches-list-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid #8ec5ff80;
+  color: #eaf4ff;
+  background: rgba(4, 23, 66, 0.86);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-decoration: none !important;
+}
+
+.opentt-matches-list-icon:hover,
+.opentt-matches-list-icon:focus {
+  color: #fff;
+  border-color: #b9dcff;
+  background: rgba(21, 66, 152, 0.88);
+  outline: none;
+}
+
+.opentt-data-updated {
+  margin-top: 12px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  max-width: 100%;
+  border: 1px solid rgba(142, 197, 255, 0.24);
+  border-radius: 10px;
+  background: rgba(3, 20, 58, 0.45);
+  color: #dbe9ff;
+}
+
+.opentt-data-updated--center {
+  display: flex;
+  width: -moz-fit-content;
+  width: fit-content;
+  max-width: 100%;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.opentt-data-updated-row {
+  width: auto;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+}
+
+.opentt-data-updated-row--label {
+  justify-content: flex-start;
+}
+
+.opentt-data-updated-row--user {
+  justify-content: flex-start;
+}
+
+.opentt-data-updated--center .opentt-data-updated-row--label,
+.opentt-data-updated--center .opentt-data-updated-row--user {
+  width: 100%;
+  justify-content: center;
+}
+
+.opentt-data-updated--center .opentt-data-updated-user {
+  justify-content: center;
+  text-align: center;
+}
+
+.opentt-data-updated-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #9fbbeb;
+}
+
+.opentt-data-updated-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  color: inherit;
+  text-decoration: none !important;
+}
+
+a.opentt-data-updated-user:hover,
+a.opentt-data-updated-user:focus {
+  color: #fff;
+  text-decoration: none !important;
+}
+
+.opentt-data-updated-avatar-wrap {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+}
+
+.opentt-data-updated-avatar {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+}
+
+.opentt-data-updated-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.opentt-data-updated-avatar-fallback {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #a6ccff 0%, #4d8ef3 65%, #1a4da6 100%);
+}
+
+.opentt-data-updated-admin-badge {
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7fd5ff 0%, #2f7fff 52%, #5cb8ff 100%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 6px rgba(0, 35, 95, 0.5);
+}
+
+.opentt-data-updated-admin-badge::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background-color: #ffffff;
+  -webkit-mask: var(--opentt-admin-badge-icon) no-repeat center / contain;
+  mask: var(--opentt-admin-badge-icon) no-repeat center / contain;
+}
+
+.opentt-data-updated-meta {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.opentt-data-updated-meta strong {
+  font-size: 0.9rem;
+  color: #ffffff;
+}
+
+.opentt-data-updated-meta span {
+  font-size: 0.76rem;
+  color: #a9c0e6;
+}
+
+.opentt-klub {
+  text-align: center;
+}
+
+.opentt-klub a {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+  gap: 6px;
+}
+
+.opentt-grb-wrap img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.opentt-naziv {
+	font-size: 1.3rem;
+	font-weight: 500;
+}
+
+.opentt-naziv:hover {
+	color: #0084FF;
+}
+
+@media (max-width: 767px) {
+  .opentt-grid-filters {
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .opentt-grid-filters-left {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    align-items: end;
+  }
+
+  .opentt-grid-filters-left label {
+    min-width: 0;
+  }
+
+  .opentt-grid-filters select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .opentt-grid-filter-reset {
+    width: 100%;
+    min-height: 34px;
+  }
+
+  .opentt-grid.cols-1,
+  .opentt-grid.cols-2,
+  .opentt-grid.cols-3,
+  .opentt-grid.cols-4,
+  .opentt-grid.cols-5,
+  .opentt-grid.cols-6 {
+    grid-template-columns: 1fr;
+  }
+
+  .opentt-grid-filters-right {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .opentt-grid-density-switch {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .opentt-grid-density-option {
+    flex: 0 0 auto;
+    justify-content: center;
+  }
+
+  .opentt-grid-calendar-toggle {
+    width: auto;
+    min-width: 36px;
+    padding: 6px 10px !important;
+  }
+
+  .opentt-grid-calendar-popover {
+    left: 0;
+    right: auto;
+    width: min(100%, 320px);
+  }
+
+  .opentt-matches-view-menu {
+    right: auto;
+    left: 0;
+  }
+
+  .opentt-matches-list-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 10px;
+    padding: 12px 10px;
+    align-items: center;
+  }
+
+  .opentt-matches-list-col--date {
+    grid-column: 1;
+    justify-self: center;
+    text-align: center;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .opentt-matches-list-col--media {
+    grid-column: 2;
+    justify-self: end;
+    text-align: right;
+  }
+
+  .opentt-matches-list-col--match {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    justify-items: stretch;
+    gap: 8px;
+  }
+
+  .opentt-matches-list-col--match .match-side--home,
+  .opentt-matches-list-col--match .match-side--away {
+    width: auto;
+    gap: 6px;
+  }
+
+  .opentt-matches-list-col--match .team-name {
+    max-width: 100%;
+    font-size: 0.84rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .opentt-matches-list-col--match .match-score {
+    min-width: 62px;
+  }
+
+  .opentt-matches-list-col--match .team-score,
+  .opentt-matches-list-col--match .team-sep,
+  .opentt-matches-list-col--match .match-time {
+    font-size: 1rem;
+  }
+
+  .opentt-matches-list-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.72rem;
+  }
+
+  .opentt-data-updated {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .opentt-data-updated--center {
+    width: 100%;
+    max-width: calc(100vw - 24px);
+    margin-left: 0;
+    margin-right: 0;
+    align-items: flex-start;
+  }
+
+  .opentt-data-updated--center .opentt-data-updated-row--label,
+  .opentt-data-updated--center .opentt-data-updated-row--user,
+  .opentt-data-updated--center .opentt-data-updated-user {
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+/* Keep matches-list layout stable inside homepage/combined wrappers
+   where some themes apply broad rules to generic div/span elements. */
+.opentt-matches-combined .opentt-matches-list .opentt-matches-list-nav {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+}
+
+.opentt-matches-combined .opentt-matches-list .opentt-matches-list-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) 70px;
+  align-items: center;
+}
+
+.opentt-matches-combined .opentt-matches-list .opentt-matches-list-col--match {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.opentt-matches-combined .opentt-matches-list .match-side {
+  display: inline-flex;
+  align-items: center;
+}
+
+.opentt-matches-combined .opentt-matches-list .match-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .opentt-matches-combined .opentt-matches-list .opentt-matches-list-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .opentt-matches-combined .opentt-matches-list .opentt-matches-list-col--match {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    justify-items: stretch;
+  }
+}
