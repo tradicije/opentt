@@ -59,6 +59,7 @@ final class FrontendAssetsEnqueuer
             'vesti-kluba',
             'related-posts',
             'info-kluba',
+            'club-featured',
             'info-igraca',
             'prikaz-klubova',
             'featured-match',
