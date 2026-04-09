@@ -45,6 +45,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Updated `opentt_auth` card header treatment: removed textual heading and added centered top logo (`assets/img/club-logo.png`) while keeping existing form elements/flow unchanged.
 - Refined `opentt_auth` logo sizing to preserve original image ratio and use near full card width with horizontal insets (`40px` left/right padding), avoiding forced square rendering.
 - Adjusted `opentt_auth` vertical spacing for cleaner header rhythm: auth-card top padding is now `24px` and logo-wrapper bottom spacing is now `24px`.
+- Improved mobile auth UX: Turnstile widget in `opentt_auth` now stretches to full available form width (while respecting container padding) instead of rendering narrower than other inputs.
 - Enhanced pending-games `Napredni unos` behavior: per-set points are now mandatory in advanced mode, and set inputs are dynamically scoped by entered final set score per game (for example `3:0` shows 3 required sets, `3:2` shows 5).
 - Added entry-mode tabs on the standalone pending-games page: default `Brzi unos` (only final game set totals) and optional `Napredni unos` (enables per-set point inputs), with client-side mode switching and mobile-friendly tab styling.
 - Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.

@@ -565,4 +565,18 @@
   .opentt-league-admin-grid {
     grid-template-columns: 1fr;
   }
+
+  .opentt-turnstile-wrap {
+    width: 100%;
+  }
+
+  .opentt-turnstile-wrap .cf-turnstile {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  .opentt-turnstile-wrap .cf-turnstile iframe {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }
