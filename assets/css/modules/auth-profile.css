@@ -196,6 +196,20 @@
   padding: 10px 12px;
 }
 
+.opentt-turnstile-wrap {
+  width: 100%;
+  border: 1px solid rgba(142, 197, 255, 0.35);
+  border-radius: 10px;
+  background: rgba(5, 23, 66, 0.95);
+  overflow: hidden;
+  padding: 2px;
+}
+
+.opentt-turnstile-wrap .cf-turnstile {
+  width: 100% !important;
+  max-width: 100%;
+}
+
 .opentt-auth-inline {
   display: flex !important;
   align-items: center;

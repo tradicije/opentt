@@ -463,7 +463,7 @@ final class UserPortalManager
         $out .= '<label>Lozinka<input type="password" name="pwd" required></label>';
         $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="remember" value="1"> Zapamti me</label>';
         if ($turnstileOk) {
-            $out .= '<div class="opentt-turnstile-wrap"><div class="cf-turnstile" data-sitekey="' . esc_attr($turnstileSiteKey) . '" data-theme="dark"></div></div>';
+            $out .= '<div class="opentt-turnstile-wrap"><div class="cf-turnstile" data-sitekey="' . esc_attr($turnstileSiteKey) . '" data-theme="dark" data-size="flexible"></div></div>';
         } elseif ($turnstileEnabled) {
             $out .= '<p class="opentt-auth-note">Turnstile je uključen, ali nije podešen Site Key.</p>';
         }
@@ -483,7 +483,7 @@ final class UserPortalManager
             $out .= '<label>Email<input type="email" name="user_email" required></label>';
             $out .= '<label>Lozinka<input type="password" name="user_pass" required></label>';
             if ($turnstileOk) {
-                $out .= '<div class="opentt-turnstile-wrap"><div class="cf-turnstile" data-sitekey="' . esc_attr($turnstileSiteKey) . '" data-theme="dark"></div></div>';
+                $out .= '<div class="opentt-turnstile-wrap"><div class="cf-turnstile" data-sitekey="' . esc_attr($turnstileSiteKey) . '" data-theme="dark" data-size="flexible"></div></div>';
             }
             $out .= '<button type="submit" class="opentt-auth-btn">Registruj nalog</button>';
             $out .= '</form>';
