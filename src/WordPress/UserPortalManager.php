@@ -952,7 +952,7 @@ final class UserPortalManager
         $out .= '<p>Administriraš klub: <strong>' . esc_html((string) $club->post_title) . '</strong></p>';
 
         $out .= '<section class="opentt-profile-subsection"><h4>Podešavanje kluba</h4>';
-        $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-auth-form">';
+        $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-auth-form" enctype="multipart/form-data">';
         $out .= wp_nonce_field('opentt_front_team_save_club_' . $clubId, '_wpnonce', true, false);
         $out .= '<input type="hidden" name="action" value="opentt_front_team_save_club">';
         $out .= '<input type="hidden" name="club_id" value="' . esc_attr((string) $clubId) . '">';
@@ -960,8 +960,9 @@ final class UserPortalManager
         $coverPreview = $coverId > 0 ? wp_get_attachment_image($coverId, 'large') : '';
         $out .= '<label>Cover slika kluba</label>';
         $out .= '<div class="opentt-editor-featured-preview" id="opentt_team_club_cover_preview_' . esc_attr((string) $clubId) . '">' . ($coverPreview !== '' ? $coverPreview : '<div style="width:100%;max-width:360px;height:140px;background:#0a1f4f;border:1px dashed rgba(142,197,255,0.35);display:flex;align-items:center;justify-content:center;border-radius:10px;color:#d8e9ff;">Nema cover slike</div>') . '</div>';
-        $out .= '<input type="hidden" id="opentt_team_club_cover_id_' . esc_attr((string) $clubId) . '" name="opentt_club_featured_image_id" value="' . esc_attr((string) $coverId) . '">';
-        $out .= '<div class="opentt-editor-media-row"><button type="button" class="opentt-auth-btn is-ghost" id="opentt_team_club_cover_btn_' . esc_attr((string) $clubId) . '">Izaberi cover</button><button type="button" class="opentt-auth-btn is-ghost" id="opentt_team_club_cover_remove_' . esc_attr((string) $clubId) . '">Ukloni</button></div>';
+        $out .= '<input type="hidden" name="opentt_club_featured_image_id" value="' . esc_attr((string) $coverId) . '">';
+        $out .= '<input type="file" name="opentt_club_featured_image_file" accept="image/*">';
+        $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="opentt_club_featured_image_remove" value="1"> Ukloni postojeću cover sliku</label>';
         $out .= '<label>Opis kluba<textarea name="post_content" rows="4">' . esc_textarea((string) $club->post_content) . '</textarea></label>';
         $out .= '<div class="opentt-inline-select-grid">';
         $out .= '<label>Grad<input type="text" name="grad" value="' . esc_attr((string) get_post_meta($clubId, 'grad', true)) . '"></label>';
@@ -973,7 +974,6 @@ final class UserPortalManager
         $out .= '</div>';
         $out .= '<button type="submit" class="opentt-auth-btn">Sačuvaj klub</button>';
         $out .= '</form></section>';
-        $out .= "<script>(function($){var frame;var btn=$('#opentt_team_club_cover_btn_" . esc_js((string) $clubId) . "');var remove=$('#opentt_team_club_cover_remove_" . esc_js((string) $clubId) . "');var input=$('#opentt_team_club_cover_id_" . esc_js((string) $clubId) . "');var preview=$('#opentt_team_club_cover_preview_" . esc_js((string) $clubId) . "');if(!btn.length||!input.length||!preview.length){return;}btn.on('click',function(e){e.preventDefault();if(frame){frame.open();return;}frame=wp.media({title:'Izaberi cover sliku kluba',button:{text:'Postavi cover'},multiple:false});frame.on('select',function(){var att=frame.state().get('selection').first().toJSON();input.val(att.id);preview.html('<img src=\"'+att.url+'\" alt=\"Cover\" style=\"max-width:100%;height:auto;border-radius:10px;border:1px solid rgba(142,197,255,0.35);\" />');});frame.open();});remove.on('click',function(e){e.preventDefault();input.val('');preview.html('<div style=\"width:100%;max-width:360px;height:140px;background:#0a1f4f;border:1px dashed rgba(142,197,255,0.35);display:flex;align-items:center;justify-content:center;border-radius:10px;color:#d8e9ff;\">Nema cover slike</div>');});})(jQuery);</script>";
 
         $players = get_posts([
             'post_type' => 'igrac',
@@ -1719,11 +1719,45 @@ final class UserPortalManager
         update_post_meta($clubId, 'termin_igranja', sanitize_text_field((string) wp_unslash($_POST['termin_igranja'] ?? '')));
         $jerseyColor = sanitize_hex_color((string) wp_unslash($_POST['boja_dresa'] ?? ''));
         update_post_meta($clubId, 'boja_dresa', $jerseyColor ? $jerseyColor : '');
+
+        $removeCover = isset($_POST['opentt_club_featured_image_remove']) && intval($_POST['opentt_club_featured_image_remove']) === 1;
         $coverId = isset($_POST['opentt_club_featured_image_id']) ? intval($_POST['opentt_club_featured_image_id']) : 0;
-        if ($coverId > 0) {
-            update_post_meta($clubId, 'opentt_club_featured_image_id', $coverId);
-        } else {
+        if ($removeCover) {
             delete_post_meta($clubId, 'opentt_club_featured_image_id');
+        } else {
+            if (
+                isset($_FILES['opentt_club_featured_image_file']) &&
+                is_array($_FILES['opentt_club_featured_image_file']) &&
+                !empty($_FILES['opentt_club_featured_image_file']['name']) &&
+                intval($_FILES['opentt_club_featured_image_file']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
+            ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                require_once ABSPATH . 'wp-admin/includes/image.php';
+                require_once ABSPATH . 'wp-admin/includes/media.php';
+
+                $upload = wp_handle_upload($_FILES['opentt_club_featured_image_file'], ['test_form' => false]);
+                if (is_array($upload) && empty($upload['error']) && !empty($upload['file'])) {
+                    $attachment = [
+                        'post_mime_type' => isset($upload['type']) ? (string) $upload['type'] : 'image/jpeg',
+                        'post_title' => sanitize_text_field(pathinfo((string) ($upload['file'] ?? ''), PATHINFO_FILENAME)),
+                        'post_content' => '',
+                        'post_status' => 'inherit',
+                    ];
+                    $attach_id = wp_insert_attachment($attachment, (string) $upload['file'], $clubId);
+                    if (!is_wp_error($attach_id) && intval($attach_id) > 0) {
+                        $attach_id = intval($attach_id);
+                        $meta = wp_generate_attachment_metadata($attach_id, (string) $upload['file']);
+                        if (is_array($meta)) {
+                            wp_update_attachment_metadata($attach_id, $meta);
+                        }
+                        update_post_meta($clubId, 'opentt_club_featured_image_id', $attach_id);
+                    }
+                }
+            } elseif ($coverId > 0) {
+                update_post_meta($clubId, 'opentt_club_featured_image_id', $coverId);
+            } else {
+                delete_post_meta($clubId, 'opentt_club_featured_image_id');
+            }
         }
 
         wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'success', 'Klub je sačuvan.'));

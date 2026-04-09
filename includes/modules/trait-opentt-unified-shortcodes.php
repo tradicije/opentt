@@ -651,7 +651,7 @@ trait OpenTT_Unified_Shortcodes_Trait
             'klub' => '',
             'id' => '',
             'height' => '',
-            'link' => 'true',
+            'link' => 'false',
         ], (array) $atts, 'opentt_club_featured');
 
         $club_id = 0;
@@ -691,12 +691,13 @@ trait OpenTT_Unified_Shortcodes_Trait
         $title = (string) get_the_title($club_id);
         $height = max(220, min(900, intval($atts['height'] ?? 0)));
         $style_attr = $height > 0 ? ' style="--opentt-club-featured-height:' . esc_attr((string) $height) . 'px;"' : '';
-        $link_raw = strtolower(trim((string) ($atts['link'] ?? 'true')));
+        $wrap_class = 'opentt-club-featured-wrap' . ($height > 0 ? ' is-fixed-height' : '');
+        $link_raw = strtolower(trim((string) ($atts['link'] ?? 'false')));
         $link_enabled = !in_array($link_raw, ['0', 'false', 'no', 'off'], true);
         $url = get_permalink($club_id);
 
         ob_start();
-        echo '<div class="opentt-club-featured-wrap"' . $style_attr . '>';
+        echo '<div class="' . esc_attr($wrap_class) . '"' . $style_attr . '>';
         if ($image_url !== '') {
             if ($link_enabled && is_string($url) && $url !== '') {
                 echo '<a class="opentt-club-featured-media" href="' . esc_url($url) . '">';
@@ -704,7 +705,6 @@ trait OpenTT_Unified_Shortcodes_Trait
                 echo '<div class="opentt-club-featured-media">';
             }
             echo '<img class="opentt-club-featured-image" src="' . esc_url($image_url) . '" alt="' . esc_attr($title) . '">';
-            echo '<span class="opentt-club-featured-overlay"><span class="opentt-club-featured-title">' . esc_html($title) . '</span></span>';
             if ($link_enabled && is_string($url) && $url !== '') {
                 echo '</a>';
             } else {
