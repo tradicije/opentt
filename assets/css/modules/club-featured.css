@@ -9,7 +9,7 @@
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 3 / 2;
+  height: clamp(200px, 26vw, 340px);
   overflow: hidden;
   text-decoration: none;
   background: transparent;
@@ -51,6 +51,7 @@
 
 @media (max-width: 767px) {
   .opentt-club-featured-media {
+    height: auto;
     aspect-ratio: 16 / 9;
   }
 
