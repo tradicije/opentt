@@ -689,7 +689,8 @@ trait OpenTT_Unified_Shortcodes_Trait
         }
 
         $title = (string) get_the_title($club_id);
-        $height = max(220, min(900, intval($atts['height'] ?? 0)));
+        $raw_height = intval($atts['height'] ?? 0);
+        $height = $raw_height > 0 ? max(220, min(900, $raw_height)) : 0;
         $style_attr = $height > 0 ? ' style="--opentt-club-featured-height:' . esc_attr((string) $height) . 'px;"' : '';
         $wrap_class = 'opentt-club-featured-wrap' . ($height > 0 ? ' is-fixed-height' : '');
         $link_raw = strtolower(trim((string) ($atts['link'] ?? 'false')));
