@@ -127,6 +127,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
                 return self::club_logo_html($club_id, $size, $attr);
             },
+            'parse_legacy_liga_sezona' => static function ($liga_slug, $sezona_slug = '') {
+                return self::parse_legacy_liga_sezona($liga_slug, $sezona_slug);
+            },
         ]);
     }
 

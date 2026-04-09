@@ -39,7 +39,7 @@ final class MatchesListShortcode
 
         $query_args = (array) $call('build_match_query_args', $atts);
         $query_args['limit'] = -1;
-        self::expand_auto_highlight_scope($atts, $query_args, $call);
+        $auto_scope = self::expand_auto_highlight_scope($atts, $query_args, $call);
 
         if (!empty($atts['kolo'])) {
             $query_args['kolo_slug'] = sanitize_title((string) $atts['kolo']);
@@ -67,6 +67,12 @@ final class MatchesListShortcode
         }
         if (empty($rows)) {
             return (string) $call('shortcode_title_html', 'Utakmice') . '<p>Nema utakmica za prikaz.</p>';
+        }
+        if (!empty($auto_scope['enforce_latest']) && !empty($auto_scope['liga_slug']) && !empty($auto_scope['sezona_slug'])) {
+            $rows = self::filter_rows_to_competition_scope($rows, (string) $auto_scope['liga_slug'], (string) $auto_scope['sezona_slug']);
+            if (empty($rows)) {
+                return (string) $call('shortcode_title_html', 'Utakmice') . '<p>Nema utakmica za prikaz.</p>';
+            }
         }
 
         $highlight_ids = self::resolve_highlight_ids((string) ($atts['highlight'] ?? ''));
@@ -578,23 +584,32 @@ final class MatchesListShortcode
 
     private static function expand_auto_highlight_scope(array $atts, array &$query_args, callable $call)
     {
+        $scope = [
+            'enabled' => false,
+            'enforce_latest' => false,
+            'liga_slug' => '',
+            'sezona_slug' => '',
+        ];
+
         $raw_highlight = trim((string) ($atts['highlight'] ?? ''));
         if ($raw_highlight === '' || stripos($raw_highlight, 'auto') === false) {
-            return;
+            return $scope;
         }
+        $scope['enabled'] = true;
 
         $explicit_klub = trim((string) ($atts['klub'] ?? ''));
         if ($explicit_klub !== '') {
-            return;
+            return $scope;
         }
 
         $club_id = intval($query_args['club_id'] ?? 0);
         if ($club_id <= 0) {
-            return;
+            return $scope;
         }
 
         $liga_slug = sanitize_title((string) ($query_args['liga_slug'] ?? ''));
         $sezona_slug = sanitize_title((string) ($query_args['sezona_slug'] ?? ''));
+        $explicit_season = trim((string) ($atts['season'] ?? '')) !== '' || trim((string) ($atts['sezona'] ?? '')) !== '';
 
         if ($liga_slug === '' && $sezona_slug === '') {
             $seed_args = $query_args;
@@ -604,8 +619,27 @@ final class MatchesListShortcode
                 $seed = $seed_rows[0];
                 $liga_slug = sanitize_title((string) ($seed->liga_slug ?? ''));
                 $sezona_slug = sanitize_title((string) ($seed->sezona_slug ?? ''));
+                $parsed = $call('parse_legacy_liga_sezona', $liga_slug, $sezona_slug);
+                if (is_array($parsed)) {
+                    $liga_slug = sanitize_title((string) ($parsed['league_slug'] ?? $liga_slug));
+                    $sezona_slug = sanitize_title((string) ($parsed['season_slug'] ?? $sezona_slug));
+                }
+            }
+        } elseif ($liga_slug !== '' || $sezona_slug !== '') {
+            $parsed = $call('parse_legacy_liga_sezona', $liga_slug, $sezona_slug);
+            if (is_array($parsed)) {
+                $liga_slug = sanitize_title((string) ($parsed['league_slug'] ?? $liga_slug));
+                $sezona_slug = sanitize_title((string) ($parsed['season_slug'] ?? $sezona_slug));
             }
         }
+
+        if ($liga_slug !== '') {
+            $scope['liga_slug'] = $liga_slug;
+        }
+        if ($sezona_slug !== '') {
+            $scope['sezona_slug'] = $sezona_slug;
+        }
+        $scope['enforce_latest'] = !$explicit_season && $scope['liga_slug'] !== '' && $scope['sezona_slug'] !== '';
 
         $query_args['club_id'] = 0;
         if ($liga_slug !== '') {
@@ -614,6 +648,76 @@ final class MatchesListShortcode
         if ($sezona_slug !== '') {
             $query_args['sezona_slug'] = $sezona_slug;
         }
+
+        return $scope;
+    }
+
+    private static function filter_rows_to_competition_scope(array $rows, $liga_slug, $sezona_slug)
+    {
+        $liga_slug = sanitize_title((string) $liga_slug);
+        $sezona_slug = sanitize_title((string) $sezona_slug);
+        if ($liga_slug === '' || $sezona_slug === '') {
+            return $rows;
+        }
+
+        $allowed_combined = [];
+        foreach (self::season_variants($sezona_slug) as $season_variant) {
+            $allowed_combined[sanitize_title($liga_slug . '-' . $season_variant)] = true;
+        }
+
+        $filtered = [];
+        foreach ($rows as $row) {
+            if (!is_object($row)) {
+                continue;
+            }
+
+            $row_liga = sanitize_title((string) ($row->liga_slug ?? ''));
+            $row_sezona = sanitize_title((string) ($row->sezona_slug ?? ''));
+
+            if ($row_liga === $liga_slug && self::seasons_equivalent($row_sezona, $sezona_slug)) {
+                $filtered[] = $row;
+                continue;
+            }
+
+            if (isset($allowed_combined[$row_liga])) {
+                $filtered[] = $row;
+            }
+        }
+
+        return $filtered;
+    }
+
+    private static function seasons_equivalent($left, $right)
+    {
+        $left = sanitize_title((string) $left);
+        $right = sanitize_title((string) $right);
+        if ($left === '' || $right === '') {
+            return false;
+        }
+        $left_variants = self::season_variants($left);
+        foreach (self::season_variants($right) as $variant) {
+            if (isset($left_variants[$variant])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static function season_variants($season_slug)
+    {
+        $season_slug = sanitize_title((string) $season_slug);
+        $variants = [];
+        if ($season_slug === '') {
+            return $variants;
+        }
+
+        $variants[$season_slug] = true;
+        if (preg_match('/^(\d{4})-(\d{2})$/', $season_slug, $m)) {
+            $variants[$m[1] . '-20' . $m[2]] = true;
+        } elseif (preg_match('/^(\d{4})-(\d{4})$/', $season_slug, $m)) {
+            $variants[$m[1] . '-' . substr($m[2], -2)] = true;
+        }
+        return $variants;
     }
 
     private static function normalize_bool_attr($raw, $default = true)
