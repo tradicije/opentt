@@ -11,6 +11,9 @@
 
 .opentt-auth-card {
   padding-top: 24px;
+  width: min(100%, 400px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .opentt-profile-wrap {
@@ -75,7 +78,7 @@
 }
 
 .opentt-auth-switcher {
-  max-width: 560px;
+  max-width: 400px;
   margin: 0 auto 16px;
 }
 

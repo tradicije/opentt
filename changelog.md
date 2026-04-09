@@ -48,6 +48,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Improved mobile auth UX: Turnstile widget in `opentt_auth` now stretches to full available form width (while respecting container padding) instead of rendering narrower than other inputs.
 - Hardened `opentt_auth` Turnstile rendering by switching widgets to `data-size=\"flexible\"` and styling wrapper border/radius (`overflow:hidden`) so the captcha fills container width and rounded border remains visually intact.
 - Adjusted Turnstile visual styling in `opentt_auth`: removed wrapper-level border/radius and moved border-radius/border directly to captcha iframe for cleaner alignment with form fields.
+- Standardized `opentt_auth` container width to `max 400px` across desktop and mobile (responsive shrink on narrower screens).
 - Enhanced pending-games `Napredni unos` behavior: per-set points are now mandatory in advanced mode, and set inputs are dynamically scoped by entered final set score per game (for example `3:0` shows 3 required sets, `3:2` shows 5).
 - Added entry-mode tabs on the standalone pending-games page: default `Brzi unos` (only final game set totals) and optional `Napredni unos` (enables per-set point inputs), with client-side mode switching and mobile-friendly tab styling.
 - Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.
