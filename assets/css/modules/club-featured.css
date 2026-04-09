@@ -52,7 +52,7 @@
 @media (max-width: 767px) {
   .opentt-club-featured-media {
     height: auto;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 16 / 5;
   }
 
   .opentt-club-featured-wrap.is-fixed-height {
