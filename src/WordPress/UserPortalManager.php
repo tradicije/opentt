@@ -503,13 +503,15 @@ final class UserPortalManager
     public static function renderAuthMenuShortcode()
     {
         if (!is_user_logged_in()) {
-            return '<div class="opentt-auth-menu"><a class="opentt-auth-menu-login" href="' . esc_url(home_url('/prijava/')) . '">Prijavi se</a></div>';
+            $iconUrl = (string) plugins_url('assets/icons/login-icon.svg', dirname(__DIR__, 2) . '/opentt-unified-core.php');
+            return '<div class="opentt-auth-menu"><a class="opentt-auth-menu-login" href="' . esc_url(home_url('/prijava/')) . '" aria-label="Prijava" style="--opentt-login-icon:url(' . esc_url($iconUrl) . ');"><span class="opentt-auth-menu-login-icon" aria-hidden="true"></span></a></div>';
         }
 
         $userId = get_current_user_id();
         $user = get_userdata($userId);
         if (!$user) {
-            return '<div class="opentt-auth-menu"><a class="opentt-auth-menu-login" href="' . esc_url(home_url('/prijava/')) . '">Prijavi se</a></div>';
+            $iconUrl = (string) plugins_url('assets/icons/login-icon.svg', dirname(__DIR__, 2) . '/opentt-unified-core.php');
+            return '<div class="opentt-auth-menu"><a class="opentt-auth-menu-login" href="' . esc_url(home_url('/prijava/')) . '" aria-label="Prijava" style="--opentt-login-icon:url(' . esc_url($iconUrl) . ');"><span class="opentt-auth-menu-login-icon" aria-hidden="true"></span></a></div>';
         }
 
         $avatar = self::profileAvatarUrl($userId, 64);

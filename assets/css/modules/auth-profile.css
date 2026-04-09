@@ -68,9 +68,24 @@
 }
 
 .opentt-auth-menu-login {
-  color: #fff;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
-  font-weight: 700;
+  border: 1px solid rgba(142, 197, 255, 0.38);
+  border-radius: 999px;
+  background: rgba(3, 20, 58, 0.76);
+}
+
+.opentt-auth-menu-login-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  background: #fff;
+  -webkit-mask: var(--opentt-login-icon) no-repeat center / contain;
+  mask: var(--opentt-login-icon) no-repeat center / contain;
 }
 
 .opentt-auth-menu-toggle {
