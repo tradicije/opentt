@@ -2686,7 +2686,12 @@ HTML;
         $thumb_id = $club ? get_post_thumbnail_id($club->ID) : 0;
         $thumb_html = $thumb_id ? wp_get_attachment_image($thumb_id, 'medium') : '<div style="width:120px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema grba</div>';
         $cover_id = $club ? intval(get_post_meta($club->ID, 'opentt_club_featured_image_id', true)) : 0;
+        $cover_url = $cover_id > 0 ? (string) wp_get_attachment_image_url($cover_id, 'full') : '';
         $cover_html = $cover_id > 0 ? wp_get_attachment_image($cover_id, 'large') : '<div style="width:240px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema cover slike</div>';
+        $focus_x_raw = $club ? floatval(get_post_meta($club->ID, 'opentt_club_featured_focus_x', true)) : 50.0;
+        $focus_y_raw = $club ? floatval(get_post_meta($club->ID, 'opentt_club_featured_focus_y', true)) : 50.0;
+        $focus_x = ($focus_x_raw >= 0 && $focus_x_raw <= 100) ? $focus_x_raw : 50.0;
+        $focus_y = ($focus_y_raw >= 0 && $focus_y_raw <= 100) ? $focus_y_raw : 50.0;
 
         echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
@@ -2700,7 +2705,7 @@ HTML;
         echo '<tr data-opentt-step="1"><th>Naziv kluba</th><td><input name="post_title" type="text" class="regular-text" value="' . esc_attr($club_title) . '" required></td></tr>';
         echo '<tr data-opentt-step="1"><th>Opis</th><td><textarea name="post_content" rows="6" class="large-text">' . esc_textarea($club_content) . '</textarea></td></tr>';
         echo '<tr data-opentt-step="2"><th>Grb</th><td><div id="opentt_club_thumb_preview">' . $thumb_html . '</div><input type="hidden" id="opentt_club_thumb_id" name="featured_image_id" value="' . esc_attr((string) $thumb_id) . '"><p><button type="button" class="button" id="opentt_club_thumb_btn">Izaberi grb</button> <button type="button" class="button" id="opentt_club_thumb_remove">Ukloni</button></p></td></tr>';
-        echo '<tr data-opentt-step="2"><th>Cover slika kluba</th><td><div id="opentt_club_cover_preview">' . $cover_html . '</div><input type="hidden" id="opentt_club_cover_id" name="opentt_club_featured_image_id" value="' . esc_attr((string) $cover_id) . '"><p><button type="button" class="button" id="opentt_club_cover_btn">Izaberi cover</button> <button type="button" class="button" id="opentt_club_cover_remove">Ukloni</button></p><p class="description">Ova slika se koristi za shortcode <code>[opentt_club_featured]</code> kao cover kluba.</p></td></tr>';
+        echo '<tr data-opentt-step="2"><th>Cover slika kluba</th><td><div id="opentt_club_cover_preview">' . $cover_html . '</div><input type="hidden" id="opentt_club_cover_id" name="opentt_club_featured_image_id" value="' . esc_attr((string) $cover_id) . '"><input type="hidden" id="opentt_club_cover_focus_x" name="opentt_club_featured_focus_x" value="' . esc_attr((string) $focus_x) . '"><input type="hidden" id="opentt_club_cover_focus_y" name="opentt_club_featured_focus_y" value="' . esc_attr((string) $focus_y) . '"><p><button type="button" class="button" id="opentt_club_cover_btn">Izaberi cover</button> <button type="button" class="button" id="opentt_club_cover_remove">Ukloni</button></p><div class="opentt-cover-focus-wrap" data-image-url="' . esc_attr($cover_url) . '"><div class="opentt-cover-focus-grid"><div><strong>Desktop (3:2)</strong><div class="opentt-cover-focus-preview is-desktop"><img id="opentt_cover_focus_preview_desktop" alt=""></div></div><div><strong>Mobilni (16:9)</strong><div class="opentt-cover-focus-preview is-mobile"><img id="opentt_cover_focus_preview_mobile" alt=""></div></div></div><div class="opentt-cover-focus-controls"><label>Horizontalno<input type="range" id="opentt_cover_focus_range_x" min="0" max="100" step="1" value="' . esc_attr((string) round($focus_x)) . '"></label><label>Vertikalno<input type="range" id="opentt_cover_focus_range_y" min="0" max="100" step="1" value="' . esc_attr((string) round($focus_y)) . '"></label></div></div><p class="description">Ova slika se koristi za shortcode <code>[opentt_club_featured]</code> kao cover kluba. Podesi fokus za desktop i mobilni prikaz.</p></td></tr>';
         $opstina_selected = (string) get_post_meta($club_id, 'opstina', true);
         if ($opstina_selected === '') {
             $opstina_selected = (string) get_post_meta($club_id, 'grad', true);
@@ -2724,6 +2729,7 @@ HTML;
         echo '<span class="opentt-wizard-help"></span>';
         echo '</div>';
         echo '</form></div>';
+        echo '<style>.opentt-cover-focus-wrap{margin-top:10px}.opentt-cover-focus-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.opentt-cover-focus-preview{margin-top:6px;border:1px solid #ccd0d4;background:#111;overflow:hidden}.opentt-cover-focus-preview.is-desktop{aspect-ratio:3/2}.opentt-cover-focus-preview.is-mobile{aspect-ratio:16/9}.opentt-cover-focus-preview img{width:100%;height:100%;display:block;object-fit:cover}.opentt-cover-focus-controls{margin-top:10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.opentt-cover-focus-controls label{display:block;font-weight:600}.opentt-cover-focus-controls input[type=range]{width:100%}@media (max-width:782px){.opentt-cover-focus-grid,.opentt-cover-focus-controls{grid-template-columns:1fr}}</style>';
         echo <<<'JS'
 <script>
 (function($){
@@ -2744,6 +2750,39 @@ HTML;
         $('#opentt_club_thumb_preview').html('<div style="width:120px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema grba</div>');
     });
 
+    var focusDesktop = $('#opentt_cover_focus_preview_desktop');
+    var focusMobile = $('#opentt_cover_focus_preview_mobile');
+    var focusX = $('#opentt_cover_focus_range_x');
+    var focusY = $('#opentt_cover_focus_range_y');
+    var focusXInput = $('#opentt_club_cover_focus_x');
+    var focusYInput = $('#opentt_club_cover_focus_y');
+    var focusWrap = $('.opentt-cover-focus-wrap');
+
+    function setFocusPosition(){
+        var x = parseInt(focusX.val() || '50', 10);
+        var y = parseInt(focusY.val() || '50', 10);
+        var pos = x + '% ' + y + '%';
+        focusDesktop.css('object-position', pos);
+        focusMobile.css('object-position', pos);
+        focusXInput.val(String(x));
+        focusYInput.val(String(y));
+    }
+
+    function updateFocusImage(url){
+        if (!url) {
+            focusDesktop.attr('src', '');
+            focusMobile.attr('src', '');
+            return;
+        }
+        focusDesktop.attr('src', url);
+        focusMobile.attr('src', url);
+        setFocusPosition();
+    }
+
+    focusX.on('input change', setFocusPosition);
+    focusY.on('input change', setFocusPosition);
+    updateFocusImage(String(focusWrap.data('image-url') || ''));
+
     var coverFrame;
     $('#opentt_club_cover_btn').on('click', function(e){
         e.preventDefault();
@@ -2753,12 +2792,14 @@ HTML;
             var att = coverFrame.state().get('selection').first().toJSON();
             $('#opentt_club_cover_id').val(att.id);
             $('#opentt_club_cover_preview').html('<img src="' + att.url + '" style="max-width:360px;height:auto;" />');
+            updateFocusImage(att.url);
         });
         coverFrame.open();
     });
     $('#opentt_club_cover_remove').on('click', function(){
         $('#opentt_club_cover_id').val('');
         $('#opentt_club_cover_preview').html('<div style="width:240px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema cover slike</div>');
+        updateFocusImage('');
     });
 })(jQuery);
 </script>
@@ -4210,7 +4251,7 @@ HTML;
             'numberposts' => -1,
             'post_status' => ['publish', 'draft', 'pending', 'private'],
         ]) ?: [];
-        $meta_keys = ['grad', 'opstina', 'kontakt', 'email', 'zastupnik_kluba', 'website_kluba', 'boja_dresa', 'loptice', 'adresa_kluba', 'adresa_sale', 'termin_igranja', 'opentt_club_featured_image_id'];
+        $meta_keys = ['grad', 'opstina', 'kontakt', 'email', 'zastupnik_kluba', 'website_kluba', 'boja_dresa', 'loptice', 'adresa_kluba', 'adresa_sale', 'termin_igranja', 'opentt_club_featured_image_id', 'opentt_club_featured_focus_x', 'opentt_club_featured_focus_y'];
         $out = [];
         foreach ($rows as $r) {
             $id = (int) $r->ID;
@@ -4738,7 +4779,7 @@ HTML;
 
         if (in_array('clubs', $sections, true) && !empty($data['clubs']) && is_array($data['clubs'])) {
             foreach ($data['clubs'] as $row) {
-                $post_id = self::upsert_post_from_import('klub', $row, ['grad', 'opstina', 'kontakt', 'email', 'zastupnik_kluba', 'website_kluba', 'boja_dresa', 'loptice', 'adresa_kluba', 'adresa_sale', 'termin_igranja', 'opentt_club_featured_image_id']);
+                $post_id = self::upsert_post_from_import('klub', $row, ['grad', 'opstina', 'kontakt', 'email', 'zastupnik_kluba', 'website_kluba', 'boja_dresa', 'loptice', 'adresa_kluba', 'adresa_sale', 'termin_igranja', 'opentt_club_featured_image_id', 'opentt_club_featured_focus_x', 'opentt_club_featured_focus_y']);
                 if ($post_id > 0) {
                     $source = intval($row['source_id'] ?? 0);
                     if ($source > 0) {

@@ -81,6 +81,13 @@ final class OpenTT_Unified_Admin_Club_Player_Actions
             delete_post_meta($club_id, 'opentt_club_featured_image_id');
         }
 
+        $focus_x = isset($_POST['opentt_club_featured_focus_x']) ? floatval($_POST['opentt_club_featured_focus_x']) : 50.0;
+        $focus_y = isset($_POST['opentt_club_featured_focus_y']) ? floatval($_POST['opentt_club_featured_focus_y']) : 50.0;
+        $focus_x = max(0.0, min(100.0, $focus_x));
+        $focus_y = max(0.0, min(100.0, $focus_y));
+        update_post_meta($club_id, 'opentt_club_featured_focus_x', $focus_x);
+        update_post_meta($club_id, 'opentt_club_featured_focus_y', $focus_y);
+
         wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-clubs'), 'success', 'Klub je sačuvan.'));
         exit;
     }

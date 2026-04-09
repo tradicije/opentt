@@ -340,6 +340,54 @@
   border: 1px solid rgba(142, 197, 255, 0.35);
 }
 
+.opentt-cover-focus-wrap {
+  margin-top: 10px;
+}
+
+.opentt-cover-focus-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.opentt-cover-focus-preview {
+  margin-top: 6px;
+  border: 1px solid rgba(142, 197, 255, 0.32);
+  background: rgba(6, 20, 54, 0.7);
+  overflow: hidden;
+}
+
+.opentt-cover-focus-preview.is-desktop {
+  aspect-ratio: 3 / 2;
+}
+
+.opentt-cover-focus-preview.is-mobile {
+  aspect-ratio: 16 / 9;
+}
+
+.opentt-cover-focus-preview img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.opentt-cover-focus-controls {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.opentt-cover-focus-controls label {
+  display: block;
+  font-weight: 600;
+}
+
+.opentt-cover-focus-controls input[type="range"] {
+  width: 100%;
+}
+
 .opentt-editor-posts-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -600,6 +648,11 @@
   }
 
   .opentt-editor-posts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .opentt-cover-focus-grid,
+  .opentt-cover-focus-controls {
     grid-template-columns: 1fr;
   }
 

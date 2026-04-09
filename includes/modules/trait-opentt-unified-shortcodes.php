@@ -688,10 +688,22 @@ trait OpenTT_Unified_Shortcodes_Trait
             $image_url = '';
         }
 
+        $focus_x_raw = floatval(get_post_meta($club_id, 'opentt_club_featured_focus_x', true));
+        $focus_y_raw = floatval(get_post_meta($club_id, 'opentt_club_featured_focus_y', true));
+        $focus_x = ($focus_x_raw >= 0 && $focus_x_raw <= 100) ? $focus_x_raw : 50.0;
+        $focus_y = ($focus_y_raw >= 0 && $focus_y_raw <= 100) ? $focus_y_raw : 50.0;
+
         $title = (string) get_the_title($club_id);
         $raw_height = intval($atts['height'] ?? 0);
         $height = $raw_height > 0 ? max(1, min(2000, $raw_height)) : 0;
-        $style_attr = $height > 0 ? ' style="--opentt-club-featured-height:' . esc_attr((string) $height) . 'px;"' : '';
+        $style_parts = [
+            '--opentt-club-featured-focus-x:' . $focus_x . '%',
+            '--opentt-club-featured-focus-y:' . $focus_y . '%',
+        ];
+        if ($height > 0) {
+            $style_parts[] = '--opentt-club-featured-height:' . $height . 'px';
+        }
+        $style_attr = ' style="' . esc_attr(implode(';', $style_parts)) . '"';
         $wrap_class = 'opentt-club-featured-wrap' . ($height > 0 ? ' is-fixed-height' : '');
         $link_raw = strtolower(trim((string) ($atts['link'] ?? 'false')));
         $link_enabled = !in_array($link_raw, ['0', 'false', 'no', 'off'], true);
