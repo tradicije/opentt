@@ -39,6 +39,7 @@ final class MatchesListShortcode
 
         $query_args = (array) $call('build_match_query_args', $atts);
         $query_args['limit'] = -1;
+        self::expand_auto_highlight_scope($atts, $query_args, $call);
 
         if (!empty($atts['kolo'])) {
             $query_args['kolo_slug'] = sanitize_title((string) $atts['kolo']);
@@ -573,6 +574,46 @@ final class MatchesListShortcode
         }
 
         return array_values(array_unique(array_filter($ids)));
+    }
+
+    private static function expand_auto_highlight_scope(array $atts, array &$query_args, callable $call)
+    {
+        $raw_highlight = trim((string) ($atts['highlight'] ?? ''));
+        if ($raw_highlight === '' || stripos($raw_highlight, 'auto') === false) {
+            return;
+        }
+
+        $explicit_klub = trim((string) ($atts['klub'] ?? ''));
+        if ($explicit_klub !== '') {
+            return;
+        }
+
+        $club_id = intval($query_args['club_id'] ?? 0);
+        if ($club_id <= 0) {
+            return;
+        }
+
+        $liga_slug = sanitize_title((string) ($query_args['liga_slug'] ?? ''));
+        $sezona_slug = sanitize_title((string) ($query_args['sezona_slug'] ?? ''));
+
+        if ($liga_slug === '' && $sezona_slug === '') {
+            $seed_args = $query_args;
+            $seed_args['limit'] = 1;
+            $seed_rows = $call('db_get_matches', $seed_args);
+            if (is_array($seed_rows) && !empty($seed_rows) && is_object($seed_rows[0])) {
+                $seed = $seed_rows[0];
+                $liga_slug = sanitize_title((string) ($seed->liga_slug ?? ''));
+                $sezona_slug = sanitize_title((string) ($seed->sezona_slug ?? ''));
+            }
+        }
+
+        $query_args['club_id'] = 0;
+        if ($liga_slug !== '') {
+            $query_args['liga_slug'] = $liga_slug;
+        }
+        if ($sezona_slug !== '') {
+            $query_args['sezona_slug'] = $sezona_slug;
+        }
     }
 
     private static function normalize_bool_attr($raw, $default = true)
