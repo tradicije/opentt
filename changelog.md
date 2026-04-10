@@ -8,6 +8,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Assets & UI
 
+- Test: Provera changelog zapisa za push validaciju.
 - Added standings social export actions under each `opentt_standings_table`: new `Podeli` and `Preuzmi` buttons (with `share-icon` / `download-file-icon`) now generate a context-aware 1080x1080 social image (league+season header, rendered standings table, branded footer `Tabela preuzeta sa stkb.rs`) with OpenTT blue gradient background.
 - Enhanced standings social image generator visuals (richer gradient layers, polished header/footer containers, row-striping/highlight contrast) and added centered table watermark rendering from `club-logo.png`.
 - Fixed standings social image club-name encoding so entities like `&#8211;` are decoded to proper characters (for example `Spin - N`) in exported PNG rows.
