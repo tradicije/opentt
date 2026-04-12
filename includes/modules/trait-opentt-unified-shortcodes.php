@@ -768,6 +768,18 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_club_card($atts = [])
+    {
+        return \OpenTT\Unified\WordPress\Shortcodes\ClubCardShortcode::render($atts, [
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+        ]);
+    }
+
     private static function info_link_icon_html($icon_file_name, $fallback, $modifier = 'before')
     {
         $icon_file_name = sanitize_file_name((string) $icon_file_name);

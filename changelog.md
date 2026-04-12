@@ -11,6 +11,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Test: Provera changelog zapisa za push validaciju.
 - Increased logged-in avatar size in `opentt_auth_menu` from `24x24` to `40x40` while keeping the same `40x40` trigger area.
 - Updated `opentt_standings_short` mini-table so club cells are now clickable links that route directly to the selected club profile page.
+- Added new shortcode `opentt_club_card` (dynamic/context-aware club card): renders club logo, bold club name, and city in a vertical stack; supports `id`, `klub` (slug/name), and falls back to single-club context automatically.
 - Added standings social export actions under each `opentt_standings_table`: new `Podeli` and `Preuzmi` buttons (with `share-icon` / `download-file-icon`) now generate a context-aware 1080x1080 social image (league+season header, rendered standings table, branded footer `Tabela preuzeta sa stkb.rs`) with OpenTT blue gradient background.
 - Enhanced standings social image generator visuals (richer gradient layers, polished header/footer containers, row-striping/highlight contrast) and added centered table watermark rendering from `club-logo.png`.
 - Fixed standings social image club-name encoding so entities like `&#8211;` are decoded to proper characters (for example `Spin - N`) in exported PNG rows.
