@@ -273,6 +273,15 @@ thead tr th {
   min-height: 28px;
 }
 
+.opentt-standings-short-table .club-link {
+  text-decoration: none;
+}
+
+.opentt-standings-short-table .club-link:hover .club-name,
+.opentt-standings-short-table .club-link:focus .club-name {
+  color: #8ec5ff;
+}
+
 .opentt-standings-short-table .club-crest {
   width: 28px;
   height: 28px;

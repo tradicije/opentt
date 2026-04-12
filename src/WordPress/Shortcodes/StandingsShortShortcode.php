@@ -104,13 +104,22 @@ final class StandingsShortShortcode
             }
             $row_club_id = intval($row['club_id'] ?? 0);
             $is_highlight = ($row_club_id === $club_id);
+            $club_link = $row_club_id > 0 ? get_permalink($row_club_id) : '';
             echo '<tr' . ($is_highlight ? ' class="is-highlight"' : '') . '>';
             echo '<td>' . intval($row['rank'] ?? 0) . '</td>';
             echo '<td class="club-cell">';
-            echo '<span class="club-wrap">';
+            if ($club_link !== '') {
+                echo '<a class="club-wrap club-link" href="' . esc_url($club_link) . '">';
+            } else {
+                echo '<span class="club-wrap">';
+            }
             echo '<span class="club-crest">' . (string) $call('club_logo_html', $row_club_id, 'thumbnail', ['class' => 'opentt-standings-short-crest']) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '<span class="club-name">' . esc_html((string) get_the_title($row_club_id)) . '</span>';
-            echo '</span>';
+            if ($club_link !== '') {
+                echo '</a>';
+            } else {
+                echo '</span>';
+            }
             echo '</td>';
             echo '<td>' . intval($row['odigrane'] ?? 0) . '</td>';
             echo '<td>' . intval($row['pobede'] ?? 0) . '</td>';
