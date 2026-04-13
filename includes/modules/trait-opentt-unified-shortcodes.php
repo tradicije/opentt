@@ -202,6 +202,30 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_featured_player($atts = [])
+    {
+        return \OpenTT\Unified\WordPress\Shortcodes\FeaturedPlayerShortcode::render($atts, [
+            'db_get_top_players_data' => static function ($liga_slug, $sezona_slug = '', $max_kolo = null) {
+                return self::db_get_top_players_data($liga_slug, $sezona_slug, $max_kolo);
+            },
+            'db_get_latest_competition_for_club' => static function ($club_id) {
+                return self::db_get_latest_competition_for_club($club_id);
+            },
+            'db_get_latest_competition_for_player' => static function ($player_id) {
+                return self::db_get_latest_competition_for_player($player_id);
+            },
+            'get_player_club_id' => static function ($player_id) {
+                return self::get_player_club_id($player_id);
+            },
+            'player_fallback_image_url' => static function () {
+                return self::player_fallback_image_url();
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+        ]);
+    }
+
     public static function shortcode_clubs_grid($atts = [])
     {
         return \OpenTT\Unified\WordPress\Shortcodes\ClubsGridShortcode::render($atts, [

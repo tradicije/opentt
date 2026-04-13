@@ -64,6 +64,7 @@ final class FrontendAssetsEnqueuer
             'info-igraca',
             'prikaz-klubova',
             'featured-match',
+            'featured-player',
             'search',
             'auth-profile',
         ];

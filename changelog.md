@@ -67,6 +67,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Standardized `opentt_auth` container width to `max 400px` across desktop and mobile (responsive shrink on narrower screens).
 - Refined `opentt_auth` sizing to `max 360px` with `box-sizing: border-box` to prevent overflow on narrow mobile viewports.
 - Updated `opentt_auth` header logo (`club-logo.png`) to be clickable and route users back to site homepage.
+- Added new `opentt_featured_player` shortcode: renders a clickable featured-player card (photo, name, club, wins/losses/efficiency) with support for explicit player (`igrac`), explicit club (`klub`), and automatic single-club contextual selection of the best-ranked player from current ranking data.
 - Enhanced pending-games `Napredni unos` behavior: per-set points are now mandatory in advanced mode, and set inputs are dynamically scoped by entered final set score per game (for example `3:0` shows 3 required sets, `3:2` shows 5).
 - Added entry-mode tabs on the standalone pending-games page: default `Brzi unos` (only final game set totals) and optional `Napredni unos` (enables per-set point inputs), with client-side mode switching and mobile-friendly tab styling.
 - Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.
