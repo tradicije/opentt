@@ -208,6 +208,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'db_get_top_players_data' => static function ($liga_slug, $sezona_slug = '', $max_kolo = null) {
                 return self::db_get_top_players_data($liga_slug, $sezona_slug, $max_kolo);
             },
+            'db_get_top_players_data_unfiltered' => static function ($liga_slug, $sezona_slug = '', $max_kolo = null) {
+                return self::db_get_top_players_data_unfiltered($liga_slug, $sezona_slug, $max_kolo);
+            },
             'db_get_latest_competition_for_club' => static function ($club_id) {
                 return self::db_get_latest_competition_for_club($club_id);
             },
@@ -1133,6 +1136,11 @@ trait OpenTT_Unified_Shortcodes_Trait
     private static function db_get_top_players_data($liga_slug, $sezona_slug = '', $max_kolo = null)
     {
         return OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_top_players_data($liga_slug, $sezona_slug, $max_kolo);
+    }
+
+    private static function db_get_top_players_data_unfiltered($liga_slug, $sezona_slug = '', $max_kolo = null)
+    {
+        return OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_top_players_data_unfiltered($liga_slug, $sezona_slug, $max_kolo);
     }
 
     private static function db_get_played_matches_count_by_club($liga_slug, $sezona_slug = '', $max_kolo = null)

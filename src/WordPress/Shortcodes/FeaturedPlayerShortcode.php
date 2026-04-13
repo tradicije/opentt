@@ -39,7 +39,7 @@ final class FeaturedPlayerShortcode
         if ($player_id > 0) {
             $scope = self::resolve_scope_for_player($atts, $player_id, $call);
             if ($scope['liga_slug'] !== '') {
-                $rank_data = (array) $call('db_get_top_players_data', $scope['liga_slug'], $scope['sezona_slug'], null);
+                $rank_data = (array) $call('db_get_top_players_data_unfiltered', $scope['liga_slug'], $scope['sezona_slug'], null);
                 if (isset($rank_data[$player_id]) && is_array($rank_data[$player_id])) {
                     $stats = $rank_data[$player_id];
                     $club_id_from_rank = intval($stats['klub'] ?? 0);
@@ -60,7 +60,7 @@ final class FeaturedPlayerShortcode
                 return '';
             }
 
-            $rank_data = (array) $call('db_get_top_players_data', $scope['liga_slug'], $scope['sezona_slug'], null);
+            $rank_data = (array) $call('db_get_top_players_data_unfiltered', $scope['liga_slug'], $scope['sezona_slug'], null);
             if ($club_id > 0) {
                 foreach ($rank_data as $candidate_player_id => $candidate_stats) {
                     $candidate_player_id = intval($candidate_player_id);
@@ -200,6 +200,19 @@ final class FeaturedPlayerShortcode
         $post = get_page_by_path(sanitize_title($club_raw), OBJECT, 'klub');
         if (!$post) {
             $post = get_page_by_title($club_raw, OBJECT, 'klub');
+        }
+        if (!$post) {
+            $q = get_posts([
+                'post_type' => 'klub',
+                'post_status' => 'publish',
+                'name' => sanitize_title($club_raw),
+                'posts_per_page' => 1,
+                'fields' => 'ids',
+                'suppress_filters' => true,
+            ]);
+            if (!empty($q)) {
+                return intval($q[0]);
+            }
         }
         if ($post && !is_wp_error($post)) {
             return intval($post->ID);

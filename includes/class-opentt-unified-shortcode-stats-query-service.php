@@ -18,6 +18,16 @@ final class OpenTT_Unified_Shortcode_Stats_Query_Service
 {
     public static function db_get_top_players_data($liga_slug, $sezona_slug = '', $max_kolo = null)
     {
+        return self::db_get_top_players_data_internal($liga_slug, $sezona_slug, $max_kolo, true);
+    }
+
+    public static function db_get_top_players_data_unfiltered($liga_slug, $sezona_slug = '', $max_kolo = null)
+    {
+        return self::db_get_top_players_data_internal($liga_slug, $sezona_slug, $max_kolo, false);
+    }
+
+    private static function db_get_top_players_data_internal($liga_slug, $sezona_slug = '', $max_kolo = null, $apply_min_participation_filter = true)
+    {
         global $wpdb;
         $matches = OpenTT_Unified_Core::db_table('matches');
         $games = OpenTT_Unified_Core::db_table('games');
@@ -123,14 +133,16 @@ final class OpenTT_Unified_Shortcode_Stats_Query_Service
             return [];
         }
 
-        $odigrane_po_klubu = self::db_get_played_matches_count_by_club($liga_slug, $sezona_slug, $max_kolo);
-        $igraci = array_filter($igraci, function ($info) use ($odigrane_po_klubu) {
-            $ukupno_partija = intval($info['pobede']) + intval($info['porazi']);
-            $klub_id = intval($info['klub']);
-            $odigrane = intval($odigrane_po_klubu[$klub_id] ?? 0);
-            $maksimalno_moguce = $odigrane * 2;
-            return $maksimalno_moguce > 0 && ($ukupno_partija / $maksimalno_moguce) >= 0.5;
-        });
+        if ($apply_min_participation_filter) {
+            $odigrane_po_klubu = self::db_get_played_matches_count_by_club($liga_slug, $sezona_slug, $max_kolo);
+            $igraci = array_filter($igraci, function ($info) use ($odigrane_po_klubu) {
+                $ukupno_partija = intval($info['pobede']) + intval($info['porazi']);
+                $klub_id = intval($info['klub']);
+                $odigrane = intval($odigrane_po_klubu[$klub_id] ?? 0);
+                $maksimalno_moguce = $odigrane * 2;
+                return $maksimalno_moguce > 0 && ($ukupno_partija / $maksimalno_moguce) >= 0.5;
+            });
+        }
 
         uasort($igraci, function ($a, $b) {
             $a_total = intval($a['pobede']) + intval($a['porazi']);
