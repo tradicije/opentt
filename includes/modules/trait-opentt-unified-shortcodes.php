@@ -217,6 +217,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'db_get_latest_competition_for_player' => static function ($player_id) {
                 return self::db_get_latest_competition_for_player($player_id);
             },
+            'db_get_latest_season_for_liga' => static function ($liga_slug) {
+                return self::db_get_latest_season_for_liga($liga_slug);
+            },
             'db_get_latest_competition_with_games' => static function () {
                 return self::db_get_latest_competition_with_games();
             },
@@ -1156,6 +1159,11 @@ trait OpenTT_Unified_Shortcodes_Trait
     private static function db_get_latest_competition_for_player($player_id)
     {
         return OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_latest_competition_for_player($player_id);
+    }
+
+    private static function db_get_latest_season_for_liga($liga_slug)
+    {
+        return OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_latest_season_for_liga($liga_slug);
     }
 
     private static function db_get_latest_competition_for_club($club_id)

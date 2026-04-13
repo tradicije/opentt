@@ -304,6 +304,32 @@ final class OpenTT_Unified_Shortcode_Stats_Query_Service
         ];
     }
 
+    public static function db_get_latest_season_for_liga($liga_slug)
+    {
+        global $wpdb;
+        $matches = OpenTT_Unified_Core::db_table('matches');
+        $games = OpenTT_Unified_Core::db_table('games');
+        $liga_slug = sanitize_title((string) $liga_slug);
+        if ($liga_slug === '' || !self::table_exists($matches) || !self::table_exists($games)) {
+            return '';
+        }
+
+        $sql = $wpdb->prepare(
+            "SELECT m.sezona_slug
+             FROM {$matches} m
+             INNER JOIN {$games} g ON g.match_id = m.id
+             WHERE m.liga_slug=%s
+               AND m.sezona_slug<>''
+               AND g.is_doubles=0
+               AND g.home_player_post_id > 0
+               AND g.away_player_post_id > 0
+             ORDER BY m.match_date DESC, m.id DESC
+             LIMIT 1",
+            $liga_slug
+        );
+        return sanitize_title((string) $wpdb->get_var($sql));
+    }
+
     public static function db_get_recent_club_matches($club_id, $limit = 5)
     {
         global $wpdb;

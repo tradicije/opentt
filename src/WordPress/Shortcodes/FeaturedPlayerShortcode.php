@@ -225,6 +225,9 @@ final class FeaturedPlayerShortcode
         $liga = sanitize_title((string) ($atts['liga'] ?? ''));
         $sezona = sanitize_title((string) (($atts['sezona'] ?? '') !== '' ? $atts['sezona'] : ($atts['season'] ?? '')));
         if ($liga !== '') {
+            if ($sezona === '') {
+                $sezona = sanitize_title((string) $call('db_get_latest_season_for_liga', $liga));
+            }
             return ['liga_slug' => $liga, 'sezona_slug' => $sezona];
         }
 
@@ -244,6 +247,9 @@ final class FeaturedPlayerShortcode
         $liga = sanitize_title((string) ($atts['liga'] ?? ''));
         $sezona = sanitize_title((string) (($atts['sezona'] ?? '') !== '' ? $atts['sezona'] : ($atts['season'] ?? '')));
         if ($liga !== '') {
+            if ($sezona === '') {
+                $sezona = sanitize_title((string) $call('db_get_latest_season_for_liga', $liga));
+            }
             return ['liga_slug' => $liga, 'sezona_slug' => $sezona];
         }
 
@@ -263,6 +269,9 @@ final class FeaturedPlayerShortcode
         $liga = sanitize_title((string) ($atts['liga'] ?? ''));
         $sezona = sanitize_title((string) (($atts['sezona'] ?? '') !== '' ? $atts['sezona'] : ($atts['season'] ?? '')));
         if ($liga !== '') {
+            if ($sezona === '') {
+                $sezona = sanitize_title((string) $call('db_get_latest_season_for_liga', $liga));
+            }
             return ['liga_slug' => $liga, 'sezona_slug' => $sezona];
         }
 
