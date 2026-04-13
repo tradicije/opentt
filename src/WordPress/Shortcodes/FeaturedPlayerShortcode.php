@@ -28,6 +28,7 @@ final class FeaturedPlayerShortcode
             'klub' => '',
             'liga' => '',
             'sezona' => '',
+            'season' => '',
             'title' => '',
         ], (array) $atts, 'opentt_featured_player');
 
@@ -49,28 +50,50 @@ final class FeaturedPlayerShortcode
             if ($club_id <= 0 && is_singular('klub')) {
                 $club_id = intval(get_the_ID());
             }
-            if ($club_id <= 0) {
-                return '';
-            }
 
-            $scope = self::resolve_scope_for_club($atts, $club_id, $call);
+            if ($club_id > 0) {
+                $scope = self::resolve_scope_for_club($atts, $club_id, $call);
+            } else {
+                $scope = self::resolve_scope_from_atts_or_latest($atts, $call);
+            }
             if ($scope['liga_slug'] === '') {
                 return '';
             }
 
             $rank_data = (array) $call('db_get_top_players_data', $scope['liga_slug'], $scope['sezona_slug'], null);
-            foreach ($rank_data as $candidate_player_id => $candidate_stats) {
-                $candidate_player_id = intval($candidate_player_id);
-                if ($candidate_player_id <= 0 || get_post_type($candidate_player_id) !== 'igrac' || !is_array($candidate_stats)) {
-                    continue;
+            if ($club_id > 0) {
+                foreach ($rank_data as $candidate_player_id => $candidate_stats) {
+                    $candidate_player_id = intval($candidate_player_id);
+                    if ($candidate_player_id <= 0 || get_post_type($candidate_player_id) !== 'igrac' || !is_array($candidate_stats)) {
+                        continue;
+                    }
+                    if (intval($candidate_stats['klub'] ?? 0) !== $club_id) {
+                        continue;
+                    }
+                    $player_id = $candidate_player_id;
+                    $stats = $candidate_stats;
+                    $club_id_from_rank = $club_id;
+                    break;
                 }
-                if (intval($candidate_stats['klub'] ?? 0) !== $club_id) {
-                    continue;
+            } else {
+                foreach ($rank_data as $candidate_player_id => $candidate_stats) {
+                    $candidate_player_id = intval($candidate_player_id);
+                    if ($candidate_player_id <= 0 || get_post_type($candidate_player_id) !== 'igrac' || !is_array($candidate_stats)) {
+                        continue;
+                    }
+                    $player_id = $candidate_player_id;
+                    $stats = $candidate_stats;
+                    $club_id_from_rank = intval($candidate_stats['klub'] ?? 0);
+                    break;
                 }
-                $player_id = $candidate_player_id;
-                $stats = $candidate_stats;
-                $club_id_from_rank = $club_id;
-                break;
+            }
+
+            if ($player_id <= 0 && $club_id > 0) {
+                $fallback_player = self::find_first_player_for_club($club_id);
+                if ($fallback_player > 0) {
+                    $player_id = $fallback_player;
+                    $club_id_from_rank = $club_id;
+                }
             }
         }
 
@@ -145,6 +168,19 @@ final class FeaturedPlayerShortcode
         if (!$post) {
             $post = get_page_by_title($player_raw, OBJECT, 'igrac');
         }
+        if (!$post) {
+            $q = get_posts([
+                'post_type' => 'igrac',
+                'post_status' => 'publish',
+                'name' => sanitize_title($player_raw),
+                'posts_per_page' => 1,
+                'fields' => 'ids',
+                'suppress_filters' => true,
+            ]);
+            if (!empty($q)) {
+                return intval($q[0]);
+            }
+        }
         if ($post && !is_wp_error($post)) {
             return intval($post->ID);
         }
@@ -174,7 +210,7 @@ final class FeaturedPlayerShortcode
     private static function resolve_scope_for_club(array $atts, $club_id, callable $call)
     {
         $liga = sanitize_title((string) ($atts['liga'] ?? ''));
-        $sezona = sanitize_title((string) ($atts['sezona'] ?? ''));
+        $sezona = sanitize_title((string) (($atts['sezona'] ?? '') !== '' ? $atts['sezona'] : ($atts['season'] ?? '')));
         if ($liga !== '') {
             return ['liga_slug' => $liga, 'sezona_slug' => $sezona];
         }
@@ -193,7 +229,7 @@ final class FeaturedPlayerShortcode
     private static function resolve_scope_for_player(array $atts, $player_id, callable $call)
     {
         $liga = sanitize_title((string) ($atts['liga'] ?? ''));
-        $sezona = sanitize_title((string) ($atts['sezona'] ?? ''));
+        $sezona = sanitize_title((string) (($atts['sezona'] ?? '') !== '' ? $atts['sezona'] : ($atts['season'] ?? '')));
         if ($liga !== '') {
             return ['liga_slug' => $liga, 'sezona_slug' => $sezona];
         }
@@ -208,5 +244,60 @@ final class FeaturedPlayerShortcode
             'sezona_slug' => sanitize_title((string) ($from_db['sezona_slug'] ?? '')),
         ];
     }
-}
 
+    private static function resolve_scope_from_atts_or_latest(array $atts, callable $call)
+    {
+        $liga = sanitize_title((string) ($atts['liga'] ?? ''));
+        $sezona = sanitize_title((string) (($atts['sezona'] ?? '') !== '' ? $atts['sezona'] : ($atts['season'] ?? '')));
+        if ($liga !== '') {
+            return ['liga_slug' => $liga, 'sezona_slug' => $sezona];
+        }
+
+        $from_db = $call('db_get_latest_competition_with_games');
+        if (!is_array($from_db)) {
+            return ['liga_slug' => '', 'sezona_slug' => ''];
+        }
+
+        return [
+            'liga_slug' => sanitize_title((string) ($from_db['liga_slug'] ?? '')),
+            'sezona_slug' => sanitize_title((string) ($from_db['sezona_slug'] ?? '')),
+        ];
+    }
+
+    private static function find_first_player_for_club($club_id)
+    {
+        $club_id = intval($club_id);
+        if ($club_id <= 0) {
+            return 0;
+        }
+
+        $q = new \WP_Query([
+            'post_type' => 'igrac',
+            'posts_per_page' => 1,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'fields' => 'ids',
+            'meta_query' => [
+                'relation' => 'OR',
+                [
+                    'key' => 'povezani_klub',
+                    'value' => $club_id,
+                    'compare' => '=',
+                ],
+                [
+                    'key' => 'klub_igraca',
+                    'value' => $club_id,
+                    'compare' => '=',
+                ],
+            ],
+        ]);
+
+        if (!$q->have_posts()) {
+            return 0;
+        }
+
+        $id = intval($q->posts[0] ?? 0);
+        wp_reset_postdata();
+        return $id;
+    }
+}

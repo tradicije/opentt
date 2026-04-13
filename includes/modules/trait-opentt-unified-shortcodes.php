@@ -214,6 +214,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'db_get_latest_competition_for_player' => static function ($player_id) {
                 return self::db_get_latest_competition_for_player($player_id);
             },
+            'db_get_latest_competition_with_games' => static function () {
+                return self::db_get_latest_competition_with_games();
+            },
             'get_player_club_id' => static function ($player_id) {
                 return self::get_player_club_id($player_id);
             },
