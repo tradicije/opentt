@@ -32,7 +32,12 @@ final class FeaturedPlayerShortcode
             'title' => '',
         ], (array) $atts, 'opentt_featured_player');
 
-        $player_id = self::resolve_player_id((string) ($atts['igrac'] ?? ''));
+        $explicit_player_raw = trim((string) ($atts['igrac'] ?? ''));
+        $explicit_player_requested = $explicit_player_raw !== '';
+        $player_id = self::resolve_player_id($explicit_player_raw);
+        if ($explicit_player_requested && $player_id <= 0) {
+            return '';
+        }
         $stats = [];
         $club_id_from_rank = 0;
 
@@ -156,6 +161,8 @@ final class FeaturedPlayerShortcode
 
     private static function resolve_player_id($player_raw)
     {
+        global $wpdb;
+
         $player_raw = trim((string) $player_raw);
         if ($player_raw === '') {
             return 0;
@@ -164,7 +171,8 @@ final class FeaturedPlayerShortcode
             return intval($player_raw);
         }
 
-        $post = get_page_by_path(sanitize_title($player_raw), OBJECT, 'igrac');
+        $slug = sanitize_title($player_raw);
+        $post = get_page_by_path($slug, OBJECT, 'igrac');
         if (!$post) {
             $post = get_page_by_title($player_raw, OBJECT, 'igrac');
         }
@@ -172,13 +180,48 @@ final class FeaturedPlayerShortcode
             $q = get_posts([
                 'post_type' => 'igrac',
                 'post_status' => 'publish',
-                'name' => sanitize_title($player_raw),
+                'name' => $slug,
                 'posts_per_page' => 1,
                 'fields' => 'ids',
                 'suppress_filters' => true,
             ]);
             if (!empty($q)) {
                 return intval($q[0]);
+            }
+        }
+        if (!$post && isset($wpdb->posts)) {
+            $post_id = intval($wpdb->get_var($wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts}
+                 WHERE post_type='igrac' AND post_status='publish' AND post_name=%s
+                 ORDER BY ID DESC LIMIT 1",
+                $slug
+            )));
+            if ($post_id > 0) {
+                return $post_id;
+            }
+        }
+        if (!$post) {
+            $needle = str_replace('-', '', $slug);
+            $candidates = get_posts([
+                'post_type' => 'igrac',
+                'post_status' => 'publish',
+                'numberposts' => -1,
+                'fields' => 'ids',
+                'suppress_filters' => true,
+            ]);
+            foreach ((array) $candidates as $candidate_id) {
+                $candidate_id = intval($candidate_id);
+                if ($candidate_id <= 0) {
+                    continue;
+                }
+                $candidate_slug = sanitize_title((string) get_post_field('post_name', $candidate_id));
+                $candidate_name = sanitize_title((string) get_the_title($candidate_id));
+                if ($candidate_slug === $slug || $candidate_name === $slug) {
+                    return $candidate_id;
+                }
+                if (str_replace('-', '', $candidate_slug) === $needle || str_replace('-', '', $candidate_name) === $needle) {
+                    return $candidate_id;
+                }
             }
         }
         if ($post && !is_wp_error($post)) {
