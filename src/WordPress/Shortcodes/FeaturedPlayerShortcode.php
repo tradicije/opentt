@@ -138,15 +138,15 @@ final class FeaturedPlayerShortcode
         }
         ?>
         <a class="opentt-featured-player-card" href="<?php echo esc_url($player_link); ?>">
-            <span class="opentt-featured-player-photo"><?php echo $photo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+            <span class="opentt-featured-player-photo">
+                <?php echo $photo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                <?php if ($club_logo !== ''): ?>
+                    <span class="opentt-featured-player-club-badge"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                <?php endif; ?>
+            </span>
             <span class="opentt-featured-player-name"><?php echo esc_html($player_name); ?></span>
             <?php if ($club_name !== ''): ?>
-                <span class="opentt-featured-player-club">
-                    <?php if ($club_logo !== ''): ?>
-                        <span class="opentt-featured-player-club-logo"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                    <?php endif; ?>
-                    <span class="opentt-featured-player-club-name"><?php echo esc_html($club_name); ?></span>
-                </span>
+                <span class="opentt-featured-player-club"><?php echo esc_html($club_name); ?></span>
             <?php endif; ?>
             <span class="opentt-featured-player-stats">
                 <span class="opentt-featured-player-stat">

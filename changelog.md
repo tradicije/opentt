@@ -74,6 +74,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Fixed strict player targeting in `opentt_featured_player`: when `igrac="slug"` is provided, shortcode now resolves player by robust slug/title matching and no longer falls back to generic top-player output if the requested player cannot be resolved.
 - Improved `opentt_featured_player` stat labels with Serbian pluralization rules so win/loss captions are grammatically correct for all values (for example `0 poraza`, `1 poraz`, `2 poraza`).
 - Enhanced `opentt_featured_player` club line: club crest is now rendered next to club name in the same row for clearer visual association.
+- Updated `opentt_featured_player` club branding layout: club name remains as plain text below player name, while club crest now appears as an overlay badge in the lower-right corner of the player photo.
 - Enhanced pending-games `Napredni unos` behavior: per-set points are now mandatory in advanced mode, and set inputs are dynamically scoped by entered final set score per game (for example `3:0` shows 3 required sets, `3:2` shows 5).
 - Added entry-mode tabs on the standalone pending-games page: default `Brzi unos` (only final game set totals) and optional `Napredni unos` (enables per-set point inputs), with client-side mode switching and mobile-friendly tab styling.
 - Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.
