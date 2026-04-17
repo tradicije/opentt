@@ -24,9 +24,18 @@
   width: 112px;
   height: 112px;
   border-radius: 50%;
-  overflow: hidden;
+  overflow: visible;
   display: block;
   border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.opentt-featured-player-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .opentt-featured-player-photo-img {
@@ -34,6 +43,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  border-radius: 50%;
 }
 
 .opentt-featured-player-name {
@@ -53,8 +63,8 @@
 
 .opentt-featured-player-club-badge {
   position: absolute;
-  right: 2px;
-  bottom: 2px;
+  right: -5px;
+  bottom: -5px;
   width: 30px;
   height: 30px;
   border-radius: 50%;
