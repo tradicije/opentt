@@ -2441,17 +2441,23 @@ HTML;
         echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>' . ($match ? 'Uredi utakmicu' : 'Dodaj utakmicu') . '</h1>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-wizard-form" data-opentt-steps="3">';
+        echo '<div class="opentt-match-edit-tabs" data-opentt-match-tabs>';
+        echo '<div class="opentt-match-edit-tabs-nav">';
+        echo '<button type="button" class="button button-primary is-active" data-opentt-tab-trigger="basic">Osnovno</button>';
+        echo '<button type="button" class="button" data-opentt-tab-trigger="games"' . ($match ? '' : ' disabled aria-disabled="true"') . '>Partije</button>';
+        echo '</div>';
+
+        echo '<div class="opentt-match-edit-tab-pane is-active" data-opentt-tab-pane="basic">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-panel">';
         wp_nonce_field('opentt_unified_save_match');
         echo '<input type="hidden" name="action" value="opentt_unified_save_match">';
         echo '<input type="hidden" name="id" value="' . esc_attr((string) ($match ? (int) $match->id : 0)) . '">';
-        echo '<div class="opentt-wizard-steps"><span class="opentt-step-pill">1. Takmičenje</span><span class="opentt-step-pill">2. Ekipe i rezultat</span><span class="opentt-step-pill">3. Potvrda</span></div>';
         echo '<table class="form-table"><tbody>';
-        echo '<tr data-opentt-step="1"><th>Takmičenje</th><td>' . self::competition_rules_dropdown_admin('competition_rule_id', self::competition_rule_id_by_slugs($m_liga, $m_sezona), true) . '<p class="description">U meniju <strong>Takmičenja</strong> dodaješ liga+sezona i pravila.</p></td></tr>';
-        echo '<tr data-opentt-step="1"><th>Kolo slug</th><td><input type="text" class="regular-text" name="kolo_slug" value="' . esc_attr($m_kolo) . '" required><p class="description">Primer: <code>12-kolo</code>.</p></td></tr>';
-        echo '<tr data-opentt-step="1"><th>Datum i vreme</th><td><input name="match_date" type="datetime-local" value="' . esc_attr($match && !empty($match->match_date) ? str_replace(' ', 'T', substr((string) $match->match_date, 0, 16)) : '') . '"></td></tr>';
-        echo '<tr data-opentt-step="1"><th>Lokacija</th><td><input name="location" type="text" class="regular-text" value="' . esc_attr($m_location) . '" placeholder="Hala, sala ili adresa"><p class="description">Menjaj ovo polje samo ako se utakmica ne igra kod domaćina.</p></td></tr>';
-        echo '<tr data-opentt-step="1"><th>Izveštaj</th><td>';
+        echo '<tr><th>Takmičenje</th><td>' . self::competition_rules_dropdown_admin('competition_rule_id', self::competition_rule_id_by_slugs($m_liga, $m_sezona), true) . '<p class="description">U meniju <strong>Takmičenja</strong> dodaješ liga+sezona i pravila.</p></td></tr>';
+        echo '<tr><th>Kolo slug</th><td><input type="text" class="regular-text" name="kolo_slug" value="' . esc_attr($m_kolo) . '" required><p class="description">Primer: <code>12-kolo</code>.</p></td></tr>';
+        echo '<tr><th>Datum i vreme</th><td><input name="match_date" type="datetime-local" value="' . esc_attr($match && !empty($match->match_date) ? str_replace(' ', 'T', substr((string) $match->match_date, 0, 16)) : '') . '"></td></tr>';
+        echo '<tr><th>Lokacija</th><td><input name="location" type="text" class="regular-text" value="' . esc_attr($m_location) . '" placeholder="Hala, sala ili adresa"><p class="description">Menjaj ovo polje samo ako se utakmica ne igra kod domaćina.</p></td></tr>';
+        echo '<tr><th>Izveštaj</th><td>';
         echo '<input type="search" id="opentt-report-post-search" class="regular-text" placeholder="Pretraži vesti..." style="margin-bottom:8px;display:block;max-width:420px;">';
         echo '<select name="report_post_id" id="opentt-report-post-id" class="regular-text" style="max-width:420px;">';
         echo '<option value="0"' . selected($m_report_post_id, 0, false) . '>Bez izveštaja</option>';
@@ -2461,21 +2467,20 @@ HTML;
         echo '</select>';
         echo '<p class="description">Izaberi blog vest sa ovog sajta koja predstavlja izveštaj utakmice.</p>';
         echo '</td></tr>';
-        echo '<tr data-opentt-step="1"><th>Link snimka</th><td><input name="video_url" type="url" class="regular-text" value="' . esc_attr($m_video_url) . '" placeholder="https://..."><p class="description">Opcioni URL ka video snimku utakmice.</p></td></tr>';
-        echo '<tr data-opentt-step="2"><th>Domaći klub</th><td>' . self::clubs_dropdown_admin('home_club_post_id', $m_home, true) . '</td></tr>';
-        echo '<tr data-opentt-step="2"><th>Gostujući klub</th><td>' . self::clubs_dropdown_admin('away_club_post_id', $m_away, true) . '</td></tr>';
-        echo '<tr id="opentt-match-score-row" data-opentt-step="2"><th>Rezultat</th><td><input name="home_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_hs) . '" style="width:90px;"> : <input name="away_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_as) . '" style="width:90px;"></td></tr>';
-        echo '<tr data-opentt-step="2"><th>Featured match</th><td><label><input type="checkbox" name="featured" value="1" ' . checked($m_featured, 1, false) . '> Istakni ovu utakmicu</label></td></tr>';
-        echo '<tr data-opentt-step="2"><th>LIVE match</th><td><label><input type="checkbox" name="live" value="1" ' . checked($m_live, 1, false) . '> Označi ovu utakmicu kao LIVE (ručno)</label></td></tr>';
-        echo '<tr data-opentt-step="3"><th>Potvrda</th><td><p class="description">Proveri podatke i klikni na dugme za čuvanje.</p></td></tr>';
+        echo '<tr><th>Link snimka</th><td><input name="video_url" type="url" class="regular-text" value="' . esc_attr($m_video_url) . '" placeholder="https://..."><p class="description">Opcioni URL ka video snimku utakmice.</p></td></tr>';
+        echo '<tr><th>Domaći klub</th><td>' . self::clubs_dropdown_admin('home_club_post_id', $m_home, true) . '</td></tr>';
+        echo '<tr><th>Gostujući klub</th><td>' . self::clubs_dropdown_admin('away_club_post_id', $m_away, true) . '</td></tr>';
+        echo '<tr id="opentt-match-score-row"><th>Rezultat</th><td><input name="home_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_hs) . '" style="width:90px;"> : <input name="away_score" type="number" min="0" max="7" value="' . esc_attr((string) $m_as) . '" style="width:90px;"></td></tr>';
+        echo '<tr><th>Featured match</th><td><label><input type="checkbox" name="featured" value="1" ' . checked($m_featured, 1, false) . '> Istakni ovu utakmicu</label></td></tr>';
+        echo '<tr><th>LIVE match</th><td><label><input type="checkbox" name="live" value="1" ' . checked($m_live, 1, false) . '> Označi ovu utakmicu kao LIVE (ručno)</label></td></tr>';
         echo '</tbody></table>';
-        echo '<div class="opentt-wizard-nav">';
-        echo '<button type="button" class="button opentt-wizard-prev">Nazad</button>';
-        echo '<button type="button" class="button opentt-wizard-next">Dalje</button>';
+        echo '<div style="margin-top:12px;">';
         echo '<button type="submit" class="button button-primary opentt-wizard-submit">' . esc_html($match ? 'Sačuvaj izmene' : 'Dodaj utakmicu') . '</button>';
-        echo '<span class="opentt-wizard-help"></span>';
         echo '</div>';
         echo '</form>';
+        echo '</div>';
+
+        echo '<div class="opentt-match-edit-tab-pane" data-opentt-tab-pane="games">';
         echo '<script>(function(){var search=document.getElementById("opentt-report-post-search");var select=document.getElementById("opentt-report-post-id");if(!search||!select||search.dataset.bound==="1"){return;}search.dataset.bound="1";var options=Array.prototype.slice.call(select.options||[]);function apply(){var q=String(search.value||"").toLowerCase().trim();options.forEach(function(opt,idx){if(idx===0){opt.hidden=false;return;}var txt=String(opt.textContent||"").toLowerCase();var show=!q||txt.indexOf(q)!==-1||opt.selected;opt.hidden=!show;});}search.addEventListener("input",apply);apply();})();</script>';
 
         if ($match) {
@@ -2601,7 +2606,13 @@ HTML;
             echo '    </div>';
             echo '  </div>';
             echo '</div>';
+        } else {
+            echo '<div class="notice notice-info inline"><p>Prvo sačuvaj osnovne podatke utakmice, pa će se ovde pojaviti tab za unos partija.</p></div>';
         }
+        echo '</div>';
+        echo '</div>';
+        echo '<style>.opentt-match-edit-tabs-nav{display:flex;gap:8px;margin:12px 0 14px}.opentt-match-edit-tab-pane{display:none}.opentt-match-edit-tab-pane.is-active{display:block}.opentt-match-edit-tabs-nav .button[disabled]{opacity:.6;cursor:not-allowed}</style>';
+        echo '<script>(function(){var root=document.querySelector("[data-opentt-match-tabs]");if(!root||root.dataset.bound==="1"){return;}root.dataset.bound="1";var triggers=Array.prototype.slice.call(root.querySelectorAll("[data-opentt-tab-trigger]"));var panes=Array.prototype.slice.call(root.querySelectorAll("[data-opentt-tab-pane]"));function activate(name){if(!name){return;}triggers.forEach(function(btn){var on=btn.getAttribute("data-opentt-tab-trigger")===name;btn.classList.toggle("button-primary",on);btn.classList.toggle("is-active",on);if(!on){btn.classList.remove("button-primary");}});panes.forEach(function(p){p.classList.toggle("is-active",p.getAttribute("data-opentt-tab-pane")===name);});}triggers.forEach(function(btn){btn.addEventListener("click",function(){if(btn.hasAttribute("disabled")){return;}activate(btn.getAttribute("data-opentt-tab-trigger"));});});activate("basic");})();</script>';
         echo '</div>';
     }
 
