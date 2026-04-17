@@ -111,6 +111,9 @@ final class FeaturedPlayerShortcode
         if ($player_name === '' || $player_link === '') {
             return '';
         }
+        $name_parts = preg_split('/\s+/', trim($player_name), 2);
+        $first_name = trim((string) ($name_parts[0] ?? ''));
+        $last_name = trim((string) ($name_parts[1] ?? ''));
 
         $club_id = intval($call('get_player_club_id', $player_id));
         if ($club_id <= 0) {
@@ -138,16 +141,25 @@ final class FeaturedPlayerShortcode
         }
         ?>
         <a class="opentt-featured-player-card" href="<?php echo esc_url($player_link); ?>">
-            <span class="opentt-featured-player-photo">
-                <?php echo $photo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                <?php if ($club_logo !== ''): ?>
-                    <span class="opentt-featured-player-club-badge"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                <?php endif; ?>
+            <span class="opentt-featured-player-head">
+                <span class="opentt-featured-player-photo">
+                    <?php echo $photo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    <?php if ($club_logo !== ''): ?>
+                        <span class="opentt-featured-player-club-badge"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                    <?php endif; ?>
+                </span>
+                <span class="opentt-featured-player-meta">
+                    <span class="opentt-featured-player-name">
+                        <span class="opentt-featured-player-first-name"><?php echo esc_html($first_name); ?></span>
+                        <?php if ($last_name !== ''): ?>
+                            <span class="opentt-featured-player-last-name"><?php echo esc_html($last_name); ?></span>
+                        <?php endif; ?>
+                    </span>
+                    <?php if ($club_name !== ''): ?>
+                        <span class="opentt-featured-player-club"><?php echo esc_html($club_name); ?></span>
+                    <?php endif; ?>
+                </span>
             </span>
-            <span class="opentt-featured-player-name"><?php echo esc_html($player_name); ?></span>
-            <?php if ($club_name !== ''): ?>
-                <span class="opentt-featured-player-club"><?php echo esc_html($club_name); ?></span>
-            <?php endif; ?>
             <span class="opentt-featured-player-stats">
                 <span class="opentt-featured-player-stat">
                     <strong><?php echo esc_html((string) $wins); ?></strong>
