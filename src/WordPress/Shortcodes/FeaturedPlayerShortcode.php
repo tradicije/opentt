@@ -122,6 +122,8 @@ final class FeaturedPlayerShortcode
         $losses = intval($stats['porazi'] ?? 0);
         $total = $wins + $losses;
         $percent = $total > 0 ? (string) round(($wins / $total) * 100) . '%' : '-';
+        $wins_label = self::sr_count_label($wins, 'pobeda', 'pobede', 'pobeda');
+        $losses_label = self::sr_count_label($losses, 'poraz', 'poraza', 'poraza');
 
         $photo = get_the_post_thumbnail($player_id, 'medium', ['class' => 'opentt-featured-player-photo-img']);
         if (!$photo) {
@@ -143,11 +145,11 @@ final class FeaturedPlayerShortcode
             <span class="opentt-featured-player-stats">
                 <span class="opentt-featured-player-stat">
                     <strong><?php echo esc_html((string) $wins); ?></strong>
-                    <small>Pobede</small>
+                    <small><?php echo esc_html($wins_label); ?></small>
                 </span>
                 <span class="opentt-featured-player-stat">
                     <strong><?php echo esc_html((string) $losses); ?></strong>
-                    <small>Porazi</small>
+                    <small><?php echo esc_html($losses_label); ?></small>
                 </span>
                 <span class="opentt-featured-player-stat">
                     <strong><?php echo esc_html($percent); ?></strong>
@@ -364,5 +366,19 @@ final class FeaturedPlayerShortcode
         $id = intval($q->posts[0] ?? 0);
         wp_reset_postdata();
         return $id;
+    }
+
+    private static function sr_count_label($count, $one, $few, $many)
+    {
+        $n = abs(intval($count));
+        $mod10 = $n % 10;
+        $mod100 = $n % 100;
+        if ($mod10 === 1 && $mod100 !== 11) {
+            return (string) $one;
+        }
+        if ($mod10 >= 2 && $mod10 <= 4 && ($mod100 < 12 || $mod100 > 14)) {
+            return (string) $few;
+        }
+        return (string) $many;
     }
 }
