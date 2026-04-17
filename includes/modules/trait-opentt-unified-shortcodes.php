@@ -226,6 +226,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'get_player_club_id' => static function ($player_id) {
                 return self::get_player_club_id($player_id);
             },
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
             'player_fallback_image_url' => static function () {
                 return self::player_fallback_image_url();
             },

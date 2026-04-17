@@ -117,6 +117,7 @@ final class FeaturedPlayerShortcode
             $club_id = $club_id_from_rank;
         }
         $club_name = $club_id > 0 ? (string) get_the_title($club_id) : '';
+        $club_logo = $club_id > 0 ? (string) $call('club_logo_html', $club_id, 'thumbnail', ['class' => 'opentt-featured-player-club-logo-img']) : '';
 
         $wins = intval($stats['pobede'] ?? 0);
         $losses = intval($stats['porazi'] ?? 0);
@@ -140,7 +141,12 @@ final class FeaturedPlayerShortcode
             <span class="opentt-featured-player-photo"><?php echo $photo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
             <span class="opentt-featured-player-name"><?php echo esc_html($player_name); ?></span>
             <?php if ($club_name !== ''): ?>
-                <span class="opentt-featured-player-club"><?php echo esc_html($club_name); ?></span>
+                <span class="opentt-featured-player-club">
+                    <?php if ($club_logo !== ''): ?>
+                        <span class="opentt-featured-player-club-logo"><?php echo $club_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                    <?php endif; ?>
+                    <span class="opentt-featured-player-club-name"><?php echo esc_html($club_name); ?></span>
+                </span>
             <?php endif; ?>
             <span class="opentt-featured-player-stats">
                 <span class="opentt-featured-player-stat">
