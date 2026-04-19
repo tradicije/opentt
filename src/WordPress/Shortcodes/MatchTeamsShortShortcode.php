@@ -41,6 +41,8 @@ final class MatchTeamsShortShortcode
 
         $home_name = (string) get_the_title($home_id);
         $away_name = (string) get_the_title($away_id);
+        $home_url = (string) get_permalink($home_id);
+        $away_url = (string) get_permalink($away_id);
         $home_logo = (string) $call('club_logo_html', $home_id, 'thumbnail', ['class' => 'opentt-match-teams-short-logo-img']);
         $away_logo = (string) $call('club_logo_html', $away_id, 'thumbnail', ['class' => 'opentt-match-teams-short-logo-img']);
         $score = intval($row->home_score ?? 0) . ' : ' . intval($row->away_score ?? 0);
@@ -55,14 +57,18 @@ final class MatchTeamsShortShortcode
             echo (string) $call('shortcode_title_html', $title); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         }
         echo '<section class="opentt-match-teams-short" style="--opentt-mts-home:' . esc_attr($home_color) . ';--opentt-mts-away:' . esc_attr($away_color) . ';">';
+        echo ($home_url !== '' ? '<a href="' . esc_url($home_url) . '" class="opentt-match-teams-short-team-link">' : '<div class="opentt-match-teams-short-team-link">');
         echo '<div class="opentt-match-teams-short-team home">';
         echo '<span class="opentt-match-teams-short-logo">' . $home_logo . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '<span class="opentt-match-teams-short-name">' . esc_html($home_name) . '</span>';
         echo '</div>';
+        echo ($home_url !== '' ? '</a>' : '</div>');
+        echo ($away_url !== '' ? '<a href="' . esc_url($away_url) . '" class="opentt-match-teams-short-team-link">' : '<div class="opentt-match-teams-short-team-link">');
         echo '<div class="opentt-match-teams-short-team away">';
         echo '<span class="opentt-match-teams-short-logo">' . $away_logo . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '<span class="opentt-match-teams-short-name">' . esc_html($away_name) . '</span>';
         echo '</div>';
+        echo ($away_url !== '' ? '</a>' : '</div>');
         echo '<div class="opentt-match-teams-short-score-wrap"><span class="opentt-match-teams-short-score">' . esc_html($score) . '</span></div>';
         echo '</section>';
         return ob_get_clean();

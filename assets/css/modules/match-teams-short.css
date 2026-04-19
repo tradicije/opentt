@@ -25,6 +25,13 @@
   padding: 16px 12px;
 }
 
+.opentt-match-teams-short-team-link {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
 .opentt-match-teams-short-logo {
   width: 58px;
   height: 58px;
