@@ -61,14 +61,13 @@
   justify-content: center;
   min-height: 44px;
   padding: 8px 14px;
-  border: 1px solid #fff;
+  border: 1px solid #ffffff;
   border-radius: 8px;
-  color: #fff;
+  color: #051041;
   font-weight: 800;
   font-size: 1.15rem;
   line-height: 1;
-  background: rgba(3, 14, 40, 0.38);
-  backdrop-filter: blur(2px);
+  background: #ffffff;
 }
 
 @media (max-width: 640px) {
@@ -91,4 +90,3 @@
     font-size: 1rem;
   }
 }
-

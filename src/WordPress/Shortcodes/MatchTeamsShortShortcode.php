@@ -43,7 +43,7 @@ final class MatchTeamsShortShortcode
         $away_name = (string) get_the_title($away_id);
         $home_logo = (string) $call('club_logo_html', $home_id, 'thumbnail', ['class' => 'opentt-match-teams-short-logo-img']);
         $away_logo = (string) $call('club_logo_html', $away_id, 'thumbnail', ['class' => 'opentt-match-teams-short-logo-img']);
-        $score = intval($row->home_score ?? 0) . ':' . intval($row->away_score ?? 0);
+        $score = intval($row->home_score ?? 0) . ' : ' . intval($row->away_score ?? 0);
 
         $home_color = self::clubJerseyColor($home_id, '#0b4db8');
         $away_color = self::clubJerseyColor($away_id, '#0084ff');
@@ -79,4 +79,3 @@ final class MatchTeamsShortShortcode
         return $color ? $color : $fallback;
     }
 }
-

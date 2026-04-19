@@ -79,6 +79,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Improved `opentt_featured_player` mobile layout: top section now uses horizontal alignment (`photo left / text right`) with separated first-name, last-name, and club lines, while desktop layout remains unchanged.
 - Reworked admin `Uredi utakmicu` page layout: replaced onboarding-style step wizard with two clear tabs (`Osnovno` and `Partije`) while preserving existing save and batch game/set entry logic.
 - Added new contextual shortcode `opentt_match_teams_short`: split 50/50 home/away team card with solid jersey-color halves, centered club crest+name columns, and a white-bordered overlay score box in the middle.
+- Refined `opentt_match_teams_short` score styling: score now renders with spaced separator (`4 : 3`) and a fully opaque white score box for stronger contrast.
 - Enhanced pending-games `Napredni unos` behavior: per-set points are now mandatory in advanced mode, and set inputs are dynamically scoped by entered final set score per game (for example `3:0` shows 3 required sets, `3:2` shows 5).
 - Added entry-mode tabs on the standalone pending-games page: default `Brzi unos` (only final game set totals) and optional `Napredni unos` (enables per-set point inputs), with client-side mode switching and mobile-friendly tab styling.
 - Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.
