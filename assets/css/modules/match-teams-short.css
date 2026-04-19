@@ -1,0 +1,94 @@
+.opentt-match-teams-short {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  min-height: 140px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(
+    to right,
+    var(--opentt-mts-home, #0b4db8) 0%,
+    var(--opentt-mts-home, #0b4db8) 50%,
+    var(--opentt-mts-away, #0084ff) 50%,
+    var(--opentt-mts-away, #0084ff) 100%
+  );
+}
+
+.opentt-match-teams-short-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 16px 12px;
+}
+
+.opentt-match-teams-short-logo {
+  width: 58px;
+  height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.opentt-match-teams-short-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.opentt-match-teams-short-name {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.opentt-match-teams-short-score-wrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.opentt-match-teams-short-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #fff;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.15rem;
+  line-height: 1;
+  background: rgba(3, 14, 40, 0.38);
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 640px) {
+  .opentt-match-teams-short {
+    min-height: 120px;
+  }
+
+  .opentt-match-teams-short-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .opentt-match-teams-short-name {
+    font-size: 0.9rem;
+  }
+
+  .opentt-match-teams-short-score {
+    min-height: 40px;
+    padding: 7px 12px;
+    font-size: 1rem;
+  }
+}
+

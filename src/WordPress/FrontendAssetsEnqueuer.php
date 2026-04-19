@@ -65,6 +65,7 @@ final class FrontendAssetsEnqueuer
             'prikaz-klubova',
             'featured-match',
             'featured-player',
+            'match-teams-short',
             'search',
             'auth-profile',
         ];

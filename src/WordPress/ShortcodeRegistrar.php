@@ -33,6 +33,7 @@ final class ShortcodeRegistrar
             'opentt_mvp' => 'shortcode_mvp',
             'opentt_match_report' => 'shortcode_match_report',
             'opentt_match_video' => 'shortcode_match_video',
+            'opentt_match_teams_short' => 'shortcode_match_teams_short',
             'opentt_home_club' => 'shortcode_show_home_club',
             'opentt_away_club' => 'shortcode_show_away_club',
             'opentt_club' => 'shortcode_show_club_by_name',

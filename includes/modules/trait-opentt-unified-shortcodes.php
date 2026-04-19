@@ -516,6 +516,21 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_match_teams_short($atts = [])
+    {
+        return \OpenTT\Unified\WordPress\Shortcodes\MatchTeamsShortShortcode::render($atts, [
+            'current_match_context' => static function () {
+                return self::current_match_context();
+            },
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+        ]);
+    }
+
     public static function shortcode_show_home_club($atts = [])
     {
         return \OpenTT\Unified\WordPress\Shortcodes\ShowHomeClubShortcode::render($atts, [
