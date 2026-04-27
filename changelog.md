@@ -81,6 +81,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added new contextual shortcode `opentt_match_teams_short`: split 50/50 home/away team card with solid jersey-color halves, centered club crest+name columns, and a white-bordered overlay score box in the middle.
 - Refined `opentt_match_teams_short` score styling: score now renders with spaced separator (`4 : 3`) and a fully opaque white score box for stronger contrast.
 - Added club profile navigation to `opentt_match_teams_short`: clicking home/away team panels now routes to the corresponding club page.
+- Added new admin `Batch unos utakmica` workflow: users can select competition + round and quickly insert multiple matches at once (auto expected match count by league team count, per-match home/away/result/date-time fields, plus expandable advanced options per match: location/report/video/featured/live without page reload).
 - Enhanced pending-games `Napredni unos` behavior: per-set points are now mandatory in advanced mode, and set inputs are dynamically scoped by entered final set score per game (for example `3:0` shows 3 required sets, `3:2` shows 5).
 - Added entry-mode tabs on the standalone pending-games page: default `Brzi unos` (only final game set totals) and optional `Napredni unos` (enables per-set point inputs), with client-side mode switching and mobile-friendly tab styling.
 - Updated frontend pending games form validation: submit now requires all expected game rows to be filled (players + total set score for each game), while per-set point fields remain optional.

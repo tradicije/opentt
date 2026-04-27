@@ -1083,6 +1083,7 @@ final class OpenTT_Unified_Core
 
         add_submenu_page('stkb-unified', 'Kontrolna tabla', 'Kontrolna tabla', self::CAP, 'stkb-unified', [__CLASS__, 'render_dashboard_page']);
         add_submenu_page('stkb-unified', 'Utakmice', 'Utakmice', self::CAP, 'stkb-unified-matches', [__CLASS__, 'render_matches_page']);
+        add_submenu_page('stkb-unified', 'Batch unos utakmica', 'Batch unos utakmica', self::CAP, 'stkb-unified-batch-matches', [__CLASS__, 'render_batch_matches_page']);
         add_submenu_page('stkb-unified', 'Pending partije', 'Pending partije', self::CAP, 'stkb-unified-pending-games', [__CLASS__, 'render_pending_games_page']);
         add_submenu_page('stkb-unified', 'Uživo', 'Uživo', self::CAP, 'stkb-unified-live', [__CLASS__, 'render_live_page']);
         add_submenu_page('stkb-unified', 'Klubovi', 'Klubovi', self::CAP, 'stkb-unified-clubs', [__CLASS__, 'render_clubs_page']);
@@ -1431,7 +1432,8 @@ JS;
         echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
         echo '<h1>Utakmice</h1>';
-        echo '<p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-match')) . '">+ Dodaj utakmicu</a></p>';
+        echo '<p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=stkb-unified-add-match')) . '">+ Dodaj utakmicu</a> ';
+        echo '<a class="button" href="' . esc_url(admin_url('admin.php?page=stkb-unified-batch-matches')) . '">Batch unos po kolu</a></p>';
 
         echo '<form method="get" class="opentt-panel" style="padding:12px;margin-bottom:12px;">';
         echo '<input type="hidden" name="page" value="stkb-unified-matches">';
@@ -2614,6 +2616,415 @@ HTML;
         echo '<style>.opentt-match-edit-tabs-nav{display:flex;gap:8px;margin:12px 0 14px}.opentt-match-edit-tab-pane{display:none}.opentt-match-edit-tab-pane.is-active{display:block}.opentt-match-edit-tabs-nav .button[disabled]{opacity:.6;cursor:not-allowed}</style>';
         echo '<script>(function(){var root=document.querySelector("[data-opentt-match-tabs]");if(!root||root.dataset.bound==="1"){return;}root.dataset.bound="1";var triggers=Array.prototype.slice.call(root.querySelectorAll("[data-opentt-tab-trigger]"));var panes=Array.prototype.slice.call(root.querySelectorAll("[data-opentt-tab-pane]"));function activate(name){if(!name){return;}triggers.forEach(function(btn){var on=btn.getAttribute("data-opentt-tab-trigger")===name;btn.classList.toggle("button-primary",on);btn.classList.toggle("is-active",on);if(!on){btn.classList.remove("button-primary");}});panes.forEach(function(p){p.classList.toggle("is-active",p.getAttribute("data-opentt-tab-pane")===name);});}triggers.forEach(function(btn){btn.addEventListener("click",function(){if(btn.hasAttribute("disabled")){return;}activate(btn.getAttribute("data-opentt-tab-trigger"));});});activate("basic");})();</script>';
         echo '</div>';
+    }
+
+    public static function render_batch_matches_page()
+    {
+        self::require_cap();
+        $rule_id = isset($_GET['competition_rule_id']) ? intval($_GET['competition_rule_id']) : 0;
+        $kolo_slug = sanitize_title((string) ($_GET['kolo_slug'] ?? ''));
+        $default_dt = trim((string) ($_GET['default_match_date'] ?? ''));
+        if ($default_dt === '') {
+            $default_dt = current_time('Y-m-d\TH:i');
+        }
+
+        $liga_slug = '';
+        $sezona_slug = '';
+        if ($rule_id > 0) {
+            $rule_post = get_post($rule_id);
+            if ($rule_post && $rule_post->post_type === 'pravilo_takmicenja') {
+                $liga_slug = sanitize_title((string) get_post_meta($rule_id, 'opentt_competition_league_slug', true));
+                $sezona_slug = sanitize_title((string) get_post_meta($rule_id, 'opentt_competition_season_slug', true));
+            }
+        }
+
+        $club_ids = [];
+        if ($liga_slug !== '') {
+            $club_ids = OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_competition_club_ids($liga_slug, $sezona_slug);
+            $club_ids = is_array($club_ids) ? array_values(array_unique(array_map('intval', $club_ids))) : [];
+            $club_ids = array_values(array_filter($club_ids, static function ($id) {
+                return $id > 0;
+            }));
+        }
+        $club_count = count($club_ids);
+        $expected_matches = max(1, intdiv(max(0, $club_count), 2));
+        $row_count = isset($_GET['row_count']) ? intval($_GET['row_count']) : $expected_matches;
+        $row_count = max(1, min(40, $row_count));
+
+        $clubs_query_args = [
+            'post_type' => 'klub',
+            'numberposts' => 1200,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'post_status' => ['publish', 'draft', 'pending', 'private'],
+        ];
+        if (!empty($club_ids)) {
+            $clubs_query_args['post__in'] = $club_ids;
+        }
+        $clubs = get_posts($clubs_query_args) ?: [];
+
+        $report_posts = self::report_posts_for_dropdown_admin(0);
+        $report_options_html = '<option value="0">Bez izveštaja</option>';
+        foreach ($report_posts as $pid => $ptitle) {
+            $report_options_html .= '<option value="' . intval($pid) . '">' . esc_html((string) $ptitle) . '</option>';
+        }
+
+        echo '<div class="wrap opentt-admin">';
+        self::render_admin_topbar();
+        echo '<h1>Batch unos utakmica po kolu</h1>';
+        echo '<p class="description">Brz unos više utakmica u jednom kolu. Napredne opcije se otvaraju po utakmici bez osvežavanja stranice.</p>';
+
+        echo '<form method="get" class="opentt-panel" style="padding:12px;margin-bottom:14px;">';
+        echo '<input type="hidden" name="page" value="stkb-unified-batch-matches">';
+        echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;">';
+        echo '<label style="display:flex;flex-direction:column;gap:4px;min-width:280px;">Takmičenje';
+        echo self::competition_rules_dropdown_admin('competition_rule_id', $rule_id, true);
+        echo '</label>';
+        echo '<label style="display:flex;flex-direction:column;gap:4px;min-width:170px;">Kolo';
+        echo self::batch_kolo_dropdown_admin('kolo_slug', $kolo_slug, true);
+        echo '</label>';
+        echo '<label style="display:flex;flex-direction:column;gap:4px;min-width:190px;">Datum i vreme (default)';
+        echo '<input type="datetime-local" name="default_match_date" value="' . esc_attr($default_dt) . '">';
+        echo '</label>';
+        echo '<label style="display:flex;flex-direction:column;gap:4px;min-width:110px;">Broj utakmica';
+        echo '<input type="number" name="row_count" min="1" max="40" value="' . esc_attr((string) $row_count) . '">';
+        echo '</label>';
+        echo '<button type="submit" class="button button-primary">Pripremi batch unos</button>';
+        echo '</div>';
+        if ($rule_id > 0) {
+            echo '<p class="description" style="margin-top:10px;">Liga: <strong>' . esc_html(self::slug_to_title($liga_slug)) . '</strong> • Sezona: <strong>' . esc_html(self::slug_to_title($sezona_slug)) . '</strong> • Ekipe u ligi: <strong>' . esc_html((string) $club_count) . '</strong> • Očekivano utakmica po kolu: <strong>' . esc_html((string) $expected_matches) . '</strong>.</p>';
+        }
+        echo '</form>';
+
+        if ($rule_id <= 0 || $kolo_slug === '') {
+            echo '<p>Izaberi takmičenje i kolo da se prikažu kartice za batch unos.</p>';
+            echo '</div>';
+            return;
+        }
+
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-panel" style="padding:12px;">';
+        wp_nonce_field('opentt_unified_save_matches_batch');
+        echo '<input type="hidden" name="action" value="opentt_unified_save_matches_batch">';
+        echo '<input type="hidden" name="competition_rule_id" value="' . esc_attr((string) $rule_id) . '">';
+        echo '<input type="hidden" name="kolo_slug" value="' . esc_attr($kolo_slug) . '">';
+        echo '<input type="hidden" name="default_match_date" value="' . esc_attr($default_dt) . '">';
+        echo '<input type="hidden" name="redirect_to" value="' . esc_attr(admin_url('admin.php?page=stkb-unified-batch-matches&competition_rule_id=' . intval($rule_id) . '&kolo_slug=' . rawurlencode($kolo_slug) . '&default_match_date=' . rawurlencode($default_dt) . '&row_count=' . intval($row_count))) . '">';
+
+        for ($i = 1; $i <= $row_count; $i++) {
+            echo '<div class="opentt-batch-match-card" style="border:1px solid rgba(142,197,255,.25);border-radius:10px;padding:12px;margin-bottom:12px;background:rgba(3,20,58,.2);">';
+            echo '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">';
+            echo '<strong>Utakmica #' . intval($i) . '</strong>';
+            echo '<button type="button" class="button button-small opentt-batch-advanced-toggle" data-target="opentt-batch-adv-' . intval($i) . '">Napredno</button>';
+            echo '</div>';
+
+            echo '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;">';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Domaćin';
+            echo self::batch_clubs_dropdown_admin('matches[' . intval($i) . '][home_club_post_id]', $clubs, 0, true);
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Gost';
+            echo self::batch_clubs_dropdown_admin('matches[' . intval($i) . '][away_club_post_id]', $clubs, 0, true);
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Rezultat domaćin';
+            echo '<input type="number" name="matches[' . intval($i) . '][home_score]" min="0" max="7" value="0">';
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Rezultat gost';
+            echo '<input type="number" name="matches[' . intval($i) . '][away_score]" min="0" max="7" value="0">';
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Datum i vreme (opciono)';
+            echo '<input type="datetime-local" name="matches[' . intval($i) . '][match_date]" value="' . esc_attr($default_dt) . '">';
+            echo '</label>';
+            echo '</div>';
+
+            echo '<div id="opentt-batch-adv-' . intval($i) . '" class="opentt-batch-advanced" hidden style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(142,197,255,.25);">';
+            echo '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Lokacija';
+            echo '<input type="text" name="matches[' . intval($i) . '][location]" class="regular-text" placeholder="Hala, sala ili adresa">';
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Izveštaj';
+            echo '<select name="matches[' . intval($i) . '][report_post_id]">' . $report_options_html . '</select>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '</label>';
+            echo '<label style="display:flex;flex-direction:column;gap:4px;">Link snimka';
+            echo '<input type="url" name="matches[' . intval($i) . '][video_url]" class="regular-text" placeholder="https://...">';
+            echo '</label>';
+            echo '<label style="display:flex;align-items:center;gap:6px;margin-top:22px;"><input type="checkbox" name="matches[' . intval($i) . '][featured]" value="1"> Featured</label>';
+            echo '<label style="display:flex;align-items:center;gap:6px;margin-top:22px;"><input type="checkbox" name="matches[' . intval($i) . '][live]" value="1"> LIVE</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+
+        submit_button('Sačuvaj batch utakmice', 'primary', 'submit', false);
+        echo '</form>';
+        echo '<script>(function(){var buttons=document.querySelectorAll(".opentt-batch-advanced-toggle");if(!buttons||!buttons.length){return;}buttons.forEach(function(btn){btn.addEventListener("click",function(){var id=btn.getAttribute("data-target");if(!id){return;}var box=document.getElementById(id);if(!box){return;}var hidden=box.hasAttribute("hidden");if(hidden){box.removeAttribute("hidden");btn.textContent="Sakrij napredno";}else{box.setAttribute("hidden","hidden");btn.textContent="Napredno";}});});})();</script>';
+        echo '</div>';
+    }
+
+    public static function handle_save_matches_batch_admin()
+    {
+        self::require_cap();
+        check_admin_referer('opentt_unified_save_matches_batch');
+        global $wpdb;
+
+        $redirect_to = (string) ($_POST['redirect_to'] ?? admin_url('admin.php?page=stkb-unified-batch-matches'));
+        $rule_id = isset($_POST['competition_rule_id']) ? intval($_POST['competition_rule_id']) : 0;
+        $kolo_slug = sanitize_title((string) ($_POST['kolo_slug'] ?? ''));
+        $default_match_date = self::normalize_batch_match_date((string) ($_POST['default_match_date'] ?? ''));
+        $rows = isset($_POST['matches']) && is_array($_POST['matches']) ? (array) $_POST['matches'] : [];
+
+        $liga_slug = '';
+        $sezona_slug = '';
+        if ($rule_id > 0) {
+            $rule_post = get_post($rule_id);
+            if ($rule_post && $rule_post->post_type === 'pravilo_takmicenja') {
+                $liga_slug = sanitize_title((string) get_post_meta($rule_id, 'opentt_competition_league_slug', true));
+                $sezona_slug = sanitize_title((string) get_post_meta($rule_id, 'opentt_competition_season_slug', true));
+            }
+        }
+
+        if ($liga_slug === '' || $kolo_slug === '' || empty($rows)) {
+            wp_safe_redirect(\OpenTT\Unified\WordPress\AdminNoticeManager::buildUrl($redirect_to, 'error', 'Nedostaju obavezni podaci za batch unos.'));
+            exit;
+        }
+
+        $table = OpenTT_Unified_Core::db_table('matches');
+        if (!self::table_exists($table)) {
+            wp_safe_redirect(\OpenTT\Unified\WordPress\AdminNoticeManager::buildUrl($redirect_to, 'error', 'Tabela utakmica nije dostupna.'));
+            exit;
+        }
+
+        $has_featured = self::batch_matches_table_has_column($table, 'featured');
+        $has_live = self::batch_matches_table_has_column($table, 'live');
+        $has_location = self::batch_matches_table_has_column($table, 'location');
+        $has_report = self::batch_matches_table_has_column($table, 'report_url');
+        $has_video = self::batch_matches_table_has_column($table, 'video_url');
+
+        $inserted = 0;
+        $skipped = 0;
+        $errors = 0;
+
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                $skipped++;
+                continue;
+            }
+
+            $home = intval($row['home_club_post_id'] ?? 0);
+            $away = intval($row['away_club_post_id'] ?? 0);
+            if ($home <= 0 || $away <= 0 || $home === $away) {
+                $skipped++;
+                continue;
+            }
+
+            $home_score = max(0, intval($row['home_score'] ?? 0));
+            $away_score = max(0, intval($row['away_score'] ?? 0));
+            $played = ($home_score >= 4 || $away_score >= 4) ? 1 : 0;
+
+            $match_date = self::normalize_batch_match_date((string) ($row['match_date'] ?? ''));
+            if ($match_date === '') {
+                $match_date = $default_match_date;
+            }
+
+            $location = sanitize_text_field((string) ($row['location'] ?? ''));
+            $report_post_id = intval($row['report_post_id'] ?? 0);
+            $report_url = '';
+            if ($report_post_id > 0) {
+                $report_post = get_post($report_post_id);
+                if ($report_post && $report_post->post_type === 'post') {
+                    $report_url = (string) get_permalink($report_post_id);
+                }
+            }
+            $video_url = esc_url_raw((string) ($row['video_url'] ?? ''));
+            $featured = !empty($row['featured']) ? 1 : 0;
+            $live = !empty($row['live']) ? 1 : 0;
+
+            $base_slug = sanitize_title((string) get_the_title($home) . '-' . (string) get_the_title($away));
+            if ($base_slug === '') {
+                $base_slug = 'utakmica';
+            }
+            $slug = self::batch_unique_match_slug($table, $liga_slug, $sezona_slug, $kolo_slug, $base_slug);
+
+            $data = [
+                'slug' => $slug,
+                'liga_slug' => $liga_slug,
+                'sezona_slug' => $sezona_slug,
+                'kolo_slug' => $kolo_slug,
+                'home_club_post_id' => $home,
+                'away_club_post_id' => $away,
+                'home_score' => $home_score,
+                'away_score' => $away_score,
+                'played' => $played,
+                'match_date' => $match_date,
+                'created_at' => current_time('mysql'),
+                'updated_at' => current_time('mysql'),
+            ];
+            if ($has_featured) {
+                $data['featured'] = $featured;
+            }
+            if ($has_live) {
+                $data['live'] = $live;
+            }
+            if ($has_location) {
+                $data['location'] = $location;
+            }
+            if ($has_report) {
+                $data['report_url'] = $report_url;
+            }
+            if ($has_video) {
+                $data['video_url'] = $video_url;
+            }
+
+            $ok = $wpdb->insert($table, $data);
+            if ($ok === false) {
+                $errors++;
+            } else {
+                $inserted++;
+            }
+        }
+
+        if ($inserted > 0) {
+            self::record_matches_last_update($liga_slug, $sezona_slug);
+        }
+
+        if ($inserted <= 0) {
+            $msg = 'Nijedna utakmica nije sačuvana. Preskočeno: ' . $skipped . '.';
+            if ($errors > 0) {
+                $msg .= ' Grešaka pri upisu: ' . $errors . '.';
+            }
+            wp_safe_redirect(\OpenTT\Unified\WordPress\AdminNoticeManager::buildUrl($redirect_to, 'error', $msg));
+            exit;
+        }
+
+        $msg = 'Batch unos završen. Dodato utakmica: ' . $inserted . '.';
+        if ($skipped > 0) {
+            $msg .= ' Preskočeno: ' . $skipped . '.';
+        }
+        if ($errors > 0) {
+            $msg .= ' Grešaka pri upisu: ' . $errors . '.';
+        }
+        wp_safe_redirect(\OpenTT\Unified\WordPress\AdminNoticeManager::buildUrl($redirect_to, 'success', $msg));
+        exit;
+    }
+
+    private static function batch_clubs_dropdown_admin($name, $clubs, $selected = 0, $required = false)
+    {
+        $name = (string) $name;
+        $selected = intval($selected);
+        $required_attr = $required ? ' required' : '';
+        $html = '<select name="' . esc_attr($name) . '"' . $required_attr . '>';
+        $html .= '<option value="">— Izaberi klub —</option>';
+        if (is_array($clubs)) {
+            foreach ($clubs as $club) {
+                $club_id = intval($club->ID ?? 0);
+                if ($club_id <= 0) {
+                    continue;
+                }
+                $title = (string) ($club->post_title ?? '');
+                $html .= '<option value="' . esc_attr((string) $club_id) . '"' . selected($selected, $club_id, false) . '>' . esc_html($title) . '</option>';
+            }
+        }
+        $html .= '</select>';
+        return $html;
+    }
+
+    private static function batch_kolo_dropdown_admin($name, $selected_slug = '', $required = false)
+    {
+        $name = (string) $name;
+        $selected_slug = sanitize_title((string) $selected_slug);
+        $required_attr = $required ? ' required' : '';
+        $terms = get_terms([
+            'taxonomy' => 'kolo',
+            'hide_empty' => false,
+        ]);
+
+        if (is_wp_error($terms) || !is_array($terms) || empty($terms)) {
+            return '<input type="text" name="' . esc_attr($name) . '" class="regular-text" value="' . esc_attr($selected_slug) . '" placeholder="npr. 10-kolo"' . $required_attr . '>';
+        }
+
+        usort($terms, static function ($a, $b) {
+            $a_slug = sanitize_title((string) ($a->slug ?? ''));
+            $b_slug = sanitize_title((string) ($b->slug ?? ''));
+            $a_no = self::extract_round_no($a_slug);
+            $b_no = self::extract_round_no($b_slug);
+            if ($a_no !== $b_no) {
+                return $a_no <=> $b_no;
+            }
+            return strcmp($a_slug, $b_slug);
+        });
+
+        $html = '<select name="' . esc_attr($name) . '"' . $required_attr . '>';
+        $html .= '<option value="">— Izaberi kolo —</option>';
+        foreach ($terms as $term) {
+            $slug = sanitize_title((string) ($term->slug ?? ''));
+            if ($slug === '') {
+                continue;
+            }
+            $label = self::kolo_name_from_slug($slug);
+            if ($label === '') {
+                $label = self::slug_to_title($slug);
+            }
+            $html .= '<option value="' . esc_attr($slug) . '"' . selected($selected_slug, $slug, false) . '>' . esc_html($label) . '</option>';
+        }
+        $html .= '</select>';
+        return $html;
+    }
+
+    private static function batch_matches_table_has_column($table_name, $column_name)
+    {
+        global $wpdb;
+        $table_name = (string) $table_name;
+        $column_name = sanitize_key((string) $column_name);
+        if ($table_name === '' || $column_name === '') {
+            return false;
+        }
+        $column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$table_name} LIKE %s", $column_name));
+        return !empty($column);
+    }
+
+    private static function batch_unique_match_slug($table, $liga_slug, $sezona_slug, $kolo_slug, $base_slug)
+    {
+        global $wpdb;
+        $slug = sanitize_title((string) $base_slug);
+        if ($slug === '') {
+            $slug = 'utakmica';
+        }
+        $base = $slug;
+        for ($i = 0; $i < 120; $i++) {
+            $exists = $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM {$table} WHERE liga_slug=%s AND sezona_slug=%s AND kolo_slug=%s AND slug=%s LIMIT 1",
+                (string) $liga_slug,
+                (string) $sezona_slug,
+                (string) $kolo_slug,
+                (string) $slug
+            ));
+            if (!$exists) {
+                return $slug;
+            }
+            $slug = $base . '-' . ($i + 2);
+        }
+        return $base . '-' . wp_generate_password(6, false, false);
+    }
+
+    private static function normalize_batch_match_date($raw)
+    {
+        $raw = trim((string) $raw);
+        if ($raw === '') {
+            return '';
+        }
+        $raw = str_replace('T', ' ', $raw);
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw)) {
+            $raw .= ' 00:00:00';
+        } elseif (preg_match('/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}$/', $raw)) {
+            $raw .= ':00';
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/', $raw)) {
+            return '';
+        }
+        $tz = wp_timezone();
+        $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $raw, $tz);
+        if (!$dt instanceof \DateTimeImmutable) {
+            return '';
+        }
+        return $dt->format('Y-m-d H:i:s');
     }
 
     private static function resolve_report_post_id_from_url($report_url)
