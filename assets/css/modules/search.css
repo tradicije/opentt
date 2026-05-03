@@ -280,13 +280,20 @@ html.opentt-search-open {
 
 .opentt-search-intent-club-link {
   text-decoration: none;
-  color: #b2d4ff;
+  color: #eaf3ff;
   font-size: 12px;
   font-weight: 700;
+  border: 1px solid rgba(128, 183, 255, 0.55);
+  border-radius: 8px;
+  background: rgba(19, 74, 168, 0.55);
+  padding: 7px 10px;
+  line-height: 1;
 }
 
 .opentt-search-intent-club-link:hover {
-  color: #d2e6ff;
+  color: #fff;
+  border-color: rgba(173, 214, 255, 0.86);
+  background: rgba(30, 101, 216, 0.7);
 }
 
 .opentt-search-intent-matches {
@@ -339,6 +346,7 @@ html.opentt-search-open {
   padding: 8px 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
+  text-decoration: none;
 }
 
 .opentt-search-intent-standing.is-target {

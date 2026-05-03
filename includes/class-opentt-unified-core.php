@@ -7756,6 +7756,10 @@ HTML;
                     'type' => 'club_position',
                     'label' => 'Pozicija na tabeli',
                     'club' => self::search_intent_club_card($club_id, $position),
+                    'competition' => [
+                        'ligaLabel' => self::slug_to_title((string) $scope['liga_slug']),
+                        'sezonaLabel' => self::slug_to_title((string) $scope['sezona_slug']),
+                    ],
                     'standings' => $window,
                 ];
             }
@@ -7819,7 +7823,10 @@ HTML;
             if ($club_id <= 0 || $title === '') {
                 continue;
             }
-            $score = self::search_text_score($title, $phrase);
+            $score = max(
+                self::search_text_score($title, $phrase),
+                self::search_text_score($phrase, $title)
+            );
             if ($score <= 0) {
                 continue;
             }
@@ -8278,6 +8285,7 @@ HTML;
                 'id' => intval($cid),
                 'title' => self::search_normalize_club_name((string) get_the_title(intval($cid))),
                 'thumb' => self::search_post_thumb_url(intval($cid), 'assets/img/fallback-club.png'),
+                'url' => (string) get_permalink(intval($cid)),
                 'isTarget' => intval($cid) === $club_id,
             ];
             $i++;
@@ -8298,6 +8306,20 @@ HTML;
             return [];
         }
         $club_id_from_query = self::search_resolve_club_id_by_phrase($query, $context);
+        if ($club_id_from_query <= 0) {
+            $tokens = self::search_tokenize_text_unicode($query);
+            $token_count = count($tokens);
+            for ($take = 3; $take >= 1; $take--) {
+                if ($token_count < $take) {
+                    continue;
+                }
+                $candidate = implode(' ', array_slice($tokens, -$take));
+                $club_id_from_query = self::search_resolve_club_id_by_phrase($candidate, $context);
+                if ($club_id_from_query > 0) {
+                    break;
+                }
+            }
+        }
         $club_name_from_query = $club_id_from_query > 0
             ? self::search_normalize_club_name((string) get_the_title($club_id_from_query))
             : '';

@@ -814,14 +814,23 @@
     }
 
     if (intentType === "club_position") {
+      var competition = intent.competition && typeof intent.competition === "object" ? intent.competition : {};
+      var ligaLabel = String(competition.ligaLabel || "").trim();
+      var sezonaLabel = String(competition.sezonaLabel || "").trim();
+      if (ligaLabel || sezonaLabel) {
+        html += '<div class="opentt-search-intent-note">';
+        html += esc(ligaLabel + (ligaLabel && sezonaLabel ? " - " : "") + sezonaLabel);
+        html += "</div>";
+      }
       var standings = Array.isArray(intent.standings) ? intent.standings : [];
       if (standings.length) {
         html += '<div class="opentt-search-intent-standings">';
         standings.forEach(function (row) {
-          html += '<div class="opentt-search-intent-standing' + (row.isTarget ? ' is-target' : '') + '">';
+          var rowUrl = esc(row.url || "#");
+          html += '<a class="opentt-search-intent-standing' + (row.isTarget ? ' is-target' : '') + '" href="' + rowUrl + '">';
           html += '<span class="rank">#' + esc(String(row.rank || "")) + "</span>";
           html += '<span class="name">' + esc(row.title || "") + "</span>";
-          html += "</div>";
+          html += "</a>";
         });
         html += "</div>";
       }
