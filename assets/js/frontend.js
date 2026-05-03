@@ -708,7 +708,8 @@
       container.innerHTML = "";
       return;
     }
-    if (String(intent.type) !== "club_recent") {
+    var intentType = String(intent.type || "");
+    if (!intentType) {
       container.hidden = true;
       container.innerHTML = "";
       return;
@@ -726,20 +727,23 @@
 
     html += '<section class="opentt-search-intent-card">';
     html += '<div class="opentt-search-intent-head"><h4>' + title + "</h4></div>";
-    html += '<div class="opentt-search-intent-club">';
-    if (clubThumb) {
-      html += '<span class="opentt-search-intent-club-thumb"><img src="' + clubThumb + '" alt="" loading="lazy" decoding="async"></span>';
-    }
-    html += '<div class="opentt-search-intent-club-body">';
-    html += '<div class="opentt-search-intent-club-title">' + clubName + "</div>";
-    if (positionLabel) {
-      html += '<div class="opentt-search-intent-club-meta">' + positionLabel + "</div>";
-    }
-    html += "</div>";
-    html += '<a class="opentt-search-intent-club-link" href="' + clubUrl + '">' + esc(visitText) + "</a>";
-    html += "</div>";
 
-    if (matches.length) {
+    if (intentType === "club_recent" || intentType === "club_next" || intentType === "club_position") {
+      html += '<div class="opentt-search-intent-club">';
+      if (clubThumb) {
+        html += '<span class="opentt-search-intent-club-thumb"><img src="' + clubThumb + '" alt="" loading="lazy" decoding="async"></span>';
+      }
+      html += '<div class="opentt-search-intent-club-body">';
+      html += '<div class="opentt-search-intent-club-title">' + clubName + "</div>";
+      if (positionLabel) {
+        html += '<div class="opentt-search-intent-club-meta">' + positionLabel + "</div>";
+      }
+      html += "</div>";
+      html += '<a class="opentt-search-intent-club-link" href="' + clubUrl + '">' + esc(visitText) + "</a>";
+      html += "</div>";
+    }
+
+    if ((intentType === "club_recent" || intentType === "club_next") && matches.length) {
       html += '<div class="opentt-search-intent-matches">';
       for (var i = 0; i < matches.length; i++) {
         var item = matches[i] || {};
@@ -769,6 +773,71 @@
         html += "</span>";
         html += '<span class="opentt-search-match-meta">' + leagueLabel + (dateLabel ? " • " + dateLabel : "") + "</span>";
         html += "</a>";
+      }
+      html += "</div>";
+    }
+
+    if (intentType === "club_h2h") {
+      var h2h = Array.isArray(intent.h2h) ? intent.h2h : [];
+      var next = intent.next && typeof intent.next === "object" ? intent.next : null;
+      if (h2h.length) {
+        html += '<div class="opentt-search-intent-matches">';
+        h2h.forEach(function (item) {
+          var itemUrl = esc(item.url || "#");
+          html += '<a class="opentt-search-intent-match" href="' + itemUrl + '">';
+          html += '<span class="opentt-search-match-main">';
+          html += '<span class="opentt-search-match-team is-home"><span class="opentt-search-match-team-name">' + esc(item.homeName || "") + "</span></span>";
+          html += '<span class="opentt-search-match-score">' + esc(item.scoreLabel || "") + "</span>";
+          html += '<span class="opentt-search-match-team is-away"><span class="opentt-search-match-team-name">' + esc(item.awayName || "") + "</span></span>";
+          html += "</span>";
+          html += '<span class="opentt-search-match-meta">' + esc(item.leagueLabel || "") + (item.dateLabel ? " • " + esc(item.dateLabel) : "") + "</span>";
+          html += "</a>";
+        });
+        html += "</div>";
+      }
+      if (next && next.url) {
+        html += '<div class="opentt-search-intent-note">Sledeći međusobni: <a href="' + esc(next.url) + '">' + esc(next.title || "Pogledaj meč") + "</a></div>";
+      }
+    }
+
+    if (intentType === "league_season" && intent.league) {
+      var league = intent.league;
+      html += '<div class="opentt-search-intent-note"><strong>' + esc(league.title || "") + "</strong></div>";
+      html += '<div class="opentt-search-intent-note">' + esc(league.meta || "") + '</div>';
+      if (league.url) {
+        html += '<div class="opentt-search-intent-note"><a href="' + esc(league.url) + '">Otvori ligu i sezonu</a></div>';
+      }
+    }
+
+    if (intentType === "club_position") {
+      var standings = Array.isArray(intent.standings) ? intent.standings : [];
+      if (standings.length) {
+        html += '<div class="opentt-search-intent-standings">';
+        standings.forEach(function (row) {
+          html += '<div class="opentt-search-intent-standing' + (row.isTarget ? ' is-target' : '') + '">';
+          html += '<span class="rank">#' + esc(String(row.rank || "")) + "</span>";
+          html += '<span class="name">' + esc(row.title || "") + "</span>";
+          html += "</div>";
+        });
+        html += "</div>";
+      }
+    }
+
+    if (intentType === "player_club" && intent.player) {
+      var player = intent.player || {};
+      var pclub = intent.club || {};
+      html += '<div class="opentt-search-intent-club">';
+      if (player.thumb) {
+        html += '<span class="opentt-search-intent-club-thumb"><img src="' + esc(player.thumb) + '" alt="" loading="lazy" decoding="async"></span>';
+      }
+      html += '<div class="opentt-search-intent-club-body">';
+      html += '<div class="opentt-search-intent-club-title">' + esc(player.title || "") + "</div>";
+      if (pclub.title) {
+        html += '<div class="opentt-search-intent-club-meta">' + esc(pclub.title) + "</div>";
+      }
+      html += "</div>";
+      if (player.url) {
+        html += '<a class="opentt-search-intent-club-link" href="' + esc(player.url) + '">Poseti profil</a>';
       }
       html += "</div>";
     }

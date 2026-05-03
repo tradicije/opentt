@@ -7681,37 +7681,95 @@ HTML;
             return [];
         }
 
-        if (!preg_match('/^(.+?)\s+poslednjih\s+(\d{1,2})$/u', $folded, $m)) {
-            return [];
+        if (preg_match('/^(.+?)\s+poslednjih\s+(\d{1,2})$/u', $folded, $m)) {
+            $club_phrase = trim((string) ($m[1] ?? ''));
+            $requested_limit = max(1, min(10, intval($m[2] ?? 5)));
+            $club_id = self::search_resolve_club_id_by_phrase($club_phrase, $context);
+            if ($club_id > 0) {
+                $scope = self::search_resolve_intent_scope_for_club($club_id, $context);
+                $position = self::search_compute_club_position($club_id, $scope['liga_slug'], $scope['sezona_slug']);
+                $matches = self::search_fetch_recent_club_matches($club_id, $requested_limit, $scope['liga_slug'], $scope['sezona_slug']);
+                return [
+                    'type' => 'club_recent',
+                    'label' => 'Poslednjih ' . $requested_limit . ' utakmica',
+                    'club' => self::search_intent_club_card($club_id, $position),
+                    'matches' => $matches,
+                ];
+            }
         }
 
-        $club_phrase = trim((string) ($m[1] ?? ''));
-        $requested_limit = intval($m[2] ?? 5);
-        if ($club_phrase === '') {
-            return [];
+        if (preg_match('/^(.+?)\s+(sledece|sledecih|naredne|narednih)\s+(\d{1,2})$/u', $folded, $m)) {
+            $club_phrase = trim((string) ($m[1] ?? ''));
+            $requested_limit = max(1, min(10, intval($m[3] ?? 3)));
+            $club_id = self::search_resolve_club_id_by_phrase($club_phrase, $context);
+            if ($club_id > 0) {
+                $scope = self::search_resolve_intent_scope_for_club($club_id, $context);
+                $position = self::search_compute_club_position($club_id, $scope['liga_slug'], $scope['sezona_slug']);
+                $matches = self::search_fetch_upcoming_club_matches($club_id, $requested_limit, $scope['liga_slug'], $scope['sezona_slug']);
+                return [
+                    'type' => 'club_next',
+                    'label' => 'Sledećih ' . $requested_limit . ' utakmica',
+                    'club' => self::search_intent_club_card($club_id, $position),
+                    'matches' => $matches,
+                ];
+            }
         }
-        $requested_limit = max(1, min(10, $requested_limit));
 
-        $club_id = self::search_resolve_club_id_by_phrase($club_phrase, $context);
-        if ($club_id <= 0) {
-            return [];
+        if (preg_match('/^(.+?)\s+vs\.?\s+(.+)$/u', $folded, $m)) {
+            $club_a = self::search_resolve_club_id_by_phrase(trim((string) ($m[1] ?? '')), $context);
+            $club_b = self::search_resolve_club_id_by_phrase(trim((string) ($m[2] ?? '')), $context);
+            if ($club_a > 0 && $club_b > 0 && $club_a !== $club_b) {
+                return [
+                    'type' => 'club_h2h',
+                    'label' => self::search_normalize_club_name((string) get_the_title($club_a)) . ' vs ' . self::search_normalize_club_name((string) get_the_title($club_b)),
+                    'h2h' => self::search_fetch_h2h_matches($club_a, $club_b, 5),
+                    'last' => self::search_fetch_h2h_matches($club_a, $club_b, 1),
+                    'next' => self::search_fetch_h2h_next_match($club_a, $club_b),
+                ];
+            }
         }
 
-        $scope = self::search_resolve_intent_scope_for_club($club_id, $context);
-        $position = self::search_compute_club_position($club_id, $scope['liga_slug'], $scope['sezona_slug']);
-        $matches = self::search_fetch_recent_club_matches($club_id, $requested_limit, $scope['liga_slug'], $scope['sezona_slug']);
+        if (preg_match('/^koji je (.+) na tabeli$/u', $folded, $m)) {
+            $club_id = self::search_resolve_club_id_by_phrase(trim((string) ($m[1] ?? '')), $context);
+            if ($club_id > 0) {
+                $scope = self::search_resolve_intent_scope_for_club($club_id, $context);
+                $position = self::search_compute_club_position($club_id, $scope['liga_slug'], $scope['sezona_slug']);
+                $window = self::search_compute_standings_window($club_id, $scope['liga_slug'], $scope['sezona_slug']);
+                return [
+                    'type' => 'club_position',
+                    'label' => 'Pozicija na tabeli',
+                    'club' => self::search_intent_club_card($club_id, $position),
+                    'standings' => $window,
+                ];
+            }
+        }
 
+        $competition = self::search_resolve_competition_from_query($folded, $context);
+        if (!empty($competition)) {
+            return [
+                'type' => 'league_season',
+                'label' => 'Liga i sezona',
+                'league' => $competition,
+            ];
+        }
+
+        $player_intent = self::search_resolve_player_club_intent($query, $context);
+        if (!empty($player_intent)) {
+            return $player_intent;
+        }
+
+        return [];
+    }
+
+    private static function search_intent_club_card($club_id, $position)
+    {
+        $club_id = intval($club_id);
         return [
-            'type' => 'club_recent',
-            'label' => 'Poslednjih ' . $requested_limit . ' utakmica',
-            'club' => [
-                'id' => $club_id,
-                'title' => self::search_normalize_club_name((string) get_the_title($club_id)),
-                'url' => (string) get_permalink($club_id),
-                'thumb' => self::search_post_thumb_url($club_id, 'assets/img/fallback-club.png'),
-                'positionLabel' => $position > 0 ? ('Trenutno mesto: ' . $position . '.') : 'Mesto nije dostupno.',
-            ],
-            'matches' => $matches,
+            'id' => $club_id,
+            'title' => self::search_normalize_club_name((string) get_the_title($club_id)),
+            'url' => (string) get_permalink($club_id),
+            'thumb' => self::search_post_thumb_url($club_id, 'assets/img/fallback-club.png'),
+            'positionLabel' => intval($position) > 0 ? ('Trenutno mesto: ' . intval($position) . '.') : 'Mesto nije dostupno.',
         ];
     }
 
@@ -7943,6 +8001,331 @@ HTML;
         }
 
         return array_slice($items, 0, $limit);
+    }
+
+    private static function search_fetch_upcoming_club_matches($club_id, $limit, $liga_slug, $sezona_slug)
+    {
+        $club_id = intval($club_id);
+        $limit = max(1, min(10, intval($limit)));
+        $liga_slug = sanitize_title((string) $liga_slug);
+        $sezona_slug = sanitize_title((string) $sezona_slug);
+        if ($club_id <= 0) {
+            return [];
+        }
+
+        global $wpdb;
+        $table = self::db_table('matches');
+        if (!self::table_exists($table)) {
+            return [];
+        }
+
+        $where = ['(home_club_post_id=%d OR away_club_post_id=%d)', 'played=0'];
+        $params = [$club_id, $club_id];
+        if ($liga_slug !== '') {
+            $where[] = 'liga_slug=%s';
+            $params[] = $liga_slug;
+        }
+        if ($sezona_slug !== '') {
+            $where[] = 'sezona_slug=%s';
+            $params[] = $sezona_slug;
+        }
+
+        $sql = "SELECT id, legacy_post_id, liga_slug, sezona_slug, kolo_slug, slug, home_club_post_id, away_club_post_id, home_score, away_score, match_date, match_time
+                FROM {$table}
+                WHERE " . implode(' AND ', $where) . "
+                ORDER BY match_date ASC, id ASC
+                LIMIT {$limit}";
+        $rows = $wpdb->get_results($wpdb->prepare($sql, $params));
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+
+        $items = [];
+        foreach ($rows as $row) {
+            $home_id = intval($row->home_club_post_id ?? 0);
+            $away_id = intval($row->away_club_post_id ?? 0);
+            $home = self::search_normalize_club_name((string) get_the_title($home_id));
+            $away = self::search_normalize_club_name((string) get_the_title($away_id));
+            $items[] = [
+                'title' => trim($home . ' vs ' . $away),
+                'url' => self::search_match_permalink($row),
+                'matchRow' => true,
+                'homeName' => $home,
+                'awayName' => $away,
+                'homeThumb' => self::search_post_thumb_url($home_id, 'assets/img/fallback-club.png'),
+                'awayThumb' => self::search_post_thumb_url($away_id, 'assets/img/fallback-club.png'),
+                'scoreLabel' => trim((string) ($row->match_time ?? '')) !== '' ? trim((string) $row->match_time) : 'Najava',
+                'leagueLabel' => self::slug_to_title((string) ($row->liga_slug ?? '')),
+                'dateLabel' => OpenTT_Unified_Readonly_Helpers::display_match_date((string) ($row->match_date ?? '')),
+            ];
+        }
+        return array_slice($items, 0, $limit);
+    }
+
+    private static function search_fetch_h2h_matches($club_a, $club_b, $limit = 5)
+    {
+        $club_a = intval($club_a);
+        $club_b = intval($club_b);
+        $limit = max(1, min(10, intval($limit)));
+        if ($club_a <= 0 || $club_b <= 0 || $club_a === $club_b) {
+            return [];
+        }
+        global $wpdb;
+        $table = self::db_table('matches');
+        if (!self::table_exists($table)) {
+            return [];
+        }
+        $sql = $wpdb->prepare(
+            "SELECT id, legacy_post_id, liga_slug, sezona_slug, kolo_slug, slug, home_club_post_id, away_club_post_id, home_score, away_score, match_date
+             FROM {$table}
+             WHERE played=1 AND ((home_club_post_id=%d AND away_club_post_id=%d) OR (home_club_post_id=%d AND away_club_post_id=%d))
+             ORDER BY match_date DESC, id DESC
+             LIMIT {$limit}",
+            $club_a,
+            $club_b,
+            $club_b,
+            $club_a
+        );
+        $rows = $wpdb->get_results($sql);
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+        $out = [];
+        foreach ($rows as $row) {
+            $home = self::search_normalize_club_name((string) get_the_title(intval($row->home_club_post_id ?? 0)));
+            $away = self::search_normalize_club_name((string) get_the_title(intval($row->away_club_post_id ?? 0)));
+            $out[] = [
+                'title' => trim($home . ' vs ' . $away),
+                'url' => self::search_match_permalink($row),
+                'matchRow' => true,
+                'homeName' => $home,
+                'awayName' => $away,
+                'homeThumb' => self::search_post_thumb_url(intval($row->home_club_post_id ?? 0), 'assets/img/fallback-club.png'),
+                'awayThumb' => self::search_post_thumb_url(intval($row->away_club_post_id ?? 0), 'assets/img/fallback-club.png'),
+                'scoreLabel' => intval($row->home_score ?? 0) . ' : ' . intval($row->away_score ?? 0),
+                'leagueLabel' => self::slug_to_title((string) ($row->liga_slug ?? '')),
+                'dateLabel' => OpenTT_Unified_Readonly_Helpers::display_match_date((string) ($row->match_date ?? '')),
+            ];
+        }
+        return $out;
+    }
+
+    private static function search_fetch_h2h_next_match($club_a, $club_b)
+    {
+        $club_a = intval($club_a);
+        $club_b = intval($club_b);
+        if ($club_a <= 0 || $club_b <= 0 || $club_a === $club_b) {
+            return [];
+        }
+        global $wpdb;
+        $table = self::db_table('matches');
+        if (!self::table_exists($table)) {
+            return [];
+        }
+        $row = $wpdb->get_row($wpdb->prepare(
+            "SELECT id, legacy_post_id, liga_slug, sezona_slug, kolo_slug, slug, home_club_post_id, away_club_post_id, home_score, away_score, match_date, match_time
+             FROM {$table}
+             WHERE played=0 AND ((home_club_post_id=%d AND away_club_post_id=%d) OR (home_club_post_id=%d AND away_club_post_id=%d))
+             ORDER BY match_date ASC, id ASC
+             LIMIT 1",
+            $club_a,
+            $club_b,
+            $club_b,
+            $club_a
+        ));
+        if (!is_object($row)) {
+            return [];
+        }
+        $list = self::search_fetch_upcoming_club_matches($club_a, 10, '', '');
+        foreach ($list as $item) {
+            if ((string) ($item['url'] ?? '') === self::search_match_permalink($row)) {
+                return $item;
+            }
+        }
+        return [];
+    }
+
+    private static function search_resolve_competition_from_query($folded_query, array $context)
+    {
+        if (!preg_match('/(20\d{2})\s*[-\/]\s*(\d{2,4})/u', $folded_query, $m)) {
+            return [];
+        }
+        $season = sanitize_title($m[1] . '-' . substr($m[2], -2));
+        $league_phrase = trim(str_replace((string) $m[0], '', $folded_query));
+        if ($league_phrase === '') {
+            return [];
+        }
+        global $wpdb;
+        $table = self::db_table('matches');
+        if (!self::table_exists($table)) {
+            return [];
+        }
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT liga_slug, sezona_slug, COUNT(*) AS total
+             FROM {$table}
+             WHERE sezona_slug=%s
+             GROUP BY liga_slug, sezona_slug
+             ORDER BY total DESC",
+            $season
+        ));
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+        $best = null;
+        $best_score = 0;
+        foreach ($rows as $row) {
+            $liga_slug = sanitize_title((string) ($row->liga_slug ?? ''));
+            if ($liga_slug === '') {
+                continue;
+            }
+            $score = self::search_text_score(self::slug_to_title($liga_slug) . ' ' . $liga_slug, $league_phrase);
+            if ($score > $best_score) {
+                $best_score = $score;
+                $best = $row;
+            }
+        }
+        if (!$best || $best_score <= 0) {
+            return [];
+        }
+        $liga_slug = sanitize_title((string) ($best->liga_slug ?? ''));
+        $sezona_slug = sanitize_title((string) ($best->sezona_slug ?? ''));
+        return [
+            'ligaSlug' => $liga_slug,
+            'sezonaSlug' => $sezona_slug,
+            'title' => self::slug_to_title($liga_slug) . ' - ' . self::slug_to_title($sezona_slug),
+            'url' => self::search_competition_archive_url($liga_slug, $sezona_slug),
+            'meta' => 'Tabela, kola i istaknuti mečevi',
+        ];
+    }
+
+    private static function search_compute_standings_window($club_id, $liga_slug, $sezona_slug)
+    {
+        $club_id = intval($club_id);
+        $rank = self::search_compute_club_position($club_id, $liga_slug, $sezona_slug);
+        if ($rank <= 0) {
+            return [];
+        }
+        global $wpdb;
+        $table = self::db_table('matches');
+        if (!self::table_exists($table)) {
+            return [];
+        }
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT home_club_post_id, away_club_post_id, home_score, away_score, played
+             FROM {$table}
+             WHERE liga_slug=%s AND sezona_slug=%s",
+            sanitize_title((string) $liga_slug),
+            sanitize_title((string) $sezona_slug)
+        ));
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+        $stat = [];
+        foreach ($rows as $r) {
+            foreach ([intval($r->home_club_post_id ?? 0), intval($r->away_club_post_id ?? 0)] as $cid) {
+                if ($cid > 0 && !isset($stat[$cid])) {
+                    $stat[$cid] = ['pts' => 0, 'diff' => 0];
+                }
+            }
+        }
+        foreach ($rows as $r) {
+            if (intval($r->played ?? 0) !== 1) {
+                continue;
+            }
+            $h = intval($r->home_club_post_id ?? 0);
+            $a = intval($r->away_club_post_id ?? 0);
+            $hs = intval($r->home_score ?? 0);
+            $as = intval($r->away_score ?? 0);
+            if ($h <= 0 || $a <= 0) {
+                continue;
+            }
+            $stat[$h]['diff'] += ($hs - $as);
+            $stat[$a]['diff'] += ($as - $hs);
+            if ($hs > $as) {
+                $stat[$h]['pts'] += 2;
+                $stat[$a]['pts'] += 1;
+            } elseif ($as > $hs) {
+                $stat[$a]['pts'] += 2;
+                $stat[$h]['pts'] += 1;
+            }
+        }
+        uasort($stat, static function ($x, $y) {
+            $c = intval($y['pts'] ?? 0) <=> intval($x['pts'] ?? 0);
+            return $c !== 0 ? $c : (intval($y['diff'] ?? 0) <=> intval($x['diff'] ?? 0));
+        });
+        $ranked = [];
+        $i = 1;
+        foreach ($stat as $cid => $vals) {
+            $ranked[] = [
+                'rank' => $i,
+                'id' => intval($cid),
+                'title' => self::search_normalize_club_name((string) get_the_title(intval($cid))),
+                'thumb' => self::search_post_thumb_url(intval($cid), 'assets/img/fallback-club.png'),
+                'isTarget' => intval($cid) === $club_id,
+            ];
+            $i++;
+        }
+        $idx = max(0, $rank - 1);
+        $start = max(0, $idx - 1);
+        $slice = array_slice($ranked, $start, 3);
+        if (count($slice) < 3 && $start > 0) {
+            $slice = array_slice($ranked, max(0, $start - 1), 3);
+        }
+        return $slice;
+    }
+
+    private static function search_resolve_player_club_intent($query, array $context)
+    {
+        $query = trim((string) $query);
+        if ($query === '') {
+            return [];
+        }
+        $players = self::search_posts_by_title('igrac', $query, 300);
+        if (empty($players)) {
+            return [];
+        }
+        $best_player = 0;
+        $best_score = 0;
+        foreach ($players as $row) {
+            $pid = intval($row['id'] ?? 0);
+            $title = (string) ($row['title'] ?? '');
+            if ($pid <= 0 || $title === '') {
+                continue;
+            }
+            $score = self::search_text_score($title, $query);
+            if ($score <= 0) {
+                continue;
+            }
+            $club_id = intval(self::get_player_club_id($pid));
+            if ($club_id > 0) {
+                $club_name = self::search_normalize_club_name((string) get_the_title($club_id));
+                $score += intval(self::search_text_score($club_name, $query) / 2);
+            }
+            if ($score > $best_score) {
+                $best_score = $score;
+                $best_player = $pid;
+            }
+        }
+        if ($best_player <= 0 || $best_score < 35) {
+            return [];
+        }
+        $club_id = intval(self::get_player_club_id($best_player));
+        return [
+            'type' => 'player_club',
+            'label' => 'Igrač i klub',
+            'player' => [
+                'id' => $best_player,
+                'title' => trim((string) get_the_title($best_player)),
+                'url' => (string) get_permalink($best_player),
+                'thumb' => self::search_post_thumb_url($best_player, 'assets/img/fallback-player.png'),
+            ],
+            'club' => $club_id > 0 ? [
+                'id' => $club_id,
+                'title' => self::search_normalize_club_name((string) get_the_title($club_id)),
+                'url' => (string) get_permalink($club_id),
+                'thumb' => self::search_post_thumb_url($club_id, 'assets/img/fallback-club.png'),
+            ] : [],
+        ];
     }
 
     private static function search_build_query_suggestion($query, array $groups)

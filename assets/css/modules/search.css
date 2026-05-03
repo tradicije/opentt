@@ -296,6 +296,52 @@ html.opentt-search-open {
   background: rgba(13, 39, 98, 0.45);
 }
 
+.opentt-search-intent-note {
+  padding: 8px 14px;
+  color: rgba(222, 236, 255, 0.9);
+  font-size: 13px;
+}
+
+.opentt-search-intent-note a {
+  color: #a9ceff;
+  text-decoration: none;
+}
+
+.opentt-search-intent-note a:hover {
+  color: #d4e7ff;
+}
+
+.opentt-search-intent-standings {
+  padding: 8px 12px 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.opentt-search-intent-standing {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.opentt-search-intent-standing.is-target {
+  border-color: rgba(96, 165, 255, 0.55);
+  background: rgba(34, 86, 170, 0.28);
+}
+
+.opentt-search-intent-standing .rank {
+  font-weight: 700;
+  color: rgba(226, 238, 255, 0.95);
+}
+
+.opentt-search-intent-standing .name {
+  color: rgba(238, 246, 255, 0.95);
+}
+
 .opentt-search-results {
   margin-top: 14px;
   max-height: none;
