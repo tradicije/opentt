@@ -18,9 +18,13 @@ final class Plugin
     {
         self::registerLocalAutoloader();
         self::loadLegacyCore();
+        self::loadBundledAddons();
 
         register_activation_hook($pluginFile, function () use ($pluginFile) {
             \OpenTT_Unified_Core::activate($pluginFile);
+            if (\class_exists('OpenTT\\Tournaments\\Plugin')) {
+                \OpenTT\Tournaments\Plugin::activate();
+            }
         });
 
         \OpenTT_Unified_Core::init($pluginFile);
@@ -61,5 +65,13 @@ final class Plugin
         }
 
         require_once dirname(__DIR__) . '/includes/class-opentt-unified-core.php';
+    }
+
+    private static function loadBundledAddons()
+    {
+        $tournaments = dirname(__DIR__) . '/addons/tournaments/opentt-tournaments.php';
+        if (is_readable($tournaments)) {
+            require_once $tournaments;
+        }
     }
 }

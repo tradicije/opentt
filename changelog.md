@@ -6,6 +6,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 ### Highlights
 
+- Added standalone-ready bundled `OpenTT Tournaments` addon foundation with tournament CPT, contextual tournament shortcodes, single tournament template support, admin tournament/category/entry management, and first-pass single-elimination bracket generation.
 - Added a full WordPress user portal for login, registration, profile editing, role-aware frontend tools, and `opentt_auth_menu`.
 - Added frontend league/team administration flows, including league-season scoped access, inline match editing, game/set entry, and manager tools for club/player data.
 - Added public pending game submissions with Turnstile protection, email collection, admin review, and approve/deny notifications.

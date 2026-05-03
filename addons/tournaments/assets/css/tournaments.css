@@ -1,0 +1,260 @@
+.opentt-tournaments-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.opentt-tournament-card,
+.opentt-tournament-panel,
+.opentt-tournament {
+  color: var(--opentt-text, #f7fbff);
+}
+
+.opentt-tournament-card-link {
+  display: grid;
+  gap: 0;
+  min-height: 180px;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(145deg, rgba(4, 18, 58, 0.96), rgba(9, 42, 96, 0.9));
+  border: 1px solid rgba(142, 197, 255, 0.22);
+  border-radius: 8px;
+}
+
+.opentt-tournament-card-media {
+  display: block;
+  aspect-ratio: 16 / 7;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.opentt-tournament-card-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.opentt-tournament-card-body {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.opentt-tournament-card-status,
+.opentt-tournament-status {
+  width: fit-content;
+  padding: 4px 8px;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(48, 132, 255, 0.24);
+  border: 1px solid rgba(142, 197, 255, 0.3);
+  border-radius: 999px;
+}
+
+.opentt-tournament-card-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.opentt-tournament-card-meta,
+.opentt-tournament-meta,
+.opentt-tournament-category-head p {
+  margin: 0;
+  color: rgba(234, 243, 255, 0.75);
+}
+
+.opentt-tournament {
+  display: grid;
+  gap: 18px;
+}
+
+.opentt-tournament-header {
+  padding: 22px;
+  background:
+    linear-gradient(135deg, rgba(15, 56, 140, 0.72), rgba(3, 14, 48, 0.96)),
+    radial-gradient(circle at 100% 0%, rgba(255, 213, 83, 0.16), transparent 32%);
+  border: 1px solid rgba(142, 197, 255, 0.24);
+  border-radius: 8px;
+}
+
+.opentt-tournament-title {
+  margin: 10px 0 6px;
+  color: #ffffff;
+  font-size: clamp(1.8rem, 3vw, 3rem);
+  line-height: 1.02;
+}
+
+.opentt-tournament-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.opentt-tournament-tab {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  color: rgba(234, 243, 255, 0.82);
+  font: inherit;
+  font-weight: 800;
+  background: rgba(8, 30, 82, 0.5);
+  border: 1px solid rgba(142, 197, 255, 0.22);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.opentt-tournament-tab.is-active {
+  color: #ffffff;
+  background: rgba(48, 132, 255, 0.32);
+  border-color: rgba(142, 197, 255, 0.58);
+}
+
+.opentt-tournament-category {
+  display: none;
+}
+
+.opentt-tournament-category.is-active {
+  display: block;
+}
+
+.opentt-tournament-category-head,
+.opentt-tournament-panel {
+  padding: 16px;
+  background: rgba(3, 20, 58, 0.62);
+  border: 1px solid rgba(142, 197, 255, 0.18);
+  border-radius: 8px;
+}
+
+.opentt-tournament-category-head h2 {
+  margin: 0 0 4px;
+  color: #ffffff;
+}
+
+.opentt-tournament-bracket {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(230px, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.opentt-tournament-round {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.opentt-tournament-round h3 {
+  margin: 0;
+  padding: 10px 12px;
+  color: #ffffff;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  background: rgba(8, 30, 82, 0.72);
+  border-radius: 6px;
+}
+
+.opentt-tournament-match {
+  display: grid;
+  overflow: hidden;
+  background: rgba(3, 18, 54, 0.78);
+  border: 1px solid rgba(142, 197, 255, 0.18);
+  border-radius: 8px;
+}
+
+.opentt-tournament-match-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  color: rgba(234, 243, 255, 0.68);
+}
+
+.opentt-tournament-match-row + .opentt-tournament-match-row {
+  border-top: 1px solid rgba(142, 197, 255, 0.14);
+}
+
+.opentt-tournament-match-row.is-winner {
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.opentt-tournament-round-nav {
+  display: none;
+}
+
+.opentt-tournament-category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.opentt-tournament-category-pill {
+  padding: 8px 10px;
+  color: #ffffff;
+  background: rgba(48, 132, 255, 0.22);
+  border: 1px solid rgba(142, 197, 255, 0.25);
+  border-radius: 999px;
+}
+
+@media (max-width: 720px) {
+  .opentt-tournament-header {
+    padding: 18px;
+  }
+
+  .opentt-tournament-bracket {
+    display: block;
+    overflow: visible;
+  }
+
+  .opentt-tournament-round {
+    display: none;
+  }
+
+  .opentt-tournament-round.is-active {
+    display: grid;
+  }
+
+  .opentt-tournament-round-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 14px 0 10px;
+    padding: 8px;
+    background: rgba(3, 20, 58, 0.62);
+    border: 1px solid rgba(142, 197, 255, 0.18);
+    border-radius: 8px;
+  }
+
+  .opentt-tournament-round-current {
+    color: #ffffff;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .opentt-tournament-round-prev,
+  .opentt-tournament-round-next {
+    width: 40px;
+    height: 40px;
+    color: #ffffff;
+    font-size: 1.5rem;
+    background: rgba(48, 132, 255, 0.24);
+    border: 1px solid rgba(142, 197, 255, 0.36);
+    border-radius: 6px;
+  }
+
+  .opentt-tournament-round-prev:disabled,
+  .opentt-tournament-round-next:disabled {
+    opacity: 0.35;
+  }
+}
+
