@@ -699,6 +699,85 @@
     container.innerHTML = html || '<p class="opentt-search-empty">Nema rezultata.</p>';
   }
 
+  function renderSearchIntent(container, intent, highlightQuery) {
+    if (!container) {
+      return;
+    }
+    if (!intent || typeof intent !== "object" || !intent.type) {
+      container.hidden = true;
+      container.innerHTML = "";
+      return;
+    }
+    if (String(intent.type) !== "club_recent") {
+      container.hidden = true;
+      container.innerHTML = "";
+      return;
+    }
+
+    var club = intent.club && typeof intent.club === "object" ? intent.club : {};
+    var matches = Array.isArray(intent.matches) ? intent.matches : [];
+    var title = esc(intent.label || "Rezultati");
+    var clubName = esc(club.title || "");
+    var clubUrl = esc(club.url || "#");
+    var clubThumb = esc(club.thumb || "");
+    var positionLabel = esc(club.positionLabel || "");
+    var visitText = "Poseti profil";
+    var html = "";
+
+    html += '<section class="opentt-search-intent-card">';
+    html += '<div class="opentt-search-intent-head"><h4>' + title + "</h4></div>";
+    html += '<div class="opentt-search-intent-club">';
+    if (clubThumb) {
+      html += '<span class="opentt-search-intent-club-thumb"><img src="' + clubThumb + '" alt="" loading="lazy" decoding="async"></span>';
+    }
+    html += '<div class="opentt-search-intent-club-body">';
+    html += '<div class="opentt-search-intent-club-title">' + clubName + "</div>";
+    if (positionLabel) {
+      html += '<div class="opentt-search-intent-club-meta">' + positionLabel + "</div>";
+    }
+    html += "</div>";
+    html += '<a class="opentt-search-intent-club-link" href="' + clubUrl + '">' + esc(visitText) + "</a>";
+    html += "</div>";
+
+    if (matches.length) {
+      html += '<div class="opentt-search-intent-matches">';
+      for (var i = 0; i < matches.length; i++) {
+        var item = matches[i] || {};
+        var itemUrl = esc(item.url || "#");
+        var homeName = esc(item.homeName || "");
+        var awayName = esc(item.awayName || "");
+        var homeThumb = esc(item.homeThumb || "");
+        var awayThumb = esc(item.awayThumb || "");
+        var scoreLabel = esc(item.scoreLabel || "");
+        var leagueLabel = esc(item.leagueLabel || "");
+        var dateLabel = esc(item.dateLabel || "");
+        html += '<a class="opentt-search-intent-match" href="' + itemUrl + '">';
+        html += '<span class="opentt-search-match-main">';
+        html += '<span class="opentt-search-match-team is-home">';
+        if (homeThumb) {
+          html += '<span class="opentt-search-item-thumb is-mini"><img src="' + homeThumb + '" alt="" loading="lazy" decoding="async"></span>';
+        }
+        html += '<span class="opentt-search-match-team-name">' + homeName + "</span>";
+        html += "</span>";
+        html += '<span class="opentt-search-match-score">' + scoreLabel + "</span>";
+        html += '<span class="opentt-search-match-team is-away">';
+        html += '<span class="opentt-search-match-team-name">' + awayName + "</span>";
+        if (awayThumb) {
+          html += '<span class="opentt-search-item-thumb is-mini"><img src="' + awayThumb + '" alt="" loading="lazy" decoding="async"></span>';
+        }
+        html += "</span>";
+        html += "</span>";
+        html += '<span class="opentt-search-match-meta">' + leagueLabel + (dateLabel ? " • " + dateLabel : "") + "</span>";
+        html += "</a>";
+      }
+      html += "</div>";
+    }
+    html += "</section>";
+
+    container.hidden = false;
+    container.innerHTML = html;
+  }
+
   function initSearch(root) {
     if (!root || root.dataset.openttSearchReady === "1") {
       return;
@@ -710,6 +789,8 @@
     var closeBtn = root.querySelector(".opentt-search-close");
     var input = root.querySelector(".opentt-search-input");
     var suggestionBox = root.querySelector("[data-opentt-search-suggestion]");
+    var quickBox = root.querySelector("[data-opentt-search-quick]");
+    var intentBox = root.querySelector("[data-opentt-search-intent]");
     var results = root.querySelector("[data-opentt-search-results]");
     if (!toggle || !panel || !input || !results) {
       return;
@@ -734,8 +815,10 @@
     var historyLabel = i18n.historyLabel || "Istorija pretrage";
     var clearHistoryText = i18n.clearHistory || "Očisti istoriju pretrage";
     var didYouMeanText = i18n.didYouMean || "Da li ste mislili";
+    var quickLabelText = i18n.quickQueries || "Brzi predlozi";
     var currentController = null;
     var discoveryCache = null;
+    var quickSuggestionsCache = [];
     var historyCookieName = "opentt_search_history";
     var clientCookieName = "opentt_search_client";
 
@@ -876,9 +959,34 @@
         '"</button>?';
     }
 
+    function renderQuickSuggestions(queries) {
+      if (!quickBox) {
+        return;
+      }
+      if (!Array.isArray(queries) || !queries.length) {
+        quickBox.hidden = true;
+        quickBox.innerHTML = "";
+        return;
+      }
+      var html = '<div class="opentt-search-quick-head">' + esc(quickLabelText) + "</div>";
+      html += '<div class="opentt-search-quick-items">';
+      queries.forEach(function (term) {
+        var value = String(term || "").trim();
+        if (!value) {
+          return;
+        }
+        html += '<button type="button" class="opentt-search-quick-chip" data-opentt-search-query="' + esc(value) + '">' + esc(value) + "</button>";
+      });
+      html += "</div>";
+      quickBox.hidden = false;
+      quickBox.innerHTML = html;
+    }
+
     function renderDiscovery(includeHistory) {
       if (discoveryCache) {
         renderSuggestion("", "");
+        renderSearchIntent(intentBox, null, "");
+        renderQuickSuggestions(quickSuggestionsCache);
         renderSearchGroups(results, mergeDiscoveryGroups(discoveryCache, !!includeHistory), "");
         return;
       }
@@ -889,6 +997,7 @@
           : "";
       if (!ajaxUrl) {
         renderSuggestion("", "");
+        renderSearchIntent(intentBox, null, "");
         renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory), "");
         return;
       }
@@ -916,13 +1025,17 @@
           var serverGroups = [];
           if (payload && payload.success === true && payload.data) {
             serverGroups = Array.isArray(payload.data.groups) ? payload.data.groups : [];
+            quickSuggestionsCache = Array.isArray(payload.data.querySuggestions) ? payload.data.querySuggestions : [];
           }
           discoveryCache = serverGroups;
           renderSuggestion("", "");
+          renderSearchIntent(intentBox, null, "");
+          renderQuickSuggestions(quickSuggestionsCache);
           renderSearchGroups(results, mergeDiscoveryGroups(serverGroups, !!includeHistory), "");
         })
         .catch(function () {
           renderSuggestion("", "");
+          renderSearchIntent(intentBox, null, "");
           renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory), "");
         });
     }
@@ -1082,6 +1195,26 @@
       }
     });
 
+    if (quickBox) {
+      quickBox.addEventListener("click", function (e) {
+        var qItem =
+          e.target && e.target.closest
+            ? e.target.closest("[data-opentt-search-query]")
+            : null;
+        if (!qItem) {
+          return;
+        }
+        e.preventDefault();
+        var q = String(qItem.getAttribute("data-opentt-search-query") || "").trim();
+        if (!q) {
+          return;
+        }
+        input.value = q;
+        pushHistoryTerm(q);
+        runSearch(q);
+      });
+    }
+
     input.addEventListener("focus", function () {
       if (!String(input.value || "").trim()) {
         renderDiscovery(true);
@@ -1111,11 +1244,13 @@
       var query = String(value || "").trim();
       if (query.length === 0) {
         renderSuggestion("", "");
+        renderSearchIntent(intentBox, null, "");
         renderDiscovery(document.activeElement === input);
         return;
       }
       if (query.length < minChars) {
         renderSuggestion("", "");
+        renderSearchIntent(intentBox, null, "");
         results.innerHTML = '<p class="opentt-search-empty">' + esc(promptText) + "</p>";
         return;
       }
@@ -1126,6 +1261,7 @@
           : "";
       if (!ajaxUrl) {
         renderSuggestion("", "");
+        renderSearchIntent(intentBox, null, "");
         results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
         return;
       }
@@ -1160,15 +1296,19 @@
         .then(function (payload) {
           if (!payload || payload.success !== true) {
             renderSuggestion("", "");
+            renderSearchIntent(intentBox, null, "");
             results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
             return;
           }
           var data = payload.data && typeof payload.data === "object" ? payload.data : {};
           renderSuggestion(query, data.suggestion || "");
+          renderSearchIntent(intentBox, data.intent || null, query);
+          renderQuickSuggestions(data.querySuggestions || []);
           renderSearchGroups(results, data.groups || [], query);
         })
         .catch(function () {
           renderSuggestion("", "");
+          renderSearchIntent(intentBox, null, "");
           results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
         });
     }, 170);
