@@ -46,6 +46,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 - Added `opentt_search` overlay search with desktop/mobile layouts, categorized results, entity images, and context-aware discovery.
 - Added smart query parser v1 for intent `klub + poslednjih N`, including quick suggestion chips and focused result blocks (club summary + recent match list).
+- Expanded smart parser coverage with additional sports intents (next/last match, H2H with limits, round queries, home/away filters, date ranges, standings prompts, player stats, top players, live/today/upcoming, and location-based match queries).
 - Added search history with clear-history support and recent-trending logic based on clicked results rather than raw typed queries.
 - Added anti-abuse caps for trending clicks and improved Serbian pluralization for click labels.
 - Added accent-insensitive and typo-tolerant matching with "Da li ste mislili..." suggestions.

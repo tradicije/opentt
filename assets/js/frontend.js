@@ -728,6 +728,7 @@
     var positionLabel = esc(club.positionLabel || "");
     var visitText = "Poseti profil";
     var html = "";
+    var noteText = String(intent.note || "").trim();
 
     html += '<section class="opentt-search-intent-card">';
     html += '<div class="opentt-search-intent-head"><h4>' + title + "</h4></div>";
@@ -813,6 +814,37 @@
       }
     }
 
+    if (intentType === "generic_list") {
+      var listItems = Array.isArray(intent.items) ? intent.items : [];
+      if (noteText) {
+        html += '<div class="opentt-search-intent-note">' + esc(noteText) + "</div>";
+      }
+      if (listItems.length) {
+        html += '<div class="opentt-search-intent-matches">';
+        listItems.forEach(function (item) {
+          var itemUrl = esc(item.url || "#");
+          if (item.matchRow) {
+            html += '<a class="opentt-search-intent-match" href="' + itemUrl + '">';
+            html += '<span class="opentt-search-match-main">';
+            html += '<span class="opentt-search-match-team is-home"><span class="opentt-search-match-team-name">' + esc(item.homeName || "") + "</span></span>";
+            html += '<span class="opentt-search-match-score">' + esc(item.scoreLabel || "") + "</span>";
+            html += '<span class="opentt-search-match-team is-away"><span class="opentt-search-match-team-name">' + esc(item.awayName || "") + "</span></span>";
+            html += "</span>";
+            html += '<span class="opentt-search-match-meta">' + esc(item.leagueLabel || "") + (item.dateLabel ? " • " + esc(item.dateLabel) : "") + "</span>";
+            html += "</a>";
+          } else {
+            html += '<a class="opentt-search-intent-match" href="' + itemUrl + '">';
+            html += '<span class="opentt-search-item-title">' + esc(item.title || "") + "</span>";
+            if (item.meta) {
+              html += '<span class="opentt-search-match-meta">' + esc(item.meta || "") + "</span>";
+            }
+            html += "</a>";
+          }
+        });
+        html += "</div>";
+      }
+    }
+
     if (intentType === "club_position") {
       var competition = intent.competition && typeof intent.competition === "object" ? intent.competition : {};
       var ligaLabel = String(competition.ligaLabel || "").trim();
@@ -853,6 +885,9 @@
         html += '<a class="opentt-search-intent-club-link" href="' + esc(player.url) + '">Poseti profil</a>';
       }
       html += "</div>";
+      if (noteText) {
+        html += '<div class="opentt-search-intent-note">' + esc(noteText) + "</div>";
+      }
     }
     html += "</section>";
 
