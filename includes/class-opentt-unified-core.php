@@ -8297,7 +8297,19 @@ HTML;
         if ($query === '') {
             return [];
         }
-        $players = self::search_posts_by_title('igrac', $query, 300);
+        $club_id_from_query = self::search_resolve_club_id_by_phrase($query, $context);
+        $club_name_from_query = $club_id_from_query > 0
+            ? self::search_normalize_club_name((string) get_the_title($club_id_from_query))
+            : '';
+        $player_phrase = $query;
+        if ($club_name_from_query !== '') {
+            $player_phrase = trim(str_ireplace($club_name_from_query, '', $query));
+        }
+        if ($player_phrase === '') {
+            $player_phrase = $query;
+        }
+
+        $players = self::search_posts_by_title('igrac', $player_phrase, 800);
         if (empty($players)) {
             return [];
         }
@@ -8311,22 +8323,28 @@ HTML;
             }
             $score = self::search_text_score($title, $query);
             if ($score <= 0) {
-                continue;
+                $score = self::search_text_score($title, $player_phrase);
             }
             $club_id = intval(self::get_player_club_id($pid));
             if ($club_id > 0) {
                 $club_name = self::search_normalize_club_name((string) get_the_title($club_id));
                 $score += intval(self::search_text_score($club_name, $query) / 2);
+                if ($club_id_from_query > 0 && $club_id === $club_id_from_query) {
+                    $score += 220;
+                }
             }
             if ($score > $best_score) {
                 $best_score = $score;
                 $best_player = $pid;
             }
         }
-        if ($best_player <= 0 || $best_score < 35) {
+        if ($best_player <= 0 || $best_score < 25) {
             return [];
         }
         $club_id = intval(self::get_player_club_id($best_player));
+        if ($club_id_from_query > 0 && $club_id > 0 && $club_id !== $club_id_from_query) {
+            return [];
+        }
         return [
             'type' => 'player_club',
             'label' => 'Igrač i klub',

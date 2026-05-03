@@ -189,8 +189,15 @@ html.opentt-search-open {
   gap: 8px;
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding-bottom: 2px;
+}
+
+.opentt-search-quick-items::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 .opentt-search-quick-chip {
