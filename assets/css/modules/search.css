@@ -185,8 +185,12 @@ html.opentt-search-open {
 
 .opentt-search-quick-items {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
 }
 
 .opentt-search-quick-chip {
@@ -200,6 +204,8 @@ html.opentt-search-open {
   padding: 8px 12px;
   cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .opentt-search-quick-chip:hover {

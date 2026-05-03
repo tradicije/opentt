@@ -469,6 +469,10 @@
       if (container.classList) {
         container.classList.remove("opentt-search-has-side-popular");
       }
+      if (container.dataset && container.dataset.intentActive === "1") {
+        container.innerHTML = "";
+        return;
+      }
       container.innerHTML = '<p class="opentt-search-empty">Nema rezultata.</p>';
       return;
     }
@@ -1053,6 +1057,9 @@
 
     function renderDiscovery(includeHistory) {
       if (discoveryCache) {
+        if (results && results.dataset) {
+          results.dataset.intentActive = "0";
+        }
         renderSuggestion("", "");
         renderSearchIntent(intentBox, null, "");
         renderQuickSuggestions(quickSuggestionsCache);
@@ -1065,6 +1072,9 @@
           ? String(window.openttFrontend.ajaxUrl)
           : "";
       if (!ajaxUrl) {
+        if (results && results.dataset) {
+          results.dataset.intentActive = "0";
+        }
         renderSuggestion("", "");
         renderSearchIntent(intentBox, null, "");
         renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory), "");
@@ -1097,12 +1107,18 @@
             quickSuggestionsCache = Array.isArray(payload.data.querySuggestions) ? payload.data.querySuggestions : [];
           }
           discoveryCache = serverGroups;
+          if (results && results.dataset) {
+            results.dataset.intentActive = "0";
+          }
           renderSuggestion("", "");
           renderSearchIntent(intentBox, null, "");
           renderQuickSuggestions(quickSuggestionsCache);
           renderSearchGroups(results, mergeDiscoveryGroups(serverGroups, !!includeHistory), "");
         })
         .catch(function () {
+          if (results && results.dataset) {
+            results.dataset.intentActive = "0";
+          }
           renderSuggestion("", "");
           renderSearchIntent(intentBox, null, "");
           renderSearchGroups(results, mergeDiscoveryGroups([], !!includeHistory), "");
@@ -1312,12 +1328,18 @@
     var runSearch = debounce(function (value) {
       var query = String(value || "").trim();
       if (query.length === 0) {
+        if (results && results.dataset) {
+          results.dataset.intentActive = "0";
+        }
         renderSuggestion("", "");
         renderSearchIntent(intentBox, null, "");
         renderDiscovery(document.activeElement === input);
         return;
       }
       if (query.length < minChars) {
+        if (results && results.dataset) {
+          results.dataset.intentActive = "0";
+        }
         renderSuggestion("", "");
         renderSearchIntent(intentBox, null, "");
         results.innerHTML = '<p class="opentt-search-empty">' + esc(promptText) + "</p>";
@@ -1329,6 +1351,9 @@
           ? String(window.openttFrontend.ajaxUrl)
           : "";
       if (!ajaxUrl) {
+        if (results && results.dataset) {
+          results.dataset.intentActive = "0";
+        }
         renderSuggestion("", "");
         renderSearchIntent(intentBox, null, "");
         results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
@@ -1364,18 +1389,27 @@
         })
         .then(function (payload) {
           if (!payload || payload.success !== true) {
+            if (results && results.dataset) {
+              results.dataset.intentActive = "0";
+            }
             renderSuggestion("", "");
             renderSearchIntent(intentBox, null, "");
             results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";
             return;
           }
           var data = payload.data && typeof payload.data === "object" ? payload.data : {};
+          if (results && results.dataset) {
+            results.dataset.intentActive = data.intent && data.intent.type ? "1" : "0";
+          }
           renderSuggestion(query, data.suggestion || "");
           renderSearchIntent(intentBox, data.intent || null, query);
           renderQuickSuggestions(data.querySuggestions || []);
           renderSearchGroups(results, data.groups || [], query);
         })
         .catch(function () {
+          if (results && results.dataset) {
+            results.dataset.intentActive = "0";
+          }
           renderSuggestion("", "");
           renderSearchIntent(intentBox, null, "");
           results.innerHTML = '<p class="opentt-search-empty">' + esc(emptyText) + "</p>";

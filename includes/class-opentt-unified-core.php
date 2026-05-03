@@ -7643,7 +7643,7 @@ HTML;
 
     private static function search_query_suggestions(array $context)
     {
-        $out = [];
+        $club_names = [];
         $club_ids = array_values(array_unique(array_filter([
             intval($context['home_club_id'] ?? 0),
             intval($context['away_club_id'] ?? 0),
@@ -7654,17 +7654,34 @@ HTML;
             if ($name === '') {
                 continue;
             }
-            $out[] = $name . ' poslednjih 5';
+            $club_names[] = $name;
         }
 
-        if (empty($out)) {
-            $fallback = ['Bubušinac', 'Napad', 'Lešak'];
-            foreach ($fallback as $club) {
-                $out[] = $club . ' poslednjih 5';
+        if (count($club_names) < 2) {
+            foreach (['Bubušinac', 'Napad', 'Lešak'] as $fallback_name) {
+                if (!in_array($fallback_name, $club_names, true)) {
+                    $club_names[] = $fallback_name;
+                }
             }
         }
 
-        return array_slice(array_values(array_unique(array_map('strval', $out))), 0, 5);
+        $club_a = (string) ($club_names[0] ?? 'Bubušinac');
+        $club_b = (string) ($club_names[1] ?? 'Napad');
+        $liga_slug = sanitize_title((string) ($context['liga_slug'] ?? ''));
+        $sezona_slug = sanitize_title((string) ($context['sezona_slug'] ?? ''));
+        $liga_label = $liga_slug !== '' ? self::slug_to_title($liga_slug) : 'kvalitetna liga';
+        $sezona_label = $sezona_slug !== '' ? str_replace('-', '/', $sezona_slug) : '2025/26';
+
+        $out = [
+            $club_a . ' poslednjih 5',
+            $club_a . ' sledece 3',
+            $club_a . ' vs ' . $club_b,
+            $liga_label . ' ' . $sezona_label,
+            'koji je ' . $club_a . ' na tabeli',
+            'aleksa dimitrijevic ' . $club_a,
+        ];
+
+        return array_values(array_unique(array_map('strval', $out)));
     }
 
     private static function search_parse_intent($query, $limit, array $context)
