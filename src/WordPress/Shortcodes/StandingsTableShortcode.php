@@ -492,9 +492,9 @@ final class StandingsTableShortcode
                 }
             }
             if ($rank_indicator === 'up') {
-                echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;min-width:14px;margin-right:6px;opacity:.95;"><img src="' . esc_url($chevron_up_icon_url) . '" alt="" loading="lazy" decoding="async" style="width:12px;height:12px;display:block;"></span>';
+                echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;min-width:14px;flex:0 0 14px;margin-right:6px;opacity:.95;"><img class="opentt-rank-delta-icon" src="' . esc_url($chevron_up_icon_url) . '" alt="" loading="lazy" decoding="async" style="display:block !important;width:12px !important;height:12px !important;min-width:12px !important;min-height:12px !important;max-width:none !important;max-height:none !important;object-fit:contain !important;"></span>';
             } elseif ($rank_indicator === 'down') {
-                echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;min-width:14px;margin-right:6px;opacity:.95;"><img src="' . esc_url($chevron_down_icon_url) . '" alt="" loading="lazy" decoding="async" style="width:12px;height:12px;display:block;"></span>';
+                echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;min-width:14px;flex:0 0 14px;margin-right:6px;opacity:.95;"><img class="opentt-rank-delta-icon" src="' . esc_url($chevron_down_icon_url) . '" alt="" loading="lazy" decoding="async" style="display:block !important;width:12px !important;height:12px !important;min-width:12px !important;min-height:12px !important;max-width:none !important;max-height:none !important;object-fit:contain !important;"></span>';
             } else {
                 echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-block;min-width:14px;margin-right:6px;opacity:.9;">—</span>';
             }
