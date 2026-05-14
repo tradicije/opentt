@@ -126,7 +126,10 @@ final class MatchesGridAltShortcode
                 }
             }
 
-            $dateText = self::formatShortDate((string) $itemNode->getAttribute('data-match-date-display'));
+            $dateText = self::formatShortDate(
+                (string) $itemNode->getAttribute('data-match-date-display'),
+                (string) $itemNode->getAttribute('data-match-date')
+            );
 
             while ($itemNode->firstChild) {
                 $itemNode->removeChild($itemNode->firstChild);
@@ -215,30 +218,34 @@ final class MatchesGridAltShortcode
         return isset($map[$number]) ? $map[$number] : (string) $number;
     }
 
-    private static function formatShortDate($dateDisplay)
+    private static function formatShortDate($dateDisplay, $dateIso = '')
     {
         $dateDisplay = trim((string) $dateDisplay);
-        if ($dateDisplay === '') {
-            return '';
-        }
+        $months = [
+            1 => 'Januar',
+            2 => 'Februar',
+            3 => 'Mart',
+            4 => 'April',
+            5 => 'Maj',
+            6 => 'Jun',
+            7 => 'Jul',
+            8 => 'Avgust',
+            9 => 'Septembar',
+            10 => 'Oktobar',
+            11 => 'Novembar',
+            12 => 'Decembar',
+        ];
 
-        if (preg_match('/^(\d{1,2})\.(\d{1,2})\./', $dateDisplay, $m)) {
+        if ($dateDisplay !== '' && preg_match('/^(\d{1,2})\.(\d{1,2})\./', $dateDisplay, $m)) {
             $day = intval($m[1]);
             $month = intval($m[2]);
-            $months = [
-                1 => 'Januar',
-                2 => 'Februar',
-                3 => 'Mart',
-                4 => 'April',
-                5 => 'Maj',
-                6 => 'Jun',
-                7 => 'Jul',
-                8 => 'Avgust',
-                9 => 'Septembar',
-                10 => 'Oktobar',
-                11 => 'Novembar',
-                12 => 'Decembar',
-            ];
+            return sprintf('%02d. %s', max(1, $day), ($months[$month] ?? ''));
+        }
+
+        $dateIso = trim((string) $dateIso);
+        if ($dateIso !== '' && preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $dateIso, $m)) {
+            $month = intval($m[2]);
+            $day = intval($m[3]);
             return sprintf('%02d. %s', max(1, $day), ($months[$month] ?? ''));
         }
 
@@ -261,18 +268,44 @@ final class MatchesGridAltShortcode
             $value = $decoded;
         }
 
-        // Fix common mojibake (e.g. LeÅ¡ak) caused by UTF-8 interpreted as ISO-8859-1/Windows-1252.
-        if (preg_match('/[ÃÅÄĆ]/u', $value)) {
-            if (function_exists('mb_convert_encoding')) {
-                $converted = @mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
-                if (is_string($converted) && $converted !== '') {
-                    $value = $converted;
+        // First pass: direct replacement for most common mojibake sequences in Serbian text.
+        $value = strtr($value, [
+            'ÅÅ¡' => 'š',
+            'Å¡' => 'š',
+            'Å¾' => 'ž',
+            'Ä‡' => 'ć',
+            'Ä�' => 'č',
+            'Ä‘' => 'đ',
+            'Å½' => 'Ž',
+            'Ä†' => 'Ć',
+            'ÄŒ' => 'Č',
+            'Ä�' => 'Đ',
+        ]);
+
+        // Second pass: attempt charset re-decode only if mojibake markers still exist.
+        if (preg_match('/[ÃÅÄ]/u', $value)) {
+            $converted = null;
+            if (function_exists('iconv')) {
+                $converted = @iconv('Windows-1252', 'UTF-8//IGNORE', $value);
+                if (!is_string($converted) || $converted === '') {
+                    $converted = @iconv('ISO-8859-1', 'UTF-8//IGNORE', $value);
                 }
-            } elseif (function_exists('iconv')) {
-                $converted = @iconv('ISO-8859-1', 'UTF-8//IGNORE', $value);
-                if (is_string($converted) && $converted !== '') {
-                    $value = $converted;
-                }
+            } elseif (function_exists('mb_convert_encoding')) {
+                $converted = @mb_convert_encoding($value, 'UTF-8', 'Windows-1252');
+            }
+            if (is_string($converted) && $converted !== '') {
+                $value = strtr($converted, [
+                    'ÅÅ¡' => 'š',
+                    'Å¡' => 'š',
+                    'Å¾' => 'ž',
+                    'Ä‡' => 'ć',
+                    'Ä�' => 'č',
+                    'Ä‘' => 'đ',
+                    'Å½' => 'Ž',
+                    'Ä†' => 'Ć',
+                    'ÄŒ' => 'Č',
+                    'Ä�' => 'Đ',
+                ]);
             }
         }
 
