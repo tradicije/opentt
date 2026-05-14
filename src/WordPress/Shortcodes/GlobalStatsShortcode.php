@@ -33,10 +33,10 @@ final class GlobalStatsShortcode
         echo '<section id="' . esc_attr($uid) . '" class="opentt-global-stats">';
         echo (string) $call('shortcode_title_html', 'Globalna statistika');
         echo '<div class="opentt-global-stats-grid">';
-        echo self::renderStatCard($count_lige, ['one' => 'liga', 'few' => 'lige', 'many' => 'liga']);
-        echo self::renderStatCard($count_klubovi, ['one' => 'klub', 'few' => 'kluba', 'many' => 'klubova']);
-        echo self::renderStatCard($count_igraci, ['one' => 'igrač', 'few' => 'igrača', 'many' => 'igrača']);
-        echo self::renderStatCard($count_utakmice, ['one' => 'utakmica', 'few' => 'utakmice', 'many' => 'utakmica']);
+        echo self::renderStatCard($count_lige, ['one' => 'liga', 'many' => 'liga']);
+        echo self::renderStatCard($count_klubovi, ['one' => 'klub', 'many' => 'klubova']);
+        echo self::renderStatCard($count_igraci, ['one' => 'igrač', 'many' => 'igrača']);
+        echo self::renderStatCard($count_utakmice, ['one' => 'utakmica', 'many' => 'utakmica']);
         echo '</div>';
         echo '</section>';
 
@@ -58,21 +58,8 @@ final class GlobalStatsShortcode
     {
         $count = max(0, intval($count));
         $one = isset($forms['one']) ? (string) $forms['one'] : '';
-        $few = isset($forms['few']) ? (string) $forms['few'] : $one;
-        $many = isset($forms['many']) ? (string) $forms['many'] : $few;
-
-        $mod10 = $count % 10;
-        $mod100 = $count % 100;
-
-        if ($mod10 === 1 && $mod100 !== 11) {
-            return $one;
-        }
-
-        if ($mod10 >= 2 && $mod10 <= 4 && ($mod100 < 12 || $mod100 > 14)) {
-            return $few;
-        }
-
-        return $many;
+        $many = isset($forms['many']) ? (string) $forms['many'] : $one;
+        return $count === 1 ? $one : $many;
     }
 
     private static function countPublishedPosts($postType)
