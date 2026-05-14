@@ -182,6 +182,7 @@ final class StandingsTableShortcode
             }
         }
 
+        $effective_round = 0;
         foreach ($rows as $r) {
             if (intval($r->played) !== 1) {
                 continue;
@@ -190,6 +191,9 @@ final class StandingsTableShortcode
             $round = intval($call('extract_round_no', (string) $r->kolo_slug));
             if ($max_kolo !== null && $round > $max_kolo) {
                 continue;
+            }
+            if ($round > $effective_round) {
+                $effective_round = $round;
             }
 
             $home = intval($r->home_club_post_id);
@@ -254,6 +258,116 @@ final class StandingsTableShortcode
             return ($a['bodovi'] > $b['bodovi']) ? -1 : 1;
         });
 
+        $current_rank_map = [];
+        $current_rank_no = 0;
+        foreach ($stat as $club_id => $data) {
+            $current_rank_no++;
+            $current_rank_map[intval($club_id)] = $current_rank_no;
+        }
+
+        $prev_rank_map = [];
+        if ($effective_round > 1) {
+            $prev_round_limit = $effective_round - 1;
+            $prev_stat = [];
+
+            foreach ($rows as $r) {
+                $home = intval($r->home_club_post_id);
+                $away = intval($r->away_club_post_id);
+                foreach ([$home, $away] as $club_id) {
+                    if ($club_id <= 0) {
+                        continue;
+                    }
+                    if (!isset($prev_stat[$club_id])) {
+                        $prev_stat[$club_id] = [
+                            'odigrane' => 0,
+                            'pobede' => 0,
+                            'porazi' => 0,
+                            'bodovi' => 0,
+                            'meckol' => 0,
+                        ];
+                    }
+                }
+            }
+
+            foreach ($rows as $r) {
+                if (intval($r->played) !== 1) {
+                    continue;
+                }
+
+                $round = intval($call('extract_round_no', (string) $r->kolo_slug));
+                if ($round <= 0 || $round > $prev_round_limit) {
+                    continue;
+                }
+
+                $home = intval($r->home_club_post_id);
+                $away = intval($r->away_club_post_id);
+                if ($home <= 0 || $away <= 0) {
+                    continue;
+                }
+
+                $rd = intval($r->home_score);
+                $rg = intval($r->away_score);
+
+                $prev_stat[$home]['odigrane']++;
+                $prev_stat[$away]['odigrane']++;
+                $prev_stat[$home]['meckol'] += ($rd - $rg);
+                $prev_stat[$away]['meckol'] += ($rg - $rd);
+
+                $home_win = ($rd > $rg);
+                $away_win = ($rg > $rd);
+
+                if ($home_win) {
+                    $prev_stat[$home]['pobede']++;
+                    $prev_stat[$away]['porazi']++;
+                } elseif ($away_win) {
+                    $prev_stat[$away]['pobede']++;
+                    $prev_stat[$home]['porazi']++;
+                }
+
+                if ($sistem === 'novi') {
+                    if ($home_win) {
+                        if ($rd === 4 && in_array($rg, [0, 1, 2], true)) {
+                            $prev_stat[$home]['bodovi'] += 3;
+                        } elseif ($rd === 4 && $rg === 3) {
+                            $prev_stat[$home]['bodovi'] += 2;
+                            $prev_stat[$away]['bodovi'] += 1;
+                        }
+                    } elseif ($away_win) {
+                        if ($rg === 4 && in_array($rd, [0, 1, 2], true)) {
+                            $prev_stat[$away]['bodovi'] += 3;
+                        } elseif ($rg === 4 && $rd === 3) {
+                            $prev_stat[$away]['bodovi'] += 2;
+                            $prev_stat[$home]['bodovi'] += 1;
+                        }
+                    }
+                } else {
+                    if ($home_win) {
+                        $prev_stat[$home]['bodovi'] += 2;
+                        $prev_stat[$away]['bodovi'] += 1;
+                    } elseif ($away_win) {
+                        $prev_stat[$away]['bodovi'] += 2;
+                        $prev_stat[$home]['bodovi'] += 1;
+                    }
+                }
+            }
+
+            uasort($prev_stat, function ($a, $b) {
+                if ($a['bodovi'] === $b['bodovi']) {
+                    if ($a['meckol'] === $b['meckol']) {
+                        return 0;
+                    }
+                    return ($a['meckol'] > $b['meckol']) ? -1 : 1;
+                }
+                return ($a['bodovi'] > $b['bodovi']) ? -1 : 1;
+            });
+
+            $prev_rank_no = 0;
+            foreach ($prev_stat as $club_id => $data) {
+                $prev_rank_no++;
+                $prev_rank_map[intval($club_id)] = $prev_rank_no;
+            }
+        }
+
         $league_label = trim(str_replace('-', ' ', (string) $liga_slug));
         $season_label = trim((string) $sezona_slug);
         if ($league_label === '') {
@@ -269,13 +383,7 @@ final class StandingsTableShortcode
             $league_label_display = (string) ucwords(strtolower($league_label_display));
         }
         $season_label_display = str_replace('-', '/', $season_label);
-        $export_round = 0;
-        foreach ($rows as $rr) {
-            $round_no = intval($call('extract_round_no', (string) ($rr->kolo_slug ?? '')));
-            if ($round_no > $export_round) {
-                $export_round = $round_no;
-            }
-        }
+        $export_round = intval($effective_round);
 
         $promo_direct = 0;
         $promo_playoff = 0;
@@ -368,6 +476,20 @@ final class StandingsTableShortcode
             echo '<td>' . intval($rank) . '</td>';
             echo '<td class="klub-cell">';
             echo '<a href="' . esc_url(get_permalink($club_id)) . '">';
+            $current_rank = intval($current_rank_map[intval($club_id)] ?? 0);
+            $previous_rank = intval($prev_rank_map[intval($club_id)] ?? 0);
+            $rank_indicator = '—';
+            $rank_class = 'is-same';
+            if ($current_rank > 0 && $previous_rank > 0) {
+                if ($current_rank < $previous_rank) {
+                    $rank_indicator = '˄';
+                    $rank_class = 'is-up';
+                } elseif ($current_rank > $previous_rank) {
+                    $rank_indicator = '˅';
+                    $rank_class = 'is-down';
+                }
+            }
+            echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-block;min-width:14px;margin-right:6px;opacity:.9;">' . esc_html($rank_indicator) . '</span>';
             echo (string) $call('club_logo_html', $club_id, 'thumbnail', ['style' => 'width:32px;height:32px;object-fit:contain;border-radius:3px;']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '<span>' . esc_html($club_title) . '</span>';
             echo '</a>';
