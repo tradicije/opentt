@@ -1,4 +1,4 @@
-# OpenTT Admin UI Translation Template
+# LibreTT Admin UI Translation Template
 # DO NOT CHANGE THIS FILE. USE ONLY AS A REFERENCE.
 # Copy this file to create a new translation file.
 #
@@ -24,7 +24,7 @@
 # - Use \\n for a newline
 # - Lines starting with # are comments
 
-# OpenTT admin UI translations
+# LibreTT admin UI translations
 # English (identity)
 # format: english_reference = target_translation
 # lines starting with # are comments
@@ -107,9 +107,9 @@
 <h3>Verification - details</h3> = <h3>Verification - details</h3>
 <label><strong>Confirmation:</strong> type exactly <code>saglasan sam</code></label> = <label><strong>Confirmation:</strong> type exactly <code>saglasan sam</code></label>
 <p class\="description">Click a shortcode to open details, an example, and a mini builder for generating a shortcode string.</p> = <p class\="description">Click a shortcode to open details, an example, and a mini builder for generating a shortcode string.</p>
-<p class\="description">For less advanced users: change the basic look of all OpenTT blocks here without writing CSS.</p> = <p class\="description">For less advanced users: change the basic look of all OpenTT blocks here without writing CSS.</p>
-<p class\="description">Select language for the OpenTT admin interface.</p> = <p class\="description">Select language for the OpenTT admin interface.</p>
-<p class\="description">This action deletes all OpenTT data (DB tables, OpenTT options, clubs, players, competitions and related taxonomies). This action is irreversible.</p> = <p class\="description">This action deletes all OpenTT data (DB tables, OpenTT options, clubs, players, competitions and related taxonomies). This action is irreversible.</p>
+<p class\="description">For less advanced users: change the basic look of all LibreTT blocks here without writing CSS.</p> = <p class\="description">For less advanced users: change the basic look of all LibreTT blocks here without writing CSS.</p>
+<p class\="description">Select language for the LibreTT admin interface.</p> = <p class\="description">Select language for the LibreTT admin interface.</p>
+<p class\="description">This action deletes all LibreTT data (DB tables, LibreTT options, clubs, players, competitions and related taxonomies). This action is irreversible.</p> = <p class\="description">This action deletes all LibreTT data (DB tables, LibreTT options, clubs, players, competitions and related taxonomies). This action is irreversible.</p>
 <strong>Attributes:</strong> = <strong>Attributes:</strong>
 <strong>Description:</strong> = <strong>Description:</strong>
 <th>Actions</th> = <th>Actions</th>
@@ -172,7 +172,7 @@ All = All
 All clubs = All clubs
 All games are saved. = All games are saved.
 All leagues = All leagues
-All OpenTT data has been deleted. = All OpenTT data has been deleted.
+All LibreTT data has been deleted. = All LibreTT data has been deleted.
 Apply = Apply
 Are you sure? This action deletes all data permanently. = Are you sure? This action deletes all data permanently.
 Attributes: = Attributes:
@@ -194,8 +194,8 @@ Candidate(s) in database = Candidate(s) in database
 Changed CSS overrides: = Changed CSS overrides:
 Check crest and exact club name on frontend immediately. = Check crest and exact club name on frontend immediately.
 Check if won sets count is logical against game result. = Check if won sets count is logical against game result.
-Choose language for OpenTT admin UI. = Choose language for OpenTT admin UI.
-Choose what to export. You get one JSON file that can later be imported into OpenTT. Featured images (crests, player images, competition logos) are exported together with data. = Choose what to export. You get one JSON file that can later be imported into OpenTT. Featured images (crests, player images, competition logos) are exported together with data.
+Choose language for LibreTT admin UI. = Choose language for LibreTT admin UI.
+Choose what to export. You get one JSON file that can later be imported into LibreTT. Featured images (crests, player images, competition logos) are exported together with data. = Choose what to export. You get one JSON file that can later be imported into LibreTT. Featured images (crests, player images, competition logos) are exported together with data.
 Citizenship = Citizenship
 City = City
 Clear selection = Clear selection
@@ -343,7 +343,7 @@ Format = Format
 Format A (doubles game #4) = Format A (doubles game #4)
 Format B (doubles game #7) = Format B (doubles game #7)
 Format example: = Format example:
-For non-advanced users: change the basic look of OpenTT blocks without writing CSS. = For non-advanced users: change the basic look of OpenTT blocks without writing CSS.
+For non-advanced users: change the basic look of LibreTT blocks without writing CSS. = For non-advanced users: change the basic look of LibreTT blocks without writing CSS.
 Frontend = Frontend
 Frontend club: form, news, team stats. = Frontend club: form, news, team stats.
 Frontend match: result, games, sets, MVP and other blocks. = Frontend match: result, games, sets, MVP and other blocks.
@@ -402,7 +402,7 @@ Initial number of matches (and chunk size for infinite). = Initial number of mat
 In match list click <strong>Edit</strong>, update data and save. = In match list click <strong>Edit</strong>, update data and save.
 In player list click <strong>Edit</strong>, update data and save. = In player list click <strong>Edit</strong>, update data and save.
 Input Guide = Input Guide
-Instead of scattered tables and disconnected data, OpenTT unifies the full workflow in one place: competitions, clubs, players, matches, games and statistics. The system is designed to be easy for daily result entry, but powerful enough for serious form, ranking and history tracking. = Instead of scattered tables and disconnected data, OpenTT unifies the full workflow in one place: competitions, clubs, players, matches, games and statistics. The system is designed to be easy for daily result entry, but powerful enough for serious form, ranking and history tracking.
+Instead of scattered tables and disconnected data, LibreTT unifies the full workflow in one place: competitions, clubs, players, matches, games and statistics. The system is designed to be easy for daily result entry, but powerful enough for serious form, ranking and history tracking. = Instead of scattered tables and disconnected data, LibreTT unifies the full workflow in one place: competitions, clubs, players, matches, games and statistics. The system is designed to be easy for daily result entry, but powerful enough for serious form, ranking and history tracking.
 Jersey color = Jersey color
 Language = Language
 Latest clubs = Latest clubs
@@ -476,12 +476,12 @@ On mobile, swipe table left/right to view all columns. = On mobile, swipe table 
 On single club pages it works without attributes. = On single club pages it works without attributes.
 On single player pages it works without attributes. = On single player pages it works without attributes.
 Open match through <strong>Edit</strong>. = Open match through <strong>Edit</strong>.
-OpenTT Dashboard = OpenTT Dashboard
-OpenTT for WordPress = OpenTT for WordPress
-OpenTT is an open-source system for managing and displaying table tennis competitions, clubs and players in a modern, fast and sustainable way. = OpenTT is an open-source system for managing and displaying table tennis competitions, clubs and players in a modern, fast and sustainable way.
-OpenTT Setup = OpenTT Setup
-OpenTT was created to bring the table tennis community a modern, open and practical competition-management tool. The idea is simple: clubs, federations and competition operators deserve a 21st-century system - fast, clear and sustainable, without complicated add-ons and manual workarounds. = OpenTT was created to bring the table tennis community a modern, open and practical competition-management tool. The idea is simple: clubs, federations and competition operators deserve a 21st-century system - fast, clear and sustainable, without complicated add-ons and manual workarounds.
-OpenTT | Version 1.0.0 = OpenTT | Version 1.0.0
+LibreTT Dashboard = LibreTT Dashboard
+LibreTT for WordPress = LibreTT for WordPress
+LibreTT is an open-source system for managing and displaying table tennis competitions, clubs and players in a modern, fast and sustainable way. = LibreTT is an open-source system for managing and displaying table tennis competitions, clubs and players in a modern, fast and sustainable way.
+LibreTT Setup = LibreTT Setup
+LibreTT was created to bring the table tennis community a modern, open and practical competition-management tool. The idea is simple: clubs, federations and competition operators deserve a 21st-century system - fast, clear and sustainable, without complicated add-ons and manual workarounds. = LibreTT was created to bring the table tennis community a modern, open and practical competition-management tool. The idea is simple: clubs, federations and competition operators deserve a 21st-century system - fast, clear and sustainable, without complicated add-ons and manual workarounds.
+LibreTT | Version 1.0.0 = LibreTT | Version 1.0.0
 Optional: club place/city (if you want more detail than municipality). = Optional: club place/city (if you want more detail than municipality).
 Ordered from rank 1 to rank 5, with optional season filter. = Ordered from rank 1 to rank 5, with optional season filter.
 Place of birth = Place of birth
@@ -626,8 +626,8 @@ Validate import = Validate import
 Validation successful. Review data and confirm import. = Validation successful. Review data and confirm import.
 Verification - details = Verification - details
 View all = View all
-Welcome to OpenTT = Welcome to OpenTT
-What OpenTT can do now = What OpenTT can do now
+Welcome to LibreTT = Welcome to LibreTT
+What LibreTT can do now = What LibreTT can do now
 When done, click <strong>Finish setup</strong>. = When done, click <strong>Finish setup</strong>.
 When to use: = When to use:
 Wins/losses with style markers. = Wins/losses with style markers.

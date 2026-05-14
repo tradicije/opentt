@@ -93,7 +93,7 @@
 <div class="wrap"><h1>Klub</h1><p>Klub nije pronađen.</p></div> = 
 <div class="wrap"><h1>Utakmica</h1><p>Utakmica nije pronađena.</p></div> = 
 <div style="width:120px;height:120px;background:#f2f2f2;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;">Nema grba takmičenja</div> = 
-<h1>Dobrodošao u OpenTT</h1> = 
+<h1>Dobrodošao u LibreTT</h1> = 
 <h1>Igrači</h1> = 
 <h1>Liga</h1><p>Liga nije pronađena.</p></div> = 
 <h1>Podešavanja</h1> = 
@@ -115,7 +115,7 @@
 <h3>Takmičenja - detaljno</h3> = 
 <h4 class="opentt-stat-ekipe-table-title">Skraćena tabela</h4> = 
 <h4 class="opentt-stat-igraca-rang-title">Skraćena rang lista</h4> = 
-<h4>Šta OpenTT može odmah</h4> = 
+<h4>Šta LibreTT može odmah</h4> = 
 <label><span>Akcent boja</span><small>Menja boju linkova i naglašenih elemenata.</small><input type="text" name="visual_settings[accent_color]" value=" = 
 <label><span>Naslovi shortcode-ova</span><small>Uključi ili isključi automatske naslove sekcija koje plugin prikazuje na frontendu.</small><span style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="visual_settings[show_shortcode_titles]" value="0"><input type="checkbox" name="visual_settings[show_shortcode_titles]" value="1"  = 
 <label><strong>Potvrda:</strong> upiši tačno <code>saglasan sam</code></label> = 
@@ -133,15 +133,15 @@
 <option value="">— izaberi opštinu —</option> = 
 <p class="description">1) Izaberi JSON fajl i sekcije. 2) Pokreni validaciju. 3) Pregledaj rezultate i potvrdi uvoz. Featured slike iz paketa će biti automatski uvezene i povezane.</p> = 
 <p class="description">Dubl partija je automatski određena pravilima takmičenja: <strong># = 
-<p class="description">Izaberi šta želiš da izvezeš. Dobijaš jedan JSON fajl koji možeš kasnije uvesti u OpenTT. Featured slike (grbovi, slike igrača, logo takmičenja) se izvoze zajedno sa podacima.</p> = 
+<p class="description">Izaberi šta želiš da izvezeš. Dobijaš jedan JSON fajl koji možeš kasnije uvesti u LibreTT. Featured slike (grbovi, slike igrača, logo takmičenja) se izvoze zajedno sa podacima.</p> = 
 <p class="description">Kada završiš, klikni <strong>Završi setup</strong>.</p> = 
 <p class="description">Klase koje najčešće koristi ovaj shortcode:</p> = 
 <p class="description">Obriši utakmice, partije i setove za jednu ligu/sezonu (bez SQL-a). Koristi pre ponovnog uvoza ako je stanje parcijalno.</p> = 
-<p class="description">Ova akcija briše sve OpenTT podatke (DB tabele, OpenTT opcije, klubove, igrače, takmičenja i povezane taksonomije). Akcija je nepovratna.</p> = 
+<p class="description">Ova akcija briše sve LibreTT podatke (DB tabele, LibreTT opcije, klubove, igrače, takmičenja i povezane taksonomije). Akcija je nepovratna.</p> = 
 <p class="description">Pre potvrde uvoza izaberi šta raditi sa igračima koji liče na postojeće unose.</p> = 
 <p class="description">U meniju <strong>Takmičenja</strong> dodaješ liga+sezona i pravila.</p></td></tr> = 
 <p class="description">Unesi sve partije i setove odjednom, pa klikni <strong>Sačuvaj sve partije</strong>. Prazna partija se briše (ako je ranije postojala).</p> = 
-<p class="description">Za manje napredne korisnike: ovde menjaš osnovni izgled svih OpenTT blokova bez pisanja CSS-a.</p> = 
+<p class="description">Za manje napredne korisnike: ovde menjaš osnovni izgled svih LibreTT blokova bez pisanja CSS-a.</p> = 
 <p style="margin-bottom:0;"><strong>Autor projekta:</strong> <a href="https://instagram.com/tradicije" target="_blank" rel="noopener">Aleksa Dimitrijević</a>.</p> = 
 <p style="margin-top:14px">Migracija je idempotentna: isti legacy zapis se ažurira po `legacy_post_id`, ne pravi duplikate.</p> = 
 <p style="margin:0 0 12px 0;"><button type="submit" class="button button-link-delete">Obriši izabrane</button></p> = 
@@ -158,12 +158,12 @@
 <p>Nema unetih takmičenja.</p> = 
 <p>Nije pronađen klub.</p> = 
 <p>One-time setup će te provesti kroz prve korake: takmičenje, timove, igrače i utakmice.</p> = 
-<p>OpenTT je nastao iz želje da se zajednici stonog tenisa vrati moderan, otvoren i praktičan alat za vođenje takmičenja. Ideja je jednostavna: klubovi, savezi i ljudi koji vode takmičenja zaslužuju sistem za 21. vek - brz, jasan i održiv, bez komplikovanih dodataka i ručnih workaround-a.</p> = 
-<p>OpenTT je open-source sistem namenjen vođenju i prikazu stonoteniskih takmičenja, klubova i igrača na moderan, brz i održiv način.</p> = 
+<p>LibreTT je nastao iz želje da se zajednici stonog tenisa vrati moderan, otvoren i praktičan alat za vođenje takmičenja. Ideja je jednostavna: klubovi, savezi i ljudi koji vode takmičenja zaslužuju sistem za 21. vek - brz, jasan i održiv, bez komplikovanih dodataka i ručnih workaround-a.</p> = 
+<p>LibreTT je open-source sistem namenjen vođenju i prikazu stonoteniskih takmičenja, klubova i igrača na moderan, brz i održiv način.</p> = 
 <p>Postojeća rešenja uglavnom tretiraju sport ili kao čisto timski, ili kao isključivo individualni. Stoni tenis je specifičan i zahteva drugačiji pristup.</p> = 
 <p>Projekat je nastao iz stvarne potrebe da se stonoteniska takmičenja prikažu onako kako se zaista igraju: kao timski mečevi koji se sastoje od individualnih duela, sa jasnim kontekstom, istorijom i statistikama.</p> = 
 <p>Trenutno nema vesti za ovog igrača.</p> = 
-<p>Umesto rasutih tabela i nepovezanih podataka, OpenTT objedinjuje ceo tok rada na jednom mestu: takmičenja, klubove, igrače, utakmice, partije i statistiku. Sistem je napravljen da bude lak za svakodnevni unos rezultata, ali i dovoljno moćan za ozbiljno praćenje forme, rangova i istorije.</p> = 
+<p>Umesto rasutih tabela i nepovezanih podataka, LibreTT objedinjuje ceo tok rada na jednom mestu: takmičenja, klubove, igrače, utakmice, partije i statistiku. Sistem je napravljen da bude lak za svakodnevni unos rezultata, ali i dovoljno moćan za ozbiljno praćenje forme, rangova i istorije.</p> = 
 <span class="opentt-step-pill">2. Takmičenje</span> = 
 <span class="opentt-step-pill">4. Igrači</span> = 
 <span>Klikni za korake unosa: takmičenja, klubovi, igrači, utakmice, partije i setovi.</span> = 
@@ -231,7 +231,7 @@ CSS override je sačuvan. =
 Da li ste sigurni? Ovim brišete sve podatke i ne možete ih vratiti. = 
 Datum rođenja = 
 Dijagnostika takmičenja = 
-Dobrodošao u OpenTT = 
+Dobrodošao u LibreTT = 
 Dodaj igrača = 
 Dodaj igrače = 
 Dodaj igrače i poveži ih sa klubovima. Kasnije možeš unositi i istorijske partije. = 
@@ -304,7 +304,7 @@ Izaberi takmičenje za repair. =
 Izaberi takmičenje za reset. = 
 Izaberi takmičenje, kolo i datum. = 
 Izaberi takmičenje. = 
-Izaberi šta želiš da izvezeš. Dobijaš jedan JSON fajl koji možeš kasnije uvesti u OpenTT. Featured slike (grbovi, slike igrača, logo takmičenja) se izvoze zajedno sa podacima. = 
+Izaberi šta želiš da izvezeš. Dobijaš jedan JSON fajl koji možeš kasnije uvesti u LibreTT. Featured slike (grbovi, slike igrača, logo takmičenja) se izvoze zajedno sa podacima. = 
 Izveštaj utakmice = 
 Jednostavan admin unos klubova, igrača, utakmica, partija i setova. = 
 Jezik admin interfejsa je sačuvan. = 
@@ -402,8 +402,8 @@ Odžaci =
 Ograničava prikaz do određenog kola. = 
 One-time setup će te provesti kroz prve korake: takmičenje, timove, igrače i utakmice. = 
 Opcionalno: mesto/grad kluba (ako želiš detaljnije od opštine). = 
-OpenTT je nastao iz želje da se zajednici stonog tenisa vrati moderan, otvoren i praktičan alat za vođenje takmičenja. Ideja je jednostavna: klubovi, savezi i ljudi koji vode takmičenja zaslužuju sistem za 21. vek - brz, jasan i održiv, bez komplikovanih dodataka i ručnih workaround-a. = 
-OpenTT je open-source sistem namenjen vođenju i prikazu stonoteniskih takmičenja, klubova i igrača na moderan, brz i održiv način. = 
+LibreTT je nastao iz želje da se zajednici stonog tenisa vrati moderan, otvoren i praktičan alat za vođenje takmičenja. Ideja je jednostavna: klubovi, savezi i ljudi koji vode takmičenja zaslužuju sistem za 21. vek - brz, jasan i održiv, bez komplikovanih dodataka i ručnih workaround-a. = 
+LibreTT je open-source sistem namenjen vođenju i prikazu stonoteniskih takmičenja, klubova i igrača na moderan, brz i održiv način. = 
 Opština = 
 Opština/grad kluba (filter kroz polje grad). = 
 Osečina = 
@@ -525,7 +525,7 @@ Uključuje filter po sezoni. =
 Uključuje filter/sort panel. = 
 Uključuje infinite scroll učitavanje. = 
 Uključuje učinak i rang listu oko igrača. = 
-Umesto rasutih tabela i nepovezanih podataka, OpenTT objedinjuje ceo tok rada na jednom mestu: takmičenja, klubove, igrače, utakmice, partije i statistiku. Sistem je napravljen da bude lak za svakodnevni unos rezultata, ali i dovoljno moćan za ozbiljno praćenje forme, rangova i istorije. = 
+Umesto rasutih tabela i nepovezanih podataka, LibreTT objedinjuje ceo tok rada na jednom mestu: takmičenja, klubove, igrače, utakmice, partije i statistiku. Sistem je napravljen da bude lak za svakodnevni unos rezultata, ali i dovoljno moćan za ozbiljno praćenje forme, rangova i istorije. = 
 Unesi datum rođenja, mesto rođenja i državljanstvo. = 
 Unesi konačan rezultat utakmice. = 
 Unos starih sezona kada igrači više nisu u trenutnom klubu. = 
@@ -561,7 +561,7 @@ Vrati se u admin na odgovarajuću stavku. =
 Vračar = 
 Vrnjačka Banja = 
 Vršac = 
-Za manje napredne korisnike: ovde menjaš osnovni izgled svih OpenTT blokova bez pisanja CSS-a. = 
+Za manje napredne korisnike: ovde menjaš osnovni izgled svih LibreTT blokova bez pisanja CSS-a. = 
 Za singl partije unosi se po jedan igrač sa svake strane. = 
 Za stare sezone koristi listu svih igrača. = 
 Za svaku partiju imaš polja Set 1 do Set 5. = 
@@ -578,7 +578,7 @@ Završi setup =
 Šabac = 
 Šid = 
 Španija = 
-Šta OpenTT može odmah = 
+Šta LibreTT može odmah = 
 Švajcarska = 
 Švedska = 
 Žabalj = 
