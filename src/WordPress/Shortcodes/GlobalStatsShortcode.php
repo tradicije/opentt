@@ -24,7 +24,7 @@ final class GlobalStatsShortcode
         };
 
         $uid = 'opentt-global-stats-' . wp_unique_id();
-        $count_lige = self::countPublishedPosts('liga');
+        $count_lige = self::countLeagues();
         $count_klubovi = self::countPublishedPosts('klub');
         $count_igraci = self::countPublishedPosts('igrac');
         $count_utakmice = self::countMatches();
@@ -79,5 +79,42 @@ final class GlobalStatsShortcode
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $count = $wpdb->get_var("SELECT COUNT(*) FROM {$table}");
         return max(0, intval($count));
+    }
+
+    private static function countLeagues()
+    {
+        global $wpdb;
+
+        $count_from_posts = self::countPublishedPosts('liga');
+        $count_from_rules = 0;
+        $count_from_matches = 0;
+
+        $rule_ids = get_posts([
+            'post_type' => 'pravilo_takmicenja',
+            'post_status' => 'any',
+            'fields' => 'ids',
+            'posts_per_page' => -1,
+            'no_found_rows' => true,
+        ]);
+        if (is_array($rule_ids) && !empty($rule_ids)) {
+            $slugs = [];
+            foreach ($rule_ids as $rule_id) {
+                $slug = sanitize_title((string) get_post_meta(intval($rule_id), 'opentt_competition_league_slug', true));
+                if ($slug !== '') {
+                    $slugs[$slug] = true;
+                }
+            }
+            $count_from_rules = count($slugs);
+        }
+
+        if (class_exists('OpenTT_Unified_Core') && isset($wpdb)) {
+            $table = \OpenTT_Unified_Core::db_table('matches');
+            if (is_string($table) && $table !== '') {
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $count_from_matches = intval($wpdb->get_var("SELECT COUNT(DISTINCT liga_slug) FROM {$table} WHERE liga_slug <> ''"));
+            }
+        }
+
+        return max($count_from_posts, $count_from_rules, $count_from_matches);
     }
 }
