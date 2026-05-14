@@ -33,25 +33,46 @@ final class GlobalStatsShortcode
         echo '<section id="' . esc_attr($uid) . '" class="opentt-global-stats">';
         echo (string) $call('shortcode_title_html', 'Globalna statistika');
         echo '<div class="opentt-global-stats-grid">';
-        echo self::renderStatCard($count_lige, 'Lige');
-        echo self::renderStatCard($count_klubovi, 'Klubovi');
-        echo self::renderStatCard($count_igraci, 'Igrači');
-        echo self::renderStatCard($count_utakmice, 'Utakmice');
+        echo self::renderStatCard($count_lige, ['one' => 'liga', 'few' => 'lige', 'many' => 'liga']);
+        echo self::renderStatCard($count_klubovi, ['one' => 'klub', 'few' => 'kluba', 'many' => 'klubova']);
+        echo self::renderStatCard($count_igraci, ['one' => 'igrač', 'few' => 'igrača', 'many' => 'igrača']);
+        echo self::renderStatCard($count_utakmice, ['one' => 'utakmica', 'few' => 'utakmice', 'many' => 'utakmica']);
         echo '</div>';
         echo '</section>';
 
         return (string) ob_get_clean();
     }
 
-    private static function renderStatCard($value, $label)
+    private static function renderStatCard($value, array $forms)
     {
         $value = max(0, intval($value));
-        $label = (string) $label;
+        $label = self::serbianCountLabel($value, $forms);
 
         return '<article class="opentt-global-stats-card">'
             . '<strong class="opentt-global-stats-value">' . esc_html(number_format_i18n($value)) . '</strong>'
             . '<span class="opentt-global-stats-label">' . esc_html($label) . '</span>'
             . '</article>';
+    }
+
+    private static function serbianCountLabel($count, array $forms)
+    {
+        $count = max(0, intval($count));
+        $one = isset($forms['one']) ? (string) $forms['one'] : '';
+        $few = isset($forms['few']) ? (string) $forms['few'] : $one;
+        $many = isset($forms['many']) ? (string) $forms['many'] : $few;
+
+        $mod10 = $count % 10;
+        $mod100 = $count % 100;
+
+        if ($mod10 === 1 && $mod100 !== 11) {
+            return $one;
+        }
+
+        if ($mod10 >= 2 && $mod10 <= 4 && ($mod100 < 12 || $mod100 > 14)) {
+            return $few;
+        }
+
+        return $many;
     }
 
     private static function countPublishedPosts($postType)
