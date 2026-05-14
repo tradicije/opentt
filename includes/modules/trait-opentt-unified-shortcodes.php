@@ -678,6 +678,15 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_global_stats($atts = [])
+    {
+        return \OpenTT\Unified\WordPress\Shortcodes\GlobalStatsShortcode::render($atts, [
+            'shortcode_title_html' => static function ($title) {
+                return self::shortcode_title_html($title);
+            },
+        ]);
+    }
+
     public static function shortcode_player_transfers($atts = [])
     {
         return \OpenTT\Unified\WordPress\Shortcodes\PlayerTransfersShortcode::render($atts, [

@@ -68,6 +68,7 @@ final class FrontendAssetsEnqueuer
             'match-teams-short',
             'search',
             'auth-profile',
+            'global-stats',
         ];
 
         foreach ($modules as $mod) {

@@ -50,6 +50,7 @@ final class ShortcodeRegistrar
             'opentt_club_form' => 'shortcode_club_form',
             'opentt_player_stats' => 'shortcode_player_stats',
             'opentt_team_stats' => 'shortcode_team_stats',
+            'opentt_global_stats' => 'shortcode_global_stats',
             'opentt_player_transfers' => 'shortcode_player_transfers',
             'opentt_player_info' => 'shortcode_player_info',
             'opentt_competitions' => 'shortcode_competitions_grid',
