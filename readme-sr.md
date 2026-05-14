@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="opentt-logo.png" alt="LibreTT logo" width="256" />
+  <img src="librett-logo.png" alt="LibreTT logo" width="256" />
 </p>
 
 **LibreTT** je slobodan i otvoren WordPress plugin namenjen vođenju, prikazu i arhiviranju stonoteniskih takmičenja: utakmica, klubova, igrača i statistika u jednom objedinjenom sistemu.

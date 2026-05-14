@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="opentt-logo.png" alt="LibreTT logo" width="256" />
+  <img src="librett-logo.png" alt="LibreTT logo" width="256" />
 </p>
 
 **LibreTT** is a free and open WordPress plugin for managing, displaying, and archiving table tennis competitions: matches, clubs, players, and statistics in one unified system.
