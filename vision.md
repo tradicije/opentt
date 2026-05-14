@@ -1,11 +1,11 @@
-# OpenTT Vision
+# LibreTT Vision
 
-## 1. Why OpenTT Exists
+## 1. Why LibreTT Exists
 
-OpenTT is not meant to be only a plugin for entering match results.
+LibreTT is not meant to be only a plugin for entering match results.
 Its long-term purpose is larger: to help build an open, durable, and community-accessible digital infrastructure for table tennis.
 
-OpenTT was created from real club and competition-operator needs, with a clear principle:
+LibreTT was created from real club and competition-operator needs, with a clear principle:
 - match data, history, and tools should not be trapped in closed systems,
 - sports memory should not depend on a single vendor or short-lived platform,
 - communities should be able to retain and evolve their own infrastructure.
@@ -25,11 +25,11 @@ That includes:
 - standardized data structures,
 - open tools the community can use, review, and improve.
 
-OpenTT exists to contribute to exactly that outcome.
+LibreTT exists to contribute to exactly that outcome.
 
 ## 3. Long-Term Direction
 
-OpenTT aims to evolve toward:
+LibreTT aims to evolve toward:
 - a broad, publicly useful table tennis data foundation,
 - long-term preservation of club/player/competition history,
 - standardized sports data models and naming conventions,
@@ -42,7 +42,7 @@ OpenTT aims to evolve toward:
 
 ## 4. Free Software and Data Freedom
 
-OpenTT is built as a free/libre software project.
+LibreTT is built as a free/libre software project.
 
 That means users and communities should always retain the right to:
 - use the software,
@@ -60,7 +60,7 @@ Its priority is openness, interoperability, and long-term availability of sports
 
 ## 5. Community Before Product Walls
 
-OpenTT is not designed as a "premium lock" product with artificial feature gates.
+LibreTT is not designed as a "premium lock" product with artificial feature gates.
 
 The project exists to serve:
 - clubs,
@@ -74,7 +74,7 @@ The functional core should remain practically accessible without forced "Pro-onl
 
 ## 6. Continuity and Governance Resilience
 
-OpenTT should not depend on one person, one club, one region, or one season.
+LibreTT should not depend on one person, one club, one region, or one season.
 
 For that reason, the project should remain:
 - documented,
@@ -92,7 +92,7 @@ As the project grows, sustainability models may include:
 
 ## 7. Product and Infrastructure Principles
 
-When making roadmap decisions, OpenTT should prioritize:
+When making roadmap decisions, LibreTT should prioritize:
 - data correctness over cosmetic speed,
 - backward compatibility where feasible,
 - migration paths instead of lock-step rewrites,
@@ -103,7 +103,7 @@ When making roadmap decisions, OpenTT should prioritize:
 
 ## 8. Data Stewardship Commitments
 
-OpenTT should continue to treat sports data as shared cultural memory, not disposable transactional output.
+LibreTT should continue to treat sports data as shared cultural memory, not disposable transactional output.
 
 This implies:
 - preserving historical continuity across version upgrades,
@@ -113,7 +113,7 @@ This implies:
 
 ## 9. Interoperability as a Strategic Goal
 
-OpenTT should be able to coexist with other tools and ecosystems.
+LibreTT should be able to coexist with other tools and ecosystems.
 
 Key interoperability goals include:
 - stable schema evolution,
@@ -125,7 +125,7 @@ Interoperability is not a side feature; it is core to long-term survival of spor
 
 ## 10. A Practical Future Path
 
-Today, OpenTT may begin as a strong operational plugin.
+Today, LibreTT may begin as a strong operational plugin.
 Over time, it should become a long-lived digital commons layer for table tennis.
 
 The ambition is clear:
@@ -135,7 +135,7 @@ The ambition is clear:
 
 ## 11. stoni.rs
 
-Alongside OpenTT software, the long-term project vision also includes development of `stoni.rs` as a publicly accessible digital table tennis data base.
+Alongside LibreTT software, the long-term project vision also includes development of `stoni.rs` as a publicly accessible digital table tennis data base.
 
 The idea behind the `stoni.rs` platform is to provide:
 - centralized views of clubs, players, and competitions,
@@ -147,7 +147,7 @@ The idea behind the `stoni.rs` platform is to provide:
 
 The goal is not to build a closed commercial silo, but a publicly useful and long-term sustainable platform that can serve the sport and its community.
 
-OpenTT is the technical foundation of that ecosystem.
+LibreTT is the technical foundation of that ecosystem.
 
 Over time, `stoni.rs` may evolve through:
 - public and community instances,
@@ -161,12 +161,12 @@ The long-term direction is clear: table tennis data and history should remain ac
 
 ## 12. Infrastructure Sustainability and Data Access
 
-This section primarily refers to the future `stoni.rs` public data platform layer, not to OpenTT plugin usage in fully decentralized/self-hosted deployments.
+This section primarily refers to the future `stoni.rs` public data platform layer, not to LibreTT plugin usage in fully decentralized/self-hosted deployments.
 
-OpenTT as a plugin does not inherently require a centralized infrastructure budget when used as independent self-hosted instances by clubs, operators, or communities.
+LibreTT as a plugin does not inherently require a centralized infrastructure budget when used as independent self-hosted instances by clubs, operators, or communities.
 Those deployments can run on each operator's own hosting model and cost profile.
 
-The long-term infrastructure sustainability challenge appears mainly when `stoni.rs` grows into a large-scale, public, always-on shared data base built on top of the OpenTT ecosystem.
+The long-term infrastructure sustainability challenge appears mainly when `stoni.rs` grows into a large-scale, public, always-on shared data base built on top of the LibreTT ecosystem.
 
 At that stage, long-term digital infrastructure has real technical and financial costs.
 
@@ -180,7 +180,7 @@ The project philosophy is:
 
 ### 12.1 Practical Sustainability Model
 
-For `stoni.rs`, OpenTT aims for a sustainability model where:
+For `stoni.rs`, LibreTT aims for a sustainability model where:
 - software remains free and forkable,
 - data remains exportable and portable,
 - public instances remain accessible to users,
@@ -197,9 +197,9 @@ Infrastructure sustainability can include:
 
 ### 12.2 Resilience Through Openness
 
-The key OpenTT principle is not permanent central control by one platform.
+The key LibreTT principle is not permanent central control by one platform.
 
-Instead, OpenTT should stay open and interoperable enough that sports history can survive infrastructure, organizational, or maintainer changes.
+Instead, LibreTT should stay open and interoperable enough that sports history can survive infrastructure, organizational, or maintainer changes.
 
 That is why these building blocks matter:
 - AGPL licensing,
@@ -216,13 +216,13 @@ The vision is not only a functional service for the current season.
 The deeper objective is long-term preservation of table tennis digital history through open infrastructure that can persist, evolve, and remain accessible to future generations.
 
 In practical terms:
-- decentralized OpenTT plugin deployments remain a first-class path,
+- decentralized LibreTT plugin deployments remain a first-class path,
 - `stoni.rs` acts as a public commons layer,
 - and both paths should coexist without forcing users into a single hosting model.
 
 ### 12.4 Why Self-Hosting Still Matters if stoni.rs Scales Nationally
 
-Even if `stoni.rs` eventually covers all leagues under the Table Tennis Federation of Serbia, self-hosting OpenTT remains both valid and strategically important.
+Even if `stoni.rs` eventually covers all leagues under the Table Tennis Federation of Serbia, self-hosting LibreTT remains both valid and strategically important.
 
 There are many legitimate use cases, including:
 - amateur leagues,
@@ -246,7 +246,7 @@ That coexistence is not duplication; it is resilience by design.
 
 ## 13. Vision Summary
 
-OpenTT is a commitment to:
+LibreTT is a commitment to:
 - openness over lock-in,
 - community over exclusivity,
 - continuity over short-term platforms,

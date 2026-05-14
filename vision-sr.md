@@ -1,11 +1,11 @@
-# OpenTT Vizija
+# LibreTT Vizija
 
-## 1. Zašto OpenTT postoji
+## 1. Zašto LibreTT postoji
 
-OpenTT nije zamišljen samo kao plugin za unos rezultata.
+LibreTT nije zamišljen samo kao plugin za unos rezultata.
 Dugoročna svrha projekta je šira: izgradnja otvorene, održive i zajednici dostupne digitalne infrastrukture za stoni tenis.
 
-OpenTT je nastao iz realnih potreba klubova i operatera takmičenja, sa jasnim principom:
+LibreTT je nastao iz realnih potreba klubova i operatera takmičenja, sa jasnim principom:
 - da podaci, alati i istorija sporta ne budu zaključani u zatvorenim sistemima,
 - da sportska istorija ne zavisi od jednog vendora ili kratkotrajnog servisa,
 - da zajednica ima realnu mogućnost da očuva i razvija sopstvenu infrastrukturu.
@@ -25,11 +25,11 @@ To podrazumeva:
 - standardizovane podatke,
 - otvorene alate koje zajednica može koristiti, proveravati i unapređivati.
 
-OpenTT postoji da doprinese upravo tom cilju.
+LibreTT postoji da doprinese upravo tom cilju.
 
 ## 3. Dugoročni pravac razvoja
 
-OpenTT dugoročno teži ka:
+LibreTT dugoročno teži ka:
 - široko dostupnoj i javno korisnoj bazi stonog tenisa,
 - očuvanju istorijskih podataka klubova, igrača i takmičenja,
 - standardizaciji sportskih modela podataka i konvencija,
@@ -42,7 +42,7 @@ OpenTT dugoročno teži ka:
 
 ## 4. Slobodan softver i sloboda podataka
 
-OpenTT se razvija kao free/libre software projekat.
+LibreTT se razvija kao free/libre software projekat.
 
 To znači da korisnici i zajednice treba da imaju pravo da:
 - koriste softver,
@@ -60,7 +60,7 @@ Prioritet su transparentnost, interoperabilnost i dugoročna dostupnost podataka
 
 ## 5. Zajednica pre zaključanog proizvoda
 
-OpenTT nije projektovan kao "premium zid" proizvod sa veštačkim ograničenjima ključnih funkcija.
+LibreTT nije projektovan kao "premium zid" proizvod sa veštačkim ograničenjima ključnih funkcija.
 
 Projekat postoji da služi:
 - klubovima,
@@ -74,7 +74,7 @@ Osnovna funkcionalnost treba da ostane praktično dostupna bez prisilnih "Pro-on
 
 ## 6. Kontinuitet i otpornost upravljanja
 
-Vizija OpenTT-a ne sme zavisiti od jednog čoveka, jednog kluba, jedne regije ili jedne sezone.
+Vizija LibreTT-a ne sme zavisiti od jednog čoveka, jednog kluba, jedne regije ili jedne sezone.
 
 Zato projekat treba da ostane:
 - dokumentovan,
@@ -92,7 +92,7 @@ Kako projekat raste, održivost može uključivati:
 
 ## 7. Principi razvoja proizvoda i infrastrukture
 
-Kod roadmap odluka, OpenTT treba da favorizuje:
+Kod roadmap odluka, LibreTT treba da favorizuje:
 - tačnost podataka ispred kozmetičke brzine,
 - kompatibilnost unazad gde je izvodljivo,
 - migracione puteve umesto "big bang" prekida,
@@ -103,7 +103,7 @@ Kod roadmap odluka, OpenTT treba da favorizuje:
 
 ## 8. Odgovornost prema sportskim podacima
 
-OpenTT treba da tretira sportske podatke kao zajedničku kulturnu memoriju, a ne kao prolazni tehnički artefakt.
+LibreTT treba da tretira sportske podatke kao zajedničku kulturnu memoriju, a ne kao prolazni tehnički artefakt.
 
 To podrazumeva:
 - očuvanje istorijskog kontinuiteta kroz verzije,
@@ -113,7 +113,7 @@ To podrazumeva:
 
 ## 9. Interoperabilnost kao strateški cilj
 
-OpenTT treba da koegzistira sa drugim alatima i ekosistemima.
+LibreTT treba da koegzistira sa drugim alatima i ekosistemima.
 
 Ključni interoperabilni ciljevi su:
 - stabilna evolucija šeme,
@@ -125,7 +125,7 @@ Interoperabilnost nije sporedna funkcija, već preduslov dugoročnog opstanka po
 
 ## 10. Praktična putanja u budućnost
 
-Danas OpenTT može početi kao snažan operativni plugin.
+Danas LibreTT može početi kao snažan operativni plugin.
 Vremenom treba da postane dugovečni digitalni commons sloj za stoni tenis.
 
 Ambicija je jasna:
@@ -135,7 +135,7 @@ Ambicija je jasna:
 
 ## 11. stoni.rs
 
-Pored OpenTT softvera, dugoročna vizija projekta uključuje i razvoj `stoni.rs` kao javno dostupne digitalne baze stonog tenisa.
+Pored LibreTT softvera, dugoročna vizija projekta uključuje i razvoj `stoni.rs` kao javno dostupne digitalne baze stonog tenisa.
 
 Ideja `stoni.rs` platforme je da omogući:
 - centralizovan prikaz klubova, igrača i takmičenja,
@@ -147,7 +147,7 @@ Ideja `stoni.rs` platforme je da omogući:
 
 Cilj nije stvaranje zatvorenog komercijalnog sistema, već javno korisne i dugoročno održive platforme koja može služiti sportu i zajednici.
 
-OpenTT predstavlja tehničku osnovu tog ekosistema.
+LibreTT predstavlja tehničku osnovu tog ekosistema.
 
 Dugoročno, `stoni.rs` može evoluirati kroz:
 - javne i community instance,
@@ -161,11 +161,11 @@ Vizija projekta je da podaci i istorija stonog tenisa ostanu dostupni, proverlji
 
 ## 12. Održivost infrastrukture i dostupnost podataka
 
-Ova sekcija se prvenstveno odnosi na budući `stoni.rs` sloj javne baze podataka, a ne na korišćenje OpenTT plugina u potpuno decentralizovanim/self-host okruženjima.
+Ova sekcija se prvenstveno odnosi na budući `stoni.rs` sloj javne baze podataka, a ne na korišćenje LibreTT plugina u potpuno decentralizovanim/self-host okruženjima.
 
-OpenTT kao plugin sam po sebi ne zahteva centralizovan infrastrukturni budžet kada ga klubovi, operateri ili zajednice koriste kroz nezavisne instance na sopstvenom hostingu.
+LibreTT kao plugin sam po sebi ne zahteva centralizovan infrastrukturni budžet kada ga klubovi, operateri ili zajednice koriste kroz nezavisne instance na sopstvenom hostingu.
 
-Izazov dugoročne infrastrukturne održivosti nastaje pre svega kada `stoni.rs` preraste u veliku, javnu i stalno dostupnu zajedničku bazu podataka izgrađenu na OpenTT ekosistemu.
+Izazov dugoročne infrastrukturne održivosti nastaje pre svega kada `stoni.rs` preraste u veliku, javnu i stalno dostupnu zajedničku bazu podataka izgrađenu na LibreTT ekosistemu.
 
 U tom sloju, održavanje infrastrukture nosi realne tehničke i finansijske troškove.
 
@@ -179,7 +179,7 @@ Filozofija projekta je:
 
 ### 12.1 Praktični model održivosti
 
-Za `stoni.rs`, OpenTT teži modelu u kome:
+Za `stoni.rs`, LibreTT teži modelu u kome:
 - softver ostaje slobodan i forkabilan,
 - podaci ostaju eksportabilni i prenosivi,
 - javne instance ostaju dostupne korisnicima,
@@ -196,9 +196,9 @@ Održivost infrastrukture može uključivati:
 
 ### 12.2 Otpornost kroz otvorenost
 
-Ključna ideja OpenTT-a nije da jedna centralna platforma trajno kontroliše sve podatke.
+Ključna ideja LibreTT-a nije da jedna centralna platforma trajno kontroliše sve podatke.
 
-Naprotiv, OpenTT treba da ostane dovoljno otvoren i interoperabilan da sportska istorija može opstati i kada se promeni infrastruktura, organizacija ili tim maintainera.
+Naprotiv, LibreTT treba da ostane dovoljno otvoren i interoperabilan da sportska istorija može opstati i kada se promeni infrastruktura, organizacija ili tim maintainera.
 
 Zato su važni sledeći temelji:
 - AGPL licenca,
@@ -215,13 +215,13 @@ Vizija nije samo funkcionalan servis za trenutnu sezonu.
 Dublji cilj je dugoročno očuvanje digitalne istorije stonog tenisa kroz otvorenu infrastrukturu koja može da traje, evoluira i ostane dostupna budućim generacijama.
 
 Praktično, to znači:
-- decentralizovane OpenTT plugin instance ostaju ravnopravna i poželjna opcija,
+- decentralizovane LibreTT plugin instance ostaju ravnopravna i poželjna opcija,
 - `stoni.rs` predstavlja javni commons sloj,
 - a oba modela treba da koegzistiraju bez nametanja jednog centralnog hosting modela.
 
 ### 12.4 Zašto self-host ostaje važan i ako stoni.rs pokrije nacionalni nivo
 
-Čak i ako `stoni.rs` jednog dana pokrije sve lige Stonoteniskog saveza Srbije, self-host OpenTT i dalje ostaje legitiman i strateški važan model.
+Čak i ako `stoni.rs` jednog dana pokrije sve lige Stonoteniskog saveza Srbije, self-host LibreTT i dalje ostaje legitiman i strateški važan model.
 
 Postoji mnogo realnih scenarija, uključujući:
 - amaterske lige,
@@ -245,7 +245,7 @@ To nije dupliranje, već otpornost ugrađena u sam dizajn projekta.
 
 ## 13. Sažetak vizije
 
-OpenTT je posvećenost:
+LibreTT je posvećenost:
 - otvorenosti umesto zaključavanja,
 - zajednici umesto ekskluzivnosti,
 - kontinuitetu umesto kratkoročnih platformi,

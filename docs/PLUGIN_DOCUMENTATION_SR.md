@@ -1,11 +1,11 @@
-# OpenTT Dokumentacija (Srpski)
+# LibreTT Dokumentacija (Srpski)
 
-Ovaj dokument je detaljno korisničko i operativno uputstvo za OpenTT WordPress plugin.
+Ovaj dokument je detaljno korisničko i operativno uputstvo za LibreTT WordPress plugin.
 Namenjen je administratorima sajtova, urednicima sadržaja, operaterima liga, klubovima i tehničkim osobama koje održavaju sistem.
 
-## 1. Šta je OpenTT
+## 1. Šta je LibreTT
 
-OpenTT je WordPress plugin za vođenje, prikaz i arhiviranje stonoteniskih takmičenja.
+LibreTT je WordPress plugin za vođenje, prikaz i arhiviranje stonoteniskih takmičenja.
 Plugin objedinjuje:
 - administraciju utakmica i rezultata,
 - evidenciju klubova i igrača,
@@ -17,7 +17,7 @@ Ključna arhitekturna odluka: meč podaci (utakmice, partije i setovi) čuvaju s
 
 ## 2. Osnovne karakteristike
 
-- Jedinstven admin panel za OpenTT.
+- Jedinstven admin panel za LibreTT.
 - Podrška za klubove (`klub`) i igrače (`igrac`) kroz WordPress sadržajni model.
 - DB model za masivne meč podatke.
 - Sistem shortcode-ova za frontend prikaz.
@@ -44,7 +44,7 @@ Ključna arhitekturna odluka: meč podaci (utakmice, partije i setovi) čuvaju s
 
 ## 5. Prvo pokretanje (Onboarding)
 
-Na svežoj instalaciji OpenTT vodi administratora kroz početno podešavanje.
+Na svežoj instalaciji LibreTT vodi administratora kroz početno podešavanje.
 Tipični koraci:
 - osnovna konfiguracija,
 - inicijalne stranice,
@@ -74,7 +74,7 @@ Tipični koraci:
 
 ## 7. Admin moduli i funkcionalnosti
 
-OpenTT admin obično uključuje sledeće celine:
+LibreTT admin obično uključuje sledeće celine:
 - Dashboard
 - Utakmice
 - Klubovi
@@ -91,7 +91,7 @@ Dodatno:
 
 ## 8. Takmičenja, liga i sezona
 
-OpenTT koristi liga/sezona logiku kroz standardizovane slug vrednosti i pravila takmičenja.
+LibreTT koristi liga/sezona logiku kroz standardizovane slug vrednosti i pravila takmičenja.
 Podržano je:
 - mapiranje legacy formata,
 - izbor bodovnog sistema,
@@ -131,7 +131,7 @@ Moguće je čuvati i prikazivati:
 
 ## 11. Shortcode sistem
 
-OpenTT koristi `opentt_*` shortcode prefiks.
+LibreTT koristi `opentt_*` shortcode prefiks.
 
 ### 11.1 Lista podržanih shortcode-ova
 
@@ -200,11 +200,11 @@ OpenTT koristi `opentt_*` shortcode prefiks.
 [opentt_players]
 ```
 
-Napomena: tačan skup atributa može varirati po shortcode-u; preporuka je da se koristi OpenTT admin builder/insert alati gde su dostupni.
+Napomena: tačan skup atributa može varirati po shortcode-u; preporuka je da se koristi LibreTT admin builder/insert alati gde su dostupni.
 
 ## 12. Single stranice i kontekst
 
-OpenTT shortcode-ovi često rade kontekstualno:
+LibreTT shortcode-ovi često rade kontekstualno:
 - na `single-klub` stranici automatski koriste trenutni klub,
 - na `single-igrac` stranici koriste trenutnog igrača,
 - na takmičarskim stranicama koriste liga/sezona kontekst.
@@ -248,7 +248,7 @@ Preporučeni tok:
 
 ## 15. Migracije i legacy kompatibilnost
 
-OpenTT uključuje migracione i kompatibilne mehanizme za prelazak sa starijih struktura.
+LibreTT uključuje migracione i kompatibilne mehanizme za prelazak sa starijih struktura.
 Može uključivati:
 - mapiranja liga/sezona,
 - mapiranje internih ID/ključeva,
@@ -259,7 +259,7 @@ Preporuka: migracije sprovoditi planski, uz test i backup.
 
 ## 16. Teme, template-i i override
 
-OpenTT podržava:
+LibreTT podržava:
 - plugin fallback template-e,
 - prioritet theme override-a,
 - block i klasične teme.
@@ -303,7 +303,7 @@ Za velike istorije (više sezona):
 
 ## 21. Bezbednost
 
-OpenTT koristi WordPress sigurnosne obrasce (nonce, sanitizacija ulaza, capability provere) u administrativnim i AJAX tokovima.
+LibreTT koristi WordPress sigurnosne obrasce (nonce, sanitizacija ulaza, capability provere) u administrativnim i AJAX tokovima.
 Dobre prakse:
 - redovan update WP jezgra i plugin-a,
 - ograničen admin pristup,
@@ -340,7 +340,7 @@ Pre svakog većeg update-a:
 
 ## 25. Bundled addon: Tournaments
 
-OpenTT uključuje i turnirski addon u `addons/tournaments`.
+LibreTT uključuje i turnirski addon u `addons/tournaments`.
 Addon ima:
 - sopstvenu šemu,
 - sopstvene shortcode-ove,
@@ -360,7 +360,7 @@ Osnovni shortcode-ovi addona:
 
 ## 26. Licenca
 
-OpenTT je licenciran pod AGPL-3.0-or-later.
+LibreTT je licenciran pod AGPL-3.0-or-later.
 Ako se koristi kao servis (SaaS), primenjuju se AGPL obaveze objavljivanja izmena.
 
 Dodatna pojašnjenja:

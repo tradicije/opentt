@@ -1,12 +1,12 @@
 # Changelog
 
-All notable changes to the OpenTT plugin are documented in this file.
+All notable changes to the LibreTT plugin are documented in this file.
 
 ## Unreleased
 
 ### Highlights
 
-- Added standalone-ready bundled `OpenTT Tournaments` addon foundation with tournament CPT, contextual tournament shortcodes, single tournament template support, admin tournament/category/entry management, and first-pass single-elimination bracket generation.
+- Added standalone-ready bundled `LibreTT Tournaments` addon foundation with tournament CPT, contextual tournament shortcodes, single tournament template support, admin tournament/category/entry management, and first-pass single-elimination bracket generation.
 - Added a full WordPress user portal for login, registration, profile editing, role-aware frontend tools, and `opentt_auth_menu`.
 - Added frontend league/team administration flows, including league-season scoped access, inline match editing, game/set entry, and manager tools for club/player data.
 - Added public pending game submissions with Turnstile protection, email collection, admin review, and approve/deny notifications.
@@ -36,7 +36,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 ### User Portal & Permissions
 
-- Added OpenTT roles and role-aware frontend areas for members, editors, league administrators, and team managers.
+- Added LibreTT roles and role-aware frontend areas for members, editors, league administrators, and team managers.
 - Added `Korisnici` admin screen for linking WordPress users to players and assigning league-season or team management access.
 - Added frontend editor tools for creating posts with featured image support and a user news overview.
 - Added frontend league-admin tools with season-first and league-specific navigation, filters, search, match cards, and inline game/set controls.
@@ -57,7 +57,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added standings table watermark settings with enable/disable toggle and custom media-library image selection.
 - Added social image export for standings using `html2canvas`, with league/season/round header, competition logo, club branding, promotion cutoff line, table watermark, and footer attribution.
 - Fixed social export rendering for encoded club names and zero-value table cells.
-- Added explicit README disclaimer that OpenTT is not affiliated with `opentt.pl`.
+- Added explicit README project-identity disclaimer for branding clarity.
 
 ### Match Reports, Video & Content Links
 
@@ -81,6 +81,17 @@ All notable changes to the OpenTT plugin are documented in this file.
 - Added scoped match update tracking by `liga + sezona` for accurate frontend attribution.
 - Added legacy JSON export conversion tooling for old `stkb_*` data packages.
 - Removed the experimental AI chatbot feature completely after evaluation.
+
+### Documentation & Project Policy
+
+- Added comprehensive bilingual operations documentation: `docs/PLUGIN_DOCUMENTATION_EN.md` and `docs/PLUGIN_DOCUMENTATION_SR.md`, covering installation, onboarding, data model, shortcode catalog, import/export, migrations, templates, localization, security, and troubleshooting.
+- Expanded license sections in `readme.md`, `readme-sr.md`, and both detailed documentation files with explicit scope clarifications and references to trademark/brand policy.
+- Added trademark and brand usage policies in both languages: `trademark.md` and `trademark-sr.md`.
+- Added long-form project vision documents in both languages: `vision.md` and `vision-sr.md`.
+- Expanded vision scope with `stoni.rs` public commons direction and explicit infrastructure sustainability framing, including:
+  - distinction between centralized `stoni.rs` infrastructure costs and decentralized LibreTT self-host usage,
+  - sustainability models (donations, grants, sponsors, nonprofits, mirrors),
+  - rationale for continued self-host deployments even with national-scale central coverage (amateur leagues, local tournaments, school competitions, regional federations, private analytics, experimentation, backup/mirror resilience).
 
 ## Releases
 
@@ -125,7 +136,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Tooling
 
-- Added standalone legacy export converter CLI app: `tools/convert-stkb-export.php` for transforming older `stkb_*` JSON packages (format/meta/section/table/key names) into OpenTT-compatible import JSON.
+- Added standalone legacy export converter CLI app: `tools/convert-stkb-export.php` for transforming older `stkb_*` JSON packages (format/meta/section/table/key names) into LibreTT-compatible import JSON.
 
 #### Import/Export
 
@@ -212,7 +223,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 #### Highlights
 
-- First public OpenTT release baseline.
+- First public LibreTT release baseline.
 
 #### Changed
 
@@ -258,7 +269,7 @@ All notable changes to the OpenTT plugin are documented in this file.
 
 - Admin UX improvements for non-technical operators.
 - Documentation and setup guidance updates.
-- Continued legacy-module unification into OpenTT core architecture.
+- Continued legacy-module unification into LibreTT core architecture.
 
 ## Notes
 

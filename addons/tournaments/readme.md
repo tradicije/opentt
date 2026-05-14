@@ -1,8 +1,8 @@
-# OpenTT Tournaments
+# LibreTT Tournaments
 
-Bundled tournament engine addon for OpenTT.
+Bundled tournament engine addon for LibreTT.
 
-This folder is intentionally structured as a standalone-ready WordPress plugin. While it is currently loaded by OpenTT, it has its own bootstrap, schema version, assets, templates, admin screens, and shortcode registration.
+This folder is intentionally structured as a standalone-ready WordPress plugin. While it is currently loaded by LibreTT, it has its own bootstrap, schema version, assets, templates, admin screens, and shortcode registration.
 
 ## Shortcodes
 

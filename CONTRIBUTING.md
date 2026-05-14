@@ -1,6 +1,6 @@
-# Contributing to OpenTT
+# Contributing to LibreTT
 
-First of all — thank you for taking the time to explore OpenTT.
+First of all — thank you for taking the time to explore LibreTT.
 
 This project started as a practical solution for managing table tennis competitions at a local club level. It is actively evolving, and contributions, feedback, and ideas are welcome.
 
@@ -8,7 +8,7 @@ This project started as a practical solution for managing table tennis competiti
 
 ## 📌 Project Philosophy
 
-OpenTT aims to be:
+LibreTT aims to be:
 
 - Free and open-source
 - Transparent and self-hosted
@@ -49,7 +49,7 @@ Please describe the actual problem your suggestion solves.
 
 ## 🌍 Contributing Translations
 
-OpenTT supports a simple file-based localization system for the admin UI.
+LibreTT supports a simple file-based localization system for the admin UI.
 
 If you'd like to contribute a translation:
 
@@ -63,7 +63,7 @@ If you'd like to contribute a translation:
 
 New language files are automatically detected and listed in the plugin's Settings page.
 
-Translation contributions are highly appreciated and help make OpenTT accessible to more communities.
+Translation contributions are highly appreciated and help make LibreTT accessible to more communities.
 
 ---
 
@@ -82,7 +82,7 @@ If your change affects architecture or structure, please explain your reasoning.
 
 ## 🧱 Code Structure
 
-OpenTT is currently transitioning from a larger core file toward smaller, modular components (helpers, services, etc.).
+LibreTT is currently transitioning from a larger core file toward smaller, modular components (helpers, services, etc.).
 
 Goals:
 

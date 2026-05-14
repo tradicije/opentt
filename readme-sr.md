@@ -1,25 +1,24 @@
 <p align="center">
-  <img src="opentt-logo.png" alt="OpenTT logo" width="256" />
+  <img src="opentt-logo.png" alt="LibreTT logo" width="256" />
 </p>
 
-**OpenTT** je slobodan i otvoren WordPress plugin namenjen vođenju, prikazu i arhiviranju stonoteniskih takmičenja: utakmica, klubova, igrača i statistika u jednom objedinjenom sistemu.
+**LibreTT** je slobodan i otvoren WordPress plugin namenjen vođenju, prikazu i arhiviranju stonoteniskih takmičenja: utakmica, klubova, igrača i statistika u jednom objedinjenom sistemu.
 
-OpenTT je nastao iz realnih potreba kluba i zajednice, a ne kao komercijalni proizvod.
+LibreTT je nastao iz realnih potreba kluba i zajednice, a ne kao komercijalni proizvod.
 Cilj je jednostavan: **da alati, znanje i podaci ostanu u rukama zajednice.**
-Disclaimer: ovaj projekat nije povezan sa `opentt.pl`, niti je od njega odobren ili podržan.
 
 ## Filozofija projekta
 
-OpenTT se razvija po sledećim principima:
+LibreTT se razvija po sledećim principima:
 
 - Free & libre software: koristi, proučavaj, menjaj i deli.
-- AGPL v3 licenca: ako OpenTT koristiš kao servis, izmene moraš deliti.
+- AGPL v3 licenca: ako LibreTT koristiš kao servis, izmene moraš deliti.
 - Bez vendor lock-ina: podaci ostaju tvoji, u bazi i otvorenim formatima.
 - Zajednica na prvom mestu: alat treba da služi klubovima, savezima i operaterima.
 
 Ne postoji “Pro” verzija i nema skrivenih ograničenja funkcionalnosti.
 
-## Zašto OpenTT postoji
+## Zašto LibreTT postoji
 
 Mnogi stariji sistemi za lige/rezultate imaju iste probleme:
 
@@ -28,7 +27,7 @@ Mnogi stariji sistemi za lige/rezultate imaju iste probleme:
 - pad performansi kako rastu sezone i broj zapisa,
 - zatvoreni sistemi koje je teško prilagoditi.
 
-OpenTT to rešava direktno.
+LibreTT to rešava direktno.
 Ključna arhitekturna odluka:
 **utakmice, partije i setovi se čuvaju u DB tabelama (ne kao CPT podaci).**
 
@@ -43,7 +42,7 @@ Ključna arhitekturna odluka:
 
 ### Administracija (backend)
 
-- Jedinstveni OpenTT admin:
+- Jedinstveni LibreTT admin:
   - Kontrolna tabla
   - Utakmice
   - Klubovi
@@ -62,7 +61,7 @@ Ključna arhitekturna odluka:
 
 ### Frontend (shortcode sistem)
 
-OpenTT koristi standardizovane engleske `opentt_*` shortcode nazive uz novi DB model.
+LibreTT koristi standardizovane engleske `opentt_*` shortcode nazive uz novi DB model.
 
 Primeri:
 
@@ -87,7 +86,7 @@ Primeri:
 
 ## Model podataka
 
-OpenTT koristi namenske DB tabele za meč podatke:
+LibreTT koristi namenske DB tabele za meč podatke:
 
 - `wp_opentt_matches`
 - `wp_opentt_games`
@@ -97,7 +96,7 @@ Klubovi i igrači ostaju na CPT-ovima (`klub`, `igrac`) zbog kompatibilnosti i u
 
 ## Uvoz / Izvoz
 
-OpenTT podržava selektivan uvoz/izvoz kroz JSON paket.
+LibreTT podržava selektivan uvoz/izvoz kroz JSON paket.
 
 Sekcije:
 
@@ -121,7 +120,7 @@ Dodatno:
 
 ## Routing i template-i
 
-OpenTT podržava:
+LibreTT podržava:
 
 - Nove DB-based rute za utakmice.
 - Legacy URL kompatibilnost.
@@ -152,20 +151,20 @@ OpenTT podržava:
 
 **GNU Affero General Public License v3 (AGPL-3.0)**
 
-Možeš slobodno da koristiš, menjaš i forkuješ OpenTT.
+Možeš slobodno da koristiš, menjaš i forkuješ LibreTT.
 Ako ga pružaš kao servis (SaaS), važe AGPL obaveze.
 
 Vidi: `LICENSE`.
 
 Pojašnjenje obuhvata licence:
 
-- OpenTT core je licenciran kao `AGPL-3.0-or-later`.
+- LibreTT core je licenciran kao `AGPL-3.0-or-later`.
 - Bundled `addons/tournaments` modul je trenutno u razvoju i funkcionalno nije završen; pravila izdavanja i pravni status za potpuno samostalan release treba tretirati kao privremeno evolutivne dok se ne objavi stabilna standalone politika.
 - Naziv, logo i identitet projekta uređuju se odvojeno od licence koda. Pogledaj `trademark.md`.
 
 ## Autor i zajednica
 
-OpenTT razvija **Aleksa Dimitrijević**,
+LibreTT razvija **Aleksa Dimitrijević**,
 prvobitno za **STK Bubušinac** i **stkb.rs**.
 
 Doprinosi su dobrodošli:

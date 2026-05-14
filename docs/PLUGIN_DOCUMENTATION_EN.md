@@ -1,11 +1,11 @@
-# OpenTT Documentation (English)
+# LibreTT Documentation (English)
 
-This document is a detailed user and operations guide for the OpenTT WordPress plugin.
+This document is a detailed user and operations guide for the LibreTT WordPress plugin.
 It is intended for site administrators, content editors, league operators, clubs, and technical maintainers.
 
-## 1. What OpenTT Is
+## 1. What LibreTT Is
 
-OpenTT is a WordPress plugin for managing, displaying, and archiving table tennis competitions.
+LibreTT is a WordPress plugin for managing, displaying, and archiving table tennis competitions.
 It combines:
 - match and result administration,
 - club and player records,
@@ -17,7 +17,7 @@ Key architectural decision: match-level data (matches, games, sets) is stored in
 
 ## 2. Core Capabilities
 
-- Unified OpenTT admin area.
+- Unified LibreTT admin area.
 - Club (`klub`) and player (`igrac`) support through WordPress content model.
 - Dedicated DB model for high-volume match data.
 - Frontend shortcode system.
@@ -36,7 +36,7 @@ Key architectural decision: match-level data (matches, games, sets) is stored in
 
 1. Place plugin files in the WordPress plugins directory.
 2. Activate the plugin in WP Admin > Plugins.
-3. On activation, OpenTT:
+3. On activation, LibreTT:
 - registers rewrite/routing rules,
 - checks and migrates schema when needed,
 - prepares onboarding state,
@@ -44,7 +44,7 @@ Key architectural decision: match-level data (matches, games, sets) is stored in
 
 ## 5. First Run (Onboarding)
 
-On fresh installs, OpenTT can guide administrators through initial setup.
+On fresh installs, LibreTT can guide administrators through initial setup.
 Typical steps:
 - base configuration,
 - initial page provisioning,
@@ -74,7 +74,7 @@ Typical steps:
 
 ## 7. Admin Modules and Workflows
 
-OpenTT admin generally includes:
+LibreTT admin generally includes:
 - Dashboard
 - Matches
 - Clubs
@@ -91,7 +91,7 @@ Additionally:
 
 ## 8. Competition, League, and Season
 
-OpenTT uses league/season logic via standardized slugs and competition rules.
+LibreTT uses league/season logic via standardized slugs and competition rules.
 Supported behavior includes:
 - legacy format mapping,
 - scoring system selection,
@@ -114,7 +114,7 @@ Common fields include:
 
 ### Clubs
 
-OpenTT supports displaying/storing:
+LibreTT supports displaying/storing:
 - name and logo,
 - city/municipality,
 - contact details,
@@ -123,7 +123,7 @@ OpenTT supports displaying/storing:
 
 ### Players
 
-OpenTT supports displaying/storing:
+LibreTT supports displaying/storing:
 - profile details,
 - club association,
 - statistics/performance,
@@ -131,7 +131,7 @@ OpenTT supports displaying/storing:
 
 ## 11. Shortcode System
 
-OpenTT uses the `opentt_*` shortcode prefix.
+LibreTT uses the `opentt_*` shortcode prefix.
 
 ### 11.1 Registered Shortcodes
 
@@ -200,11 +200,11 @@ OpenTT uses the `opentt_*` shortcode prefix.
 [opentt_players]
 ```
 
-Note: exact attribute sets vary by shortcode. Use OpenTT admin insert/builder helpers when available.
+Note: exact attribute sets vary by shortcode. Use LibreTT admin insert/builder helpers when available.
 
 ## 12. Single-Page Context Behavior
 
-Many OpenTT shortcodes are context-aware:
+Many LibreTT shortcodes are context-aware:
 - on `single-klub`, they infer the current club,
 - on `single-igrac`, they infer the current player,
 - on competition routes, they infer league/season context.
@@ -213,7 +213,7 @@ This reduces the need for manually passing attributes.
 
 ## 13. Frontend Search
 
-OpenTT includes frontend search (including AJAX flows).
+LibreTT includes frontend search (including AJAX flows).
 Typical features:
 - query input,
 - grouped results,
@@ -248,7 +248,7 @@ Recommended flow:
 
 ## 15. Migrations and Legacy Compatibility
 
-OpenTT provides migration and compatibility mechanisms for legacy structures.
+LibreTT provides migration and compatibility mechanisms for legacy structures.
 This may include:
 - league/season mapping,
 - internal ID/key remapping,
@@ -259,7 +259,7 @@ Recommendation: run migrations with a plan, backup, and test pass.
 
 ## 16. Themes, Templates, Overrides
 
-OpenTT supports:
+LibreTT supports:
 - plugin fallback templates,
 - theme override priority,
 - block and classic themes.
@@ -286,7 +286,7 @@ Recommendation:
 
 ## 19. Roles and Permissions
 
-OpenTT follows WordPress capability patterns.
+LibreTT follows WordPress capability patterns.
 Administrative actions require appropriate permissions (typically editor/admin level).
 
 ## 20. Performance
@@ -303,7 +303,7 @@ For large history (many seasons):
 
 ## 21. Security
 
-OpenTT follows common WordPress security patterns (nonce checks, input sanitization, capability checks) in admin and AJAX flows.
+LibreTT follows common WordPress security patterns (nonce checks, input sanitization, capability checks) in admin and AJAX flows.
 Best practices:
 - keep WP core/plugins updated,
 - limit admin access,
@@ -340,7 +340,7 @@ Before major updates:
 
 ## 25. Bundled Addon: Tournaments
 
-OpenTT includes a bundled tournaments addon in `addons/tournaments`.
+LibreTT includes a bundled tournaments addon in `addons/tournaments`.
 The addon has:
 - its own schema,
 - its own shortcodes,
@@ -360,7 +360,7 @@ Primary addon shortcodes:
 
 ## 26. License
 
-OpenTT is licensed under AGPL-3.0-or-later.
+LibreTT is licensed under AGPL-3.0-or-later.
 If you provide it as a SaaS/service, AGPL sharing obligations apply.
 
 Additional licensing clarifications:

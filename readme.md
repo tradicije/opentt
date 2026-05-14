@@ -1,25 +1,24 @@
 <p align="center">
-  <img src="opentt-logo.png" alt="OpenTT logo" width="256" />
+  <img src="opentt-logo.png" alt="LibreTT logo" width="256" />
 </p>
 
-**OpenTT** is a free and open WordPress plugin for managing, displaying, and archiving table tennis competitions: matches, clubs, players, and statistics in one unified system.
+**LibreTT** is a free and open WordPress plugin for managing, displaying, and archiving table tennis competitions: matches, clubs, players, and statistics in one unified system.
 
-OpenTT was built from real club/community needs, not as a commercial product.
+LibreTT was built from real club/community needs, not as a commercial product.
 The goal is simple: **keep tools, knowledge, and data in the hands of the community.**
-Disclaimer: this project is not affiliated with, endorsed by, or connected to `opentt.pl`.
 
 ## Project philosophy
 
-OpenTT is developed with these principles:
+LibreTT is developed with these principles:
 
 - Free & libre software: use, study, modify, and share it.
-- AGPL v3 license: if you run OpenTT as a service, your changes must be shared.
+- AGPL v3 license: if you run LibreTT as a service, your changes must be shared.
 - No vendor lock-in: your data stays yours, in DB and open formats.
 - Community first: the tool should serve clubs, federations, and operators.
 
 There is no “Pro” version and no hidden feature wall.
 
-## Why OpenTT exists
+## Why LibreTT exists
 
 Many legacy league/result systems share the same problems:
 
@@ -28,7 +27,7 @@ Many legacy league/result systems share the same problems:
 - performance drop as seasons and records grow,
 - closed systems that are hard to adapt.
 
-OpenTT addresses this directly.
+LibreTT addresses this directly.
 Core architectural decision:
 **matches, games, and sets are stored in DB tables (not as CPT data).**
 
@@ -43,7 +42,7 @@ Core architectural decision:
 
 ### Admin (backend)
 
-- Unified OpenTT admin area:
+- Unified LibreTT admin area:
   - Dashboard
   - Matches
   - Clubs
@@ -62,7 +61,7 @@ Core architectural decision:
 
 ### Frontend (shortcode system)
 
-OpenTT uses standardized English `opentt_*` shortcode names with the new DB model.
+LibreTT uses standardized English `opentt_*` shortcode names with the new DB model.
 
 Examples:
 
@@ -87,7 +86,7 @@ Examples:
 
 ## Data model
 
-OpenTT uses dedicated DB tables for match data:
+LibreTT uses dedicated DB tables for match data:
 
 - `wp_opentt_matches`
 - `wp_opentt_games`
@@ -97,7 +96,7 @@ Clubs and players remain on CPTs (`klub`, `igrac`) for compatibility and editor 
 
 ## Import / Export
 
-OpenTT supports selective export/import in JSON package format.
+LibreTT supports selective export/import in JSON package format.
 
 Sections:
 
@@ -121,7 +120,7 @@ Also included:
 
 ## Routing and templates
 
-OpenTT supports:
+LibreTT supports:
 
 - New DB-based match routes.
 - Legacy route compatibility.
@@ -152,20 +151,20 @@ OpenTT supports:
 
 **GNU Affero General Public License v3 (AGPL-3.0)**
 
-You can use, modify, and fork OpenTT.
+You can use, modify, and fork LibreTT.
 If you provide it as a service (SaaS), AGPL obligations apply.
 
 See: `LICENSE`.
 
 License scope clarification:
 
-- OpenTT core is licensed under `AGPL-3.0-or-later`.
+- LibreTT core is licensed under `AGPL-3.0-or-later`.
 - The bundled `addons/tournaments` module is currently marked as in-progress and not feature-complete; its legal and release policy should be treated as evolving until a stable standalone release policy is published.
 - Name, logo, and project identity are governed separately from code license. See `trademark.md`.
 
 ## Author and community
 
-OpenTT is developed by **Aleksa Dimitrijević**,
+LibreTT is developed by **Aleksa Dimitrijević**,
 initially for **STK Bubušinac** and **stkb.rs**.
 
 Contributions are welcome:

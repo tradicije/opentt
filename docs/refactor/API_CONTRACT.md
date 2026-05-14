@@ -1,4 +1,4 @@
-# OpenTT API Contract (Refactor Freeze)
+# LibreTT API Contract (Refactor Freeze)
 
 This document defines compatibility boundaries for the refactor initiative.
 Changes to items below require an explicit migration plan and release notes.
