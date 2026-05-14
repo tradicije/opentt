@@ -426,6 +426,8 @@ final class StandingsTableShortcode
         $overlay_inline_style = ' style="position:absolute;left:24px;right:24px;top:calc(44px + 24px);bottom:24px;display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;z-index:5;"';
         $img_inline_style = ' style="width:100%;height:100%;object-fit:contain;opacity:.1;"';
         $table_inline_style = ' style="position:relative;z-index:1;background-color:rgba(0,10,38,.50);"';
+        $chevron_up_icon_url = (string) plugins_url('assets/icons/chevron-up.svg', $plugin_root . '/opentt-unified-core.php');
+        $chevron_down_icon_url = (string) plugins_url('assets/icons/chevron-down.svg', $plugin_root . '/opentt-unified-core.php');
 
         echo (string) $call('shortcode_title_html', 'Tabela');
         echo '<div class="' . esc_attr($watermark_class) . '"' . $watermark_inline_style . '>';
@@ -482,14 +484,20 @@ final class StandingsTableShortcode
             $rank_class = 'is-same';
             if ($current_rank > 0 && $previous_rank > 0) {
                 if ($current_rank < $previous_rank) {
-                    $rank_indicator = '˄';
+                    $rank_indicator = 'up';
                     $rank_class = 'is-up';
                 } elseif ($current_rank > $previous_rank) {
-                    $rank_indicator = '˅';
+                    $rank_indicator = 'down';
                     $rank_class = 'is-down';
                 }
             }
-            echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-block;min-width:14px;margin-right:6px;opacity:.9;">' . esc_html($rank_indicator) . '</span>';
+            if ($rank_indicator === 'up') {
+                echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;min-width:14px;margin-right:6px;opacity:.95;"><img src="' . esc_url($chevron_up_icon_url) . '" alt="" loading="lazy" decoding="async" style="width:12px;height:12px;display:block;"></span>';
+            } elseif ($rank_indicator === 'down') {
+                echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;min-width:14px;margin-right:6px;opacity:.95;"><img src="' . esc_url($chevron_down_icon_url) . '" alt="" loading="lazy" decoding="async" style="width:12px;height:12px;display:block;"></span>';
+            } else {
+                echo '<span class="opentt-rank-delta ' . esc_attr($rank_class) . '" aria-hidden="true" style="display:inline-block;min-width:14px;margin-right:6px;opacity:.9;">—</span>';
+            }
             echo (string) $call('club_logo_html', $club_id, 'thumbnail', ['style' => 'width:32px;height:32px;object-fit:contain;border-radius:3px;']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '<span>' . esc_html($club_title) . '</span>';
             echo '</a>';
