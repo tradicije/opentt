@@ -268,45 +268,41 @@ final class MatchesGridAltShortcode
             $value = $decoded;
         }
 
-        // First pass: direct replacement for most common mojibake sequences in Serbian text.
-        $value = strtr($value, [
-            'ÅÅ¡' => 'š',
+        // Targeted mojibake recovery for Serbian latin letters (safe, no re-encoding side effects).
+        $map = [
+            // single-broken sequences
             'Å¡' => 'š',
             'Å¾' => 'ž',
             'Ä‡' => 'ć',
-            'Ä�' => 'č',
+            'Ä' => 'č',
             'Ä‘' => 'đ',
+            'Å ' => 'Š',
             'Å½' => 'Ž',
             'Ä†' => 'Ć',
             'ÄŒ' => 'Č',
-            'Ä�' => 'Đ',
-        ]);
+            'Ä' => 'Đ',
+            // double-broken and common variants
+            'ÅÅ¡' => 'š',
+            'ÅÅ¾' => 'ž',
+            'Ã…¡' => 'š',
+            'Ã…¾' => 'ž',
+            'Ã„‡' => 'ć',
+            'Ã„' => 'č',
+            'Ã„‘' => 'đ',
+            'Ã… ' => 'Š',
+            'Ã…½' => 'Ž',
+            'Ã„†' => 'Ć',
+            'Ã„Œ' => 'Č',
+            'Ã„' => 'Đ',
+        ];
 
-        // Second pass: attempt charset re-decode only if mojibake markers still exist.
-        if (preg_match('/[ÃÅÄ]/u', $value)) {
-            $converted = null;
-            if (function_exists('iconv')) {
-                $converted = @iconv('Windows-1252', 'UTF-8//IGNORE', $value);
-                if (!is_string($converted) || $converted === '') {
-                    $converted = @iconv('ISO-8859-1', 'UTF-8//IGNORE', $value);
-                }
-            } elseif (function_exists('mb_convert_encoding')) {
-                $converted = @mb_convert_encoding($value, 'UTF-8', 'Windows-1252');
+        // Repeat a few passes because some values are doubly encoded.
+        for ($i = 0; $i < 3; $i++) {
+            $next = strtr($value, $map);
+            if ($next === $value) {
+                break;
             }
-            if (is_string($converted) && $converted !== '') {
-                $value = strtr($converted, [
-                    'ÅÅ¡' => 'š',
-                    'Å¡' => 'š',
-                    'Å¾' => 'ž',
-                    'Ä‡' => 'ć',
-                    'Ä�' => 'č',
-                    'Ä‘' => 'đ',
-                    'Å½' => 'Ž',
-                    'Ä†' => 'Ć',
-                    'ÄŒ' => 'Č',
-                    'Ä�' => 'Đ',
-                ]);
-            }
+            $value = $next;
         }
 
         return $value;

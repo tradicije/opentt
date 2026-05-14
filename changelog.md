@@ -77,6 +77,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Fixed `opentt_matches_grid_alt` rendering stability by moving card transformation to server-side PHP output shaping instead of frontend JS-only replacement.
 - Fixed `opentt_matches_grid_alt` text encoding normalization for club names (mojibake like `LeÅ¡ak`) and updated top-right date output to `dd. Month` format (e.g. `02. Januar`).
 - Hardened `opentt_matches_grid_alt` mojibake recovery for double-broken UTF-8 club names (e.g. `LeÅÅ¡ak`) and added date fallback from `data-match-date` when `data-match-date-display` is missing, keeping `dd. Month` output.
+- Extended `opentt_matches_grid_alt` charset recovery mapping to cover all Serbian Latin diacritics (`š`, `ž`, `ć`, `č`, `đ` and uppercase variants) across single and double mojibake forms.
 
 ### Engineering
 
