@@ -92,6 +92,7 @@ All notable changes to the LibreTT plugin are documented in this file.
   - distinction between centralized `stoni.rs` infrastructure costs and decentralized LibreTT self-host usage,
   - sustainability models (donations, grants, sponsors, nonprofits, mirrors),
   - rationale for continued self-host deployments even with national-scale central coverage (amateur leagues, local tournaments, school competitions, regional federations, private analytics, experimentation, backup/mirror resilience).
+- Rebranded admin-facing UI copy from `OpenTT` to `LibreTT` across dashboard/onboarding texts, admin notices, import validation messages, role labels, and admin translation dictionaries, while keeping technical identifiers (`opentt_*`, class names, shortcode tags) unchanged for compatibility.
 
 ## Releases
 

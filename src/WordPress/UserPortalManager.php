@@ -24,17 +24,17 @@ final class UserPortalManager
 
     public static function registerRoles()
     {
-        add_role(self::ROLE_MEMBER, 'OpenTT Član', [
+        add_role(self::ROLE_MEMBER, 'LibreTT Član', [
             'read' => true,
             'upload_files' => true,
         ]);
 
-        add_role(self::ROLE_LEAGUE_ADMIN, 'OpenTT Administrator lige', [
+        add_role(self::ROLE_LEAGUE_ADMIN, 'LibreTT Administrator lige', [
             'read' => true,
             'upload_files' => true,
         ]);
 
-        add_role(self::ROLE_TEAM_MANAGER, 'OpenTT Menadžer tima', [
+        add_role(self::ROLE_TEAM_MANAGER, 'LibreTT Menadžer tima', [
             'read' => true,
             'upload_files' => true,
         ]);
@@ -450,12 +450,12 @@ final class UserPortalManager
 
         if (is_user_logged_in()) {
             $profileUrl = home_url('/profil/');
-            return $notice . '<section class="opentt-auth-card"><div class="opentt-auth-logo-wrap"><a href="' . esc_url($homeUrl) . '" aria-label="Početna"><img src="' . esc_url($authLogo) . '" alt="OpenTT" class="opentt-auth-logo"></a></div><p>Već si prijavljen.</p><p><a class="opentt-auth-btn" href="' . esc_url($profileUrl) . '">Idi na profil</a> <a class="opentt-auth-btn is-ghost" href="' . esc_url(wp_logout_url(home_url('/prijava/'))) . '">Odjavi se</a></p></section>';
+            return $notice . '<section class="opentt-auth-card"><div class="opentt-auth-logo-wrap"><a href="' . esc_url($homeUrl) . '" aria-label="Početna"><img src="' . esc_url($authLogo) . '" alt="LibreTT" class="opentt-auth-logo"></a></div><p>Već si prijavljen.</p><p><a class="opentt-auth-btn" href="' . esc_url($profileUrl) . '">Idi na profil</a> <a class="opentt-auth-btn is-ghost" href="' . esc_url(wp_logout_url(home_url('/prijava/'))) . '">Odjavi se</a></p></section>';
         }
 
         $registerEnabled = get_option('users_can_register') === '1';
         $out = '<section class="opentt-auth-card opentt-auth-switcher" data-opentt-auth="1">';
-        $out .= '<div class="opentt-auth-logo-wrap"><a href="' . esc_url($homeUrl) . '" aria-label="Početna"><img src="' . esc_url($authLogo) . '" alt="OpenTT" class="opentt-auth-logo"></a></div>';
+        $out .= '<div class="opentt-auth-logo-wrap"><a href="' . esc_url($homeUrl) . '" aria-label="Početna"><img src="' . esc_url($authLogo) . '" alt="LibreTT" class="opentt-auth-logo"></a></div>';
         $out .= '<div class="opentt-auth-pane is-active" data-pane="login">';
         $out .= '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-auth-form">';
         $out .= wp_nonce_field('opentt_front_login', '_wpnonce', true, false);

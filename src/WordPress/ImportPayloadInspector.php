@@ -48,7 +48,7 @@ final class ImportPayloadInspector
             return [null, 'JSON format nije validan.'];
         }
         if (($payload['format'] ?? '') !== 'opentt-data-transfer') {
-            return [null, 'Fajl nije OpenTT data transfer paket.'];
+            return [null, 'Fajl nije LibreTT data transfer paket.'];
         }
         if (empty($payload['data']) || !is_array($payload['data'])) {
             return [null, 'JSON nema sekciju data.'];

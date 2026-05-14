@@ -55,7 +55,7 @@ final class AdminSettingsActionManager
             'transient_keys' => (array) ($config['transient_keys'] ?? []),
         ]);
 
-        wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Svi OpenTT podaci su obrisani.'));
+        wp_safe_redirect(AdminNoticeManager::buildUrl($settingsUrl, 'success', 'Svi LibreTT podaci su obrisani.'));
         exit;
     }
 

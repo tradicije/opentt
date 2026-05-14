@@ -28,7 +28,7 @@ final class CompetitionMaintenanceManager
             || !$tableExistsCallback($gamesTable)
             || !$tableExistsCallback($setsTable)
         ) {
-            wp_safe_redirect(AdminNoticeManager::buildUrl(admin_url('admin.php?page=stkb-unified-transfer'), 'error', 'Nedostaju OpenTT DB tabele za reset.'));
+            wp_safe_redirect(AdminNoticeManager::buildUrl(admin_url('admin.php?page=stkb-unified-transfer'), 'error', 'Nedostaju LibreTT DB tabele za reset.'));
             exit;
         }
 

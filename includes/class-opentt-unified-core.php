@@ -1027,7 +1027,7 @@ final class OpenTT_Unified_Core
         if ($description !== '') {
             $html .= '<p style="margin:0;color:#c4d8f8;">' . esc_html($description) . '</p>';
         } else {
-            $html .= '<p style="margin:0;color:#c4d8f8;">Autor OpenTT podataka.</p>';
+            $html .= '<p style="margin:0;color:#c4d8f8;">Autor LibreTT podataka.</p>';
         }
         if ($player_url !== '') {
             $html .= '<p style="margin:10px 0 0;"><a href="' . esc_url($player_url) . '">Prikaži profil igrača</a></p>';
@@ -1076,8 +1076,8 @@ final class OpenTT_Unified_Core
         }
 
         add_menu_page(
-            'OpenTT',
-            'OpenTT',
+            'LibreTT',
+            'LibreTT',
             self::CAP,
             'stkb-unified',
             [__CLASS__, 'render_dashboard_page'],
@@ -1147,7 +1147,7 @@ final class OpenTT_Unified_Core
         }
         echo '<div class="wrap opentt-admin">';
         self::render_admin_topbar();
-        echo '<h1>OpenTT Kontrolna Tabla</h1>';
+        echo '<h1>LibreTT Kontrolna Tabla</h1>';
         echo '<button type="button" class="opentt-help-card opentt-help-open">';
         echo '<strong>Vodič za unos</strong>';
         echo '<span>Klikni za korake unosa: takmičenja, klubovi, igrači, utakmice, partije i setovi.</span>';
@@ -1246,7 +1246,7 @@ final class OpenTT_Unified_Core
         echo '</div>';
         echo '<div class="opentt-panel" style="margin-top:16px;">';
         echo '<h2 style="margin-top:0;">O projektu</h2>';
-        echo '<p>OpenTT je open-source sistem namenjen vođenju i prikazu stonoteniskih takmičenja, klubova i igrača na moderan, brz i održiv način.</p>';
+        echo '<p>LibreTT je open-source sistem namenjen vođenju i prikazu stonoteniskih takmičenja, klubova i igrača na moderan, brz i održiv način.</p>';
         echo '<p>Projekat je nastao iz stvarne potrebe da se stonoteniska takmičenja prikažu onako kako se zaista igraju: kao timski mečevi koji se sastoje od individualnih duela, sa jasnim kontekstom, istorijom i statistikama.</p>';
         echo '<p>Postojeća rešenja uglavnom tretiraju sport ili kao čisto timski, ili kao isključivo individualni. Stoni tenis je specifičan i zahteva drugačiji pristup.</p>';
         echo '<p style="margin-bottom:0;"><strong>Autor projekta:</strong> <a href="https://instagram.com/tradicije" target="_blank" rel="noopener">Aleksa Dimitrijević</a>.</p>';
@@ -2391,9 +2391,9 @@ HTML;
         echo '<div class="opentt-admin-brand">';
         if (is_readable($logo_path)) {
             $logo_url = plugins_url('assets/img/admin-ui-logo.png', self::$plugin_file);
-            echo '<img class="opentt-dashboard-logo" src="' . esc_url($logo_url) . '" alt="OpenTT logo">';
+            echo '<img class="opentt-dashboard-logo" src="' . esc_url($logo_url) . '" alt="LibreTT logo">';
         } else {
-            echo '<strong>OpenTT</strong>';
+            echo '<strong>LibreTT</strong>';
         }
         echo '</div>';
         echo '<div class="opentt-admin-actions">';
@@ -3683,7 +3683,7 @@ JS;
                 'tag' => 'opentt_auth',
                 'desc' => 'Frontend prijava/registracija korisnika.',
                 'attrs' => 'kontekstualno',
-                'details' => 'Prikazuje login i (ako je omogućeno u WP) registraciju kroz OpenTT stilizovan formular.',
+                'details' => 'Prikazuje login i (ako je omogućeno u WP) registraciju kroz LibreTT stilizovan formular.',
                 'builder' => [],
             ],
             [
@@ -3942,7 +3942,7 @@ JS;
 
         echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>Jezik admin interfejsa</h2>';
-        echo '<p class="description">Izaberi jezik za OpenTT admin interfejs.</p>';
+        echo '<p class="description">Izaberi jezik za LibreTT admin interfejs.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
         wp_nonce_field('opentt_unified_save_settings');
         echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
@@ -4119,7 +4119,7 @@ JS;
 
         echo '<div class="opentt-panel opentt-settings-panel opentt-danger-panel">';
         echo '<h2>Brisanje svih podataka</h2>';
-        echo '<p class="description">Ova akcija briše sve OpenTT podatke (DB tabele, OpenTT opcije, klubove, igrače, takmičenja i povezane taksonomije). Akcija je nepovratna.</p>';
+        echo '<p class="description">Ova akcija briše sve LibreTT podatke (DB tabele, LibreTT opcije, klubove, igrače, takmičenja i povezane taksonomije). Akcija je nepovratna.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-delete-data-form">';
         wp_nonce_field('opentt_unified_delete_all_data');
         echo '<input type="hidden" name="action" value="opentt_unified_delete_all_data">';
@@ -4257,7 +4257,7 @@ HTML;
 
         echo '<div class="opentt-panel opentt-settings-panel opentt-visual-panel">';
         echo '<h2>Globalna stilizacija</h2>';
-        echo '<p class="description">Za manje napredne korisnike: ovde menjaš osnovni izgled svih OpenTT blokova bez pisanja CSS-a.</p>';
+        echo '<p class="description">Za manje napredne korisnike: ovde menjaš osnovni izgled svih LibreTT blokova bez pisanja CSS-a.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-settings-css-form">';
         wp_nonce_field('opentt_unified_save_settings');
         echo '<input type="hidden" name="action" value="opentt_unified_save_settings">';
@@ -4393,7 +4393,7 @@ HTML;
 
         echo '<div class="opentt-panel opentt-settings-panel">';
         echo '<h2>Izvezi podatke</h2>';
-        echo '<p class="description">Izaberi šta želiš da izvezeš. Dobijaš jedan JSON fajl koji možeš kasnije uvesti u OpenTT. Featured slike (grbovi, slike igrača, logo takmičenja) se izvoze zajedno sa podacima.</p>';
+        echo '<p class="description">Izaberi šta želiš da izvezeš. Dobijaš jedan JSON fajl koji možeš kasnije uvesti u LibreTT. Featured slike (grbovi, slike igrača, logo takmičenja) se izvoze zajedno sa podacima.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('opentt_unified_export_data');
         echo '<input type="hidden" name="action" value="opentt_unified_export_data">';
@@ -5567,9 +5567,9 @@ HTML;
         echo '<div class="opentt-panel opentt-onboarding-panel">';
         echo '<div class="opentt-onboarding-head">';
         if ($logo_url !== '') {
-            echo '<img class="opentt-onboarding-logo" src="' . esc_url($logo_url) . '" alt="OpenTT logo">';
+            echo '<img class="opentt-onboarding-logo" src="' . esc_url($logo_url) . '" alt="LibreTT logo">';
         }
-        echo '<h1>Dobrodošao u OpenTT</h1>';
+        echo '<h1>Dobrodošao u LibreTT</h1>';
         echo '<p>One-time setup će te provesti kroz prve korake: takmičenje, timove, igrače i utakmice.</p>';
         echo '</div>';
 
@@ -5585,10 +5585,10 @@ HTML;
         echo '</div>';
 
         echo '<div class="opentt-onboarding-step" data-opentt-step="1">';
-        echo '<h3>OpenTT Setup</h3>';
-        echo '<p>OpenTT je nastao iz želje da se zajednici stonog tenisa vrati moderan, otvoren i praktičan alat za vođenje takmičenja. Ideja je jednostavna: klubovi, savezi i ljudi koji vode takmičenja zaslužuju sistem za 21. vek - brz, jasan i održiv, bez komplikovanih dodataka i ručnih workaround-a.</p>';
-        echo '<p>Umesto rasutih tabela i nepovezanih podataka, OpenTT objedinjuje ceo tok rada na jednom mestu: takmičenja, klubove, igrače, utakmice, partije i statistiku. Sistem je napravljen da bude lak za svakodnevni unos rezultata, ali i dovoljno moćan za ozbiljno praćenje forme, rangova i istorije.</p>';
-        echo '<h4>Šta OpenTT može odmah</h4>';
+        echo '<h3>LibreTT Setup</h3>';
+        echo '<p>LibreTT je nastao iz želje da se zajednici stonog tenisa vrati moderan, otvoren i praktičan alat za vođenje takmičenja. Ideja je jednostavna: klubovi, savezi i ljudi koji vode takmičenja zaslužuju sistem za 21. vek - brz, jasan i održiv, bez komplikovanih dodataka i ručnih workaround-a.</p>';
+        echo '<p>Umesto rasutih tabela i nepovezanih podataka, LibreTT objedinjuje ceo tok rada na jednom mestu: takmičenja, klubove, igrače, utakmice, partije i statistiku. Sistem je napravljen da bude lak za svakodnevni unos rezultata, ali i dovoljno moćan za ozbiljno praćenje forme, rangova i istorije.</p>';
+        echo '<h4>Šta LibreTT može odmah</h4>';
         echo '<ul>';
         echo '<li>Vođenje takmičenja sa pravilima po sezoni i formatu meča.</li>';
         echo '<li>Jednostavan admin unos klubova, igrača, utakmica, partija i setova.</li>';
