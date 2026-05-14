@@ -155,7 +155,13 @@ OpenTT supports:
 You can use, modify, and fork OpenTT.
 If you provide it as a service (SaaS), AGPL obligations apply.
 
-See: `LICENSE.txt`.
+See: `LICENSE`.
+
+License scope clarification:
+
+- OpenTT core is licensed under `AGPL-3.0-or-later`.
+- The bundled `addons/tournaments` module is currently marked as in-progress and not feature-complete; its legal and release policy should be treated as evolving until a stable standalone release policy is published.
+- Name, logo, and project identity are governed separately from code license. See `trademark.md`.
 
 ## Author and community
 
@@ -179,3 +185,10 @@ Contributions are welcome:
 ## Notes
 
 Function and internal code identifiers intentionally remain unchanged in places for backward compatibility.
+
+## Full documentation
+
+For complete end-user and operations documentation, see:
+
+- `docs/PLUGIN_DOCUMENTATION_EN.md`
+- `docs/PLUGIN_DOCUMENTATION_SR.md`

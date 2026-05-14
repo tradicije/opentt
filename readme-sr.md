@@ -155,7 +155,13 @@ OpenTT podržava:
 Možeš slobodno da koristiš, menjaš i forkuješ OpenTT.
 Ako ga pružaš kao servis (SaaS), važe AGPL obaveze.
 
-Vidi: `LICENSE.txt`.
+Vidi: `LICENSE`.
+
+Pojašnjenje obuhvata licence:
+
+- OpenTT core je licenciran kao `AGPL-3.0-or-later`.
+- Bundled `addons/tournaments` modul je trenutno u razvoju i funkcionalno nije završen; pravila izdavanja i pravni status za potpuno samostalan release treba tretirati kao privremeno evolutivne dok se ne objavi stabilna standalone politika.
+- Naziv, logo i identitet projekta uređuju se odvojeno od licence koda. Pogledaj `trademark.md`.
 
 ## Autor i zajednica
 
@@ -179,3 +185,10 @@ Doprinosi su dobrodošli:
 ## Napomena
 
 Nazivi funkcija i internih identifikatora su namerno u nekim delovima ostavljeni kompatibilni sa starijim sistemom.
+
+## Kompletna dokumentacija
+
+Za detaljnu korisničku i operativnu dokumentaciju pogledaj:
+
+- `docs/PLUGIN_DOCUMENTATION_SR.md`
+- `docs/PLUGIN_DOCUMENTATION_EN.md`
