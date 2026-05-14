@@ -186,6 +186,12 @@ final class AdminUiTranslator
             return false;
         }
 
+        // Allow a tightly-scoped set of short admin action labels that are
+        // otherwise blocked by generic safety rules (for example "Uredi").
+        if (self::isWhitelistedShortKey($key)) {
+            return true;
+        }
+
         if (strpos($key, '<') !== false || strpos($key, '>') !== false) {
             return true;
         }
@@ -195,5 +201,31 @@ final class AdminUiTranslator
         }
 
         return mb_strlen($key, 'UTF-8') >= 16;
+    }
+
+    private static function isWhitelistedShortKey($key)
+    {
+        static $allow = null;
+        if (!is_array($allow)) {
+            $allow = [
+                'Uredi' => true,
+                'Obriši' => true,
+                'Uživo' => true,
+                'Sačuvaj' => true,
+                'Zatvori' => true,
+                'Dodaj' => true,
+                'Nazad' => true,
+                'Dalje' => true,
+                'Akcije' => true,
+                'Akcija' => true,
+                'Utakmice' => true,
+                'Klubovi' => true,
+                'Igrači' => true,
+                'Takmičenja' => true,
+                'Pending partije' => true,
+            ];
+        }
+
+        return isset($allow[(string) $key]);
     }
 }

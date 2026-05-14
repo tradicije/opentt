@@ -417,6 +417,8 @@ Postojeća rešenja uglavnom tretiraju sport ili kao čisto timski, ili kao iskl
 Potvrda = Confirmation
 Potvrda: = Confirmation:
 Potvrdi uvoz = Confirm import
+Pending partije = Pending games
+Pending tabela trenutno nije dostupna. = Pending table is currently unavailable.
 Povezane objave. = Related posts.
 Povezani klub = Linked club
 Poveži igrača sa klubom i dopuni profil. = Link player to a club and complete profile.
@@ -565,6 +567,7 @@ Uredi ligu = Edit league
 Uredi sezonu = Edit season
 Uredi takmičenje = Edit competition
 Uredi utakmicu = Edit match
+Uživo = Live
 Utakmica = Match
 Utakmica je obrisana. = Match deleted.
 Utakmica je sačuvana. = Match saved.

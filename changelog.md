@@ -93,6 +93,7 @@ All notable changes to the LibreTT plugin are documented in this file.
   - sustainability models (donations, grants, sponsors, nonprofits, mirrors),
   - rationale for continued self-host deployments even with national-scale central coverage (amateur leagues, local tournaments, school competitions, regional federations, private analytics, experimentation, backup/mirror resilience).
 - Rebranded admin-facing UI copy from `OpenTT` to `LibreTT` across dashboard/onboarding texts, admin notices, import validation messages, role labels, and admin translation dictionaries, while keeping technical identifiers (`opentt_*`, class names, shortcode tags) unchanged for compatibility.
+- Fixed remaining admin EN localization gaps for short Serbian labels/actions (`Uredi`, `Obriši`, `Uživo`, `Pending partije`, quick-delete confirmations) by extending safe-key translation handling and completing SR→EN bridge mappings for live/pending tabs and related messages.
 
 ## Releases
 
