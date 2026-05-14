@@ -22,6 +22,7 @@ final class ShortcodeRegistrar
             'opentt_search' => 'shortcode_search',
             'opentt_matches' => 'shortcode_matches',
             'opentt_matches_grid' => 'shortcode_matches_grid',
+            'opentt_matches_grid_alt' => 'shortcode_matches_grid_alt',
             'opentt_matches_list' => 'shortcode_matches_list',
             'opentt_match_id' => 'shortcode_match_id',
             'opentt_featured_match' => 'shortcode_featured_match',

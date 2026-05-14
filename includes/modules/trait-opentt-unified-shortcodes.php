@@ -70,6 +70,15 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
+    public static function shortcode_matches_grid_alt($atts)
+    {
+        return \OpenTT\Unified\WordPress\Shortcodes\MatchesGridAltShortcode::render($atts, [
+            'render_default' => static function ($inner_atts) {
+                return self::shortcode_matches_grid($inner_atts);
+            },
+        ]);
+    }
+
     public static function shortcode_matches($atts)
     {
         return \OpenTT\Unified\WordPress\Shortcodes\MatchesShortcode::render($atts, [
