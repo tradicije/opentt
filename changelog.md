@@ -20,6 +20,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Added or expanded shortcodes: `opentt_matches`, `opentt_matches_list`, `opentt_match_id`, `opentt_standings_short`, `opentt_featured_player`, `opentt_club_card`, `opentt_club_featured`, and `opentt_match_teams_short`.
 - Added `season`/`sezona`, `played`, `view`, `kolo`, `highlight`, and `author` support across match shortcodes where relevant.
 - Improved `opentt_matches_grid` with grouped rounds, compact/spacious density switching, calendar filtering, clickable calendar previews, winner/loser emphasis, highlight support, and scoped updater attribution.
+- Added new `opentt_matches_grid_alt` shortcode with full attribute compatibility to `opentt_matches_grid` and an alternate match-card layout (`score -> home ~ away -> sets`) without club crests.
 - Improved `opentt_matches_list` with contextual league-season navigation, no-refresh round switching, mobile-friendly layout, highlight support including `highlight="auto"`, report/video indicators, and updater attribution.
 - Improved match cards for played and upcoming matches so upcoming fixtures show kickoff time instead of placeholder `0:0` scores.
 - Added clickable club navigation to mini standings rows and match team cards.
@@ -73,6 +74,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Fixed raw HTML entity rendering in club names across match lists and search/match cards.
 - Fixed live match display to use manual live state instead of unreliable automatic time detection.
 - Improved mobile layouts for filters, competition info, auth, match lists, match cards, and profile/admin portal screens.
+- Fixed `opentt_matches_grid_alt` rendering stability by moving card transformation to server-side PHP output shaping instead of frontend JS-only replacement.
 
 ### Engineering
 

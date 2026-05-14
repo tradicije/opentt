@@ -11,6 +11,10 @@
 
 namespace OpenTT\Unified\WordPress\Shortcodes;
 
+use DOMDocument;
+use DOMElement;
+use DOMXPath;
+
 final class MatchesGridAltShortcode
 {
     public static function render($atts, array $deps)
@@ -28,7 +32,204 @@ final class MatchesGridAltShortcode
             return '';
         }
 
-        return self::assetsOnce() . '<div class="opentt-matches-grid-alt">' . $baseHtml . '</div>';
+        $transformed = self::transformMarkup($baseHtml);
+        return self::assetsOnce() . '<div class="opentt-matches-grid-alt">' . $transformed . '</div>';
+    }
+
+    private static function transformMarkup($html)
+    {
+        $html = (string) $html;
+        if ($html === '') {
+            return $html;
+        }
+
+        if (!class_exists(DOMDocument::class)) {
+            return $html;
+        }
+
+        $previous = libxml_use_internal_errors(true);
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $wrapped = '<!DOCTYPE html><html><body><div id="opentt-alt-root">' . $html . '</div></body></html>';
+        $ok = $dom->loadHTML($wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+        if (!$ok) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+            return $html;
+        }
+
+        $xpath = new DOMXPath($dom);
+        $items = $xpath->query('//div[contains(concat(" ", normalize-space(@class), " "), " opentt-item ")]');
+        if (!$items || $items->length === 0) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+            return $html;
+        }
+
+        $lastRound = '';
+        $roundIndex = 0;
+
+        foreach ($items as $itemNode) {
+            if (!$itemNode instanceof DOMElement) {
+                continue;
+            }
+
+            $roundSlug = (string) $itemNode->getAttribute('data-kolo-slug');
+            if ($roundSlug !== $lastRound) {
+                $lastRound = $roundSlug;
+                $roundIndex = 0;
+            }
+            $roundIndex++;
+
+            $teams = $xpath->query('.//div[contains(concat(" ", normalize-space(@class), " "), " team ")]', $itemNode);
+            if (!$teams || $teams->length < 2) {
+                continue;
+            }
+
+            $teamOne = $teams->item(0);
+            $teamTwo = $teams->item(1);
+            if (!$teamOne instanceof DOMElement || !$teamTwo instanceof DOMElement) {
+                continue;
+            }
+
+            $nameOne = trim((string) $xpath->evaluate('string(.//span[1])', $teamOne));
+            $nameTwo = trim((string) $xpath->evaluate('string(.//span[1])', $teamTwo));
+            $scoreOneRaw = trim((string) $xpath->evaluate('string(.//strong[1])', $teamOne));
+            $scoreTwoRaw = trim((string) $xpath->evaluate('string(.//strong[1])', $teamTwo));
+
+            $scoreOne = is_numeric($scoreOneRaw) ? intval($scoreOneRaw) : null;
+            $scoreTwo = is_numeric($scoreTwoRaw) ? intval($scoreTwoRaw) : null;
+
+            $scoreText = '- : -';
+            if ($scoreOne !== null && $scoreTwo !== null) {
+                $scoreText = $scoreOne . ' : ' . $scoreTwo;
+            }
+
+            $classOne = '';
+            $classTwo = '';
+            if ($scoreOne !== null && $scoreTwo !== null) {
+                if ($scoreOne > $scoreTwo) {
+                    $classOne = 'opentt-alt-win';
+                    $classTwo = 'opentt-alt-lose';
+                } elseif ($scoreTwo > $scoreOne) {
+                    $classOne = 'opentt-alt-lose';
+                    $classTwo = 'opentt-alt-win';
+                }
+            }
+
+            $matchLink = '#';
+            $linkNode = $xpath->query('.//a[1]', $itemNode);
+            if ($linkNode && $linkNode->length > 0) {
+                $a = $linkNode->item(0);
+                if ($a instanceof DOMElement && $a->hasAttribute('href')) {
+                    $matchLink = (string) $a->getAttribute('href');
+                }
+            }
+
+            $dateText = self::formatShortDate((string) $itemNode->getAttribute('data-match-date-display'));
+
+            while ($itemNode->firstChild) {
+                $itemNode->removeChild($itemNode->firstChild);
+            }
+
+            $link = $dom->createElement('a');
+            $link->setAttribute('class', 'opentt-alt-link');
+            $link->setAttribute('href', $matchLink);
+
+            $card = $dom->createElement('article');
+            $card->setAttribute('class', 'opentt-alt-card');
+
+            $top = $dom->createElement('div');
+            $top->setAttribute('class', 'opentt-alt-card-top');
+
+            $matchNo = $dom->createElement('span', 'Utakmica ' . self::roman($roundIndex));
+            $matchNo->setAttribute('class', 'opentt-alt-match-no');
+            $top->appendChild($matchNo);
+
+            $date = $dom->createElement('span', $dateText);
+            $date->setAttribute('class', 'opentt-alt-date');
+            $top->appendChild($date);
+
+            $score = $dom->createElement('div', $scoreText);
+            $score->setAttribute('class', 'opentt-alt-score');
+
+            $teamsLine = $dom->createElement('div');
+            $teamsLine->setAttribute('class', 'opentt-alt-teams');
+
+            $home = $dom->createElement('span', $nameOne !== '' ? $nameOne : 'Domaćin');
+            if ($classOne !== '') {
+                $home->setAttribute('class', $classOne);
+            }
+            $teamsLine->appendChild($home);
+            $teamsLine->appendChild($dom->createTextNode(' ~ '));
+
+            $away = $dom->createElement('span', $nameTwo !== '' ? $nameTwo : 'Gost');
+            if ($classTwo !== '') {
+                $away->setAttribute('class', $classTwo);
+            }
+            $teamsLine->appendChild($away);
+
+            $sep = $dom->createElement('div');
+            $sep->setAttribute('class', 'opentt-alt-sep');
+
+            $sets = $dom->createElement('div', 'Setovi: —');
+            $sets->setAttribute('class', 'opentt-alt-sets');
+
+            $card->appendChild($top);
+            $card->appendChild($score);
+            $card->appendChild($teamsLine);
+            $card->appendChild($sep);
+            $card->appendChild($sets);
+
+            $link->appendChild($card);
+            $itemNode->appendChild($link);
+        }
+
+        $root = $dom->getElementById('opentt-alt-root');
+        if (!$root) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+            return $html;
+        }
+
+        $out = '';
+        foreach ($root->childNodes as $child) {
+            $out .= $dom->saveHTML($child);
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        return $out !== '' ? $out : $html;
+    }
+
+    private static function roman($number)
+    {
+        $number = max(1, intval($number));
+        $map = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X',
+            11 => 'XI', 12 => 'XII', 13 => 'XIII', 14 => 'XIV', 15 => 'XV', 16 => 'XVI', 17 => 'XVII', 18 => 'XVIII', 19 => 'XIX', 20 => 'XX',
+            21 => 'XXI', 22 => 'XXII', 23 => 'XXIII', 24 => 'XXIV', 25 => 'XXV', 26 => 'XXVI', 27 => 'XXVII', 28 => 'XXVIII', 29 => 'XXIX', 30 => 'XXX',
+        ];
+
+        return isset($map[$number]) ? $map[$number] : (string) $number;
+    }
+
+    private static function formatShortDate($dateDisplay)
+    {
+        $dateDisplay = trim((string) $dateDisplay);
+        if ($dateDisplay === '') {
+            return '';
+        }
+
+        if (preg_match('/^(\d{1,2})\.(\d{1,2})\./', $dateDisplay, $m)) {
+            $day = intval($m[1]);
+            $month = intval($m[2]);
+            $months = [1 => 'jan', 2 => 'feb', 3 => 'mar', 4 => 'apr', 5 => 'maj', 6 => 'jun', 7 => 'jul', 8 => 'avg', 9 => 'sep', 10 => 'okt', 11 => 'nov', 12 => 'dec'];
+            return $day . '. ' . ($months[$month] ?? '');
+        }
+
+        return $dateDisplay;
     }
 
     private static function assetsOnce()
@@ -51,6 +252,14 @@ final class MatchesGridAltShortcode
           display: grid !important;
           grid-template-columns: 1fr !important;
           gap: 14px !important;
+        }
+
+        .opentt-matches-grid-alt .opentt-item {
+          background: transparent !important;
+          border: 0 !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          border-radius: 0 !important;
         }
 
         .opentt-matches-grid-alt .opentt-alt-card {
@@ -124,124 +333,17 @@ final class MatchesGridAltShortcode
           display: block;
         }
 
-        .opentt-matches-grid-alt .opentt-alt-rendered .opentt-grid-wrapper,
-        .opentt-matches-grid-alt .opentt-alt-rendered .opentt-grid-round-heading {
-          display: none !important;
-        }
-
         .opentt-matches-grid-alt .opentt-item img,
         .opentt-matches-grid-alt .team img,
-        .opentt-matches-grid-alt .opentt-club-fallback-image {
+        .opentt-matches-grid-alt .opentt-club-fallback-image,
+        .opentt-matches-grid-alt .opentt-item-side,
+        .opentt-matches-grid-alt .opentt-item-side-top,
+        .opentt-matches-grid-alt .opentt-item-side-bottom {
           display: none !important;
         }
         </style>
-        <script>
-        (function(){
-          function roman(n){
-            var r=["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX","XXI","XXII","XXIII","XXIV","XXV","XXVI","XXVII","XXVIII","XXIX","XXX"];
-            return r[n-1] || String(n);
-          }
-          function shortDate(s){
-            if(!s){return "";}
-            var m=s.match(/^(\d{1,2})\.(\d{1,2})\./);
-            if(!m){return s;}
-            var d=parseInt(m[1],10), mo=parseInt(m[2],10);
-            var months=["jan","feb","mar","apr","maj","jun","jul","avg","sep","okt","nov","dec"];
-            return d + ". " + (months[mo-1] || "");
-          }
-          function buildCard(item, idx){
-            var teams=item.querySelectorAll('.team');
-            if(!teams || teams.length<2){return null;}
-            var t1=(teams[0].querySelector('span')||{}).textContent||'Domaćin';
-            var t2=(teams[1].querySelector('span')||{}).textContent||'Gost';
-            t1=t1.trim(); t2=t2.trim();
-            var s1=parseInt(((teams[0].querySelector('strong')||{}).textContent||'').trim(),10);
-            var s2=parseInt(((teams[1].querySelector('strong')||{}).textContent||'').trim(),10);
-            var score=(isFinite(s1)&&isFinite(s2)) ? (s1+' : '+s2) : '- : -';
-            var c1='', c2='';
-            if(isFinite(s1)&&isFinite(s2)){
-              if(s1>s2){c1='opentt-alt-win'; c2='opentt-alt-lose';}
-              else if(s2>s1){c1='opentt-alt-lose'; c2='opentt-alt-win';}
-            }
-            var href='#';
-            var a=item.querySelector('a[href]');
-            if(a){href=a.getAttribute('href')||'#';}
-            var date=shortDate(item.getAttribute('data-match-date-display')||'');
-
-            var link=document.createElement('a');
-            link.className='opentt-alt-link';
-            link.href=href;
-            link.innerHTML=''
-              +'<article class="opentt-alt-card">'
-              +'<div class="opentt-alt-card-top"><span class="opentt-alt-match-no">Utakmica '+roman(idx)+'</span><span class="opentt-alt-date">'+date+'</span></div>'
-              +'<div class="opentt-alt-score">'+score+'</div>'
-              +'<div class="opentt-alt-teams"><span class="'+c1+'">'+t1+'</span> ~ <span class="'+c2+'">'+t2+'</span></div>'
-              +'<div class="opentt-alt-sep"></div>'
-              +'<div class="opentt-alt-sets">Setovi: —</div>'
-              +'</article>';
-            return link;
-          }
-
-          function renderScope(scope){
-            if(scope.classList.contains('opentt-alt-rendered')){return true;}
-            var grids=scope.querySelectorAll('.opentt-grid-wrapper .opentt-grid');
-            if(!grids.length){return false;}
-
-            for(var g=0; g<grids.length; g++){
-              var grid=grids[g];
-              var items=grid.querySelectorAll('.opentt-item');
-              if(!items.length){continue;}
-
-              var list=document.createElement('div');
-              list.className='opentt-grid opentt-alt-grid cols-1';
-
-              var lastRound='';
-              var roundIndex=0;
-              for(var i=0;i<items.length;i++){
-                var it=items[i];
-                var round=it.getAttribute('data-kolo-slug')||'';
-                if(round!==lastRound){ lastRound=round; roundIndex=0; }
-                roundIndex++;
-                var card=buildCard(it, roundIndex);
-                if(card){ list.appendChild(card); }
-              }
-
-              if(list.children.length){
-                grid.parentNode.insertBefore(list, grid);
-              }
-            }
-
-            scope.classList.add('opentt-alt-rendered');
-            return true;
-          }
-
-          function renderAll(){
-            var scopes=document.querySelectorAll('.opentt-matches-grid-alt');
-            var ok=false;
-            for(var i=0;i<scopes.length;i++){
-              if(renderScope(scopes[i])){ok=true;}
-            }
-            return ok;
-          }
-
-          function boot(){
-            var tries=0,max=20;
-            var t=setInterval(function(){
-              tries++;
-              var done=renderAll();
-              if(done || tries>=max){clearInterval(t);} 
-            },250);
-
-            var mo=new MutationObserver(function(){ renderAll(); });
-            mo.observe(document.body,{childList:true,subtree:true});
-          }
-
-          if(document.readyState==='loading'){
-            document.addEventListener('DOMContentLoaded',boot);
-          }else{boot();}
-        })();
-        </script>
         <?php
+
         return (string) ob_get_clean();
     }
 }
