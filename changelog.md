@@ -75,6 +75,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Fixed live match display to use manual live state instead of unreliable automatic time detection.
 - Improved mobile layouts for filters, competition info, auth, match lists, match cards, and profile/admin portal screens.
 - Fixed `opentt_matches_grid_alt` rendering stability by moving card transformation to server-side PHP output shaping instead of frontend JS-only replacement.
+- Fixed `opentt_matches_grid_alt` text encoding normalization for club names (mojibake like `LeÅ¡ak`) and updated top-right date output to `dd. Month` format (e.g. `02. Januar`).
 
 ### Engineering
 

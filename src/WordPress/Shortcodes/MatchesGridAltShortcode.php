@@ -92,8 +92,8 @@ final class MatchesGridAltShortcode
                 continue;
             }
 
-            $nameOne = trim((string) $xpath->evaluate('string(.//span[1])', $teamOne));
-            $nameTwo = trim((string) $xpath->evaluate('string(.//span[1])', $teamTwo));
+            $nameOne = self::normalizeDisplayText((string) $xpath->evaluate('string(.//span[1])', $teamOne));
+            $nameTwo = self::normalizeDisplayText((string) $xpath->evaluate('string(.//span[1])', $teamTwo));
             $scoreOneRaw = trim((string) $xpath->evaluate('string(.//strong[1])', $teamOne));
             $scoreTwoRaw = trim((string) $xpath->evaluate('string(.//strong[1])', $teamTwo));
 
@@ -225,11 +225,58 @@ final class MatchesGridAltShortcode
         if (preg_match('/^(\d{1,2})\.(\d{1,2})\./', $dateDisplay, $m)) {
             $day = intval($m[1]);
             $month = intval($m[2]);
-            $months = [1 => 'jan', 2 => 'feb', 3 => 'mar', 4 => 'apr', 5 => 'maj', 6 => 'jun', 7 => 'jul', 8 => 'avg', 9 => 'sep', 10 => 'okt', 11 => 'nov', 12 => 'dec'];
-            return $day . '. ' . ($months[$month] ?? '');
+            $months = [
+                1 => 'Januar',
+                2 => 'Februar',
+                3 => 'Mart',
+                4 => 'April',
+                5 => 'Maj',
+                6 => 'Jun',
+                7 => 'Jul',
+                8 => 'Avgust',
+                9 => 'Septembar',
+                10 => 'Oktobar',
+                11 => 'Novembar',
+                12 => 'Decembar',
+            ];
+            return sprintf('%02d. %s', max(1, $day), ($months[$month] ?? ''));
         }
 
         return $dateDisplay;
+    }
+
+    private static function normalizeDisplayText($value)
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        // Decode HTML entities (single or double encoded).
+        for ($i = 0; $i < 3; $i++) {
+            $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if ($decoded === $value) {
+                break;
+            }
+            $value = $decoded;
+        }
+
+        // Fix common mojibake (e.g. LeÅ¡ak) caused by UTF-8 interpreted as ISO-8859-1/Windows-1252.
+        if (preg_match('/[ÃÅÄĆ]/u', $value)) {
+            if (function_exists('mb_convert_encoding')) {
+                $converted = @mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+                if (is_string($converted) && $converted !== '') {
+                    $value = $converted;
+                }
+            } elseif (function_exists('iconv')) {
+                $converted = @iconv('ISO-8859-1', 'UTF-8//IGNORE', $value);
+                if (is_string($converted) && $converted !== '') {
+                    $value = $converted;
+                }
+            }
+        }
+
+        return $value;
     }
 
     private static function assetsOnce()
@@ -281,7 +328,11 @@ final class MatchesGridAltShortcode
         }
 
         .opentt-matches-grid-alt .opentt-alt-match-no { font-weight: 600; }
-        .opentt-matches-grid-alt .opentt-alt-date { opacity: .92; }
+        .opentt-matches-grid-alt .opentt-alt-date {
+          opacity: .92;
+          display: inline-block !important;
+          visibility: visible !important;
+        }
 
         .opentt-matches-grid-alt .opentt-alt-score {
           font-family: "Lora", serif;
