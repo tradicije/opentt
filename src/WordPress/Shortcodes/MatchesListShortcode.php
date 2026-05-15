@@ -620,6 +620,14 @@ final class MatchesListShortcode
         $sezona_slug = sanitize_title((string) ($query_args['sezona_slug'] ?? ''));
         $explicit_season = trim((string) ($atts['season'] ?? '')) !== '' || trim((string) ($atts['sezona'] ?? '')) !== '';
 
+        if ($club_id > 0 && $sezona_slug !== '' && $liga_slug === '') {
+            $resolved_liga = (string) $call('db_get_latest_liga_for_club_and_season', $club_id, $sezona_slug);
+            $resolved_liga = sanitize_title($resolved_liga);
+            if ($resolved_liga !== '') {
+                $liga_slug = $resolved_liga;
+            }
+        }
+
         if ($liga_slug === '' && $sezona_slug === '') {
             $seed_args = $query_args;
             $seed_args['limit'] = 1;

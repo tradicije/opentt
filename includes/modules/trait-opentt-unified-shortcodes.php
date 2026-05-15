@@ -103,6 +103,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'parse_legacy_liga_sezona' => static function ($liga_slug, $sezona_slug = '') {
                 return self::parse_legacy_liga_sezona($liga_slug, $sezona_slug);
             },
+            'db_get_latest_liga_for_club_and_season' => static function ($club_id, $season_slug = '') {
+                return self::db_get_latest_liga_for_club_and_season($club_id, $season_slug);
+            },
         ]);
     }
 
