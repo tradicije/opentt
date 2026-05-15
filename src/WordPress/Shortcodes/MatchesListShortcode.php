@@ -38,6 +38,15 @@ final class MatchesListShortcode
         $show_author_footer = self::normalize_bool_attr((string) ($atts['author'] ?? 'true'), true);
 
         $query_args = (array) $call('build_match_query_args', $atts);
+        if (empty($query_args['sezona_slug'])) {
+            $season_from_get = isset($_GET['opentt_sezona']) ? sanitize_title((string) wp_unslash($_GET['opentt_sezona'])) : '';
+            if ($season_from_get === '' && isset($_GET['sezona'])) {
+                $season_from_get = sanitize_title((string) wp_unslash($_GET['sezona']));
+            }
+            if ($season_from_get !== '') {
+                $query_args['sezona_slug'] = $season_from_get;
+            }
+        }
         $query_args['limit'] = -1;
         $auto_scope = self::expand_auto_highlight_scope($atts, $query_args, $call);
 

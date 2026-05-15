@@ -44,25 +44,43 @@ final class ShowPlayersShortcode
             return '<p>Nije pronađen klub.</p>';
         }
 
-        $q = new \WP_Query([
-            'post_type' => 'igrac',
-            'posts_per_page' => -1,
-            'meta_query' => [
-                'relation' => 'OR',
-                [
-                    'key' => 'povezani_klub',
-                    'value' => $klub_id,
-                    'compare' => '=',
+        $selected_season = isset($_GET['opentt_sezona']) ? sanitize_title((string) wp_unslash($_GET['opentt_sezona'])) : '';
+        if ($selected_season === '' && isset($_GET['sezona'])) {
+            $selected_season = sanitize_title((string) wp_unslash($_GET['sezona']));
+        }
+
+        $player_ids = (array) $call('db_get_club_player_ids_for_season', $klub_id, $selected_season);
+        $player_ids = array_values(array_unique(array_filter(array_map('intval', $player_ids))));
+
+        if (!empty($player_ids)) {
+            $q = new \WP_Query([
+                'post_type' => 'igrac',
+                'posts_per_page' => -1,
+                'post__in' => $player_ids,
+                'orderby' => 'title',
+                'order' => 'ASC',
+            ]);
+        } else {
+            $q = new \WP_Query([
+                'post_type' => 'igrac',
+                'posts_per_page' => -1,
+                'meta_query' => [
+                    'relation' => 'OR',
+                    [
+                        'key' => 'povezani_klub',
+                        'value' => $klub_id,
+                        'compare' => '=',
+                    ],
+                    [
+                        'key' => 'klub_igraca',
+                        'value' => $klub_id,
+                        'compare' => '=',
+                    ],
                 ],
-                [
-                    'key' => 'klub_igraca',
-                    'value' => $klub_id,
-                    'compare' => '=',
-                ],
-            ],
-            'orderby' => 'title',
-            'order' => 'ASC',
-        ]);
+                'orderby' => 'title',
+                'order' => 'ASC',
+            ]);
+        }
 
         if (!$q->have_posts()) {
             return (string) $call('shortcode_title_html', 'Igrači') . '<p>Nema registrovanih igrača za ovaj klub.</p>';

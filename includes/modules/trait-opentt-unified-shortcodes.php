@@ -280,6 +280,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             'player_fallback_image_url' => static function () {
                 return self::player_fallback_image_url();
             },
+            'db_get_club_player_ids_for_season' => static function ($club_id, $season_slug = '') {
+                return self::db_get_club_player_ids_for_season($club_id, $season_slug);
+            },
         ]);
     }
 
@@ -596,6 +599,9 @@ trait OpenTT_Unified_Shortcodes_Trait
             },
             'db_get_recent_club_matches' => static function ($club_id, $limit) {
                 return self::db_get_recent_club_matches($club_id, $limit);
+            },
+            'db_get_recent_club_matches_for_season' => static function ($club_id, $limit, $season_slug = '') {
+                return self::db_get_recent_club_matches_for_season($club_id, $limit, $season_slug);
             },
             'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
                 return self::club_logo_html($club_id, $size, $attr);
@@ -1222,6 +1228,16 @@ trait OpenTT_Unified_Shortcodes_Trait
     private static function db_get_recent_club_matches($club_id, $limit = 5)
     {
         return OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_recent_club_matches($club_id, $limit);
+    }
+
+    private static function db_get_recent_club_matches_for_season($club_id, $limit = 5, $season_slug = '')
+    {
+        return OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_recent_club_matches_for_season($club_id, $limit, $season_slug);
+    }
+
+    private static function db_get_club_player_ids_for_season($club_id, $season_slug = '')
+    {
+        return OpenTT_Unified_Shortcode_Stats_Query_Service::db_get_club_player_ids_for_season($club_id, $season_slug);
     }
 
     private static function db_get_player_season_club_history($player_id)

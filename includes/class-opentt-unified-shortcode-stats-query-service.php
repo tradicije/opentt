@@ -353,6 +353,90 @@ final class OpenTT_Unified_Shortcode_Stats_Query_Service
         return is_array($rows) ? $rows : [];
     }
 
+    public static function db_get_recent_club_matches_for_season($club_id, $limit = 5, $season_slug = '')
+    {
+        global $wpdb;
+        $table = OpenTT_Unified_Core::db_table('matches');
+        $club_id = intval($club_id);
+        $limit = max(1, intval($limit));
+        $season_slug = sanitize_title((string) $season_slug);
+        if ($club_id <= 0 || !self::table_exists($table)) {
+            return [];
+        }
+
+        $where = ['played=1', '(home_club_post_id=%d OR away_club_post_id=%d)'];
+        $params = [$club_id, $club_id];
+        if ($season_slug !== '') {
+            $where[] = 'sezona_slug=%s';
+            $params[] = $season_slug;
+        }
+        $where_sql = implode(' AND ', $where);
+        $params[] = $limit;
+
+        $sql = "SELECT * FROM {$table}
+                WHERE {$where_sql}
+                ORDER BY match_date DESC, id DESC
+                LIMIT %d";
+        $rows = $wpdb->get_results($wpdb->prepare($sql, $params));
+        return is_array($rows) ? $rows : [];
+    }
+
+    public static function db_get_club_player_ids_for_season($club_id, $season_slug = '')
+    {
+        global $wpdb;
+        $matches = OpenTT_Unified_Core::db_table('matches');
+        $games = OpenTT_Unified_Core::db_table('games');
+        $club_id = intval($club_id);
+        $season_slug = sanitize_title((string) $season_slug);
+        if ($club_id <= 0 || !self::table_exists($matches) || !self::table_exists($games)) {
+            return [];
+        }
+
+        $where = ['(m.home_club_post_id=%d OR m.away_club_post_id=%d)', 'm.played=1'];
+        $params = [$club_id, $club_id];
+        if ($season_slug !== '') {
+            $where[] = 'm.sezona_slug=%s';
+            $params[] = $season_slug;
+        }
+
+        $sql = "SELECT m.home_club_post_id, m.away_club_post_id,
+                       g.home_player_post_id, g.away_player_post_id, g.home_player2_post_id, g.away_player2_post_id
+                FROM {$games} g
+                INNER JOIN {$matches} m ON m.id = g.match_id
+                WHERE " . implode(' AND ', $where);
+        $rows = $wpdb->get_results($wpdb->prepare($sql, $params));
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($rows as $row) {
+            $home_club_id = intval($row->home_club_post_id ?? 0);
+            $away_club_id = intval($row->away_club_post_id ?? 0);
+            if ($home_club_id === $club_id) {
+                $ids[] = intval($row->home_player_post_id ?? 0);
+                $ids[] = intval($row->home_player2_post_id ?? 0);
+            }
+            if ($away_club_id === $club_id) {
+                $ids[] = intval($row->away_player_post_id ?? 0);
+                $ids[] = intval($row->away_player2_post_id ?? 0);
+            }
+        }
+
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        if (empty($ids)) {
+            return [];
+        }
+
+        $valid = [];
+        foreach ($ids as $id) {
+            if ($id > 0 && get_post_type($id) === 'igrac') {
+                $valid[] = $id;
+            }
+        }
+        return array_values(array_unique($valid));
+    }
+
     public static function db_get_player_season_club_history($player_id)
     {
         global $wpdb;

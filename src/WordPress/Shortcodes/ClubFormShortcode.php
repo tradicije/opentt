@@ -46,8 +46,17 @@ final class ClubFormShortcode
             return '';
         }
 
+        $selected_season = isset($_GET['opentt_sezona']) ? sanitize_title((string) wp_unslash($_GET['opentt_sezona'])) : '';
+        if ($selected_season === '' && isset($_GET['sezona'])) {
+            $selected_season = sanitize_title((string) wp_unslash($_GET['sezona']));
+        }
+
         $limit = max(1, min(10, intval($atts['limit'])));
-        $rows = $call('db_get_recent_club_matches', $club_id, $limit);
+        if ($selected_season !== '') {
+            $rows = $call('db_get_recent_club_matches_for_season', $club_id, $limit, $selected_season);
+        } else {
+            $rows = $call('db_get_recent_club_matches', $club_id, $limit);
+        }
         $rows = is_array($rows) ? $rows : [];
         if (empty($rows)) {
             return (string) $call('shortcode_title_html', 'Forma kluba')

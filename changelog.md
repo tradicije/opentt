@@ -29,6 +29,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Added a global single-club season switcher inside `opentt_club_card` (dropdown rendered below primary club info) that updates the page `?sezona=` parameter.
 - Wired single-club season query fallback (`?sezona=`) into `opentt_matches_grid`/`opentt_matches_list` query building, `opentt_team_stats` season selection, and standings short/full resolution paths.
 - Fixed single-club season-switch navigation conflicts by moving the dropdown URL key to `?opentt_sezona=` (with backward fallback support for legacy `?sezona=` reads).
+- Fixed single-club season propagation so `opentt_players` now derives players from games played by that club in the selected season, `opentt_matches_list` explicitly respects `?opentt_sezona=`, and `opentt_club_form` filters recent form rows by the same selected season.
 
 ### Admin & Data Entry
 
