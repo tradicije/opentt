@@ -54,6 +54,9 @@ final class TeamStatsShortcode
             $season_options = is_array($season_options) ? $season_options : [];
         }
         $selected_season = isset($_GET[$season_key]) ? sanitize_title((string) wp_unslash($_GET[$season_key])) : '';
+        if ($selected_season === '' && isset($_GET['opentt_sezona'])) {
+            $selected_season = sanitize_title((string) wp_unslash($_GET['opentt_sezona']));
+        }
         if ($selected_season === '' && isset($_GET['sezona'])) {
             $selected_season = sanitize_title((string) wp_unslash($_GET['sezona']));
         }

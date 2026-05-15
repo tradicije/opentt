@@ -47,7 +47,10 @@ final class ClubCardShortcode
         $season_options = is_array($season_options) ? array_values(array_filter($season_options, static function ($s) {
             return trim((string) $s) !== '';
         })) : [];
-        $selected_season = isset($_GET['sezona']) ? sanitize_title((string) wp_unslash($_GET['sezona'])) : '';
+        $selected_season = isset($_GET['opentt_sezona']) ? sanitize_title((string) wp_unslash($_GET['opentt_sezona'])) : '';
+        if ($selected_season === '' && isset($_GET['sezona'])) {
+            $selected_season = sanitize_title((string) wp_unslash($_GET['sezona']));
+        }
         if ($selected_season !== '' && !in_array($selected_season, $season_options, true)) {
             $selected_season = '';
         }
@@ -108,10 +111,11 @@ final class ClubCardShortcode
                 try {
                     var url = new URL(window.location.href);
                     if (sel.value) {
-                        url.searchParams.set('sezona', sel.value);
+                        url.searchParams.set('opentt_sezona', sel.value);
                     } else {
-                        url.searchParams.delete('sezona');
+                        url.searchParams.delete('opentt_sezona');
                     }
+                    url.searchParams.delete('sezona');
                     window.location.href = url.toString();
                 } catch (e) {}
             });

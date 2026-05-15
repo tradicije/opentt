@@ -32,7 +32,10 @@ final class StandingsShortShortcode
         $liga_slug = sanitize_title((string) ($atts['liga'] ?? ''));
         $sezona_slug = sanitize_title((string) ($atts['sezona'] ?? ''));
         $club_input = trim((string) ($atts['klub'] ?? ''));
-        $requested_sezona = isset($_GET['sezona']) ? sanitize_title((string) wp_unslash($_GET['sezona'])) : '';
+        $requested_sezona = isset($_GET['opentt_sezona']) ? sanitize_title((string) wp_unslash($_GET['opentt_sezona'])) : '';
+        if ($requested_sezona === '' && isset($_GET['sezona'])) {
+            $requested_sezona = sanitize_title((string) wp_unslash($_GET['sezona']));
+        }
 
         if (($liga_slug === '' || $sezona_slug === '') && is_array($call('current_archive_context'))) {
             $archive_ctx = (array) $call('current_archive_context');

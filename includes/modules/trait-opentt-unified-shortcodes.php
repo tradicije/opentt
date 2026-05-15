@@ -1598,6 +1598,8 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $sezona_qv = get_query_var('sezona');
                 if ($sezona_qv) {
                     $sezona_from_context = sanitize_title((string) $sezona_qv);
+                } elseif (isset($_GET['opentt_sezona'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                    $sezona_from_context = sanitize_title((string) wp_unslash($_GET['opentt_sezona'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                 } elseif (isset($_GET['sezona'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                     $sezona_from_context = sanitize_title((string) wp_unslash($_GET['sezona'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                 }

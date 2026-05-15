@@ -32,7 +32,10 @@ final class StandingsTableShortcode
         $highlight_ids = [];
         $liga_slug = '';
         $sezona_slug = '';
-        $requested_sezona = isset($_GET['sezona']) ? sanitize_title((string) wp_unslash($_GET['sezona'])) : '';
+        $requested_sezona = isset($_GET['opentt_sezona']) ? sanitize_title((string) wp_unslash($_GET['opentt_sezona'])) : '';
+        if ($requested_sezona === '' && isset($_GET['sezona'])) {
+            $requested_sezona = sanitize_title((string) wp_unslash($_GET['sezona']));
+        }
         $max_kolo = null;
         $ctx = $call('current_match_context');
         $archive_ctx = $call('current_archive_context');
