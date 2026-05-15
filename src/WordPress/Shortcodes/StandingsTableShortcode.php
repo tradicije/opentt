@@ -32,6 +32,7 @@ final class StandingsTableShortcode
         $highlight_ids = [];
         $liga_slug = '';
         $sezona_slug = '';
+        $requested_sezona = isset($_GET['sezona']) ? sanitize_title((string) wp_unslash($_GET['sezona'])) : '';
         $max_kolo = null;
         $ctx = $call('current_match_context');
         $archive_ctx = $call('current_archive_context');
@@ -118,6 +119,10 @@ final class StandingsTableShortcode
 
         if ($liga_slug === '') {
             return (string) $call('shortcode_title_html', 'Tabela') . '<p>Nema definisanu ligu/sezonu za ovu stranicu.</p>';
+        }
+
+        if ($sezona_slug === '' && $requested_sezona !== '') {
+            $sezona_slug = $requested_sezona;
         }
 
         if ($sezona_slug === '') {

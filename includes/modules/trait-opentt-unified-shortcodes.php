@@ -370,6 +370,12 @@ trait OpenTT_Unified_Shortcodes_Trait
             'slug_to_title' => static function ($slug) {
                 return self::slug_to_title($slug);
             },
+            'db_get_latest_liga_for_club' => static function ($club_id) {
+                return self::db_get_latest_liga_for_club($club_id);
+            },
+            'db_get_latest_liga_for_club_and_season' => static function ($club_id, $season_slug = '') {
+                return self::db_get_latest_liga_for_club_and_season($club_id, $season_slug);
+            },
             'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
                 return self::club_logo_html($club_id, $size, $attr);
             },
@@ -842,6 +848,12 @@ trait OpenTT_Unified_Shortcodes_Trait
         return \OpenTT\Unified\WordPress\Shortcodes\ClubCardShortcode::render($atts, [
             'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
                 return self::club_logo_html($club_id, $size, $attr);
+            },
+            'db_get_club_season_options' => static function ($club_id) {
+                return self::db_get_club_season_options($club_id);
+            },
+            'season_display_name' => static function ($sezona_slug) {
+                return self::season_display_name($sezona_slug);
             },
             'shortcode_title_html' => static function ($title) {
                 return self::shortcode_title_html($title);
@@ -1586,6 +1598,8 @@ trait OpenTT_Unified_Shortcodes_Trait
                 $sezona_qv = get_query_var('sezona');
                 if ($sezona_qv) {
                     $sezona_from_context = sanitize_title((string) $sezona_qv);
+                } elseif (isset($_GET['sezona'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                    $sezona_from_context = sanitize_title((string) wp_unslash($_GET['sezona'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                 }
             }
         }

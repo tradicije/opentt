@@ -43,12 +43,24 @@ final class ClubCardShortcode
         $logo = (string) $call('club_logo_html', $club_id, 'medium', ['class' => 'opentt-club-card-logo-img']);
         $club_link = (string) get_permalink($club_id);
         $title = trim((string) ($atts['title'] ?? ''));
+        $season_options = $call('db_get_club_season_options', $club_id);
+        $season_options = is_array($season_options) ? array_values(array_filter($season_options, static function ($s) {
+            return trim((string) $s) !== '';
+        })) : [];
+        $selected_season = isset($_GET['sezona']) ? sanitize_title((string) wp_unslash($_GET['sezona'])) : '';
+        if ($selected_season !== '' && !in_array($selected_season, $season_options, true)) {
+            $selected_season = '';
+        }
+        if ($selected_season === '' && !empty($season_options)) {
+            $selected_season = (string) $season_options[0];
+        }
+        $uid = 'opentt-club-card-' . wp_unique_id();
 
         ob_start();
         if ($title !== '') {
             echo (string) $call('shortcode_title_html', $title); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         }
-        echo '<section class="opentt-club-card">';
+        echo '<section class="opentt-club-card" id="' . esc_attr($uid) . '">';
         if ($club_link !== '') {
             echo '<a class="opentt-club-card-link" href="' . esc_url($club_link) . '">';
         } else {
@@ -64,7 +76,48 @@ final class ClubCardShortcode
         } else {
             echo '</div>';
         }
+
+        if (!empty($season_options)) {
+            echo '<div class="opentt-club-card-season-filter">';
+            echo '<label>Sezona ';
+            echo '<select class="opentt-club-card-season-select">';
+            foreach ($season_options as $season_slug) {
+                $season_slug = sanitize_title((string) $season_slug);
+                if ($season_slug === '') {
+                    continue;
+                }
+                $season_label = (string) $call('season_display_name', $season_slug);
+                if ($season_label === '') {
+                    $season_label = str_replace('-', '/', $season_slug);
+                }
+                echo '<option value="' . esc_attr($season_slug) . '"' . selected($selected_season, $season_slug, false) . '>' . esc_html($season_label) . '</option>';
+            }
+            echo '</select>';
+            echo '</label>';
+            echo '</div>';
+        }
         echo '</section>';
+        ?>
+        <script>
+        (function(){
+            var root = document.getElementById('<?php echo esc_js($uid); ?>');
+            if (!root) { return; }
+            var sel = root.querySelector('.opentt-club-card-season-select');
+            if (!sel) { return; }
+            sel.addEventListener('change', function(){
+                try {
+                    var url = new URL(window.location.href);
+                    if (sel.value) {
+                        url.searchParams.set('sezona', sel.value);
+                    } else {
+                        url.searchParams.delete('sezona');
+                    }
+                    window.location.href = url.toString();
+                } catch (e) {}
+            });
+        })();
+        </script>
+        <?php
         return ob_get_clean();
     }
 
@@ -97,4 +150,3 @@ final class ClubCardShortcode
         return 0;
     }
 }
-

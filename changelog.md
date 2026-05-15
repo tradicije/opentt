@@ -26,6 +26,8 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Added clickable club navigation to mini standings rows and match team cards.
 - Enhanced `opentt_standings_short` with a no-refresh toggle action: `Prikaži celu tabelu` expands full standings inline, and `Sakrij celu tabelu` restores the compact three-row view.
 - Refined `opentt_standings_short` toggle behavior to avoid duplicate table rendering: the existing table now expands/collapses in place by revealing/hiding additional rows.
+- Added a global single-club season switcher inside `opentt_club_card` (dropdown rendered below primary club info) that updates the page `?sezona=` parameter.
+- Wired single-club season query fallback (`?sezona=`) into `opentt_matches_grid`/`opentt_matches_list` query building, `opentt_team_stats` season selection, and standings short/full resolution paths.
 
 ### Admin & Data Entry
 

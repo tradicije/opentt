@@ -32,6 +32,7 @@ final class StandingsShortShortcode
         $liga_slug = sanitize_title((string) ($atts['liga'] ?? ''));
         $sezona_slug = sanitize_title((string) ($atts['sezona'] ?? ''));
         $club_input = trim((string) ($atts['klub'] ?? ''));
+        $requested_sezona = isset($_GET['sezona']) ? sanitize_title((string) wp_unslash($_GET['sezona'])) : '';
 
         if (($liga_slug === '' || $sezona_slug === '') && is_array($call('current_archive_context'))) {
             $archive_ctx = (array) $call('current_archive_context');
@@ -43,6 +44,28 @@ final class StandingsShortShortcode
                     $sezona_slug = sanitize_title((string) ($archive_ctx['sezona_slug'] ?? ''));
                 }
             }
+        }
+
+        if (is_singular('klub') && ($liga_slug === '' || $sezona_slug === '')) {
+            $club_for_scope = self::resolve_club_id(['id' => '', 'klub' => '']);
+            if ($club_for_scope <= 0) {
+                $club_for_scope = intval(get_the_ID());
+            }
+            if ($club_for_scope > 0) {
+                if ($sezona_slug === '' && $requested_sezona !== '') {
+                    $sezona_slug = $requested_sezona;
+                }
+                if ($sezona_slug !== '' && $liga_slug === '') {
+                    $liga_slug = sanitize_title((string) $call('db_get_latest_liga_for_club_and_season', $club_for_scope, $sezona_slug));
+                }
+                if ($liga_slug === '') {
+                    $liga_slug = sanitize_title((string) $call('db_get_latest_liga_for_club', $club_for_scope));
+                }
+            }
+        }
+
+        if ($sezona_slug === '' && $requested_sezona !== '') {
+            $sezona_slug = $requested_sezona;
         }
 
         if ($liga_slug === '' || $sezona_slug === '') {
