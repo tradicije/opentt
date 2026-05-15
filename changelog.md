@@ -24,6 +24,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Improved `opentt_matches_list` with contextual league-season navigation, no-refresh round switching, mobile-friendly layout, highlight support including `highlight="auto"`, report/video indicators, and updater attribution.
 - Improved match cards for played and upcoming matches so upcoming fixtures show kickoff time instead of placeholder `0:0` scores.
 - Added clickable club navigation to mini standings rows and match team cards.
+- Enhanced `opentt_standings_short` with a no-refresh toggle action: `Prikaži celu tabelu` expands full standings inline, and `Sakrij celu tabelu` restores the compact three-row view.
 
 ### Admin & Data Entry
 

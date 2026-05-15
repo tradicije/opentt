@@ -83,9 +83,10 @@ final class StandingsShortShortcode
         if ($liga_title === '') {
             $liga_title = $liga_slug;
         }
+        $uid = 'opentt-standings-short-' . wp_unique_id();
 
         ob_start();
-        echo '<section class="opentt-standings-short-card">';
+        echo '<section class="opentt-standings-short-card" id="' . esc_attr($uid) . '">';
         echo '<header class="opentt-standings-short-title">' . esc_html($liga_title) . '</header>';
         echo '<div class="opentt-standings-short-body">';
         echo '<table class="opentt-standings-short-table">';
@@ -127,7 +128,77 @@ final class StandingsShortShortcode
             echo '</tr>';
         }
         echo '</tbody></table>';
+        echo '<div class="opentt-standings-short-actions">';
+        echo '<button type="button" class="opentt-standings-short-toggle" data-state="collapsed" aria-expanded="false">Prikaži celu tabelu</button>';
+        echo '</div>';
+        echo '<div class="opentt-standings-short-full" hidden>';
+        echo '<table class="opentt-standings-short-table opentt-standings-short-table-full">';
+        echo '<colgroup>';
+        echo '<col class="col-rank">';
+        echo '<col class="col-club">';
+        echo '<col class="col-played">';
+        echo '<col class="col-won">';
+        echo '<col class="col-points">';
+        echo '</colgroup>';
+        echo '<thead><tr><th>#</th><th>Klub</th><th>P</th><th>W</th><th>Pts</th></tr></thead>';
+        echo '<tbody>';
+        foreach ($standings as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $row_club_id = intval($row['club_id'] ?? 0);
+            $is_highlight = ($row_club_id === $club_id);
+            $club_link = $row_club_id > 0 ? get_permalink($row_club_id) : '';
+            echo '<tr' . ($is_highlight ? ' class="is-highlight"' : '') . '>';
+            echo '<td>' . intval($row['rank'] ?? 0) . '</td>';
+            echo '<td class="club-cell">';
+            if ($club_link !== '') {
+                echo '<a class="club-wrap club-link" href="' . esc_url($club_link) . '">';
+            } else {
+                echo '<span class="club-wrap">';
+            }
+            echo '<span class="club-crest">' . (string) $call('club_logo_html', $row_club_id, 'thumbnail', ['class' => 'opentt-standings-short-crest']) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<span class="club-name">' . esc_html((string) get_the_title($row_club_id)) . '</span>';
+            if ($club_link !== '') {
+                echo '</a>';
+            } else {
+                echo '</span>';
+            }
+            echo '</td>';
+            echo '<td>' . intval($row['odigrane'] ?? 0) . '</td>';
+            echo '<td>' . intval($row['pobede'] ?? 0) . '</td>';
+            echo '<td>' . intval($row['bodovi'] ?? 0) . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        echo '</div>';
         echo '</div></section>';
+        ?>
+        <script>
+        (function() {
+            var root = document.getElementById('<?php echo esc_js($uid); ?>');
+            if (!root) { return; }
+            var btn = root.querySelector('.opentt-standings-short-toggle');
+            var full = root.querySelector('.opentt-standings-short-full');
+            if (!btn || !full) { return; }
+
+            btn.addEventListener('click', function() {
+                var isCollapsed = btn.getAttribute('data-state') !== 'expanded';
+                if (isCollapsed) {
+                    full.hidden = false;
+                    btn.setAttribute('data-state', 'expanded');
+                    btn.setAttribute('aria-expanded', 'true');
+                    btn.textContent = 'Sakrij celu tabelu';
+                } else {
+                    full.hidden = true;
+                    btn.setAttribute('data-state', 'collapsed');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.textContent = 'Prikaži celu tabelu';
+                }
+            });
+        })();
+        </script>
+        <?php
         return ob_get_clean();
     }
 
