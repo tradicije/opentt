@@ -25,6 +25,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Improved match cards for played and upcoming matches so upcoming fixtures show kickoff time instead of placeholder `0:0` scores.
 - Added clickable club navigation to mini standings rows and match team cards.
 - Enhanced `opentt_standings_short` with a no-refresh toggle action: `Prikaži celu tabelu` expands full standings inline, and `Sakrij celu tabelu` restores the compact three-row view.
+- Refined `opentt_standings_short` toggle behavior to avoid duplicate table rendering: the existing table now expands/collapses in place by revealing/hiding additional rows.
 
 ### Admin & Data Entry
 
