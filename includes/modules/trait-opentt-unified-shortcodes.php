@@ -1831,99 +1831,33 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function current_match_context()
     {
-        if (self::$virtual_match_row) {
-            return [
-                'db_row' => self::$virtual_match_row,
-                'legacy_id' => intval(self::$virtual_match_row->legacy_post_id),
-            ];
-        }
-
-        if (is_singular('utakmica')) {
-            $legacy_id = intval(get_the_ID());
-            $row = self::db_get_match_by_legacy_id($legacy_id);
-            if ($row) {
-                return ['db_row' => $row, 'legacy_id' => $legacy_id];
+        return OpenTT_Unified_Match_Context_Service::current_match_context(
+            self::$virtual_match_row,
+            static function ($legacy_id) {
+                return self::db_get_match_by_legacy_id($legacy_id);
             }
-        }
-
-        return null;
+        );
     }
 
     public static function get_template_match_context()
     {
         $ctx = self::current_match_context();
-        if (!$ctx || empty($ctx['db_row'])) {
-            return null;
-        }
-        $row = $ctx['db_row'];
-        return [
-            'db_id' => intval($row->id),
-            'legacy_id' => intval($ctx['legacy_id']),
-            'slug' => (string) $row->slug,
-            'liga_slug' => (string) $row->liga_slug,
-            'kolo_slug' => (string) $row->kolo_slug,
-            'date' => self::display_match_date($row->match_date),
-            'kolo_name' => self::kolo_name_from_slug((string) $row->kolo_slug),
-            'home_club_id' => intval($row->home_club_post_id),
-            'away_club_id' => intval($row->away_club_post_id),
-            'home_score' => intval($row->home_score),
-            'away_score' => intval($row->away_score),
-            'match_url' => self::match_permalink($row),
-        ];
+        return OpenTT_Unified_Match_Context_Service::get_template_match_context($ctx, [
+            'display_match_date' => static function ($match_date) {
+                return self::display_match_date($match_date);
+            },
+            'kolo_name_from_slug' => static function ($slug) {
+                return self::kolo_name_from_slug($slug);
+            },
+            'match_permalink' => static function ($row) {
+                return self::match_permalink($row);
+            },
+        ]);
     }
 
     private static function get_match_block_template()
     {
-        if (!function_exists('get_block_template')) {
-            return null;
-        }
-
-        $theme = get_stylesheet();
-        $slug = self::MATCH_BLOCK_TEMPLATE_SLUG;
-
-        $tpl = get_block_template($theme . '//' . $slug, 'wp_template');
-        if ($tpl) {
-            return $tpl;
-        }
-
-        $parent = get_template();
-        if ($parent && $parent !== $theme) {
-            $tpl = get_block_template($parent . '//' . $slug, 'wp_template');
-            if ($tpl) {
-                return $tpl;
-            }
-        }
-
-        $posts = get_posts([
-            'post_type' => 'wp_template',
-            'name' => $slug,
-            'numberposts' => 1,
-            'post_status' => ['publish', 'draft'],
-        ]);
-        if (!empty($posts[0])) {
-            return (object) [
-                'content' => $posts[0]->post_content,
-            ];
-        }
-
-        // Ako je post_name upisan kao "theme//slug", fallback pretraga.
-        $posts = get_posts([
-            'post_type' => 'wp_template',
-            'posts_per_page' => 20,
-            'post_status' => ['publish', 'draft'],
-            's' => '//' . $slug,
-        ]);
-        if (!empty($posts)) {
-            foreach ($posts as $p) {
-                if (strpos((string) $p->post_name, '//' . $slug) !== false) {
-                    return (object) [
-                        'content' => $p->post_content,
-                    ];
-                }
-            }
-        }
-
-        return null;
+        return OpenTT_Unified_Match_Context_Service::get_match_block_template(self::MATCH_BLOCK_TEMPLATE_SLUG);
     }
 
 }

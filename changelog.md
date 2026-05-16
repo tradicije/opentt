@@ -38,6 +38,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Extracted match presentation/time helpers (`match_venue_label`, `display_match_time`, `is_match_live`, `parse_match_timestamp`) from the shortcode trait into `includes/class-opentt-unified-match-presentation-service.php`, preserving existing behavior while shrinking trait responsibilities.
 - Expanded `includes/class-opentt-unified-match-presentation-service.php` with URL/date presentation helpers (`match_permalink`, `display_match_date`, `display_match_date_long`) and switched shortcode trait implementations to thin delegation.
 - Extracted entity rendering helpers (`render_team_html`, `render_lp2_player`, `render_klub_card_html`) into `includes/class-opentt-unified-entity-presentation-service.php` and delegated trait methods to reduce shortcode-trait size and coupling.
+- Extracted match context/template helpers (`current_match_context`, `get_template_match_context`, `get_match_block_template`) into `includes/class-opentt-unified-match-context-service.php`; shortcode trait now delegates these responsibilities to the service layer.
 
 ### Admin & Data Entry
 
