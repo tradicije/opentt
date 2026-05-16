@@ -1037,83 +1037,25 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function competition_display_name($liga_slug, $sezona_slug)
     {
-        $liga_slug = sanitize_title((string) $liga_slug);
-        $sezona_slug = sanitize_title((string) $sezona_slug);
-
-        if ($liga_slug === '' && $sezona_slug === '') {
-            return '';
-        }
-
-        $liga_name = $liga_slug !== '' ? self::slug_to_title($liga_slug) : '';
-        if ($liga_name === '' && $liga_slug !== '') {
-            $liga_name = (string) $liga_slug;
-        }
-
-        if ($sezona_slug === '') {
-            return $liga_name;
-        }
-
-        return trim($liga_name . ', Sezona ' . self::season_display_name($sezona_slug));
+        return OpenTT_Unified_Competition_Presentation_Service::competition_display_name($liga_slug, $sezona_slug, [
+            'slug_to_title' => static function ($slug) {
+                return self::slug_to_title($slug);
+            },
+        ]);
     }
 
     private static function season_display_name($sezona_slug)
     {
-        $sezona_slug = sanitize_title((string) $sezona_slug);
-        if ($sezona_slug === '') {
-            return '';
-        }
-
-        if (preg_match('/^(\d{4})-(\d{2,4})$/', $sezona_slug, $m)) {
-            $second = (string) $m[2];
-            if (strlen($second) === 4) {
-                $second = substr($second, 2);
-            }
-            return $m[1] . '/' . $second;
-        }
-
-        return self::slug_to_title($sezona_slug);
+        return OpenTT_Unified_Competition_Presentation_Service::season_display_name($sezona_slug, [
+            'slug_to_title' => static function ($slug) {
+                return self::slug_to_title($slug);
+            },
+        ]);
     }
 
     private static function competition_archive_url($liga_slug, $sezona_slug)
     {
-        $liga_slug = sanitize_title((string) $liga_slug);
-        $sezona_slug = sanitize_title((string) $sezona_slug);
-
-        if ($liga_slug === '') {
-            return '';
-        }
-
-        $term_candidates = [];
-        if ($sezona_slug !== '') {
-            $term_candidates[] = $liga_slug . '-' . $sezona_slug;
-        }
-        $term_candidates[] = $liga_slug;
-
-        foreach ($term_candidates as $term_slug) {
-            $term = get_term_by('slug', $term_slug, 'liga_sezona');
-            if ($term && !is_wp_error($term)) {
-                $term_link = get_term_link($term);
-                if (!is_wp_error($term_link)) {
-                    return (string) $term_link;
-                }
-            }
-        }
-
-        // Plain permalink fallback (fresh install default): koristi query args.
-        if ((string) get_option('permalink_structure', '') === '') {
-            $base = home_url('/');
-            $args = ['liga' => $liga_slug];
-            if ($sezona_slug !== '') {
-                $args['sezona'] = $sezona_slug;
-            }
-            return add_query_arg($args, $base);
-        }
-
-        if ($sezona_slug !== '') {
-            return home_url('/liga/' . rawurlencode($liga_slug) . '/' . rawurlencode($sezona_slug) . '/');
-        }
-
-        return home_url('/liga/' . rawurlencode($liga_slug) . '/');
+        return OpenTT_Unified_Competition_Presentation_Service::competition_archive_url($liga_slug, $sezona_slug);
     }
 
     private static function match_venue_label($row)
@@ -1869,16 +1811,14 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function kolo_heading_label($kolo_slug, $kolo_no = null)
     {
-        $kolo_slug = sanitize_title((string) $kolo_slug);
-        $kolo_no = ($kolo_no === null) ? self::extract_round_no($kolo_slug) : intval($kolo_no);
-        if ($kolo_no > 0) {
-            return $kolo_no . '. kolo';
-        }
-        $kolo_name = self::kolo_name_from_slug($kolo_slug);
-        if ($kolo_name !== '') {
-            return $kolo_name;
-        }
-        return self::slug_to_title($kolo_slug);
+        return OpenTT_Unified_Competition_Presentation_Service::kolo_heading_label($kolo_slug, $kolo_no, [
+            'extract_round_no' => static function ($slug) {
+                return self::extract_round_no($slug);
+            },
+            'slug_to_title' => static function ($slug) {
+                return self::slug_to_title($slug);
+            },
+        ]);
     }
 
     private static function is_match_live($row)
@@ -1974,31 +1914,11 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function kolo_name_from_slug($slug)
     {
-        $slug = sanitize_title((string) $slug);
-        if ($slug === '') {
-            return '';
-        }
-
-        $term_name = '';
-        $term = get_term_by('slug', $slug, 'kolo');
-        if ($term && !is_wp_error($term) && !empty($term->name)) {
-            $term_name = trim((string) $term->name);
-        }
-
-        $candidate = $term_name !== '' ? $term_name : $slug;
-        $candidate_slug = sanitize_title($candidate);
-        $round_no = self::extract_round_no($candidate_slug !== '' ? $candidate_slug : $candidate);
-        if ($round_no > 0) {
-            if ($candidate_slug === (string) $round_no || strpos($candidate_slug, 'kolo') !== false) {
-                return $round_no . '. kolo';
-            }
-        }
-
-        if ($term_name !== '') {
-            return $term_name;
-        }
-
-        return OpenTT_Unified_Readonly_Helpers::slug_to_title($slug);
+        return OpenTT_Unified_Competition_Presentation_Service::kolo_name_from_slug($slug, [
+            'extract_round_no' => static function ($kolo_slug) {
+                return self::extract_round_no($kolo_slug);
+            },
+        ]);
     }
 
     private static function extract_round_no($kolo_slug)
