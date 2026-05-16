@@ -1619,127 +1619,35 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function club_fallback_image_url()
     {
-        $plugin_dir = is_string(self::$plugin_dir) ? trim(self::$plugin_dir) : '';
-        if ($plugin_dir === '') {
-            return '';
-        }
-
-        $relative_candidates = [
-            'assets/img/fallback-club.png',
-            'assets/image/fallback-club.png',
-        ];
-
-        foreach ($relative_candidates as $relative_path) {
-            $absolute_path = trailingslashit($plugin_dir) . $relative_path;
-            if (is_readable($absolute_path)) {
-                return plugins_url($relative_path, self::$plugin_file);
-            }
-        }
-
-        return '';
+        return OpenTT_Unified_Media_Service::club_fallback_image_url(self::$plugin_dir, self::$plugin_file);
     }
 
     private static function player_fallback_image_url()
     {
-        $plugin_dir = is_string(self::$plugin_dir) ? trim(self::$plugin_dir) : '';
-        if ($plugin_dir === '') {
-            return '';
-        }
-
-        $relative_candidates = [
-            'assets/img/fallback-player.png',
-            'assets/image/fallback-player.png',
-            'assets/img/fallback-club.png',
-            'assets/image/fallback-club.png',
-        ];
-
-        foreach ($relative_candidates as $relative_path) {
-            $absolute_path = trailingslashit($plugin_dir) . $relative_path;
-            if (is_readable($absolute_path)) {
-                return plugins_url($relative_path, self::$plugin_file);
-            }
-        }
-
-        return '';
+        return OpenTT_Unified_Media_Service::player_fallback_image_url(self::$plugin_dir, self::$plugin_file);
     }
 
     private static function club_logo_url($club_id, $size = 'thumbnail')
     {
-        $club_id = intval($club_id);
-        if ($club_id <= 0) {
-            return self::club_fallback_image_url();
-        }
-
-        $url = get_the_post_thumbnail_url($club_id, $size);
-        if (is_string($url) && trim($url) !== '') {
-            return $url;
-        }
-
-        return self::club_fallback_image_url();
+        return OpenTT_Unified_Media_Service::club_logo_url($club_id, $size, [
+            'club_fallback_image_url' => static function () {
+                return self::club_fallback_image_url();
+            },
+        ]);
     }
 
     private static function resolve_club_id_from_value($value)
     {
-        $value = trim((string) $value);
-        if ($value === '') {
-            return 0;
-        }
-        if (is_numeric($value)) {
-            $id = intval($value);
-            return ($id > 0 && get_post_type($id) === 'klub') ? $id : 0;
-        }
-
-        $club = get_page_by_path(sanitize_title($value), OBJECT, 'klub');
-        if (!($club instanceof \WP_Post)) {
-            $club = get_page_by_title($value, OBJECT, 'klub');
-        }
-        if ($club instanceof \WP_Post && $club->post_type === 'klub') {
-            return intval($club->ID);
-        }
-        return 0;
+        return OpenTT_Unified_Media_Service::resolve_club_id_from_value($value);
     }
 
     private static function club_logo_html($club_id, $size = 'thumbnail', $attr = [])
     {
-        $club_id = intval($club_id);
-        $attr = is_array($attr) ? $attr : [];
-
-        if ($club_id > 0) {
-            $html = get_the_post_thumbnail($club_id, $size, $attr);
-            if (is_string($html) && trim($html) !== '') {
-                return $html;
-            }
-        }
-
-        $fallback_url = self::club_fallback_image_url();
-        if ($fallback_url === '') {
-            return '';
-        }
-
-        $class = isset($attr['class']) ? trim((string) $attr['class']) : '';
-        if ($class === '') {
-            $class = 'opentt-club-fallback-image';
-        }
-        $alt = isset($attr['alt']) ? (string) $attr['alt'] : (string) get_the_title($club_id);
-
-        $img_attr = [
-            'src' => $fallback_url,
-            'alt' => $alt,
-            'class' => $class,
-        ];
-
-        foreach (['style', 'loading', 'title', 'width', 'height', 'decoding'] as $key) {
-            if (isset($attr[$key]) && $attr[$key] !== '') {
-                $img_attr[$key] = (string) $attr[$key];
-            }
-        }
-
-        $parts = [];
-        foreach ($img_attr as $key => $value) {
-            $parts[] = $key . '="' . esc_attr($value) . '"';
-        }
-
-        return '<img ' . implode(' ', $parts) . ' />';
+        return OpenTT_Unified_Media_Service::club_logo_html($club_id, $size, $attr, [
+            'club_fallback_image_url' => static function () {
+                return self::club_fallback_image_url();
+            },
+        ]);
     }
 
     private static function render_team_html($club_id, $score, $is_winner, $show_score = true, $fallback_score_label = '')

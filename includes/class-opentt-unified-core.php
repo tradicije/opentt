@@ -32,6 +32,7 @@ require_once __DIR__ . '/class-opentt-unified-competition-presentation-service.p
 require_once __DIR__ . '/class-opentt-unified-match-presentation-service.php';
 require_once __DIR__ . '/class-opentt-unified-entity-presentation-service.php';
 require_once __DIR__ . '/class-opentt-unified-match-context-service.php';
+require_once __DIR__ . '/class-opentt-unified-media-service.php';
 
 final class OpenTT_Unified_Core
 {
