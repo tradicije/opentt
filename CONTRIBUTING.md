@@ -93,6 +93,17 @@ Goals:
 
 Refactor-focused contributions are welcome, but should preserve existing functionality.
 
+Refactor process for the current stabilization window is tracked in:
+
+- `docs/refactor/PHASED_REFACTOR_PLAN.md`
+- `docs/refactor/API_CONTRACT.md`
+
+During this window:
+
+- no new features
+- no public API/shortcode contract changes without explicit migration notes
+- one subsystem per PR
+
 ---
 
 ## 🤝 Communication
