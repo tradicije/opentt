@@ -35,6 +35,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Extracted standings calculation helpers from the shortcode mega-trait into a dedicated service (`includes/class-opentt-unified-shortcode-standings-service.php`) and kept the trait as a thin delegator to reduce monolith complexity without changing shortcode output behavior.
 - Extracted player history stint builder from the shortcode trait into `includes/class-opentt-unified-player-history-service.php`, keeping trait method signatures intact while reducing trait logic size.
 - Extracted competition presentation helpers (`competition_display_name`, `season_display_name`, `competition_archive_url`, `kolo_name_from_slug`, `kolo_heading_label`) from the shortcode trait into `includes/class-opentt-unified-competition-presentation-service.php`; trait now delegates to the new service for lower coupling and easier staged migration.
+- Extracted match presentation/time helpers (`match_venue_label`, `display_match_time`, `is_match_live`, `parse_match_timestamp`) from the shortcode trait into `includes/class-opentt-unified-match-presentation-service.php`, preserving existing behavior while shrinking trait responsibilities.
 
 ### Admin & Data Entry
 
