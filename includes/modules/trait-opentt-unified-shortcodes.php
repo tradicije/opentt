@@ -1744,23 +1744,11 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function render_team_html($club_id, $score, $is_winner, $show_score = true, $fallback_score_label = '')
     {
-        $class = $is_winner ? 'pobednik' : 'gubitnik';
-        $name = $club_id ? get_the_title($club_id) : '';
-        $crest = $club_id ? self::club_logo_html($club_id, 'thumbnail') : '';
-
-        ob_start();
-        echo '<div class="team ' . esc_attr($class) . '">';
-        if (!empty($crest)) {
-            echo $crest; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        }
-        echo '<span>' . esc_html($name) . '</span>';
-        if ($show_score) {
-            echo '<strong>' . esc_html((string) intval($score)) . '</strong>';
-        } elseif ($fallback_score_label !== '') {
-            echo '<strong class="team-time">' . esc_html((string) $fallback_score_label) . '</strong>';
-        }
-        echo '</div>';
-        return ob_get_clean();
+        return OpenTT_Unified_Entity_Presentation_Service::render_team_html($club_id, $score, $is_winner, $show_score, $fallback_score_label, [
+            'club_logo_html' => static function ($club_id_arg, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id_arg, $size, $attr);
+            },
+        ]);
     }
 
     private static function display_match_time($match_date)
@@ -1825,50 +1813,20 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function render_lp2_player($player_id)
     {
-        $player_id = intval($player_id);
-        if ($player_id <= 0) {
-            return '';
-        }
-
-        $link = get_permalink($player_id);
-        $thumb = has_post_thumbnail($player_id)
-            ? get_the_post_thumbnail($player_id, 'thumbnail', ['class' => 'lp2-thumb'])
-            : '<img src="' . esc_url(self::player_fallback_image_url()) . '" alt="Igrač" class="lp2-thumb" />';
-
-        $title = (string) get_the_title($player_id);
-        $parts = explode(' ', $title, 2);
-        $ime = isset($parts[0]) ? $parts[0] : '';
-        $prezime = isset($parts[1]) ? $parts[1] : '';
-        ob_start();
-        echo '<div class="lp2-igrac-wrap">';
-        echo '<a class="lp2-igrac" href="' . esc_url($link) . '">';
-        echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        echo '<div class="lp2-name"><span>' . esc_html($ime) . '</span><span>' . esc_html($prezime) . '</span></div>';
-        echo '</a>';
-        echo '</div>';
-        return ob_get_clean();
+        return OpenTT_Unified_Entity_Presentation_Service::render_lp2_player($player_id, [
+            'player_fallback_image_url' => static function () {
+                return self::player_fallback_image_url();
+            },
+        ]);
     }
 
     private static function render_klub_card_html($klub_id)
     {
-        $klub_id = intval($klub_id);
-        if ($klub_id <= 0) {
-            return '';
-        }
-        $naziv = get_the_title($klub_id);
-        $grb = self::club_logo_html($klub_id, 'thumbnail', ['class' => 'opentt-grb']);
-        $link = get_permalink($klub_id);
-
-        ob_start();
-        ?>
-        <div class="opentt-klub">
-            <a href="<?php echo esc_url($link); ?>">
-                <div class="opentt-grb-wrap"><?php echo $grb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-                <div class="opentt-naziv"><?php echo esc_html((string) $naziv); ?></div>
-            </a>
-        </div>
-        <?php
-        return ob_get_clean();
+        return OpenTT_Unified_Entity_Presentation_Service::render_klub_card_html($klub_id, [
+            'club_logo_html' => static function ($club_id_arg, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id_arg, $size, $attr);
+            },
+        ]);
     }
 
     private static function current_match_context()
