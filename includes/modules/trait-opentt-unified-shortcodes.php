@@ -1255,36 +1255,7 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function build_player_stints($history)
     {
-        if (empty($history) || !is_array($history)) {
-            return [];
-        }
-        $stints = [];
-        foreach ($history as $row) {
-            $season = sanitize_title((string) ($row['season_slug'] ?? ''));
-            $club_id = intval($row['club_id'] ?? 0);
-            if ($season === '' || $club_id <= 0) {
-                continue;
-            }
-            if (empty($stints)) {
-                $stints[] = [
-                    'club_id' => $club_id,
-                    'from_season' => $season,
-                    'to_season' => $season,
-                ];
-                continue;
-            }
-            $idx = count($stints) - 1;
-            if (intval($stints[$idx]['club_id']) === $club_id) {
-                $stints[$idx]['to_season'] = $season;
-            } else {
-                $stints[] = [
-                    'club_id' => $club_id,
-                    'from_season' => $season,
-                    'to_season' => $season,
-                ];
-            }
-        }
-        return $stints;
+        return OpenTT_Unified_Player_History_Service::build_player_stints($history);
     }
 
     private static function db_get_player_stats($player_id, $season_slug = '')
