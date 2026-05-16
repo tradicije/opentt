@@ -117,5 +117,48 @@ final class OpenTT_Unified_Match_Presentation_Service
 
         return false;
     }
-}
 
+    public static function match_permalink($row, array $deps = [])
+    {
+        $legacy_checker = isset($deps['is_legacy_match_cpt_enabled']) && is_callable($deps['is_legacy_match_cpt_enabled'])
+            ? $deps['is_legacy_match_cpt_enabled']
+            : null;
+
+        $legacy_id = isset($row->legacy_post_id) ? intval($row->legacy_post_id) : 0;
+        if (
+            $legacy_checker
+            && $legacy_checker()
+            && $legacy_id > 0
+            && get_post_type($legacy_id) === 'utakmica'
+        ) {
+            return get_permalink($legacy_id);
+        }
+
+        $liga = isset($row->liga_slug) ? sanitize_title((string) $row->liga_slug) : '';
+        $sezona = isset($row->sezona_slug) ? sanitize_title((string) $row->sezona_slug) : '';
+        $kolo = isset($row->kolo_slug) ? sanitize_title((string) $row->kolo_slug) : '';
+        $slug = isset($row->slug) ? sanitize_title((string) $row->slug) : '';
+
+        if ($liga === '' || $kolo === '' || $slug === '') {
+            return home_url('/');
+        }
+
+        $path = '/' . $liga . '/';
+        if ($sezona !== '') {
+            $path .= $sezona . '/';
+        }
+        $path .= $kolo . '/' . $slug . '/';
+
+        return home_url($path);
+    }
+
+    public static function display_match_date($match_date)
+    {
+        return OpenTT_Unified_Readonly_Helpers::display_match_date($match_date);
+    }
+
+    public static function display_match_date_long($match_date)
+    {
+        return OpenTT_Unified_Readonly_Helpers::display_match_date_long($match_date);
+    }
+}
