@@ -26,6 +26,7 @@ require_once __DIR__ . '/class-opentt-unified-admin-match-actions.php';
 require_once __DIR__ . '/class-opentt-unified-admin-club-player-actions.php';
 require_once __DIR__ . '/class-opentt-unified-shortcode-match-query-service.php';
 require_once __DIR__ . '/class-opentt-unified-shortcode-stats-query-service.php';
+require_once __DIR__ . '/class-opentt-unified-shortcode-standings-service.php';
 
 final class OpenTT_Unified_Core
 {

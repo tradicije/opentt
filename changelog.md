@@ -32,6 +32,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Fixed single-club season propagation so `opentt_players` now derives players from games played by that club in the selected season, `opentt_matches_list` explicitly respects `?opentt_sezona=`, and `opentt_club_form` filters recent form rows by the same selected season.
 - Fixed `opentt_matches_list` `highlight="auto"` scoping when only season is present: for single-club pages it now resolves and pins the club's actual league for that selected season instead of mixing all leagues from the same season.
 - Added refactor-stability groundwork docs: phased migration plan (`docs/refactor/PHASED_REFACTOR_PLAN.md`) and execution smoke checklist (`docs/refactor/SMOKE_CHECKLIST.md`), plus a local architecture audit script (`tools/refactor_audit.sh`) for repeatable monolith-size and module-split tracking.
+- Extracted standings calculation helpers from the shortcode mega-trait into a dedicated service (`includes/class-opentt-unified-shortcode-standings-service.php`) and kept the trait as a thin delegator to reduce monolith complexity without changing shortcode output behavior.
 
 ### Admin & Data Entry
 
