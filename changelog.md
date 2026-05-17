@@ -51,6 +51,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Extracted shared user-portal utility logic into `src/WordPress/UserPortalUtilityService.php` (`verifyTurnstileToken`, `normalizeMatchDate`, `collectLeagueClubIds`, `profileAvatarUrl`) and switched `UserPortalManager` call sites to delegation/callback usage; `UserPortalManager` reduced further from ~1078 to ~950 LOC without functional changes.
 - Extracted team-manager frontend view rendering into `src/WordPress/UserPortalTeamManagerViewService.php` (`renderTeamManagerTools`) and replaced the `UserPortalManager` implementation with dependency-based delegation; `UserPortalManager` reduced further from ~950 to ~867 LOC with unchanged team-manager behavior.
 - Extracted editor frontend rendering into `src/WordPress/UserPortalEditorViewService.php` (`renderEditorTools`, `renderEditorPosts`) and switched `UserPortalManager` profile wiring to service delegation; `UserPortalManager` reduced further from ~867 to ~797 LOC with no behavior change.
+- Extracted users-admin screen and save workflow into `src/WordPress/UserPortalUsersAdminService.php` (`renderUsersAdminPage`, `handleSaveUserAccess`) and replaced `UserPortalManager` implementations with callback/config delegation; `UserPortalManager` reduced further from ~797 to ~624 LOC while preserving current admin access-management behavior.
 
 ### Admin & Data Entry
 
