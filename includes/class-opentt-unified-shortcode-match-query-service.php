@@ -16,6 +16,158 @@ if (!defined('ABSPATH')) {
 
 final class OpenTT_Unified_Shortcode_Match_Query_Service
 {
+    public static function build_match_query_args($atts, $deps = [])
+    {
+        $get_archive_context = isset($deps['current_archive_context']) && is_callable($deps['current_archive_context'])
+            ? $deps['current_archive_context']
+            : static function () {
+                return [];
+            };
+        $parse_legacy_liga_sezona = isset($deps['parse_legacy_liga_sezona']) && is_callable($deps['parse_legacy_liga_sezona'])
+            ? $deps['parse_legacy_liga_sezona']
+            : static function ($liga, $sezona) {
+                return [
+                    'league_slug' => sanitize_title((string) $liga),
+                    'season_slug' => sanitize_title((string) $sezona),
+                ];
+            };
+
+        $limit = isset($atts['limit']) ? intval($atts['limit']) : 5;
+        $liga = sanitize_title((string) ($atts['liga'] ?? ''));
+        $sezona_from_atts = '';
+        if (!empty($atts['season'])) {
+            $sezona_from_atts = sanitize_title((string) $atts['season']);
+        } elseif (!empty($atts['sezona'])) {
+            $sezona_from_atts = sanitize_title((string) $atts['sezona']);
+        }
+        $sezona_from_context = '';
+        $kolo = '';
+        $club_id = 0;
+        $player_id = 0;
+        $archive_ctx = $get_archive_context();
+
+        if ($liga === '') {
+            if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'liga_sezona') {
+                $liga = sanitize_title((string) ($archive_ctx['liga_slug'] ?? ''));
+            } elseif (is_tax('liga_sezona')) {
+                $term = get_queried_object();
+                if ($term && !is_wp_error($term) && !empty($term->slug)) {
+                    $liga = sanitize_title((string) $term->slug);
+                }
+            } else {
+                $liga_qv = get_query_var('liga_sezona');
+                if ($liga_qv) {
+                    $liga = sanitize_title((string) $liga_qv);
+                }
+            }
+        }
+
+        if ($sezona_from_atts === '') {
+            if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'liga_sezona') {
+                $sezona_from_context = sanitize_title((string) ($archive_ctx['sezona_slug'] ?? ''));
+            } elseif (is_tax('liga_sezona')) {
+                $term = get_queried_object();
+                if ($term && !is_wp_error($term) && !empty($term->slug)) {
+                    $parsed_tax = $parse_legacy_liga_sezona((string) $term->slug, '');
+                    $sezona_from_context = sanitize_title((string) ($parsed_tax['season_slug'] ?? ''));
+                }
+            } else {
+                $sezona_qv = get_query_var('sezona');
+                if ($sezona_qv) {
+                    $sezona_from_context = sanitize_title((string) $sezona_qv);
+                } elseif (isset($_GET['opentt_sezona'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                    $sezona_from_context = sanitize_title((string) wp_unslash($_GET['opentt_sezona'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                } elseif (isset($_GET['sezona'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                    $sezona_from_context = sanitize_title((string) wp_unslash($_GET['sezona'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                }
+            }
+        }
+
+        if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'kolo') {
+            $kolo = sanitize_title((string) ($archive_ctx['kolo_slug'] ?? ''));
+        } elseif (is_tax('kolo')) {
+            $term = get_queried_object();
+            if ($term && !is_wp_error($term) && !empty($term->slug)) {
+                $kolo = sanitize_title((string) $term->slug);
+            }
+        } else {
+            $kolo_qv = get_query_var('kolo');
+            if ($kolo_qv) {
+                $kolo = sanitize_title((string) $kolo_qv);
+            }
+        }
+        if (!empty($atts['kolo'])) {
+            $kolo = sanitize_title((string) $atts['kolo']);
+        }
+
+        $raw_played = '';
+        if (array_key_exists('played', (array) $atts)) {
+            $raw_played = (string) ($atts['played'] ?? '');
+        } elseif (array_key_exists('odigrana', (array) $atts)) {
+            $raw_played = (string) ($atts['odigrana'] ?? '');
+        }
+        $played_filter = self::normalize_played_shortcode_attr($raw_played);
+
+        if (!empty($atts['klub'])) {
+            $club_slug_or_name = (string) $atts['klub'];
+            $club = get_page_by_path(sanitize_title($club_slug_or_name), OBJECT, 'klub');
+            if (!$club) {
+                $club = get_page_by_title($club_slug_or_name, OBJECT, 'klub');
+            }
+            if ($club && !is_wp_error($club)) {
+                $club_id = intval($club->ID);
+            }
+        } elseif (is_singular('klub')) {
+            $club_id = intval(get_the_ID());
+        }
+
+        if (empty($atts['klub']) && is_singular('igrac')) {
+            $player_id = intval(get_the_ID());
+        }
+
+        $resolved_sezona = $sezona_from_atts !== '' ? $sezona_from_atts : $sezona_from_context;
+        $parsed = $parse_legacy_liga_sezona($liga, $resolved_sezona);
+        $liga = sanitize_title((string) ($parsed['league_slug'] ?? $liga));
+        $sezona_slug = sanitize_title((string) ($parsed['season_slug'] ?? $resolved_sezona));
+        if ($sezona_from_atts !== '') {
+            $sezona_slug = $sezona_from_atts;
+        }
+
+        return [
+            'limit' => $limit,
+            'liga_slug' => $liga,
+            'sezona_slug' => $sezona_slug,
+            'kolo_slug' => $kolo,
+            'played' => $played_filter,
+            'club_id' => $club_id,
+            'player_id' => $player_id,
+        ];
+    }
+
+    public static function normalize_played_shortcode_attr($value)
+    {
+        $value = strtolower(trim((string) $value));
+        if ($value === '') {
+            return '';
+        }
+
+        $truthy = ['true', '1', 'yes', 'da', 'on'];
+        $falsy = ['false', '0', 'no', 'ne', 'off'];
+
+        foreach ($truthy as $token) {
+            if ($value === $token || strpos($value, $token) === 0) {
+                return '1';
+            }
+        }
+        foreach ($falsy as $token) {
+            if ($value === $token || strpos($value, $token) === 0) {
+                return '0';
+            }
+        }
+
+        return '';
+    }
+
     public static function db_get_matches($args)
     {
         global $wpdb;

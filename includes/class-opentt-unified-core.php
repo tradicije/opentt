@@ -34,6 +34,7 @@ require_once __DIR__ . '/class-opentt-unified-entity-presentation-service.php';
 require_once __DIR__ . '/class-opentt-unified-match-context-service.php';
 require_once __DIR__ . '/class-opentt-unified-media-service.php';
 require_once __DIR__ . '/class-opentt-unified-grid-render-service.php';
+require_once __DIR__ . '/class-opentt-unified-shortcode-ui-service.php';
 
 final class OpenTT_Unified_Core
 {

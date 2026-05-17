@@ -41,6 +41,8 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Extracted match context/template helpers (`current_match_context`, `get_template_match_context`, `get_match_block_template`) into `includes/class-opentt-unified-match-context-service.php`; shortcode trait now delegates these responsibilities to the service layer.
 - Extracted media/logo/fallback helpers (`club_fallback_image_url`, `player_fallback_image_url`, `club_logo_url`, `resolve_club_id_from_value`, `club_logo_html`) into `includes/class-opentt-unified-media-service.php` and replaced trait implementations with delegators.
 - Extracted grid rendering logic (`render_matches_grid_html`, `render_clubs_grid_html`) into `includes/class-opentt-unified-grid-render-service.php`, keeping shortcode trait as an orchestration/delegation layer.
+- Extracted match shortcode query-argument building (`build_match_query_args`, `normalize_played_shortcode_attr`) into `includes/class-opentt-unified-shortcode-match-query-service.php` with trait-level delegation and dependency callbacks, preserving archive-context and legacy league-season parsing behavior while reducing trait monolith size.
+- Extracted shortcode UI helpers into `includes/class-opentt-unified-shortcode-ui-service.php` (`shortcode_title_html`, `info_link_icon_html`, `render_top_player_card_list`) and switched trait methods to delegation; this further shrinks the shortcode trait while keeping existing shortcode rendering behavior and icon-loading logic.
 
 ### Admin & Data Entry
 

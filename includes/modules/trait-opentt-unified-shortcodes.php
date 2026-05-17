@@ -36,14 +36,7 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function shortcode_title_html($title)
     {
-        $title = trim((string) $title);
-        if ($title === '') {
-            return '';
-        }
-        if (class_exists('OpenTT_Unified_Core') && method_exists('OpenTT_Unified_Core', 'should_show_shortcode_titles') && !OpenTT_Unified_Core::should_show_shortcode_titles()) {
-            return '';
-        }
-        return '<h3 class="opentt-shortcode-title">' . esc_html($title) . '</h3>';
+        return OpenTT_Unified_Shortcode_UI_Service::shortcode_title_html($title);
     }
 
     public static function shortcode_matches_grid($atts)
@@ -872,28 +865,7 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function info_link_icon_html($icon_file_name, $fallback, $modifier = 'before')
     {
-        $icon_file_name = sanitize_file_name((string) $icon_file_name);
-        if ($icon_file_name !== '' && substr($icon_file_name, -4) !== '.svg') {
-            $icon_file_name .= '.svg';
-        }
-        $modifier = sanitize_html_class((string) $modifier);
-        $classes = 'opentt-info-link-icon opentt-info-link-icon--' . ($modifier !== '' ? $modifier : 'before');
-        $fallback = (string) $fallback;
-
-        $rel_path = 'assets/icons/' . $icon_file_name;
-        $full_path = self::$plugin_dir . $rel_path;
-        if (is_readable($full_path)) {
-            $svg = file_get_contents($full_path); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-            if (is_string($svg) && trim($svg) !== '') {
-                $svg = preg_replace('/<\?xml.*?\?>/i', '', $svg);
-                $svg = preg_replace('/<!DOCTYPE.*?>/i', '', $svg);
-                if (is_string($svg) && trim($svg) !== '') {
-                    return '<span class="' . esc_attr($classes) . '" aria-hidden="true"><span class="opentt-info-link-icon-svg">' . $svg . '</span></span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                }
-            }
-        }
-
-        return '<span class="' . esc_attr($classes) . '" aria-hidden="true">' . esc_html($fallback) . '</span>';
+        return OpenTT_Unified_Shortcode_UI_Service::info_link_icon_html($icon_file_name, $fallback, $modifier, (string) self::$plugin_dir);
     }
 
     public static function shortcode_player_info($atts = [])
@@ -1249,55 +1221,14 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function render_top_player_card_list($igrac_id, $rank, $info, $highlight = false)
     {
-        $igrac_id = intval($igrac_id);
-        if ($igrac_id <= 0) {
-            return '';
-        }
-
-        $full_name = (string) get_the_title($igrac_id);
-        $parts = explode(' ', $full_name, 2);
-        $ime = isset($parts[0]) ? $parts[0] : '';
-        $prezime = isset($parts[1]) ? $parts[1] : '';
-
-        $slika = get_the_post_thumbnail($igrac_id, 'thumbnail', ['class' => 'igrac-slika']);
-        if (empty($slika)) {
-            $slika = '<img src="' . esc_url(self::player_fallback_image_url()) . '" alt="Igrač" class="igrac-slika" />';
-        }
-
-        $klub_id = intval($info['klub'] ?? 0);
-        $grb = $klub_id ? self::club_logo_html($klub_id, 'thumbnail', ['class' => 'igrac-klub-grb']) : '';
-        $naziv_kluba = $klub_id ? (string) get_the_title($klub_id) : '';
-        $wins = intval($info['pobede'] ?? 0);
-        $losses = intval($info['porazi'] ?? 0);
-        $total = $wins + $losses;
-        $score = $wins . '-' . $losses;
-        $percent = $total > 0 ? (string) round(($wins / $total) * 100) . '%' : '-';
-        $highlight_class = $highlight ? ' highlight' : '';
-        $igrac_link = get_permalink($igrac_id);
-        ob_start();
-        ?>
-        <div class="igrac-card-list<?php echo esc_attr($highlight_class); ?>">
-            <div class="igrac-rank"><?php echo intval($rank); ?></div>
-            <a class="igrac-link" href="<?php echo esc_url($igrac_link); ?>">
-                <div class="igrac-slika-wrap"><?php echo $slika; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-            </a>
-            <div class="igrac-imeprezime">
-                <a class="igrac-link" href="<?php echo esc_url($igrac_link); ?>">
-                    <div class="ime"><?php echo esc_html($ime); ?></div>
-                    <div class="prezime"><?php echo esc_html($prezime); ?></div>
-                </a>
-                <div class="igrac-klub">
-                    <?php if ($grb): ?>
-                        <span class="igrac-klub-grb"><?php echo $grb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                    <?php endif; ?>
-                    <span class="igrac-klub-naziv"><?php echo esc_html($naziv_kluba); ?></span>
-                </div>
-            </div>
-            <div class="igrac-skor"><?php echo esc_html($score); ?></div>
-            <div class="igrac-procenat"><?php echo esc_html($percent); ?></div>
-        </div>
-        <?php
-        return ob_get_clean();
+        return OpenTT_Unified_Shortcode_UI_Service::render_top_player_card_list($igrac_id, $rank, $info, $highlight, [
+            'club_logo_html' => static function ($club_id, $size = 'thumbnail', $attr = []) {
+                return self::club_logo_html($club_id, $size, $attr);
+            },
+            'player_fallback_image_url' => static function () {
+                return self::player_fallback_image_url();
+            },
+        ]);
     }
 
     private static function get_validation_report()
@@ -1308,144 +1239,19 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function build_match_query_args($atts)
     {
-        $limit = isset($atts['limit']) ? intval($atts['limit']) : 5;
-        $liga = sanitize_title((string) ($atts['liga'] ?? ''));
-        $sezona_from_atts = '';
-        if (!empty($atts['season'])) {
-            $sezona_from_atts = sanitize_title((string) $atts['season']);
-        } elseif (!empty($atts['sezona'])) {
-            $sezona_from_atts = sanitize_title((string) $atts['sezona']);
-        }
-        $sezona_from_context = '';
-        $kolo = '';
-        $played_filter = '';
-        $club_id = 0;
-        $player_id = 0;
-        $archive_ctx = self::current_archive_context();
-
-        if ($liga === '') {
-            if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'liga_sezona') {
-                $liga = sanitize_title((string) ($archive_ctx['liga_slug'] ?? ''));
-            } elseif (is_tax('liga_sezona')) {
-                $term = get_queried_object();
-                if ($term && !is_wp_error($term) && !empty($term->slug)) {
-                    $liga = sanitize_title((string) $term->slug);
-                }
-            } else {
-                $liga_qv = get_query_var('liga_sezona');
-                if ($liga_qv) {
-                    $liga = sanitize_title((string) $liga_qv);
-                }
-            }
-        }
-
-        if ($sezona_from_atts === '') {
-            if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'liga_sezona') {
-                $sezona_from_context = sanitize_title((string) ($archive_ctx['sezona_slug'] ?? ''));
-            } elseif (is_tax('liga_sezona')) {
-                $term = get_queried_object();
-                if ($term && !is_wp_error($term) && !empty($term->slug)) {
-                    $parsed_tax = self::parse_legacy_liga_sezona((string) $term->slug, '');
-                    $sezona_from_context = sanitize_title((string) ($parsed_tax['season_slug'] ?? ''));
-                }
-            } else {
-                $sezona_qv = get_query_var('sezona');
-                if ($sezona_qv) {
-                    $sezona_from_context = sanitize_title((string) $sezona_qv);
-                } elseif (isset($_GET['opentt_sezona'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                    $sezona_from_context = sanitize_title((string) wp_unslash($_GET['opentt_sezona'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                } elseif (isset($_GET['sezona'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                    $sezona_from_context = sanitize_title((string) wp_unslash($_GET['sezona'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                }
-            }
-        }
-
-        if (is_array($archive_ctx) && ($archive_ctx['type'] ?? '') === 'kolo') {
-            $kolo = sanitize_title((string) ($archive_ctx['kolo_slug'] ?? ''));
-        } elseif (is_tax('kolo')) {
-            $term = get_queried_object();
-            if ($term && !is_wp_error($term) && !empty($term->slug)) {
-                $kolo = sanitize_title((string) $term->slug);
-            }
-        } else {
-            $kolo_qv = get_query_var('kolo');
-            if ($kolo_qv) {
-                $kolo = sanitize_title((string) $kolo_qv);
-            }
-        }
-        if (!empty($atts['kolo'])) {
-            $kolo = sanitize_title((string) $atts['kolo']);
-        }
-
-        // Public attr: played="true|false" (preferred), with odigrana kept for backward compatibility.
-        $raw_played = '';
-        if (array_key_exists('played', (array) $atts)) {
-            $raw_played = (string) ($atts['played'] ?? '');
-        } elseif (array_key_exists('odigrana', (array) $atts)) {
-            $raw_played = (string) ($atts['odigrana'] ?? '');
-        }
-        $played_filter = self::normalize_played_shortcode_attr($raw_played);
-
-        if (!empty($atts['klub'])) {
-            $club_slug_or_name = (string) $atts['klub'];
-            $club = get_page_by_path(sanitize_title($club_slug_or_name), OBJECT, 'klub');
-            if (!$club) {
-                $club = get_page_by_title($club_slug_or_name, OBJECT, 'klub');
-            }
-            if ($club && !is_wp_error($club)) {
-                $club_id = intval($club->ID);
-            }
-        } elseif (is_singular('klub')) {
-            $club_id = intval(get_the_ID());
-        }
-
-        if (empty($atts['klub']) && is_singular('igrac')) {
-            $player_id = intval(get_the_ID());
-        }
-
-        // Back-compat: dozvoli i legacy spojeni slug tipa "kvalitetna-liga-2025-26".
-        // Ako je sezona već eksplicitno prosleđena, ona ima prioritet.
-        $resolved_sezona = $sezona_from_atts !== '' ? $sezona_from_atts : $sezona_from_context;
-        $parsed = self::parse_legacy_liga_sezona($liga, $resolved_sezona);
-        $liga = sanitize_title((string) ($parsed['league_slug'] ?? $liga));
-        $sezona_slug = sanitize_title((string) ($parsed['season_slug'] ?? $resolved_sezona));
-        if ($sezona_from_atts !== '') {
-            $sezona_slug = $sezona_from_atts;
-        }
-
-        return [
-            'limit' => $limit,
-            'liga_slug' => $liga,
-            'sezona_slug' => $sezona_slug,
-            'kolo_slug' => $kolo,
-            'played' => $played_filter,
-            'club_id' => $club_id,
-            'player_id' => $player_id,
-        ];
+        return OpenTT_Unified_Shortcode_Match_Query_Service::build_match_query_args($atts, [
+            'current_archive_context' => static function () {
+                return self::current_archive_context();
+            },
+            'parse_legacy_liga_sezona' => static function ($liga, $sezona) {
+                return self::parse_legacy_liga_sezona($liga, $sezona);
+            },
+        ]);
     }
 
     private static function normalize_played_shortcode_attr($value)
     {
-        $value = strtolower(trim((string) $value));
-        if ($value === '') {
-            return '';
-        }
-
-        $truthy = ['true', '1', 'yes', 'da', 'on'];
-        $falsy = ['false', '0', 'no', 'ne', 'off'];
-
-        foreach ($truthy as $token) {
-            if ($value === $token || strpos($value, $token) === 0) {
-                return '1';
-            }
-        }
-        foreach ($falsy as $token) {
-            if ($value === $token || strpos($value, $token) === 0) {
-                return '0';
-            }
-        }
-
-        return '';
+        return OpenTT_Unified_Shortcode_Match_Query_Service::normalize_played_shortcode_attr($value);
     }
 
     private static function db_get_matches($args)
