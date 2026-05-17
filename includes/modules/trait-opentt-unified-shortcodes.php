@@ -49,7 +49,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::build_match_query_args($args);
             },
             'db_get_matches' => static function ($args) {
-                return self::db_get_matches($args);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_matches($args);
             },
             'kolo_name_from_slug' => static function ($slug) {
                 return self::kolo_name_from_slug($slug);
@@ -109,7 +109,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::build_match_query_args($args);
             },
             'db_get_matches' => static function ($args) {
-                return self::db_get_matches($args);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_matches($args);
             },
             'shortcode_title_html' => static function ($title) {
                 return self::shortcode_title_html($title);
@@ -142,13 +142,13 @@ trait OpenTT_Unified_Shortcodes_Trait
     {
         return \OpenTT\Unified\WordPress\Shortcodes\MatchIdShortcode::render($atts, [
             'db_get_match_by_id' => static function ($id) {
-                return self::db_get_match_by_id($id);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_match_by_id($id);
             },
             'build_match_query_args' => static function ($args) {
                 return self::build_match_query_args($args);
             },
             'db_get_matches' => static function ($args) {
-                return self::db_get_matches($args);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_matches($args);
             },
             'display_match_date' => static function ($match_date) {
                 return self::display_match_date($match_date);
@@ -331,7 +331,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::extract_round_no($slug);
             },
             'db_get_latest_liga_for_club' => static function ($club_id) {
-                return self::db_get_latest_liga_for_club($club_id);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_latest_liga_for_club($club_id);
             },
             'db_table' => static function ($table_alias) {
                 return OpenTT_Unified_Core::db_table($table_alias);
@@ -340,7 +340,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::table_exists($table_name);
             },
             'db_get_matches' => static function ($args) {
-                return self::db_get_matches($args);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_matches($args);
             },
             'get_competition_rule_data' => static function ($liga_slug, $sezona_slug = '') {
                 return self::get_competition_rule_data($liga_slug, $sezona_slug);
@@ -370,7 +370,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::slug_to_title($slug);
             },
             'db_get_latest_liga_for_club' => static function ($club_id) {
-                return self::db_get_latest_liga_for_club($club_id);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_latest_liga_for_club($club_id);
             },
             'db_get_latest_liga_for_club_and_season' => static function ($club_id, $season_slug = '') {
                 return self::db_get_latest_liga_for_club_and_season($club_id, $season_slug);
@@ -388,10 +388,10 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::current_match_context();
             },
             'db_get_match_by_id' => static function ($id) {
-                return self::db_get_match_by_id($id);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_match_by_id($id);
             },
             'db_get_games_for_match_id' => static function ($match_id) {
-                return self::db_get_games_for_match_id($match_id);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_games_for_match_id($match_id);
             },
             'shortcode_title_html' => static function ($title) {
                 return self::shortcode_title_html($title);
@@ -400,7 +400,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::get_competition_rule_data($liga_slug, $sezona_slug);
             },
             'db_get_sets_for_game_id' => static function ($game_id) {
-                return self::db_get_sets_for_game_id($game_id);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_sets_for_game_id($game_id);
             },
             'render_lp2_player' => static function ($player_id) {
                 return self::render_lp2_player($player_id);
@@ -462,7 +462,7 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::current_match_context();
             },
             'db_get_h2h_matches' => static function ($current_match_db_id, $home_club_id, $away_club_id) {
-                return self::db_get_h2h_matches($current_match_db_id, $home_club_id, $away_club_id);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_h2h_matches($current_match_db_id, $home_club_id, $away_club_id);
             },
             'shortcode_title_html' => static function ($title) {
                 return self::shortcode_title_html($title);
@@ -489,10 +489,10 @@ trait OpenTT_Unified_Shortcodes_Trait
                 return self::current_match_context();
             },
             'db_get_games_for_match_id' => static function ($match_id) {
-                return self::db_get_games_for_match_id($match_id);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_games_for_match_id($match_id);
             },
             'db_get_sets_for_game_id' => static function ($game_id) {
-                return self::db_get_sets_for_game_id($game_id);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_sets_for_game_id($game_id);
             },
             'shortcode_title_html' => static function ($title) {
                 return self::shortcode_title_html($title);
@@ -1183,7 +1183,7 @@ trait OpenTT_Unified_Shortcodes_Trait
     {
         return OpenTT_Unified_Shortcode_Standings_Service::db_build_standings_for_competition($liga_slug, $sezona_slug, $max_kolo, [
             'db_get_matches' => static function ($args) {
-                return self::db_get_matches($args);
+                return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_matches($args);
             },
             'get_competition_rule_data' => static function ($liga_slug_arg, $sezona_slug_arg = '') {
                 return self::get_competition_rule_data($liga_slug_arg, $sezona_slug_arg);
@@ -1249,49 +1249,9 @@ trait OpenTT_Unified_Shortcodes_Trait
         ]);
     }
 
-    private static function normalize_played_shortcode_attr($value)
-    {
-        return OpenTT_Unified_Shortcode_Match_Query_Service::normalize_played_shortcode_attr($value);
-    }
-
-    private static function db_get_matches($args)
-    {
-        return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_matches($args);
-    }
-
     private static function db_get_match_by_legacy_id($legacy_id)
     {
         return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_match_by_legacy_id($legacy_id);
-    }
-
-    private static function db_get_match_by_id($id)
-    {
-        return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_match_by_id($id);
-    }
-
-    private static function db_get_match_by_keys($liga_slug, $sezona_slug, $kolo_slug, $slug)
-    {
-        return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_match_by_keys($liga_slug, $sezona_slug, $kolo_slug, $slug);
-    }
-
-    private static function db_get_h2h_matches($current_match_db_id, $home_club_id, $away_club_id)
-    {
-        return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_h2h_matches($current_match_db_id, $home_club_id, $away_club_id);
-    }
-
-    private static function db_get_games_for_match_id($match_id)
-    {
-        return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_games_for_match_id($match_id);
-    }
-
-    private static function db_get_sets_for_game_id($game_id)
-    {
-        return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_sets_for_game_id($game_id);
-    }
-
-    private static function db_get_latest_liga_for_club($club_id)
-    {
-        return OpenTT_Unified_Shortcode_Match_Query_Service::db_get_latest_liga_for_club($club_id);
     }
 
     private static function render_matches_grid_html($rows, $columns, $with_kolo_attr)

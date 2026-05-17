@@ -348,39 +348,11 @@ final class UserPortalManager
                 });
             },
             'renderLeagueMatchGamesForm' => static function ($matchId, $homeClubId, $awayClubId, $maxGames) {
-                return self::renderLeagueMatchGamesForm($matchId, $homeClubId, $awayClubId, $maxGames);
-            },
-        ]);
-    }
-    private static function renderPlayerSelect($name, array $options, $selectedId)
-    {
-        return UserPortalLeagueGamesService::renderPlayerSelect($name, $options, $selectedId);
-    }
-
-    private static function playersByClub($clubId)
-    {
-        return UserPortalLeagueGamesService::playersByClub($clubId);
-    }
-
-    private static function expectedDoublesOrderByCompetition($ligaSlug, $sezonaSlug)
-    {
-        return UserPortalLeagueGamesService::expectedDoublesOrderByCompetition($ligaSlug, $sezonaSlug);
-    }
-
-    private static function renderLeagueMatchGamesForm($matchId, $homeClubId, $awayClubId, $maxGames)
-    {
-        return UserPortalLeagueGamesService::renderLeagueMatchGamesForm($matchId, $homeClubId, $awayClubId, $maxGames, [
-            'tableExists' => static function ($tableName) {
-                return self::tableExists($tableName);
-            },
-        ]);
-    }
-
-    private static function applyFrontGamesBatchForMatch($match, array $postedGames, &$error = '')
-    {
-        return UserPortalLeagueGamesService::applyFrontGamesBatchForMatch($match, $postedGames, $error, [
-            'tableExists' => static function ($tableName) {
-                return self::tableExists($tableName);
+                return UserPortalLeagueGamesService::renderLeagueMatchGamesForm($matchId, $homeClubId, $awayClubId, $maxGames, [
+                    'tableExists' => static function ($tableName) {
+                        return self::tableExists($tableName);
+                    },
+                ]);
             },
         ]);
     }
@@ -512,7 +484,11 @@ final class UserPortalManager
                 return self::canManageLeague($userId, $leagueSlug, $seasonSlug);
             },
             'applyFrontGamesBatchForMatch' => static function ($match, array $postedGames, &$error = '') {
-                return self::applyFrontGamesBatchForMatch($match, $postedGames, $error);
+                return UserPortalLeagueGamesService::applyFrontGamesBatchForMatch($match, $postedGames, $error, [
+                    'tableExists' => static function ($tableName) {
+                        return self::tableExists($tableName);
+                    },
+                ]);
             },
         ]);
     }

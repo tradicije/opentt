@@ -52,6 +52,8 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Extracted team-manager frontend view rendering into `src/WordPress/UserPortalTeamManagerViewService.php` (`renderTeamManagerTools`) and replaced the `UserPortalManager` implementation with dependency-based delegation; `UserPortalManager` reduced further from ~950 to ~867 LOC with unchanged team-manager behavior.
 - Extracted editor frontend rendering into `src/WordPress/UserPortalEditorViewService.php` (`renderEditorTools`, `renderEditorPosts`) and switched `UserPortalManager` profile wiring to service delegation; `UserPortalManager` reduced further from ~867 to ~797 LOC with no behavior change.
 - Extracted users-admin screen and save workflow into `src/WordPress/UserPortalUsersAdminService.php` (`renderUsersAdminPage`, `handleSaveUserAccess`) and replaced `UserPortalManager` implementations with callback/config delegation; `UserPortalManager` reduced further from ~797 to ~624 LOC while preserving current admin access-management behavior.
+- Removed redundant league-games passthrough wrappers from `src/WordPress/UserPortalManager.php` and switched remaining call sites to direct `UserPortalLeagueGamesService` delegation with existing callbacks; `UserPortalManager` reduced further from ~624 to ~600 LOC.
+- Simplified shortcode trait match-query wiring by removing redundant private proxy methods (`db_get_matches`, `db_get_match_by_id`, `db_get_match_by_keys`, `db_get_h2h_matches`, `db_get_games_for_match_id`, `db_get_sets_for_game_id`, `db_get_latest_liga_for_club`, `normalize_played_shortcode_attr`) and routing call sites directly to `OpenTT_Unified_Shortcode_Match_Query_Service`; `trait-opentt-unified-shortcodes.php` reduced from ~1483 to ~1443 LOC.
 
 ### Admin & Data Entry
 
