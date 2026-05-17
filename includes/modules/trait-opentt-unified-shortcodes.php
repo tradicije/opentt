@@ -1490,131 +1490,37 @@ trait OpenTT_Unified_Shortcodes_Trait
 
     private static function render_matches_grid_html($rows, $columns, $with_kolo_attr)
     {
-        if (empty($rows)) {
-            return '<p>Nema utakmica za prikaz.</p>';
-        }
-
-        ob_start();
-        echo '<div class="opentt-grid-wrapper"><div class="opentt-grid cols-' . intval($columns) . '">';
-        $last_kolo_slug = null;
-        foreach ($rows as $row) {
-            $home_id = intval($row->home_club_post_id);
-            $away_id = intval($row->away_club_post_id);
-            $rd = intval($row->home_score);
-            $rg = intval($row->away_score);
-            $is_played = intval($row->played) === 1 || $rd > 0 || $rg > 0;
-            $is_live = self::is_match_live($row);
-            $is_upcoming_no_score = !$is_played && $rd === 0 && $rg === 0;
-            $home_win = ($rd === 4);
-            $away_win = ($rg === 4);
-            $kolo_slug = sanitize_title((string) $row->kolo_slug);
-            $kolo_no = self::extract_round_no($kolo_slug);
-            $kolo_name = self::kolo_heading_label($kolo_slug, $kolo_no);
-            $date = self::display_match_date($row->match_date);
-            $time = self::display_match_time($row->match_date);
-            $time_label = $time !== '' ? $time : '--:--';
-            $link = self::match_permalink($row);
-
-            if ($kolo_slug !== '' && $kolo_slug !== $last_kolo_slug) {
-                echo '<div class="opentt-grid-round-heading" data-kolo-slug="' . esc_attr($kolo_slug) . '"><span>' . esc_html($kolo_name) . '</span></div>';
-                $last_kolo_slug = $kolo_slug;
-            }
-
-            $attr = '';
-            if ($with_kolo_attr) {
-                $match_ts = self::parse_match_timestamp((string) $row->match_date);
-                if ($match_ts === false) {
-                    $match_ts = 0;
-                }
-                $match_date_iso = substr((string) $row->match_date, 0, 10);
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $match_date_iso)) {
-                    $match_date_iso = '';
-                }
-                $attr = ' data-kolo-slug="' . esc_attr($kolo_slug) . '"';
-                $attr .= ' data-kolo-name="' . esc_attr($kolo_name) . '"';
-                $attr .= ' data-kolo-no="' . esc_attr((string) $kolo_no) . '"';
-                $attr .= ' data-match-ts="' . esc_attr((string) intval($match_ts)) . '"';
-                $attr .= ' data-match-date="' . esc_attr($match_date_iso) . '"';
-                $attr .= ' data-match-date-display="' . esc_attr($date) . '"';
-                $attr .= ' data-played="' . esc_attr((string) intval($row->played)) . '"';
-                $attr .= ' data-home-club-id="' . esc_attr((string) $home_id) . '"';
-                $attr .= ' data-away-club-id="' . esc_attr((string) $away_id) . '"';
-            }
-
-            $is_highlight = !empty($row->opentt_is_highlight);
-            $item_class = 'opentt-item'
-                . ($is_live ? ' opentt-item-live' : '')
-                . ($is_highlight ? ' is-highlight' : '');
-            echo '<div class="' . esc_attr($item_class) . '"' . $attr . '>';
-            echo '<a href="' . esc_url($link) . '">';
-            echo '<div class="opentt-item-main">';
-            echo '<div class="opentt-item-teams">';
-            $fallback_score_label = $is_upcoming_no_score ? $time_label : '';
-            echo self::render_team_html($home_id, $rd, $home_win, !$is_upcoming_no_score, $fallback_score_label);
-            echo self::render_team_html($away_id, $rg, $away_win, !$is_upcoming_no_score, '');
-            echo '</div>';
-            echo '<div class="opentt-item-side" aria-label="Vreme utakmice">';
-            if ($is_live) {
-                echo '<span class="opentt-item-side-top">' . esc_html($date) . '</span>';
-                echo '<span class="opentt-item-side-bottom"><span class="opentt-live-badge">LIVE</span></span>';
-            } elseif ($is_played) {
-                echo '<span class="opentt-item-side-top">' . esc_html($date) . '</span>';
-                echo '<span class="opentt-item-side-bottom">Kraj</span>';
-            } else {
-                echo '<span class="opentt-item-side-top">' . esc_html($date) . '</span>';
-                echo '<span class="opentt-item-side-bottom">' . esc_html($time_label) . '</span>';
-            }
-            echo '</div>';
-            echo '</div>';
-            echo '</a></div>';
-        }
-        echo '</div></div>';
-        return ob_get_clean();
+        return OpenTT_Unified_Grid_Render_Service::render_matches_grid_html($rows, $columns, $with_kolo_attr, [
+            'extract_round_no' => static function ($slug) {
+                return self::extract_round_no($slug);
+            },
+            'kolo_heading_label' => static function ($slug, $round_no = null) {
+                return self::kolo_heading_label($slug, $round_no);
+            },
+            'display_match_date' => static function ($match_date) {
+                return self::display_match_date($match_date);
+            },
+            'display_match_time' => static function ($match_date) {
+                return self::display_match_time($match_date);
+            },
+            'match_permalink' => static function ($row) {
+                return self::match_permalink($row);
+            },
+            'parse_match_timestamp' => static function ($match_date, $end_of_day_if_midnight = false) {
+                return self::parse_match_timestamp($match_date, $end_of_day_if_midnight);
+            },
+            'is_match_live' => static function ($row) {
+                return self::is_match_live($row);
+            },
+            'render_team_html' => static function ($club_id, $score, $is_winner, $show_score = true, $fallback_score_label = '') {
+                return self::render_team_html($club_id, $score, $is_winner, $show_score, $fallback_score_label);
+            },
+        ]);
     }
 
     private static function render_clubs_grid_html($rows, $columns, $with_attrs)
     {
-        if (empty($rows)) {
-            return '<p>Nema klubova za prikaz.</p>';
-        }
-
-        ob_start();
-        echo '<div class="opentt-klubovi">';
-        echo '<div class="opentt-klubovi-grid cols-' . intval($columns) . '">';
-        foreach ($rows as $row) {
-            $club_id = intval($row['id'] ?? 0);
-            $url = (string) ($row['url'] ?? '');
-            $display_name = (string) ($row['display_name'] ?? '');
-            $league_label = (string) ($row['league_label'] ?? 'Bez takmičenja');
-            $grad_label = trim((string) ($row['grad_label'] ?? ''));
-            $logo_html = (string) ($row['logo_html'] ?? '');
-            $sort_name = (string) ($row['sort_name'] ?? '');
-            $league_slug = sanitize_title((string) ($row['league_slug'] ?? ''));
-            $opstina_slug = sanitize_title((string) ($row['opstina_slug'] ?? ''));
-
-            $attrs = ' data-club-id="' . esc_attr((string) $club_id) . '"';
-            if ($with_attrs) {
-                $attrs .= ' data-league-slug="' . esc_attr($league_slug) . '"';
-                $attrs .= ' data-opstina-slug="' . esc_attr($opstina_slug) . '"';
-                $attrs .= ' data-sort-name="' . esc_attr($sort_name) . '"';
-            }
-
-            echo '<article class="opentt-klubovi-item"' . $attrs . '>';
-            echo '<a class="opentt-klubovi-link" href="' . esc_url($url) . '">';
-            echo '<span class="opentt-klubovi-logo-wrap">' . $logo_html . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo '<span class="opentt-klubovi-content">';
-            echo '<strong class="opentt-klubovi-name">' . esc_html($display_name) . '</strong>';
-            if ($grad_label !== '') {
-                echo '<span class="opentt-klubovi-city">' . esc_html($grad_label) . '</span>';
-            }
-            echo '<span class="opentt-klubovi-league">' . esc_html($league_label) . '</span>';
-            echo '</span>';
-            echo '</a>';
-            echo '</article>';
-        }
-        echo '</div>';
-        echo '</div>';
-        return ob_get_clean();
+        return OpenTT_Unified_Grid_Render_Service::render_clubs_grid_html($rows, $columns, $with_attrs);
     }
 
     private static function club_fallback_image_url()
