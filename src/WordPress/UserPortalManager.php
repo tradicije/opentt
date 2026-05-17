@@ -1280,200 +1280,56 @@ final class UserPortalManager
 
     public static function handleFrontSaveLeagueMatch()
     {
-        if (!is_user_logged_in()) {
-            wp_safe_redirect(home_url('/prijava/'));
-            exit;
-        }
-
-        $matchId = isset($_POST['match_id']) ? intval($_POST['match_id']) : 0;
-        if ($matchId <= 0) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nedostaje ID utakmice.'));
-            exit;
-        }
-        check_admin_referer('opentt_front_save_league_match_' . $matchId);
-
-        global $wpdb;
-        $matchesTable = \OpenTT_Unified_Core::db_table('matches');
-        if (!self::tableExists($matchesTable)) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Tabela utakmica nije dostupna.'));
-            exit;
-        }
-
-        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$matchesTable} WHERE id=%d LIMIT 1", $matchId));
-        if (!$row || !is_object($row)) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Utakmica nije pronađena.'));
-            exit;
-        }
-
-        $userId = get_current_user_id();
-        if (!self::canManageLeague($userId, (string) ($row->liga_slug ?? ''), (string) ($row->sezona_slug ?? ''))) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nemaš dozvolu za ovu ligu.'));
-            exit;
-        }
-
-        $homeScore = max(0, intval($_POST['home_score'] ?? 0));
-        $awayScore = max(0, intval($_POST['away_score'] ?? 0));
-        $homeClubId = isset($_POST['home_club_post_id']) ? intval($_POST['home_club_post_id']) : intval($row->home_club_post_id ?? 0);
-        $awayClubId = isset($_POST['away_club_post_id']) ? intval($_POST['away_club_post_id']) : intval($row->away_club_post_id ?? 0);
-        if ($homeClubId <= 0 || $awayClubId <= 0 || $homeClubId === $awayClubId) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Proveri izbor domaćina i gosta.'));
-            exit;
-        }
-        $seasonSlug = isset($_POST['sezona_slug']) ? sanitize_title((string) wp_unslash($_POST['sezona_slug'])) : sanitize_title((string) ($row->sezona_slug ?? ''));
-        $roundSlug = isset($_POST['kolo_slug']) ? sanitize_title((string) wp_unslash($_POST['kolo_slug'])) : sanitize_title((string) ($row->kolo_slug ?? ''));
-        if ($seasonSlug === '' || $roundSlug === '') {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Sezona i kolo su obavezni.'));
-            exit;
-        }
-        $played = isset($_POST['played']) ? 1 : (($homeScore >= 4 || $awayScore >= 4) ? 1 : 0);
-        $live = isset($_POST['live']) ? 1 : 0;
-        if ($played === 1) {
-            $live = 0;
-        }
-        $matchDate = self::normalizeMatchDate((string) wp_unslash($_POST['match_date'] ?? (string) ($row->match_date ?? '')));
-        $location = sanitize_text_field((string) wp_unslash($_POST['location'] ?? (string) ($row->location ?? '')));
-
-        $wpdb->update($matchesTable, [
-            'sezona_slug' => $seasonSlug,
-            'kolo_slug' => $roundSlug,
-            'home_club_post_id' => $homeClubId,
-            'away_club_post_id' => $awayClubId,
-            'home_score' => $homeScore,
-            'away_score' => $awayScore,
-            'played' => $played,
-            'live' => $live,
-            'match_date' => $matchDate,
-            'location' => $location,
-            'updated_at' => current_time('mysql'),
-        ], ['id' => $matchId]);
-
-        wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'success', 'Utakmica je sačuvana.'));
-        exit;
+        UserPortalLeagueMatchService::handleFrontSaveLeagueMatch([
+            'frontendNoticeUrl' => static function ($baseUrl, $status, $message) {
+                return self::frontendNoticeUrl($baseUrl, $status, $message);
+            },
+            'tableExists' => static function ($tableName) {
+                return self::tableExists($tableName);
+            },
+            'canManageLeague' => static function ($userId, $leagueSlug, $seasonSlug = '') {
+                return self::canManageLeague($userId, $leagueSlug, $seasonSlug);
+            },
+            'normalizeMatchDate' => static function ($raw) {
+                return self::normalizeMatchDate($raw);
+            },
+        ]);
     }
 
     public static function handleFrontSaveLeagueGames()
     {
-        if (!is_user_logged_in()) {
-            wp_safe_redirect(home_url('/prijava/'));
-            exit;
-        }
-
-        $matchId = isset($_POST['match_id']) ? intval($_POST['match_id']) : 0;
-        if ($matchId <= 0) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nedostaje ID utakmice za partije.'));
-            exit;
-        }
-        check_admin_referer('opentt_front_save_league_games_' . $matchId);
-
-        global $wpdb;
-        $matchesTable = \OpenTT_Unified_Core::db_table('matches');
-        if (!self::tableExists($matchesTable)) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Tabela utakmica nije dostupna.'));
-            exit;
-        }
-        $match = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$matchesTable} WHERE id=%d LIMIT 1", $matchId));
-        if (!$match || !is_object($match)) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Utakmica nije pronađena.'));
-            exit;
-        }
-        $userId = get_current_user_id();
-        if (!self::canManageLeague($userId, (string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''))) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nemaš dozvolu za unos partija u ovoj ligi.'));
-            exit;
-        }
-
-        $postedGames = isset($_POST['games']) && is_array($_POST['games']) ? (array) $_POST['games'] : [];
-        $error = '';
-        if (!self::applyFrontGamesBatchForMatch($match, $postedGames, $error)) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/?opentt_profile_tab=league'), 'error', $error !== '' ? $error : 'Greška pri čuvanju partija.'));
-            exit;
-        }
-
-        wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/?opentt_profile_tab=league'), 'success', 'Partije su sačuvane.'));
-        exit;
+        UserPortalLeagueMatchService::handleFrontSaveLeagueGames([
+            'frontendNoticeUrl' => static function ($baseUrl, $status, $message) {
+                return self::frontendNoticeUrl($baseUrl, $status, $message);
+            },
+            'tableExists' => static function ($tableName) {
+                return self::tableExists($tableName);
+            },
+            'canManageLeague' => static function ($userId, $leagueSlug, $seasonSlug = '') {
+                return self::canManageLeague($userId, $leagueSlug, $seasonSlug);
+            },
+            'applyFrontGamesBatchForMatch' => static function ($match, array $postedGames, &$error = '') {
+                return self::applyFrontGamesBatchForMatch($match, $postedGames, $error);
+            },
+        ]);
     }
 
     public static function handleFrontAddLeagueMatch()
     {
-        if (!is_user_logged_in()) {
-            wp_safe_redirect(home_url('/prijava/'));
-            exit;
-        }
-
-        $leagueSlug = isset($_POST['liga_slug']) ? sanitize_title((string) wp_unslash($_POST['liga_slug'])) : '';
-        check_admin_referer('opentt_front_add_league_match_' . $leagueSlug);
-
-        if ($leagueSlug === '') {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Liga je obavezna.'));
-            exit;
-        }
-
-        $userId = get_current_user_id();
-        $seasonSlug = isset($_POST['sezona_slug']) ? sanitize_title((string) wp_unslash($_POST['sezona_slug'])) : '';
-        $roundSlug = isset($_POST['kolo_slug']) ? sanitize_title((string) wp_unslash($_POST['kolo_slug'])) : '';
-        $homeClubId = isset($_POST['home_club_post_id']) ? intval($_POST['home_club_post_id']) : 0;
-        $awayClubId = isset($_POST['away_club_post_id']) ? intval($_POST['away_club_post_id']) : 0;
-        $location = sanitize_text_field((string) wp_unslash($_POST['location'] ?? ''));
-        $matchDate = self::normalizeMatchDate((string) wp_unslash($_POST['match_date'] ?? ''));
-
-        if ($seasonSlug === '' || $roundSlug === '' || $homeClubId <= 0 || $awayClubId <= 0 || $homeClubId === $awayClubId) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Proveri obavezna polja za novu utakmicu.'));
-            exit;
-        }
-        if (!self::canManageLeague($userId, $leagueSlug, $seasonSlug)) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Nemaš dozvolu za ovu ligu/sezonu.'));
-            exit;
-        }
-
-        global $wpdb;
-        $matchesTable = \OpenTT_Unified_Core::db_table('matches');
-        if (!self::tableExists($matchesTable)) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Tabela utakmica nije dostupna.'));
-            exit;
-        }
-
-        $baseSlug = sanitize_title((string) get_the_title($homeClubId) . '-' . (string) get_the_title($awayClubId));
-        if ($baseSlug === '') {
-            $baseSlug = 'utakmica';
-        }
-        $slug = $baseSlug;
-        for ($i = 0; $i < 50; $i++) {
-            $exists = $wpdb->get_var($wpdb->prepare(
-                "SELECT id FROM {$matchesTable} WHERE liga_slug=%s AND sezona_slug=%s AND kolo_slug=%s AND slug=%s LIMIT 1",
-                $leagueSlug,
-                $seasonSlug,
-                $roundSlug,
-                $slug
-            ));
-            if (!$exists) {
-                break;
-            }
-            $slug = $baseSlug . '-' . ($i + 2);
-        }
-
-        $ok = $wpdb->insert($matchesTable, [
-            'slug' => $slug,
-            'liga_slug' => $leagueSlug,
-            'sezona_slug' => $seasonSlug,
-            'kolo_slug' => $roundSlug,
-            'home_club_post_id' => $homeClubId,
-            'away_club_post_id' => $awayClubId,
-            'home_score' => 0,
-            'away_score' => 0,
-            'played' => 0,
-            'match_date' => $matchDate,
-            'location' => $location,
-            'created_at' => current_time('mysql'),
-            'updated_at' => current_time('mysql'),
+        UserPortalLeagueMatchService::handleFrontAddLeagueMatch([
+            'frontendNoticeUrl' => static function ($baseUrl, $status, $message) {
+                return self::frontendNoticeUrl($baseUrl, $status, $message);
+            },
+            'tableExists' => static function ($tableName) {
+                return self::tableExists($tableName);
+            },
+            'canManageLeague' => static function ($userId, $leagueSlug, $seasonSlug = '') {
+                return self::canManageLeague($userId, $leagueSlug, $seasonSlug);
+            },
+            'normalizeMatchDate' => static function ($raw) {
+                return self::normalizeMatchDate($raw);
+            },
         ]);
-
-        if ($ok === false) {
-            wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'error', 'Dodavanje utakmice nije uspelo.'));
-            exit;
-        }
-
-        wp_safe_redirect(self::frontendNoticeUrl(home_url('/profil/'), 'success', 'Nova utakmica je dodata.'));
-        exit;
     }
 
     public static function handleFrontTeamSaveClub()

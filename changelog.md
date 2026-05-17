@@ -44,6 +44,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Extracted match shortcode query-argument building (`build_match_query_args`, `normalize_played_shortcode_attr`) into `includes/class-opentt-unified-shortcode-match-query-service.php` with trait-level delegation and dependency callbacks, preserving archive-context and legacy league-season parsing behavior while reducing trait monolith size.
 - Extracted shortcode UI helpers into `includes/class-opentt-unified-shortcode-ui-service.php` (`shortcode_title_html`, `info_link_icon_html`, `render_top_player_card_list`) and switched trait methods to delegation; this further shrinks the shortcode trait while keeping existing shortcode rendering behavior and icon-loading logic.
 - Extracted user-portal auth/profile flows into `src/WordPress/UserPortalAuthService.php` (`renderAuthShortcode`, `renderAuthMenuShortcode`, `renderProfileShortcode`, `handleFrontRegister`, `handleFrontProfileUpdate`) and converted `UserPortalManager` methods to delegators, reducing `UserPortalManager` from ~2021 to ~1808 LOC without functional changes.
+- Extracted league match submit handlers into `src/WordPress/UserPortalLeagueMatchService.php` (`handleFrontSaveLeagueMatch`, `handleFrontSaveLeagueGames`, `handleFrontAddLeagueMatch`) and switched `UserPortalManager` to callback-based delegation; `UserPortalManager` reduced further from ~1808 to ~1664 LOC with no behavior change.
 
 ### Admin & Data Entry
 
