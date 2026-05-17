@@ -49,6 +49,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Extracted league games helpers into `src/WordPress/UserPortalLeagueGamesService.php` (`renderPlayerSelect`, `playersByClub`, `expectedDoublesOrderByCompetition`, `renderLeagueMatchGamesForm`, `applyFrontGamesBatchForMatch`) and replaced corresponding `UserPortalManager` implementations with thin delegates; `UserPortalManager` reduced further from ~1551 to ~1271 LOC with unchanged league-admin games flow.
 - Extracted league-admin UI rendering into `src/WordPress/UserPortalLeagueAdminViewService.php` (`renderLeagueAdminTools`) and switched `UserPortalManager` to dependency-based delegation for league/season tabs, match cards, and inline games forms; `UserPortalManager` reduced further from ~1271 to ~1078 LOC with no intended behavior change.
 - Extracted shared user-portal utility logic into `src/WordPress/UserPortalUtilityService.php` (`verifyTurnstileToken`, `normalizeMatchDate`, `collectLeagueClubIds`, `profileAvatarUrl`) and switched `UserPortalManager` call sites to delegation/callback usage; `UserPortalManager` reduced further from ~1078 to ~950 LOC without functional changes.
+- Extracted team-manager frontend view rendering into `src/WordPress/UserPortalTeamManagerViewService.php` (`renderTeamManagerTools`) and replaced the `UserPortalManager` implementation with dependency-based delegation; `UserPortalManager` reduced further from ~950 to ~867 LOC with unchanged team-manager behavior.
 
 ### Admin & Data Entry
 
