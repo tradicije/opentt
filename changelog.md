@@ -25,6 +25,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Extended admin lineup assistant with multi-reserve support per side and added a match overview card above the games block (home/away crest+name, centered league/season, score, round, and date).
 - Refined wp-admin `Partije` tab layout to a flatter structure (fewer nested wrappers) with section/fieldset-based lineup UI for cleaner maintenance and faster operator scanning.
 - Applied a full OpenTT admin visual redesign with a scoped dark-minimal responsive theme (surfaces, typography, tables, forms, buttons, notices, tabs, modals, and games-entry blocks) while preserving existing functionality.
+- Reworked the OpenTT admin redesign into a full scoped light-minimal responsive system with modern spacing, hierarchy, cards, controls, and table/form polish while keeping plugin functionality unchanged.
 - Improved `opentt_matches_list` with contextual league-season navigation, no-refresh round switching, mobile-friendly layout, highlight support including `highlight="auto"`, report/video indicators, and updater attribution.
 - Improved match cards for played and upcoming matches so upcoming fixtures show kickoff time instead of placeholder `0:0` scores.
 - Added clickable club navigation to mini standings rows and match team cards.

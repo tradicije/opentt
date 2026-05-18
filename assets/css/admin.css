@@ -1043,22 +1043,22 @@
 }
 
 /* ==========================================================================
-   OpenTT Admin Redesign: Dark Minimalism
+   OpenTT Admin Redesign: Light Minimalism
    Scoped only to OpenTT admin wrappers (.opentt-admin)
    ========================================================================== */
 .opentt-admin {
-  --opentt-bg: #0b1220;
-  --opentt-surface: #111a2b;
-  --opentt-surface-soft: #0f1727;
-  --opentt-border: #1f2a3d;
-  --opentt-border-strong: #334155;
-  --opentt-text: #e6edf7;
-  --opentt-muted: #95a4bf;
-  --opentt-primary: #38bdf8;
-  --opentt-primary-strong: #0ea5e9;
-  --opentt-danger: #f87171;
-  --opentt-success: #34d399;
-  --opentt-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+  --opentt-bg: #f4f7fc;
+  --opentt-surface: #ffffff;
+  --opentt-surface-soft: #f8fbff;
+  --opentt-border: #dbe5f2;
+  --opentt-border-strong: #bfd1e8;
+  --opentt-text: #11253f;
+  --opentt-muted: #5f728c;
+  --opentt-primary: #0b6bd3;
+  --opentt-primary-strong: #0954a6;
+  --opentt-danger: #c23737;
+  --opentt-success: #0f9a63;
+  --opentt-shadow: 0 12px 28px rgba(17, 37, 63, 0.08);
   color: var(--opentt-text);
 }
 
@@ -1068,9 +1068,9 @@
 }
 
 .wrap.opentt-admin::after {
-  color: #89a0bf;
-  border-color: #2a3a56;
-  background: #0f1727;
+  color: #587196;
+  border-color: #d4e0ef;
+  background: #f7faff;
 }
 
 .opentt-admin h1,
@@ -1078,6 +1078,7 @@
 .opentt-admin h3,
 .opentt-admin h4 {
   color: var(--opentt-text);
+  letter-spacing: -0.01em;
 }
 
 .opentt-admin p,
@@ -1092,7 +1093,7 @@
 }
 
 .opentt-admin a:hover {
-  color: #7dd3fc;
+  color: #0a57aa;
 }
 
 .opentt-admin .opentt-admin-topbar,
@@ -1102,7 +1103,7 @@
 .opentt-admin .form-table,
 .opentt-admin .opentt-help-dialog,
 .opentt-admin .opentt-player-picker-dialog {
-  background: linear-gradient(180deg, #111a2b 0%, #0f1727 100%);
+  background: var(--opentt-surface);
   border-color: var(--opentt-border);
   box-shadow: var(--opentt-shadow);
 }
@@ -1113,16 +1114,10 @@
 
 .opentt-admin .opentt-dashboard-primary-card,
 .opentt-admin .opentt-panel.opentt-dashboard-primary-card {
-  background: linear-gradient(180deg, #132238 0%, #101d31 100%);
-  border-color: #244263;
+  background: linear-gradient(180deg, #f2f8ff 0%, #ecf4ff 100%);
+  border-color: #c8dcf5;
   color: var(--opentt-text);
-  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.08), var(--opentt-shadow);
-}
-
-.opentt-admin .opentt-dashboard-primary-card strong,
-.opentt-admin .opentt-dashboard-primary-card li,
-.opentt-admin .opentt-dashboard-primary-card p {
-  color: var(--opentt-text);
+  box-shadow: inset 0 0 0 1px rgba(11, 107, 211, 0.08), var(--opentt-shadow);
 }
 
 .opentt-admin .button,
@@ -1135,33 +1130,29 @@
 .opentt-admin .button,
 .opentt-admin .button-secondary,
 .opentt-admin .page-title-action {
-  background: #18253b;
-  border-color: #2a3a56;
-  color: #d7e5f8;
+  background: #f5f9ff;
+  border-color: #c8d8ec;
+  color: #173b63;
 }
 
 .opentt-admin .button:hover,
 .opentt-admin .button-secondary:hover,
 .opentt-admin .page-title-action:hover {
-  background: #1d2e48;
-  border-color: #3b4f70;
-  color: #edf4ff;
+  background: #ecf4ff;
+  border-color: #9fbde1;
+  color: #102f53;
 }
 
 .opentt-admin .button.button-primary {
-  background: linear-gradient(180deg, #1da3da 0%, #0e8fc3 100%);
-  border-color: #0b7eab;
-  color: #02131f;
+  background: linear-gradient(180deg, #1d87ef 0%, #0d6fd2 100%);
+  border-color: #0b62ba;
+  color: #ffffff;
   font-weight: 700;
 }
 
 .opentt-admin .button.button-primary:hover {
-  background: linear-gradient(180deg, #39bdf2 0%, #16a0d9 100%);
-  border-color: #1493ca;
-}
-
-.opentt-admin .button-link {
-  color: var(--opentt-primary);
+  background: linear-gradient(180deg, #2a93f7 0%, #1179df 100%);
+  border-color: #0d69c5;
 }
 
 .opentt-admin input[type="text"],
@@ -1174,9 +1165,9 @@
 .opentt-admin input[type="datetime-local"],
 .opentt-admin select,
 .opentt-admin textarea {
-  background: #0b1424;
-  border: 1px solid #2a3a56;
-  color: #d8e5f8;
+  background: #ffffff;
+  border: 1px solid #c7d8ec;
+  color: #153559;
   border-radius: 10px;
   box-shadow: none;
 }
@@ -1191,76 +1182,43 @@
 .opentt-admin input[type="datetime-local"]:focus,
 .opentt-admin select:focus,
 .opentt-admin textarea:focus {
-  border-color: var(--opentt-primary);
-  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35);
+  border-color: #4e9ff1;
+  box-shadow: 0 0 0 3px rgba(29, 135, 239, 0.16);
   outline: none;
 }
 
 .opentt-admin input::placeholder,
 .opentt-admin textarea::placeholder {
-  color: #6f86a6;
+  color: #88a0bf;
 }
 
 .opentt-admin .widefat th,
 .opentt-admin .widefat td {
-  border-bottom-color: #1f2a3d;
-  color: #d5e3f5;
+  border-bottom-color: #e2ebf6;
+  color: #17375d;
 }
 
 .opentt-admin .widefat thead th,
 .opentt-admin .widefat tfoot th {
-  background: #101b2d;
-  color: #a9bdd8;
-  border-bottom-color: #2a3a56;
+  background: #f3f8ff;
+  color: #456389;
+  border-bottom-color: #d6e4f5;
 }
 
 .opentt-admin .widefat.striped > tbody > :nth-child(odd),
 .opentt-admin .widefat tbody tr:nth-child(odd) {
-  background: rgba(18, 29, 46, 0.45);
+  background: #fbfdff;
 }
 
 .opentt-admin .widefat tbody tr:hover {
-  background: rgba(56, 189, 248, 0.08);
-}
-
-.opentt-admin .opentt-list-search-form {
-  background: #0f1829;
-  border-color: #243550;
-  box-shadow: none;
-}
-
-.opentt-admin .opentt-help-card {
-  border-color: #1f3b57;
-  background: linear-gradient(180deg, #13314b 0%, #102c43 100%);
-}
-
-.opentt-admin .opentt-help-card:hover {
-  border-color: #2b5a85;
-  background: linear-gradient(180deg, #163b59 0%, #12344f 100%);
-}
-
-.opentt-admin .opentt-help-card span {
-  color: #bad2ee;
-}
-
-.opentt-admin .opentt-help-step,
-.opentt-admin .opentt-help-detail,
-.opentt-admin .opentt-player-picker-item {
-  background: #0f1829;
-  border-color: #22324b;
-}
-
-.opentt-admin .opentt-help-step:hover,
-.opentt-admin .opentt-player-picker-item:hover {
-  border-color: #3a5a84;
-  background: #132035;
+  background: #f1f7ff;
 }
 
 .opentt-admin .notice,
 .opentt-admin .notice.inline {
-  background: #101a2c;
-  border-color: #274061;
-  color: #dce8f8;
+  background: #f8fbff;
+  border-color: #cfe0f5;
+  color: #1f4269;
 }
 
 .opentt-admin .notice-success {
@@ -1272,83 +1230,107 @@
 }
 
 .opentt-admin .notice-warning {
-  border-left-color: #fbbf24;
+  border-left-color: #d89c11;
 }
 
 .opentt-admin .notice-info {
   border-left-color: var(--opentt-primary);
 }
 
+.opentt-admin .opentt-help-card {
+  border-color: #c4daf3;
+  background: linear-gradient(180deg, #eaf4ff 0%, #dcebff 100%);
+  color: #103f70;
+}
+
+.opentt-admin .opentt-help-card:hover {
+  border-color: #9fc4eb;
+  background: linear-gradient(180deg, #e2f0ff 0%, #d1e5ff 100%);
+}
+
+.opentt-admin .opentt-help-card span {
+  color: #406893;
+}
+
+.opentt-admin .opentt-help-step,
+.opentt-admin .opentt-help-detail,
+.opentt-admin .opentt-player-picker-item {
+  background: #f7fbff;
+  border-color: #d3e1f3;
+}
+
+.opentt-admin .opentt-help-step:hover,
+.opentt-admin .opentt-player-picker-item:hover {
+  border-color: #a8c5e8;
+  background: #eff6ff;
+}
+
 .opentt-admin .opentt-match-edit-tabs-nav .button {
-  background: #121d30;
-  border-color: #2a3a56;
-  color: #b8c9e1;
+  background: #f5f9ff;
+  border-color: #ccdcef;
+  color: #5a7392;
 }
 
 .opentt-admin .opentt-match-edit-tabs-nav .button.button-primary,
 .opentt-admin .opentt-match-edit-tabs-nav .button.is-active {
-  background: #1a314c;
-  border-color: #3f5f88;
-  color: #e8f2ff;
+  background: #e8f2ff;
+  border-color: #9ebfe6;
+  color: #123f6e;
 }
 
 .opentt-admin .opentt-games-batch-row {
-  border: 1px solid #1f2a3d;
+  border: 1px solid #d8e5f5;
   border-radius: 12px;
-  background: #0f1727;
+  background: #ffffff;
   padding: 12px;
   margin-bottom: 10px;
 }
 
 .opentt-admin .opentt-games-batch-note {
-  color: #86a0c1;
+  color: #6a80a0;
 }
 
 .opentt-admin .opentt-sets-batch-grid label {
-  background: #0c1525;
-  border: 1px solid #1f2a3d;
+  background: #f8fbff;
+  border: 1px solid #dbe7f6;
   border-radius: 10px;
   padding: 8px;
 }
 
 .opentt-admin .opentt-admin-teams-overview {
-  background: linear-gradient(180deg, #111c30 0%, #0e1728 100%) !important;
-  border-color: #243550 !important;
+  background: linear-gradient(180deg, #f7fbff 0%, #eef6ff 100%) !important;
+  border-color: #d1e2f5 !important;
 }
 
 .opentt-admin .opentt-admin-teams-overview .meta,
 .opentt-admin .opentt-admin-teams-overview .footer {
-  color: #96acca !important;
+  color: #55769b !important;
 }
 
 .opentt-admin .opentt-admin-teams-overview .name {
-  color: #e6edf7 !important;
+  color: #123a61 !important;
 }
 
 .opentt-admin .opentt-admin-teams-overview .score {
-  background: #0b1424 !important;
-  border-color: #2f4668 !important;
-  color: #e8f4ff !important;
+  background: #ffffff !important;
+  border-color: #b8cee8 !important;
+  color: #17416d !important;
 }
 
 .opentt-admin .opentt-admin-lineup {
-  background: #0f1829 !important;
-  border-color: #243550 !important;
+  background: #ffffff !important;
+  border-color: #d5e3f4 !important;
 }
 
 .opentt-admin .opentt-admin-lineup fieldset {
-  border: 1px solid #22324b;
+  border: 1px solid #dbe7f6;
   border-radius: 10px;
   padding: 10px;
+  background: #f9fcff;
 }
 
 .opentt-admin .opentt-admin-lineup h4 {
-  color: #cfe0f5;
-}
-
-.opentt-admin .opentt-live-badge {
-  background: #7f1d1d;
-  border-color: #ef4444;
+  color: #2d547f;
 }
 
 @media (max-width: 1024px) {
