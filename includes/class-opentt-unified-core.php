@@ -2629,9 +2629,16 @@ HTML;
                 $home_sets = $g ? (int) $g->home_sets : 0;
                 $away_sets = $g ? (int) $g->away_sets : 0;
                 $existing_sets = ($g_id > 0 && isset($sets_by_game[$g_id])) ? $sets_by_game[$g_id] : [];
+                $pair_map = ($match_format === 'format_b')
+                    ? [1 => 'A vs Y', 2 => 'B vs X', 3 => 'C vs Z', 4 => 'A vs X', 5 => 'C vs Y', 6 => 'B vs Z']
+                    : [1 => 'A vs Y', 2 => 'B vs X', 3 => 'C vs Z', 5 => 'A vs X', 6 => 'C vs Y', 7 => 'B vs Z'];
+                $pair_label = isset($pair_map[$n]) ? (string) $pair_map[$n] : '';
 
                 echo '<div class="opentt-games-batch-row">';
-                echo '<h3>Partija #' . (int) $n . ($is_doubles ? ' (Dubl)' : '') . '</h3>';
+                echo '<h3>Partija #' . (int) $n
+                    . ($is_doubles ? ' (Dubl)' : '')
+                    . ($pair_label !== '' ? ' <span style="font-weight:500;color:#64748b;">(' . esc_html($pair_label) . ')</span>' : '')
+                    . '</h3>';
                 echo '<input type="hidden" name="games[' . (int) $n . '][game_id]" value="' . (int) $g_id . '">';
                 echo '<input type="hidden" name="games[' . (int) $n . '][order_no]" value="' . (int) $n . '">';
                 echo '<input type="hidden" name="games[' . (int) $n . '][is_doubles]" value="' . ($is_doubles ? '1' : '0') . '">';
