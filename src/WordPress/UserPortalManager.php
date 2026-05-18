@@ -483,12 +483,12 @@ final class UserPortalManager
             'canManageLeague' => static function ($userId, $leagueSlug, $seasonSlug = '') {
                 return self::canManageLeague($userId, $leagueSlug, $seasonSlug);
             },
-            'applyFrontGamesBatchForMatch' => static function ($match, array $postedGames, &$error = '') {
+            'applyFrontGamesBatchForMatch' => static function ($match, array $postedGames, &$error = '', array $postedLineup = []) {
                 return UserPortalLeagueGamesService::applyFrontGamesBatchForMatch($match, $postedGames, $error, [
                     'tableExists' => static function ($tableName) {
                         return self::tableExists($tableName);
                     },
-                ]);
+                ], $postedLineup);
             },
         ]);
     }

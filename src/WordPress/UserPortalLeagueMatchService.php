@@ -140,8 +140,9 @@ final class UserPortalLeagueMatchService
         }
 
         $postedGames = isset($_POST['games']) && is_array($_POST['games']) ? $_POST['games'] : [];
+        $postedLineup = isset($_POST['lineup']) && is_array($_POST['lineup']) ? $_POST['lineup'] : [];
         $error = '';
-        if (!$applyFrontGamesBatchForMatch($match, $postedGames, $error)) {
+        if (!$applyFrontGamesBatchForMatch($match, $postedGames, $error, $postedLineup)) {
             $msg = $error !== '' ? $error : 'Čuvanje partija nije uspelo.';
             wp_safe_redirect($frontendNoticeUrl(home_url('/profil/'), 'error', $msg));
             exit;

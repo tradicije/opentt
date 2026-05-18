@@ -13,6 +13,86 @@ namespace OpenTT\Unified\WordPress;
 
 final class UserPortalLeagueGamesService
 {
+    private static function matchFormatByCompetition($ligaSlug, $sezonaSlug)
+    {
+        $ligaSlug = sanitize_title((string) $ligaSlug);
+        $sezonaSlug = sanitize_title((string) $sezonaSlug);
+        if ($ligaSlug === '' || $sezonaSlug === '') {
+            return 'format_a';
+        }
+
+        $rules = get_posts([
+            'post_type' => 'pravilo_takmicenja',
+            'numberposts' => 1,
+            'post_status' => ['publish', 'draft', 'pending', 'private'],
+            'fields' => 'ids',
+            'meta_query' => [
+                'relation' => 'AND',
+                ['key' => 'opentt_competition_league_slug', 'value' => $ligaSlug, 'compare' => '='],
+                ['key' => 'opentt_competition_season_slug', 'value' => $sezonaSlug, 'compare' => '='],
+            ],
+        ]) ?: [];
+        $ruleId = !empty($rules) ? intval($rules[0]) : 0;
+        if ($ruleId <= 0) {
+            return 'format_a';
+        }
+
+        $format = sanitize_key((string) get_post_meta($ruleId, 'format_partija', true));
+        return $format === 'format_b' ? 'format_b' : 'format_a';
+    }
+
+    private static function lineupTemplateByFormat($format)
+    {
+        if ($format === 'format_b') {
+            return [
+                1 => ['home' => 'a', 'away' => 'y', 'doubles' => false],
+                2 => ['home' => 'b', 'away' => 'x', 'doubles' => false],
+                3 => ['home' => 'c', 'away' => 'z', 'doubles' => false],
+                4 => ['home' => 'a', 'away' => 'x', 'doubles' => false],
+                5 => ['home' => 'c', 'away' => 'y', 'doubles' => false],
+                6 => ['home' => 'b', 'away' => 'z', 'doubles' => false],
+                7 => ['home' => '', 'away' => '', 'doubles' => true],
+            ];
+        }
+
+        return [
+            1 => ['home' => 'a', 'away' => 'y', 'doubles' => false],
+            2 => ['home' => 'b', 'away' => 'x', 'doubles' => false],
+            3 => ['home' => 'c', 'away' => 'z', 'doubles' => false],
+            4 => ['home' => '', 'away' => '', 'doubles' => true],
+            5 => ['home' => 'a', 'away' => 'x', 'doubles' => false],
+            6 => ['home' => 'c', 'away' => 'y', 'doubles' => false],
+            7 => ['home' => 'b', 'away' => 'z', 'doubles' => false],
+        ];
+    }
+
+    private static function lineupIdByKey(array $lineup, $key)
+    {
+        $key = sanitize_key((string) $key);
+        return isset($lineup[$key]) ? intval($lineup[$key]) : 0;
+    }
+
+    private static function resolveGeneratedSinglesPlayers($orderNo, $format, array $lineup)
+    {
+        $template = self::lineupTemplateByFormat($format);
+        $row = isset($template[intval($orderNo)]) && is_array($template[intval($orderNo)]) ? $template[intval($orderNo)] : null;
+        if (!$row || !empty($row['doubles'])) {
+            return [0, 0];
+        }
+
+        $homeKey = (string) ($row['home'] ?? '');
+        $awayKey = (string) ($row['away'] ?? '');
+        $home = self::lineupIdByKey($lineup, 'home_' . $homeKey);
+        $away = self::lineupIdByKey($lineup, 'away_' . $awayKey);
+        if ($home <= 0) {
+            $home = self::lineupIdByKey($lineup, 'home_reserve');
+        }
+        if ($away <= 0) {
+            $away = self::lineupIdByKey($lineup, 'away_reserve');
+        }
+        return [$home, $away];
+    }
+
     public static function renderPlayerSelect($name, array $options, $selectedId)
     {
         $out = '<select name="' . esc_attr((string) $name) . '"><option value="">- izaberi -</option>';
@@ -65,30 +145,7 @@ final class UserPortalLeagueGamesService
 
     public static function expectedDoublesOrderByCompetition($ligaSlug, $sezonaSlug)
     {
-        $ligaSlug = sanitize_title((string) $ligaSlug);
-        $sezonaSlug = sanitize_title((string) $sezonaSlug);
-        if ($ligaSlug === '' || $sezonaSlug === '') {
-            return 4;
-        }
-
-        $rules = get_posts([
-            'post_type' => 'pravilo_takmicenja',
-            'numberposts' => 1,
-            'post_status' => ['publish', 'draft', 'pending', 'private'],
-            'fields' => 'ids',
-            'meta_query' => [
-                'relation' => 'AND',
-                ['key' => 'opentt_competition_league_slug', 'value' => $ligaSlug, 'compare' => '='],
-                ['key' => 'opentt_competition_season_slug', 'value' => $sezonaSlug, 'compare' => '='],
-            ],
-        ]) ?: [];
-        $ruleId = !empty($rules) ? intval($rules[0]) : 0;
-        if ($ruleId <= 0) {
-            return 4;
-        }
-
-        $format = sanitize_key((string) get_post_meta($ruleId, 'format_partija', true));
-        return $format === 'format_b' ? 7 : 4;
+        return self::matchFormatByCompetition($ligaSlug, $sezonaSlug) === 'format_b' ? 7 : 4;
     }
 
     public static function renderLeagueMatchGamesForm($matchId, $homeClubId, $awayClubId, $maxGames, $deps = [])
@@ -109,10 +166,11 @@ final class UserPortalLeagueGamesService
         }
 
         $match = $wpdb->get_row($wpdb->prepare("SELECT liga_slug,sezona_slug FROM {$matchesTable} WHERE id=%d LIMIT 1", $matchId));
-        $expectedDoublesOrder = self::expectedDoublesOrderByCompetition(
+        $matchFormat = self::matchFormatByCompetition(
             is_object($match) ? (string) ($match->liga_slug ?? '') : '',
             is_object($match) ? (string) ($match->sezona_slug ?? '') : ''
         );
+        $expectedDoublesOrder = $matchFormat === 'format_b' ? 7 : 4;
 
         $existingGames = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$gamesTable} WHERE match_id=%d ORDER BY order_no ASC, id ASC", $matchId)) ?: [];
         $gamesByOrder = [];
@@ -150,23 +208,41 @@ final class UserPortalLeagueGamesService
         $out .= wp_nonce_field('opentt_front_save_league_games_' . $matchId, '_wpnonce', true, false);
         $out .= '<input type="hidden" name="action" value="opentt_front_save_league_games">';
         $out .= '<input type="hidden" name="match_id" value="' . esc_attr((string) $matchId) . '">';
+        $out .= '<div class="opentt-league-lineup-box">';
+        $out .= '<div class="opentt-league-game-title">Sastavi za automatsko kreiranje partija</div>';
+        $out .= '<p class="description">Izaberi domaće (A/B/C) i gostujuće (X/Y/Z) igrače. Sistem popunjava singl partije po formatu lige, dubl ostaje prazan za ručni unos.</p>';
+        $out .= '<div class="opentt-inline-select-grid">';
+        $out .= '<label>Domaći A' . self::renderPlayerSelect('lineup[home_a]', $homePlayers, 0) . '</label>';
+        $out .= '<label>Domaći B' . self::renderPlayerSelect('lineup[home_b]', $homePlayers, 0) . '</label>';
+        $out .= '<label>Domaći C' . self::renderPlayerSelect('lineup[home_c]', $homePlayers, 0) . '</label>';
+        $out .= '<label>Domaći rezerva' . self::renderPlayerSelect('lineup[home_reserve]', $homePlayers, 0) . '</label>';
+        $out .= '<label>Gost Y' . self::renderPlayerSelect('lineup[away_y]', $awayPlayers, 0) . '</label>';
+        $out .= '<label>Gost X' . self::renderPlayerSelect('lineup[away_x]', $awayPlayers, 0) . '</label>';
+        $out .= '<label>Gost Z' . self::renderPlayerSelect('lineup[away_z]', $awayPlayers, 0) . '</label>';
+        $out .= '<label>Gost rezerva' . self::renderPlayerSelect('lineup[away_reserve]', $awayPlayers, 0) . '</label>';
+        $out .= '</div>';
+        $out .= '<div class="opentt-editor-media-row"><button type="button" class="button button-secondary opentt-apply-lineup-btn">Primeni sastave na partije</button></div>';
+        $out .= '</div>';
 
         for ($orderNo = 1; $orderNo <= $maxGames; $orderNo++) {
             $game = isset($gamesByOrder[$orderNo]) ? $gamesByOrder[$orderNo] : null;
             $gameId = $game ? intval($game->id ?? 0) : 0;
             $isDoubles = $game ? intval($game->is_doubles ?? 0) === 1 : ($orderNo === $expectedDoublesOrder);
+            $generatedPlayers = (!$game && !$isDoubles)
+                ? self::resolveGeneratedSinglesPlayers($orderNo, $matchFormat, [])
+                : [0, 0];
             $homeSets = $game ? intval($game->home_sets ?? 0) : 0;
             $awaySets = $game ? intval($game->away_sets ?? 0) : 0;
             $existingSets = ($gameId > 0 && isset($setsByGame[$gameId])) ? $setsByGame[$gameId] : [];
 
-            $out .= '<div class="opentt-league-game-card">';
+            $out .= '<div class="opentt-league-game-card" data-game-order="' . intval($orderNo) . '">';
             $out .= '<div class="opentt-league-game-title">Partija #' . intval($orderNo) . ($isDoubles ? ' (Dubl)' : '') . '</div>';
             $out .= '<input type="hidden" name="games[' . intval($orderNo) . '][order_no]" value="' . esc_attr((string) $orderNo) . '">';
             $out .= '<input type="hidden" name="games[' . intval($orderNo) . '][game_id]" value="' . esc_attr((string) $gameId) . '">';
             $out .= '<label class="opentt-auth-inline"><input type="checkbox" name="games[' . intval($orderNo) . '][is_doubles]" value="1"' . checked($isDoubles, true, false) . '> Dubl</label>';
             $out .= '<div class="opentt-inline-select-grid">';
-            $out .= '<label>Domaći igrač' . self::renderPlayerSelect('games[' . intval($orderNo) . '][home_player_post_id]', $homePlayers, $game ? intval($game->home_player_post_id ?? 0) : 0) . '</label>';
-            $out .= '<label>Gost igrač' . self::renderPlayerSelect('games[' . intval($orderNo) . '][away_player_post_id]', $awayPlayers, $game ? intval($game->away_player_post_id ?? 0) : 0) . '</label>';
+            $out .= '<label>Domaći igrač' . self::renderPlayerSelect('games[' . intval($orderNo) . '][home_player_post_id]', $homePlayers, $game ? intval($game->home_player_post_id ?? 0) : intval($generatedPlayers[0])) . '</label>';
+            $out .= '<label>Gost igrač' . self::renderPlayerSelect('games[' . intval($orderNo) . '][away_player_post_id]', $awayPlayers, $game ? intval($game->away_player_post_id ?? 0) : intval($generatedPlayers[1])) . '</label>';
             $out .= '<label>Domaći setovi<input type="number" min="0" max="7" name="games[' . intval($orderNo) . '][home_sets]" value="' . esc_attr((string) $homeSets) . '"></label>';
             $out .= '<label>Gost setovi<input type="number" min="0" max="7" name="games[' . intval($orderNo) . '][away_sets]" value="' . esc_attr((string) $awaySets) . '"></label>';
             $out .= '<label>Domaći igrač 2' . self::renderPlayerSelect('games[' . intval($orderNo) . '][home_player2_post_id]', $homePlayers, $game ? intval($game->home_player2_post_id ?? 0) : 0) . '</label>';
@@ -183,12 +259,14 @@ final class UserPortalLeagueGamesService
             $out .= '</div>';
         }
 
+        $template = self::lineupTemplateByFormat($matchFormat);
+        $out .= '<script>(function(){var form=document.currentScript&&document.currentScript.closest?document.currentScript.closest("form"):null;if(!form){return;}var btn=form.querySelector(".opentt-apply-lineup-btn");if(!btn){return;}var tpl=' . wp_json_encode($template) . ';function val(name){var el=form.querySelector("[name=\\"lineup["+name+"]\\"]");return el?String(el.value||""):"";}function pick(side,key){var direct=val(side+"_"+key);if(direct){return direct;}return val(side+"_reserve");}btn.addEventListener("click",function(){Object.keys(tpl).forEach(function(k){var row=tpl[k]||{};var card=form.querySelector(".opentt-league-game-card[data-game-order=\\""+k+"\\"]");if(!card){return;}var isD=!!row.doubles;var chk=card.querySelector("input[name=\\"games["+k+"][is_doubles]\\"]");if(chk){chk.checked=isD;}var h=card.querySelector("select[name=\\"games["+k+"][home_player_post_id]\\"]");var a=card.querySelector("select[name=\\"games["+k+"][away_player_post_id]\\"]");var h2=card.querySelector("select[name=\\"games["+k+"][home_player2_post_id]\\"]");var a2=card.querySelector("select[name=\\"games["+k+"][away_player2_post_id]\\"]");if(isD){if(h){h.value="";}if(a){a.value="";}if(h2){h2.value="";}if(a2){a2.value="";}return;}if(h){h.value=pick("home",String(row.home||""));}if(a){a.value=pick("away",String(row.away||""));}if(h2){h2.value="";}if(a2){a2.value="";}});});})();</script>';
         $out .= '<button type="submit" class="opentt-auth-btn">Sačuvaj partije</button>';
         $out .= '</form></section>';
         return $out;
     }
 
-    public static function applyFrontGamesBatchForMatch($match, array $postedGames, &$error = '', $deps = [])
+    public static function applyFrontGamesBatchForMatch($match, array $postedGames, &$error = '', $deps = [], array $lineup = [])
     {
         $tableExists = $deps['tableExists'];
 
@@ -211,7 +289,8 @@ final class UserPortalLeagueGamesService
         if ($maxGames <= 0) {
             $maxGames = 7;
         }
-        $expectedDoublesOrder = self::expectedDoublesOrderByCompetition((string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''));
+        $matchFormat = self::matchFormatByCompetition((string) ($match->liga_slug ?? ''), (string) ($match->sezona_slug ?? ''));
+        $expectedDoublesOrder = $matchFormat === 'format_b' ? 7 : 4;
 
         $existingRows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$gamesTable} WHERE match_id=%d", $matchId)) ?: [];
         $existingByOrder = [];
@@ -231,6 +310,15 @@ final class UserPortalLeagueGamesService
             $hs = max(0, intval($raw['home_sets'] ?? 0));
             $as = max(0, intval($raw['away_sets'] ?? 0));
             $isDoubles = isset($raw['is_doubles']) ? 1 : (($orderNo === $expectedDoublesOrder) ? 1 : 0);
+            if ($isDoubles !== 1 && ($hp <= 0 || $ap <= 0)) {
+                $generated = self::resolveGeneratedSinglesPlayers($orderNo, $matchFormat, $lineup);
+                if ($hp <= 0) {
+                    $hp = intval($generated[0] ?? 0);
+                }
+                if ($ap <= 0) {
+                    $ap = intval($generated[1] ?? 0);
+                }
+            }
 
             $setsRaw = isset($raw['sets']) && is_array($raw['sets']) ? $raw['sets'] : [];
             $setRows = [];
