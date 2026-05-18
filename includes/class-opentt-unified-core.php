@@ -2533,6 +2533,37 @@ HTML;
             wp_nonce_field('opentt_unified_save_games_batch');
             echo '<input type="hidden" name="action" value="opentt_unified_save_games_batch">';
             echo '<input type="hidden" name="match_id" value="' . (int) $match->id . '">';
+            echo '<div class="opentt-games-batch-row">';
+            echo '<h3>Sastavi za auto-popunu partija</h3>';
+            echo '<p class="description">Izaberi A/B/C i Y/X/Z (+ rezerve), pa klikni "Primeni sastave na partije". Dubl ostaje ručno.</p>';
+            echo '<div class="opentt-games-batch-grid">';
+            echo '<label>Domaći A';
+            echo self::players_dropdown_admin('lineup[home_a]', 0, (int) $match->home_club_post_id, false);
+            echo '</label>';
+            echo '<label>Domaći B';
+            echo self::players_dropdown_admin('lineup[home_b]', 0, (int) $match->home_club_post_id, false);
+            echo '</label>';
+            echo '<label>Domaći C';
+            echo self::players_dropdown_admin('lineup[home_c]', 0, (int) $match->home_club_post_id, false);
+            echo '</label>';
+            echo '<label>Rezerva domaći';
+            echo self::players_dropdown_admin('lineup[home_reserve]', 0, (int) $match->home_club_post_id, false);
+            echo '</label>';
+            echo '<label>Gost Y';
+            echo self::players_dropdown_admin('lineup[away_y]', 0, (int) $match->away_club_post_id, false);
+            echo '</label>';
+            echo '<label>Gost X';
+            echo self::players_dropdown_admin('lineup[away_x]', 0, (int) $match->away_club_post_id, false);
+            echo '</label>';
+            echo '<label>Gost Z';
+            echo self::players_dropdown_admin('lineup[away_z]', 0, (int) $match->away_club_post_id, false);
+            echo '</label>';
+            echo '<label>Rezerva gost';
+            echo self::players_dropdown_admin('lineup[away_reserve]', 0, (int) $match->away_club_post_id, false);
+            echo '</label>';
+            echo '</div>';
+            echo '<p><button type="button" class="button" id="opentt-apply-lineups">Primeni sastave na partije</button></p>';
+            echo '</div>';
 
             for ($n = 1; $n <= $max_games; $n++) {
                 $g = isset($games_by_order[$n]) ? $games_by_order[$n] : null;
@@ -2593,6 +2624,7 @@ HTML;
 
             submit_button('Sačuvaj sve partije', 'primary', 'submit', false);
             echo '</form>';
+            echo '<script>(function(){var btn=document.getElementById("opentt-apply-lineups");if(!btn){return;}var format=' . wp_json_encode((string) $match_format) . ';var doublesOrder=' . (int) $expected_doubles_order . ';var map=(format==="format_b")?{1:["A","Y"],2:["B","X"],3:["C","Z"],4:["A","X"],5:["C","Y"],6:["B","Z"]}:{1:["A","Y"],2:["B","X"],3:["C","Z"],5:["A","X"],6:["C","Y"],7:["B","Z"]};function v(name){var el=document.querySelector("[name=\\"" + name + "\\"]");return el?String(el.value||""):"";}function setVal(name,val){var el=document.querySelector("[name=\\"" + name + "\\"]");if(el){el.value=val;}}function slotVal(side,slot){if(side==="home"){if(slot==="A"){return v("lineup[home_a]");}if(slot==="B"){return v("lineup[home_b]");}if(slot==="C"){return v("lineup[home_c]");}return "";}if(slot==="Y"){return v("lineup[away_y]");}if(slot==="X"){return v("lineup[away_x]");}if(slot==="Z"){return v("lineup[away_z]");}return "";}btn.addEventListener("click",function(){var homeRes=v("lineup[home_reserve]");var awayRes=v("lineup[away_reserve]");for(var n=1;n<=7;n++){var isDoubles=(n===doublesOrder);var key="games["+n+"]";if(isDoubles){setVal(key+"[home_player_post_id]","");setVal(key+"[away_player_post_id]","");setVal(key+"[home_player2_post_id]","");setVal(key+"[away_player2_post_id]","");continue;}if(!map[n]){continue;}var hs=map[n][0],as=map[n][1];var hp=slotVal("home",hs)||homeRes||"";var ap=slotVal("away",as)||awayRes||"";setVal(key+"[home_player_post_id]",hp);setVal(key+"[away_player_post_id]",ap);setVal(key+"[home_player2_post_id]","");setVal(key+"[away_player2_post_id]","");}});})();</script>';
 
             echo '<div class="opentt-player-picker-modal" id="opentt-player-picker-modal" hidden>';
             echo '  <div class="opentt-player-picker-dialog" role="dialog" aria-modal="true" aria-label="Lista igrača">';

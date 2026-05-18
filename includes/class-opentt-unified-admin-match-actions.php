@@ -695,8 +695,9 @@ final class OpenTT_Unified_Admin_Match_Actions
         }
 
         $posted_games = isset($_POST['games']) && is_array($_POST['games']) ? $_POST['games'] : [];
+        $lineup = isset($_POST['lineup']) && is_array($_POST['lineup']) ? $_POST['lineup'] : [];
         $error = '';
-        $ok = self::apply_games_batch_for_match($match, $posted_games, $error);
+        $ok = self::apply_games_batch_for_match($match, $posted_games, $error, $lineup);
         if (!$ok) {
             $msg = $error !== '' ? $error : 'Greška pri čuvanju partija.';
             wp_safe_redirect(self::admin_notice_url(admin_url('admin.php?page=stkb-unified-add-match&action=edit&id=' . $match_id), 'error', $msg));
@@ -812,7 +813,7 @@ final class OpenTT_Unified_Admin_Match_Actions
         if ($decision === 'approve') {
             $posted_games = isset($_POST['games']) && is_array($_POST['games']) ? $_POST['games'] : [];
             $error = '';
-            $ok = self::apply_games_batch_for_match($match, $posted_games, $error);
+            $ok = self::apply_games_batch_for_match($match, $posted_games, $error, []);
             if (!$ok) {
                 $url = admin_url('admin.php?page=stkb-unified-pending-games&submission_id=' . $submission_id);
                 wp_safe_redirect(self::admin_notice_url($url, 'error', $error !== '' ? $error : 'Greška pri odobravanju partija.'));
@@ -1001,7 +1002,60 @@ final class OpenTT_Unified_Admin_Match_Actions
         return $decoded;
     }
 
-    private static function apply_games_batch_for_match($match, array $posted_games, &$error = '')
+    private static function lineup_template_by_format($match_format)
+    {
+        if ($match_format === 'format_b') {
+            return [
+                1 => ['A', 'Y'],
+                2 => ['B', 'X'],
+                3 => ['C', 'Z'],
+                4 => ['A', 'X'],
+                5 => ['C', 'Y'],
+                6 => ['B', 'Z'],
+            ];
+        }
+        return [
+            1 => ['A', 'Y'],
+            2 => ['B', 'X'],
+            3 => ['C', 'Z'],
+            5 => ['A', 'X'],
+            6 => ['C', 'Y'],
+            7 => ['B', 'Z'],
+        ];
+    }
+
+    private static function lineup_value(array $lineup, $key)
+    {
+        return isset($lineup[$key]) ? max(0, (int) $lineup[$key]) : 0;
+    }
+
+    private static function resolve_generated_singles_players($order_no, $match_format, array $lineup)
+    {
+        $tpl = self::lineup_template_by_format($match_format);
+        if (!isset($tpl[(int) $order_no])) {
+            return [0, 0];
+        }
+        list($home_slot, $away_slot) = $tpl[(int) $order_no];
+        $home_map = ['A' => 'home_a', 'B' => 'home_b', 'C' => 'home_c'];
+        $away_map = ['X' => 'away_x', 'Y' => 'away_y', 'Z' => 'away_z'];
+        $hp = 0;
+        $ap = 0;
+        if (isset($home_map[$home_slot])) {
+            $hp = self::lineup_value($lineup, $home_map[$home_slot]);
+            if ($hp <= 0) {
+                $hp = self::lineup_value($lineup, 'home_reserve');
+            }
+        }
+        if (isset($away_map[$away_slot])) {
+            $ap = self::lineup_value($lineup, $away_map[$away_slot]);
+            if ($ap <= 0) {
+                $ap = self::lineup_value($lineup, 'away_reserve');
+            }
+        }
+        return [$hp, $ap];
+    }
+
+    private static function apply_games_batch_for_match($match, array $posted_games, &$error = '', array $lineup = [])
     {
         global $wpdb;
         $error = '';
@@ -1036,6 +1090,16 @@ final class OpenTT_Unified_Admin_Match_Actions
             $hs = max(0, (int) ($raw['home_sets'] ?? 0));
             $as = max(0, (int) ($raw['away_sets'] ?? 0));
             $is_doubles = ($order_no === $expected_doubles_order) ? 1 : 0;
+
+            if (!$is_doubles && ($hp <= 0 || $ap <= 0) && !empty($lineup)) {
+                list($gen_hp, $gen_ap) = self::resolve_generated_singles_players($order_no, $match_format, $lineup);
+                if ($hp <= 0) {
+                    $hp = $gen_hp;
+                }
+                if ($ap <= 0) {
+                    $ap = $gen_ap;
+                }
+            }
 
             $sets_raw = isset($raw['sets']) && is_array($raw['sets']) ? $raw['sets'] : [];
             $set_rows = [];

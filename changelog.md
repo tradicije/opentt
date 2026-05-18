@@ -21,6 +21,7 @@ All notable changes to the LibreTT plugin are documented in this file.
 - Added `season`/`sezona`, `played`, `view`, `kolo`, `highlight`, and `author` support across match shortcodes where relevant.
 - Improved `opentt_matches_grid` with grouped rounds, compact/spacious density switching, calendar filtering, clickable calendar previews, winner/loser emphasis, highlight support, and scoped updater attribution.
 - Added new `opentt_matches_grid_alt` shortcode with full attribute compatibility to `opentt_matches_grid` and an alternate match-card layout (`score -> home ~ away -> sets`) without club crests.
+- Added wp-admin `Partije (batch unos)` lineup assistant inside `Uredi utakmicu`: operators can now set `A/B/C` and `Y/X/Z` (+ reserves) and auto-populate singles pairings by league format directly in admin, while doubles stays manual and every generated game remains editable before save.
 - Improved `opentt_matches_list` with contextual league-season navigation, no-refresh round switching, mobile-friendly layout, highlight support including `highlight="auto"`, report/video indicators, and updater attribution.
 - Improved match cards for played and upcoming matches so upcoming fixtures show kickoff time instead of placeholder `0:0` scores.
 - Added clickable club navigation to mini standings rows and match team cards.
