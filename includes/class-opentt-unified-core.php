@@ -2542,24 +2542,25 @@ HTML;
             echo '<p class="description"><strong>Limit partija po rezultatu:</strong> ' . esc_html((string) $max_games) . ' (rezultat ' . esc_html((string) ((int) $match->home_score)) . ':' . esc_html((string) ((int) $match->away_score)) . '). Trenutno uneto: ' . esc_html((string) $current_games) . '.</p>';
             echo '<p class="description">Unesi sve partije i setove odjednom, pa klikni <strong>Sačuvaj sve partije</strong>. Prazna partija se briše (ako je ranije postojala).</p>';
             echo '<p class="description">Dubl partija je automatski određena pravilima takmičenja: <strong>#' . (int) $expected_doubles_order . '</strong>.</p>';
-            echo '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:center;padding:12px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;margin:10px 0 14px 0;">';
-            echo '<div style="display:flex;gap:10px;align-items:center;">';
+            echo '<style>.opentt-admin-teams-overview{margin:10px 0 14px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;box-shadow:0 1px 2px rgba(15,23,42,.04)}.opentt-admin-teams-overview .meta{padding:10px 12px 4px;text-align:center;font-size:12px;color:#475569;font-weight:600}.opentt-admin-teams-overview .row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:8px 12px}.opentt-admin-teams-overview .team{display:flex;align-items:center;gap:10px;min-width:0}.opentt-admin-teams-overview .team.away{justify-content:flex-end}.opentt-admin-teams-overview .logo{width:42px;height:42px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;object-fit:cover;flex:0 0 auto}.opentt-admin-teams-overview .name{font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.opentt-admin-teams-overview .score{padding:6px 12px;border:1px solid #94a3b8;border-radius:10px;background:#fff;font-weight:800;font-size:20px;line-height:1;color:#1e293b}.opentt-admin-teams-overview .footer{padding:2px 12px 10px;text-align:center;font-size:12px;color:#64748b}</style>';
+            echo '<div class="opentt-admin-teams-overview">';
+            echo '<div class="meta">' . esc_html($league_label) . ' ~ ' . esc_html($season_label) . '</div>';
+            echo '<div class="row">';
+            echo '<div class="team home">';
             if (!empty($home_club_logo)) {
-                echo '<img src="' . esc_url((string) $home_club_logo) . '" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;">';
+                echo '<img src="' . esc_url((string) $home_club_logo) . '" alt="" class="logo">';
             }
-            echo '<strong>' . esc_html($home_club_name ?: 'Domaćin') . '</strong>';
+            echo '<span class="name">' . esc_html($home_club_name ?: 'Domaćin') . '</span>';
             echo '</div>';
-            echo '<div style="text-align:center;">';
-            echo '<div style="font-size:12px;color:#64748b;">' . esc_html($league_label) . ' ~ ' . esc_html($season_label) . '</div>';
-            echo '<div style="font-size:22px;font-weight:700;line-height:1.1;">' . esc_html((string) ((int) $match->home_score)) . ':' . esc_html((string) ((int) $match->away_score)) . '</div>';
-            echo '<div style="font-size:12px;color:#64748b;">' . esc_html($round_label) . ($date_label !== '' ? ' | ' . esc_html($date_label) : '') . '</div>';
-            echo '</div>';
-            echo '<div style="display:flex;gap:10px;align-items:center;justify-content:flex-end;">';
-            echo '<strong>' . esc_html($away_club_name ?: 'Gost') . '</strong>';
+            echo '<div class="score">' . esc_html((string) ((int) $match->home_score)) . ' : ' . esc_html((string) ((int) $match->away_score)) . '</div>';
+            echo '<div class="team away">';
+            echo '<span class="name">' . esc_html($away_club_name ?: 'Gost') . '</span>';
             if (!empty($away_club_logo)) {
-                echo '<img src="' . esc_url((string) $away_club_logo) . '" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;">';
+                echo '<img src="' . esc_url((string) $away_club_logo) . '" alt="" class="logo">';
             }
             echo '</div>';
+            echo '</div>';
+            echo '<div class="footer">' . esc_html($round_label) . ($date_label !== '' ? ' • ' . esc_html($date_label) : '') . '</div>';
             echo '</div>';
 
             echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-panel">';
