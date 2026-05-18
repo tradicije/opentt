@@ -1029,6 +1029,42 @@ final class OpenTT_Unified_Admin_Match_Actions
         return isset($lineup[$key]) ? max(0, (int) $lineup[$key]) : 0;
     }
 
+    private static function lineup_reserve_values(array $lineup, $key)
+    {
+        $out = [];
+        if (!isset($lineup[$key])) {
+            return $out;
+        }
+        $raw = $lineup[$key];
+        if (!is_array($raw)) {
+            $single = max(0, (int) $raw);
+            if ($single > 0) {
+                $out[] = $single;
+            }
+            return $out;
+        }
+        foreach ($raw as $v) {
+            $id = max(0, (int) $v);
+            if ($id > 0) {
+                $out[] = $id;
+            }
+        }
+        return array_values(array_unique($out));
+    }
+
+    private static function lineup_pick_with_reserve(array $lineup, $main_key, $reserve_array_key, $legacy_reserve_key)
+    {
+        $main = self::lineup_value($lineup, $main_key);
+        if ($main > 0) {
+            return $main;
+        }
+        $reserves = self::lineup_reserve_values($lineup, $reserve_array_key);
+        if (!empty($reserves)) {
+            return (int) $reserves[0];
+        }
+        return self::lineup_value($lineup, $legacy_reserve_key);
+    }
+
     private static function resolve_generated_singles_players($order_no, $match_format, array $lineup)
     {
         $tpl = self::lineup_template_by_format($match_format);
@@ -1041,16 +1077,10 @@ final class OpenTT_Unified_Admin_Match_Actions
         $hp = 0;
         $ap = 0;
         if (isset($home_map[$home_slot])) {
-            $hp = self::lineup_value($lineup, $home_map[$home_slot]);
-            if ($hp <= 0) {
-                $hp = self::lineup_value($lineup, 'home_reserve');
-            }
+            $hp = self::lineup_pick_with_reserve($lineup, $home_map[$home_slot], 'home_reserves', 'home_reserve');
         }
         if (isset($away_map[$away_slot])) {
-            $ap = self::lineup_value($lineup, $away_map[$away_slot]);
-            if ($ap <= 0) {
-                $ap = self::lineup_value($lineup, 'away_reserve');
-            }
+            $ap = self::lineup_pick_with_reserve($lineup, $away_map[$away_slot], 'away_reserves', 'away_reserve');
         }
         return [$hp, $ap];
     }
