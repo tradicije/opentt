@@ -2542,8 +2542,25 @@ HTML;
             echo '<p class="description"><strong>Limit partija po rezultatu:</strong> ' . esc_html((string) $max_games) . ' (rezultat ' . esc_html((string) ((int) $match->home_score)) . ':' . esc_html((string) ((int) $match->away_score)) . '). Trenutno uneto: ' . esc_html((string) $current_games) . '.</p>';
             echo '<p class="description">Unesi sve partije i setove odjednom, pa klikni <strong>Sačuvaj sve partije</strong>. Prazna partija se briše (ako je ranije postojala).</p>';
             echo '<p class="description">Dubl partija je automatski određena pravilima takmičenja: <strong>#' . (int) $expected_doubles_order . '</strong>.</p>';
-            echo '<style>.opentt-admin-teams-overview{margin:10px 0 14px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;box-shadow:0 1px 2px rgba(15,23,42,.04)}.opentt-admin-teams-overview .meta{padding:10px 12px 4px;text-align:center;font-size:12px;color:#475569;font-weight:600}.opentt-admin-teams-overview .row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:8px 12px}.opentt-admin-teams-overview .team{display:flex;align-items:center;gap:10px;min-width:0}.opentt-admin-teams-overview .team.away{justify-content:flex-end}.opentt-admin-teams-overview .logo{width:42px;height:42px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;object-fit:cover;flex:0 0 auto}.opentt-admin-teams-overview .name{font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.opentt-admin-teams-overview .score{padding:6px 12px;border:1px solid #94a3b8;border-radius:10px;background:#fff;font-weight:800;font-size:20px;line-height:1;color:#1e293b}.opentt-admin-teams-overview .footer{padding:2px 12px 10px;text-align:center;font-size:12px;color:#64748b}</style>';
-            echo '<div class="opentt-admin-teams-overview">';
+            echo '<style>
+                .opentt-admin-games-ui{display:flex;flex-direction:column;gap:12px}
+                .opentt-admin-teams-overview{border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+                .opentt-admin-teams-overview .meta{padding:10px 12px 4px;text-align:center;font-size:12px;color:#475569;font-weight:600}
+                .opentt-admin-teams-overview .row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:8px 12px}
+                .opentt-admin-teams-overview .team{display:flex;align-items:center;gap:10px;min-width:0}
+                .opentt-admin-teams-overview .team.away{justify-content:flex-end}
+                .opentt-admin-teams-overview .logo{width:42px;height:42px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;object-fit:cover;flex:0 0 auto}
+                .opentt-admin-teams-overview .name{font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+                .opentt-admin-teams-overview .score{padding:6px 12px;border:1px solid #94a3b8;border-radius:10px;background:#fff;font-weight:800;font-size:20px;line-height:1;color:#1e293b}
+                .opentt-admin-teams-overview .footer{padding:2px 12px 10px;text-align:center;font-size:12px;color:#64748b}
+                .opentt-admin-lineup{border:1px solid #e2e8f0;border-radius:12px;background:#fff;padding:12px}
+                .opentt-admin-lineup-head{margin:0 0 10px 0}
+                .opentt-admin-lineup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+                .opentt-admin-lineup-col{display:flex;flex-direction:column;gap:8px}
+                .opentt-admin-lineup-col h4{margin:0 0 2px 0}
+            </style>';
+            echo '<div class="opentt-admin-games-ui">';
+            echo '<section class="opentt-admin-teams-overview">';
             echo '<div class="meta">' . esc_html($league_label) . ' ~ ' . esc_html($season_label) . '</div>';
             echo '<div class="row">';
             echo '<div class="team home">';
@@ -2561,19 +2578,20 @@ HTML;
             echo '</div>';
             echo '</div>';
             echo '<div class="footer">' . esc_html($round_label) . ($date_label !== '' ? ' • ' . esc_html($date_label) : '') . '</div>';
-            echo '</div>';
+            echo '</section>';
 
             echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="opentt-panel">';
             wp_nonce_field('opentt_unified_save_games_batch');
             echo '<input type="hidden" name="action" value="opentt_unified_save_games_batch">';
             echo '<input type="hidden" name="match_id" value="' . (int) $match->id . '">';
-            echo '<div class="opentt-games-batch-row">';
-            echo '<h3>Sastavi za auto-popunu partija</h3>';
-            echo '<p class="description">Levo domaći (A/B/C + više rezervi), desno gosti (Y/X/Z + više rezervi).</p>';
-            echo '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">';
-            echo '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px;">';
-            echo '<h4 style="margin:0 0 8px 0;">Domaćin</h4>';
-            echo '<div style="display:flex;flex-direction:column;gap:8px;">';
+            echo '<section class="opentt-admin-lineup">';
+            echo '<div class="opentt-admin-lineup-head">';
+            echo '<h3 style="margin:0;">Sastavi za auto-popunu partija</h3>';
+            echo '<p class="description" style="margin:6px 0 0;">Levo domaći (A/B/C + više rezervi), desno gosti (Y/X/Z + više rezervi).</p>';
+            echo '</div>';
+            echo '<div class="opentt-admin-lineup-grid">';
+            echo '<fieldset class="opentt-admin-lineup-col">';
+            echo '<h4>Domaćin</h4>';
             echo '<label>A';
             echo self::players_dropdown_admin('lineup[home_a]', 0, (int) $match->home_club_post_id, false);
             echo '</label>';
@@ -2592,11 +2610,9 @@ HTML;
             echo '<label>Rezerva 3';
             echo self::players_dropdown_admin('lineup[home_reserves][]', 0, (int) $match->home_club_post_id, false);
             echo '</label>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px;">';
-            echo '<h4 style="margin:0 0 8px 0;text-align:right;">Gost</h4>';
-            echo '<div style="display:flex;flex-direction:column;gap:8px;">';
+            echo '</fieldset>';
+            echo '<fieldset class="opentt-admin-lineup-col">';
+            echo '<h4>Gost</h4>';
             echo '<label>Y';
             echo self::players_dropdown_admin('lineup[away_y]', 0, (int) $match->away_club_post_id, false);
             echo '</label>';
@@ -2615,12 +2631,10 @@ HTML;
             echo '<label>Rezerva 3';
             echo self::players_dropdown_admin('lineup[away_reserves][]', 0, (int) $match->away_club_post_id, false);
             echo '</label>';
+            echo '</fieldset>';
             echo '</div>';
-            echo '</div>';
-            echo '</label>';
-            echo '</div>';
-            echo '<p><button type="button" class="button" id="opentt-apply-lineups">Primeni sastave na partije</button></p>';
-            echo '</div>';
+            echo '<p style="margin:10px 0 0;"><button type="button" class="button" id="opentt-apply-lineups">Primeni sastave na partije</button></p>';
+            echo '</section>';
 
             for ($n = 1; $n <= $max_games; $n++) {
                 $g = isset($games_by_order[$n]) ? $games_by_order[$n] : null;
@@ -2688,6 +2702,7 @@ HTML;
 
             submit_button('Sačuvaj sve partije', 'primary', 'submit', false);
             echo '</form>';
+            echo '</div>';
             echo '<script>(function(){var btn=document.getElementById("opentt-apply-lineups");if(!btn){return;}var format=' . wp_json_encode((string) $match_format) . ';var doublesOrder=' . (int) $expected_doubles_order . ';var map=(format==="format_b")?{1:["A","Y"],2:["B","X"],3:["C","Z"],4:["A","X"],5:["C","Y"],6:["B","Z"]}:{1:["A","Y"],2:["B","X"],3:["C","Z"],5:["A","X"],6:["C","Y"],7:["B","Z"]};function v(name){var el=document.querySelector("[name=\\"" + name + "\\"]");return el?String(el.value||""):"";}function setVal(name,val){var el=document.querySelector("[name=\\"" + name + "\\"]");if(el){el.value=val;}}function values(name){return Array.prototype.slice.call(document.querySelectorAll("[name=\\"" + name + "\\"]")).map(function(el){return String(el.value||"");}).filter(Boolean);}function first(arr){return arr.length?arr[0]:"";}function slotVal(side,slot){if(side==="home"){if(slot==="A"){return v("lineup[home_a]");}if(slot==="B"){return v("lineup[home_b]");}if(slot==="C"){return v("lineup[home_c]");}return "";}if(slot==="Y"){return v("lineup[away_y]");}if(slot==="X"){return v("lineup[away_x]");}if(slot==="Z"){return v("lineup[away_z]");}return "";}btn.addEventListener("click",function(){var homeRes=first(values("lineup[home_reserves][]"))||v("lineup[home_reserve]");var awayRes=first(values("lineup[away_reserves][]"))||v("lineup[away_reserve]");for(var n=1;n<=7;n++){var isDoubles=(n===doublesOrder);var key="games["+n+"]";if(isDoubles){setVal(key+"[home_player_post_id]","");setVal(key+"[away_player_post_id]","");setVal(key+"[home_player2_post_id]","");setVal(key+"[away_player2_post_id]","");continue;}if(!map[n]){continue;}var hs=map[n][0],as=map[n][1];var hp=slotVal("home",hs)||homeRes||"";var ap=slotVal("away",as)||awayRes||"";setVal(key+"[home_player_post_id]",hp);setVal(key+"[away_player_post_id]",ap);setVal(key+"[home_player2_post_id]","");setVal(key+"[away_player2_post_id]","");}});})();</script>';
 
             echo '<div class="opentt-player-picker-modal" id="opentt-player-picker-modal" hidden>';
